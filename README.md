@@ -1,6 +1,6 @@
-# MGU Styles
+# mgu-styles2
 
-Custom instrument clusters for BMW iDrive 7 (MGU), an app by **#tunedbywali**.
+MGU Styles: custom instrument clusters for BMW iDrive 7 (MGU), an app by **#tunedbywali**.
 Three styles you switch between on iDrive:
 
 - **Toro** — after a modern Lamborghini: a wide rev band, a big gear
@@ -20,7 +20,7 @@ middle, and each has its own settings on the app's page.
 > warranty. The car's own warning lights and its gear display are never
 > covered. Test it parked. You use it entirely at your own risk.
 
-This is version **0.9.1**. What changed in each version is in
+This is version **0.9.2**. What changed in each version is in
 [CHANGELOG.md](CHANGELOG.md).
 
 ## What you need
@@ -34,7 +34,7 @@ This is version **0.9.1**. What changed in each version is in
 ## Installing
 
 1. In the MGU Store, add this repository as a source.
-2. Install **MGU Styles**.
+2. Install **mgu-styles2**.
 3. Open it from iDrive's menu. It is **off** after install: nothing on
    your cluster changes until you press the switch on the **CLUSTER** tab.
 
@@ -50,8 +50,9 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 
 - **GENERAL**: on / off, start with the car, the style, units, your car,
   redline and limiter, the limiter flash, BMW's bottom strip (show, trim
-  or hide it), readings with or without BeeM-Flash, the holiday theme, the
-  start-up message.
+  or hide it), readings with or without BeeM-Flash, **electric range** for
+  plug-in hybrids and electric cars (off until you turn it on), the
+  holiday theme, the start-up message.
 - **TORO / M SPORT / M SPORT PLUS**: each style's own — what its middle
   shows and how much of it, colours, the gear, the footer's readings.
 

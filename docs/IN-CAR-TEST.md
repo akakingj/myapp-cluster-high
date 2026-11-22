@@ -46,6 +46,19 @@ the gear (F1).
 A photograph of the whole cluster for F1, F3 (*Most*), F5, F6 and F9 is the
 most useful thing to send back.
 
+## Electric range (0.9.2) — for a plug-in hybrid or an electric car
+
+Never run on such a car: every line here is a question. Off by default;
+*GENERAL → Electric range*.
+
+| # | Check | Expect |
+|---|---|---|
+| V1 | Setting off (as it comes), any car | Nothing different anywhere |
+| V2 | Plug-in hybrid, *Plug-in hybrid*, Toro | The lower left gauge reads **ELETTRICO MI** (or KM): its figure the electric range, its bar the battery's charge. **Compare the figure with BMW's own electric range and say both numbers** |
+| V3 | The same, M Sport, a footer place on *Electric range* and another on *Drive battery charge* | `EV 27 mi` and `CHARGE 78`, agreeing with BMW's own |
+| V4 | Electric car, *Electric car* | Toro: the fuel gauge's place reads ELETTRICO. M styles: the footer's range is the electric range, the fuel strip the charge |
+| V5 | Any of them showing `--` | Say which car and which reading: its cluster is not sent that signal, or sends it differently |
+
 ## Beta 5 — readings without BeeM-Flash
 
 For a car **with** BeeM-Flash, E0 – E2. For a car **without** it (or with

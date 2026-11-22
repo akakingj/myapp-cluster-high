@@ -4,7 +4,28 @@
 Each earlier release is kept on a branch of its own name. To go back to
 one: `git checkout <branch>`, or point the Store's source at that branch.
 
-## Beta 6 — `main`, app version 0.9.1
+## Beta 6 — `main`, app version 0.9.2
+
+**0.9.2: electric range, for plug-in hybrids and electric cars** — asked
+for by their owners, and **off unless turned on**, because it has never
+been on such a car. *GENERAL → Electric range*: *Plug-in hybrid* (the
+electric range as well as the fuel's) or *Electric car* (in place of it).
+
+- Toro: it takes one side gauge's place — oil pressure on a hybrid, the
+  fuel gauge on an electric car, or the one you choose. The bar is the
+  drive battery's charge, the figure the range.
+- M Sport and M Sport Plus: two new footer readings, *Electric range* and
+  *Drive battery charge*; on an electric car the footer's own range place
+  carries the electric range and the fuel strip the battery's charge.
+- Read from two signals the cluster is sent, as Vizualyse/idrive-apps reads
+  them. Their scaling is unconfirmed upstream and here: a figure that does
+  not match BMW's own is to be reported, not trusted. A head unit without
+  the signals installs and runs as before.
+- The page's title follows the app's name, and a public release can carry
+  a name of its own (`npm run release -- --name ...`); the app's id, and so
+  its settings and updates, stay the same.
+- 190 tests (4 more).
+
 
 **0.9.1, for the public release:** the start-up message is now part of how
 the app comes. A new install shows ***MGU Styles an app by #tunedbywali***

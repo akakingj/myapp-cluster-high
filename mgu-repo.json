@@ -5,7 +5,7 @@
       "id": "mgustyles_toro",
       "kind": "app",
       "path": "apps/mgustyles_toro",
-      "title": "MGU Styles",
+      "title": "mgu-styles2",
       "description": "Three instrument clusters drawn over the whole iDrive 7 cluster: Toro (Lamborghini Huracan), M Sport (BMW M View) and M Sport Plus (M stripes, a wide picture in the centre). The phone's map, BMW's own map or Turn View's camera in the middle of each. Off until you turn it on.",
       "mguHmi": [
         "ID7"
