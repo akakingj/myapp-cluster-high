@@ -83,16 +83,47 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 
 ![The M styles' window, standard and larger](docs/screenshots/m-centre-size.png)
 
+## Trimming or hiding BMW's bottom strip
+
+BMW's own cluster keeps a strip along the bottom of the screen: range,
+clock, street name, driving mode, gear and outside temperature. As it
+comes, MGU Styles leaves all of it showing under the style. To show less
+of it:
+
+1. Open the app from iDrive's menu.
+2. Choose the **GENERAL** tab along the top.
+3. Scroll to **BMW's bottom strip** and press it.
+4. Pick one:
+
+| Choice | What you get |
+|---|---|
+| **Show all of it** | The strip as BMW draws it (how the app comes) |
+| **Trim its top edge: 6 px / 12 px / 18 px** | The style runs a little further down and covers that much of the strip's top edge. Use this if a line of BMW's own cluster shows between the style and the strip; try 6 first, then more |
+| **Hide it (BMW's own gear letter stays)** | Everything in the strip is covered in black except BMW's gear letter |
+| **Hide it, a wider gap left beside the gear** | The same, with more room left open around the gear letter. The end of a long driving-mode name (the T of COMFORT) shows in that gap |
+
+The change shows on the cluster within about half a second, for every
+style. Nothing is set on the cluster itself.
+
+**BMW's gear letter always stays.** It cannot be hidden: if it is covered,
+BMW's cluster draws a black box in the rev dial instead. Warning lamps
+still show over the covered strip.
+
+With the strip hidden, the M styles' footer can carry what it showed:
+**M SPORT** or **M SPORT PLUS** tab → *Footer, left / middle / right* (time,
+range, outside temperature and more), and *The gear's place shows* if you
+would rather not see the gear twice.
+
 ![BMW's bottom strip at each setting](docs/screenshots/strip.png)
 
 (The pictures are the app's own preview, not photographs of a car.)
 
-## If a black box appears in the rev dial
+### If a black box appears in the rev dial
 
-BMW's cluster draws one when its gear letter is covered. MGU Styles never
-covers it, but if you see one after choosing *BMW's bottom strip → Hide
-it*: choose *Hide it, a wider gap left beside the gear*, lock the car and
-let it sleep once — and please report it.
+It should not: the app never covers the gear letter. If you see one after
+choosing *Hide it*, choose *Hide it, a wider gap left beside the gear*,
+lock the car and let it sleep once (the box can stay until the cluster
+restarts) — and please report it, with your car and model year.
 
 ## Tell me how it goes
 
