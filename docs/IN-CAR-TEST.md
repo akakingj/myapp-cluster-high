@@ -57,6 +57,8 @@ Never run on such a car: every line here is a question. Off by default;
 | V2 | Plug-in hybrid, *Plug-in hybrid*, Toro | The lower left gauge reads **ELETTRICO MI** (or KM): its figure the electric range, its bar the battery's charge. **Compare the figure with BMW's own electric range and say both numbers** |
 | V3 | The same, M Sport, a footer place on *Electric range* and another on *Drive battery charge* | `EV 27 mi` and `CHARGE 78`, agreeing with BMW's own |
 | V4 | Electric car, *Electric car* | Toro: the fuel gauge's place reads ELETTRICO. M styles: the footer's range is the electric range, the fuel strip the charge |
+| V4b | Fully electric, Toro's upper left gauge and the M styles' right strip | **TEMP. BATT.** / a scale of 14 – 140 °F (−10 – 60 °C): the drive battery's temperature. **Say what it reads and whether that is believable** (near outside temperature after a night parked) |
+| V6 | Speed Limit Info on, a limit showing, *Cover the speed limit sign's edge* on | The red arc right of the strip's clock is gone; the clock, and everything else in BMW's strip, is whole. **If the arc is elsewhere or still shows, a photograph** |
 | V5 | Any of them showing `--` | Say which car and which reading: its cluster is not sent that signal, or sends it differently |
 
 ## Beta 5 — readings without BeeM-Flash

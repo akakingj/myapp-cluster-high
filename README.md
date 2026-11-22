@@ -20,7 +20,7 @@ middle, and each has its own settings on the app's page.
 > warranty. The car's own warning lights and its gear display are never
 > covered. Test it parked. You use it entirely at your own risk.
 
-This is version **0.9.2**. What changed in each version is in
+This is version **0.9.3**. What changed in each version is in
 [CHANGELOG.md](CHANGELOG.md).
 
 ## What you need
@@ -72,8 +72,10 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 - **GENERAL**: on / off, start with the car, the style, units, your car,
   redline and limiter, the limiter flash, BMW's bottom strip (show, trim
   or hide it), readings with or without BeeM-Flash, **electric range** for
-  plug-in hybrids and electric cars (off until you turn it on), the
-  holiday theme, the start-up message.
+  plug-in hybrids and fully electric cars (off until you turn it on: a
+  hybrid gets its electric range beside the fuel's; a fully electric car
+  gets range, charge and battery temperature in place of fuel and oil),
+  the holiday theme, the start-up message.
 - **TORO / M SPORT / M SPORT PLUS**: each style's own — what its middle
   shows and how much of it, colours, the gear, the footer's readings.
 
@@ -104,6 +106,11 @@ of it:
 
 The change shows on the cluster within about half a second, for every
 style. Nothing is set on the cluster itself.
+
+**If the top of BMW's speed limit sign shows under the style** (a small
+red arc right of the strip's clock, with Speed Limit Info on): GENERAL →
+**Cover the speed limit sign's edge in BMW's strip**. It covers that spot
+alone and leaves the rest of the strip as you have it.
 
 **BMW's gear letter always stays.** It cannot be hidden: if it is covered,
 BMW's cluster draws a black box in the rev dial instead. Warning lamps

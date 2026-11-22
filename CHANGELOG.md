@@ -4,7 +4,26 @@
 Each earlier release is kept on a branch of its own name. To go back to
 one: `git checkout <branch>`, or point the Store's source at that branch.
 
-## Beta 6 — `main`, app version 0.9.2
+## Beta 6 — `main`, app version 0.9.3
+
+**0.9.3: from the first plug-in hybrid.** A tester's photographs showed
+the electric range right (21 mi beside BMW's own 34 km), and asked for
+two things.
+
+- **Fully electric cars get their own gauges.** With *Electric range* on
+  *Fully electric*: Toro's fuel gauge is the electric range and its oil
+  temperature gauge the **drive battery's temperature**; the M styles' fuel
+  strip is the charge and their oil strip the battery's temperature (−10
+  to 60 °C), without the pump and the oil can. A footer place can show
+  *Drive battery temperature* on any car with the setting on. Hybrids and
+  everything else are as they were.
+- **Cover the speed limit sign's edge in BMW's strip** (GENERAL, off as it
+  comes). With Speed Limit Info showing, the top of BMW's sign stood up out
+  of the strip under the style; this covers that spot alone - 90 px right
+  of the clock, down to the row above the strip's figures - and nothing
+  else of the strip. Placed from one photograph.
+- 192 tests (2 more).
+
 
 **0.9.2: electric range, for plug-in hybrids and electric cars** — asked
 for by their owners, and **off unless turned on**, because it has never

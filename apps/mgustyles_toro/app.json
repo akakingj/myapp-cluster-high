@@ -2,7 +2,7 @@
   "id": "mgustyles_toro",
   "title": "mgu-styles2",
   "vendor": "MGU-Styles",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "loggingId": "TORO",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; and M Sport Plus, the same dials round the M stripes with a wide picture in the centre. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
@@ -68,7 +68,8 @@
     },
     "de.bmw.infotainment.drivingexcitement.Efficiencytainment2": {
       "statusChargeOfBatteryHybrid": "rs",
-      "_optional": "The drive battery's charge, on a plug-in hybrid or an electric car"
+      "statusBatteryTemperature": "rs",
+      "_optional": "The drive battery's charge and temperature, on a plug-in hybrid or an electric car"
     },
     "de.bmw.infrastructure.EnvironmentalInformation": {
       "ExteriorTemperature": "s",
@@ -411,6 +412,13 @@
       "tab": "general"
     },
     {
+      "key": "signCover",
+      "label": "Cover the speed limit sign's edge in BMW's strip",
+      "type": "bool",
+      "default": false,
+      "tab": "general"
+    },
+    {
       "key": "beemFlash",
       "type": "choice",
       "default": "auto",
@@ -447,7 +455,7 @@
         ],
         [
           "bev",
-          "Electric car: electric range in place of fuel range"
+          "Fully electric: range, charge and battery temperature in place of fuel and oil"
         ]
       ],
       "tab": "general"
@@ -1315,6 +1323,10 @@
           "Drive battery charge"
         ],
         [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
           "off",
           "Nothing"
         ]
@@ -1379,6 +1391,10 @@
           "Drive battery charge"
         ],
         [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
           "off",
           "Nothing"
         ]
@@ -1441,6 +1457,10 @@
         [
           "charge",
           "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
         ],
         [
           "off",
@@ -1640,6 +1660,10 @@
           "Drive battery charge"
         ],
         [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
           "off",
           "Nothing"
         ]
@@ -1704,6 +1728,10 @@
           "Drive battery charge"
         ],
         [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
           "off",
           "Nothing"
         ]
@@ -1766,6 +1794,10 @@
         [
           "charge",
           "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
         ],
         [
           "off",
