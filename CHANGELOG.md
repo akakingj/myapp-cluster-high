@@ -4,7 +4,19 @@
 Each earlier release is kept on a branch of its own name. To go back to
 one: `git checkout <branch>`, or point the Store's source at that branch.
 
-## Beta 6 — `main`, app version 0.9.3
+## Beta 6 — `main`, app version 0.9.4
+
+**0.9.4.**
+
+- **A new install trims 18 px of BMW's bottom strip**, in every style: the
+  most a trim can be, which hides whatever of BMW's own cluster shows
+  between a style and the strip's figures. An install that is already set
+  up keeps what it has; *Show all of it* is still there.
+- **One speed or two in the M styles.** The M View shows both, mph and
+  km/h; *Second speed underneath → One speed only* leaves the one in the
+  units chosen - km/h alone with *Units* on km/h. Each M style has its own.
+- 193 tests (1 more).
+
 
 **0.9.3: from the first plug-in hybrid.** A tester's photographs showed
 the electric range right (21 mi beside BMW's own 34 km), and asked for

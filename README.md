@@ -20,7 +20,7 @@ middle, and each has its own settings on the app's page.
 > warranty. The car's own warning lights and its gear display are never
 > covered. Test it parked. You use it entirely at your own risk.
 
-This is version **0.9.3**. What changed in each version is in
+This is version **0.9.4**. What changed in each version is in
 [CHANGELOG.md](CHANGELOG.md).
 
 ## What you need
@@ -78,6 +78,9 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
   the holiday theme, the start-up message.
 - **TORO / M SPORT / M SPORT PLUS**: each style's own — what its middle
   shows and how much of it, colours, the gear, the footer's readings.
+  **km/h only** in an M style: *GENERAL → Units → km/h*, then on the
+  style's tab *Second speed underneath → One speed only* (the M View
+  otherwise shows mph and km/h together).
 
 ![Toro's map opening in its three sizes](docs/screenshots/toro-opening.png)
 
@@ -89,8 +92,9 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 
 BMW's own cluster keeps a strip along the bottom of the screen: range,
 clock, street name, driving mode, gear and outside temperature. As it
-comes, MGU Styles leaves all of it showing under the style. To show less
-of it:
+comes, MGU Styles trims 18 px off its top edge, so nothing of BMW's own
+cluster shows between the style and the strip's figures. To show more of
+it, or less:
 
 1. Open the app from iDrive's menu.
 2. Choose the **GENERAL** tab along the top.
@@ -99,8 +103,8 @@ of it:
 
 | Choice | What you get |
 |---|---|
-| **Show all of it** | The strip as BMW draws it (how the app comes) |
-| **Trim its top edge: 6 px / 12 px / 18 px** | The style runs a little further down and covers that much of the strip's top edge. Use this if a line of BMW's own cluster shows between the style and the strip; try 6 first, then more |
+| **Show all of it** | The strip as BMW draws it |
+| **Trim its top edge: 6 px / 12 px / 18 px** | The style runs a little further down and covers that much of the strip's top edge. The app comes with 18, the most a trim can be |
 | **Hide it (BMW's own gear letter stays)** | Everything in the strip is covered in black except BMW's gear letter |
 | **Hide it, a wider gap left beside the gear** | The same, with more room left open around the gear letter. The end of a long driving-mode name (the T of COMFORT) shows in that gap |
 
