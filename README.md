@@ -33,10 +33,31 @@ This is version **0.9.2**. What changed in each version is in
 
 ## Installing
 
-1. In the MGU Store, add this repository as a source.
+1. In the MGU Store, choose *Add source* and type exactly:
+
+   ```
+   waliworld/MGU-Styles2
+   ```
+
+   That is all: no `https://`, no spaces, a hyphen (not an underscore),
+   and the **2** on the end. Capitals do not matter. The Store checks the
+   repository and adds it on its `main` branch.
 2. Install **mgu-styles2**.
 3. Open it from iDrive's menu. It is **off** after install: nothing on
    your cluster changes until you press the switch on the **CLUSTER** tab.
+
+**If the Store will not add it**, its status line says why:
+
+| It says | What it means | What to do |
+|---|---|---|
+| `Not owner/repo or https://host/path` | What was typed is not a repository's name | Type it again exactly as above |
+| `Not found or private` | No such public repository: nearly always a typing slip, most often the **2** left off the end | Type it again exactly as above. Do not sign in or add a token: none is needed |
+| `GitHub limit reached. Try later or sign in.` | GitHub allows only so many unsigned requests an hour from one internet connection (a phone hotspot shares its with others) | Wait an hour, or use *Sign in with GitHub* in the Store |
+| `Add source failed: Offline` | The head unit has no internet | Connect it (hotspot or the Store's uplink) and try again |
+| `... is already a source` | It was added before | Nothing: look for **mgu-styles2** in the Store's list |
+
+If you added an earlier address for this app (`waliworld/MGU-Styles`,
+without the 2), remove that source: it is no longer public.
 
 To get BMW's own cluster back at any time: the same switch. A key-off
 hands it back too, and a head-unit restart always does.
