@@ -4,7 +4,28 @@
 Each earlier release is kept on a branch of its own name. To go back to
 one: `git checkout <branch>`, or point the Store's source at that branch.
 
-## Beta 6 — `main`, app version 0.9.4
+## Beta 6 — `main`, app version 0.9.5
+
+**0.9.5: M Sport Plus, *Centre picture: how much shows → Fullest*.** Asked
+for from a picture of *More*: the spot between its open areas was shut,
+and its top and foot ended on a short fade.
+
+- **One blended picture.** The picture's strength is a single smooth field
+  over the middle: the glass thins by it everywhere - the black between
+  the plates too - and a plate is gone once the picture is at three tenths
+  of its strength. The plate above the speed, the strip of the centre
+  plate beside it and the cut between them are one picture now, fading out
+  to the left as the right side fades.
+- **Softer at the top and the foot, and further down.** In over 28 units
+  from the top (12 before), out over 66 down to 59 units under the plates'
+  foot, above the footer. Not further up: the picture's own top edge is
+  where the plates begin, and there is none above it.
+- **The speeds and the gear keep their own ground**: a soft-edged pad round
+  each, sized to what is shown there - smaller with one speed, none with
+  the gear's place empty. No readout stands on the picture, as before.
+- Standard and More are untouched; M Sport has no such setting.
+- 195 tests (2 more).
+
 
 **0.9.4.**
 

@@ -20,7 +20,7 @@ middle, and each has its own settings on the app's page.
 > warranty. The car's own warning lights and its gear display are never
 > covered. Test it parked. You use it entirely at your own risk.
 
-This is version **0.9.4**. What changed in each version is in
+This is version **0.9.5**. What changed in each version is in
 [CHANGELOG.md](CHANGELOG.md).
 
 ## What you need
@@ -87,6 +87,11 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 ![Toro's gear numeral](docs/screenshots/toro-gear.png)
 
 ![The M styles' window, standard and larger](docs/screenshots/m-centre-size.png)
+
+**M Sport Plus** has a third size, *Fullest*: one blended picture across
+the middle, soft at every edge and reaching further down, with the speed
+and the gear kept on dark ground. M SPORT PLUS tab → *Centre picture: how
+much shows*.
 
 ## Trimming or hiding BMW's bottom strip
 
