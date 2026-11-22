@@ -81,12 +81,47 @@ is most useful to check.
 
 ## Licence
 
-**This is not open source, and the source is not published.** You may
-install the app, unmodified, on your own car and use it for yourself, and
-send feedback. You may not copy, modify, decompile for reuse, redistribute
+**MGU Styles is currently free, and open for public testing, without its
+source code.** You may install the app, unmodified, on your own car and
+use it for yourself, and send feedback. You may not copy, modify, decompile for reuse, redistribute
 or sell it, or use any part of it in something else. The terms are in
 [LICENSE](LICENSE).
 
 Parts that are other people's keep their own licences: the MGU App Kit in
 `kit/` (MIT), `cluster_render_client.js` (MPL 2.0) and the typefaces
 (SIL OFL 1.1) — see `apps/mgustyles_toro/NOTICE`.
+
+## Credits
+
+MGU Styles stands on what others built and worked out, mostly on their
+own cars. Thank you to:
+
+- **Robert Nisipeanu** —
+  [robertnisipeanu/idrive-apps](https://github.com/robertnisipeanu/idrive-apps):
+  `cluster-render`, the renderer every cluster app draws through, and its
+  protocol; *Maps on cluster*, which puts the phone's map on the cluster;
+  and the [MGU Store](https://github.com/robertnisipeanu/mgu-store), which
+  installs all of it.
+- **[ALMSTRA/idv7lol](https://github.com/ALMSTRA/idv7lol)** — the rule that
+  a cluster theme ends above BMW's bottom strip, the shader limits, boost
+  readings, and the copy of the MGU App Kit used here.
+- **[cauliflowermossgrape/idrive7-apps](https://github.com/cauliflowermossgrape/idrive7-apps)**
+  — the **MGU App Kit** (MIT) that runs and packages the app, and the
+  engine readings' identifiers.
+- **[Vizualyse/idrive-apps](https://github.com/Vizualyse/idrive-apps)** — the
+  measurements of the cluster's panel: that only the gear's window in
+  BMW's strip must stay uncovered, the glass's cut corners, where the
+  warning lamps stand.
+- **[IterioDev/car-apps](https://github.com/IterioDev/car-apps)** — Turn
+  View, whose front camera and next turn can show in the middle (used as
+  installed; nothing of it is in this app).
+- **[bimmer-lab/apps](https://github.com/bimmer-lab/apps)** — a map inside
+  a cluster theme, and where BMW's map sits on the panel.
+- **[ZEKAI-Design/ID7-Cluster-Themes](https://github.com/ZEKAI-Design/ID7-Cluster-Themes)**
+  and **[NamelsMissing/mgu-apps](https://github.com/NamelsMissing/mgu-apps)**
+  — app structure, signal catalogues and layout practice.
+- The typefaces: **Saira**, **Chakra Petch**, **Michroma**, **Barlow
+  Condensed**, **Barlow Semi Condensed** and **Inter Tight** (SIL Open Font
+  License 1.1).
+
+None of them is responsible for this app, and none endorses it.
