@@ -4,7 +4,52 @@
 Each earlier release is kept on a branch of its own name. To go back to
 one: `git checkout <branch>`, or point the Store's source at that branch.
 
-## Beta 6 — `main`, app version 0.9.5
+## Beta 6 — `main`, app version 0.9.6
+
+**0.9.6: diesels, and M Sport's two lines off the map.** Both from testers.
+
+- **A diesel has its own rev range**: *GENERAL → Engine → Diesel*. Petrol
+  as it comes; nothing changes for a petrol car, and nothing is detected or
+  switched by itself. A tester's diesel "could not see the revs rev up".
+  The car sends a diesel's engine speed exactly as a petrol's - the same
+  signal, read the same way by the open projects that were written on
+  diesels - so there was nothing to read differently. What was wrong was
+  the range: on a petrol dial with petrol limits a diesel lives in the
+  bottom half, with the red field, Toro's shift lights and the limiter's
+  flash all out of its reach. With *Diesel*:
+  - **the rev counter reads 0 – 6,000 in every style.** Toro's dial is
+    marked 1 to 6. The M styles' dial has seven numerals over the same
+    height, a third further apart, so the marker travels the whole dial.
+  - **Red from 4,500, the limit at 5,000**, and the red field, the shift
+    lights (from 3,200) and the flash follow. *Redline* and *Limiter* now
+    go down to 4,000 and 4,500 for an engine that wants other figures; a
+    petrol figure left in them is not taken for a diesel's.
+  - **The engine unit is asked only the standard identifiers** (where
+    BeeM-Flash is not supplying the readings). BMW's own belong to the
+    petrol engine units, and nobody has published what a diesel's answers
+    to them mean. There is no standard one for oil pressure, so a diesel is
+    not asked for it: Toro's left gauge shows turbo pressure, as on any car
+    with nothing to read oil pressure from.
+  - The figures are upstream's: a scale to 6,000 with seven numerals and
+    red from 4,500, as NamelsMissing/mgu-apps' cluster - written on a
+    diesel - draws it; 5,000 as the limit, as the MGU App Kit's diesel
+    profile has it. **None of it has been on a diesel car.**
+- **M Sport: the two centre lines fade out where a picture shows.** They
+  ran straight across the map (a tester's photograph has them over Waze).
+  They now thin out with the window exactly as the plates under them do:
+  gone from the picture, their feet under it still running into the rails -
+  for the phone's map, BMW's map and the camera, in both window sizes.
+  *M SPORT → Centre picture: the two lines across it → Keep them over the
+  picture* brings them back. With the centre closed, or a turn card,
+  nothing is different.
+- The petrol dial, its numerals and every other shader are byte for byte
+  what they were: the diesel dial, its numerals and the fading lines are
+  shaders of their own, sent only to a car that is set to use them.
+- 213 tests (18 more); the simulated car can be a diesel
+  (`CAR_SIM_DIESEL=1`), with an engine unit that answers BMW's petrol
+  identifiers with figures that are not readings - which must never be
+  asked for, and are not.
+
 
 **0.9.5: M Sport Plus, *Centre picture: how much shows → Fullest*.** Asked
 for from a picture of *More*: the spot between its open areas was shut,

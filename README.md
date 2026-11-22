@@ -20,7 +20,7 @@ middle, and each has its own settings on the app's page.
 > warranty. The car's own warning lights and its gear display are never
 > covered. Test it parked. You use it entirely at your own risk.
 
-This is version **0.9.5**. What changed in each version is in
+This is version **0.9.6**. What changed in each version is in
 [CHANGELOG.md](CHANGELOG.md).
 
 ## What you need
@@ -28,8 +28,8 @@ This is version **0.9.5**. What changed in each version is in
 - A BMW with iDrive 7 (MGU) and a rooted head unit.
 - The [MGU Store](https://github.com/robertnisipeanu/mgu-store), with
   `cluster-render` working.
-- Developed on a 2023 X3 M40i. Other cars may differ: see *Tell me how it
-  goes*.
+- Developed on a 2023 X3 M40i (petrol). Other cars may differ: see *Tell
+  me how it goes*. **A diesel?** See *If your car is a diesel*, below.
 
 ## Installing
 
@@ -70,8 +70,9 @@ Central display area* to *Map view*.
 Everything is set on the app's page on iDrive — nothing on the cluster.
 
 - **GENERAL**: on / off, start with the car, the style, units, your car,
-  redline and limiter, the limiter flash, BMW's bottom strip (show, trim
-  or hide it), readings with or without BeeM-Flash, **electric range** for
+  **petrol or diesel**, redline and limiter, the limiter flash, BMW's
+  bottom strip (show, trim or hide it), readings with or without
+  BeeM-Flash, **electric range** for
   plug-in hybrids and fully electric cars (off until you turn it on: a
   hybrid gets its electric range beside the fuel's; a fully electric car
   gets range, charge and battery temperature in place of fuel and oil),
@@ -92,6 +93,49 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 the middle, soft at every edge and reaching further down, with the speed
 and the gear kept on dark ground. M SPORT PLUS tab → *Centre picture: how
 much shows*.
+
+**M Sport's two centre lines no longer cross the map.** Where a picture
+shows (the phone's map, BMW's map or the camera) they fade out with the
+rest of the window; under it they still run into the rails. To have them
+over the picture as before: M SPORT tab → *Centre picture: the two lines
+across it → Keep them over the picture*.
+
+![M Sport's centre lines: faded where the picture shows, or kept](docs/screenshots/m-lines.png)
+
+## If your car is a diesel
+
+As it comes the app is set for a petrol engine: a rev counter to 8,000
+with its red zone, shift lights and limiter flash near 7,000 — which a
+diesel never reaches, so its revs stay in the bottom half and nothing
+lights up. Tell the app it is a diesel:
+
+1. Open the app from iDrive's menu.
+2. Choose the **GENERAL** tab along the top.
+3. Press **Engine** and choose **Diesel**.
+
+That gives every style a diesel's rev counter:
+
+| | Petrol (as it comes) | Diesel |
+|---|---|---|
+| The rev counter reads | 0 – 8,000 | **0 – 6,000** |
+| Red zone from | the car's (6,750 on the X3 M40i) | **4,500** |
+| Limiter flash, last shift light | the car's (7,000) | **5,000** |
+| Toro's shift lights begin at | 1,800 below the redline | **3,200** |
+
+If your engine revs higher or lower than that, set **Redline** and
+**Limiter** on the same tab (from 4,000 and 4,500 upwards); *From the car*
+is the diesel's own figures above.
+
+On a diesel **without BeeM-Flash**, Toro's lower left gauge shows turbo
+pressure, not oil pressure: the app only asks a diesel's engine unit the
+standard readings, and there is no standard one for oil pressure.
+
+![A diesel: the rev counter to 6,000 in each style](docs/screenshots/diesel.png)
+
+**This has not been on a diesel car yet** — please say how it goes. If the
+rev counter does not move **at all** with *Engine* on *Diesel* (the needle
+stays at 0 while the engine runs), that is something else: report it with
+your car and model year, and whether the speed and the gear show.
 
 ## Trimming or hiding BMW's bottom strip
 

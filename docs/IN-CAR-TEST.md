@@ -5,12 +5,13 @@ before it goes out. This list is what the simulation **cannot** prove. Do
 the parked steps first; do the driving steps on a quiet road or with a
 passenger watching the cluster.
 
-**Beta 6 and Beta 5's readings switch have not been on the car yet.**
-Their checks come first, below: Beta 6's for the three things Beta 4's
-drive asked for, then Beta 5's for the readings without BeeM-Flash. Beta
-4's table follows (it has been driven: "overall very good", B4 – B6
-confirmed); the older tables after it still stand, except where a newer
-check says otherwise.
+**What has not come back from a car yet comes first**, below: Beta 6's
+checks for the three things Beta 4's drive asked for (Beta 6 runs on its
+owner's car - "all themes work" - but these have not been answered one by
+one), the diesel setting and M Sport's lines (0.9.6), electric range, then
+Beta 5's readings without BeeM-Flash. Beta 4's table follows (it has been
+driven: "overall very good", B4 – B6 confirmed); the older tables after it
+still stand, except where a newer check says otherwise.
 
 ## Before you start
 
@@ -46,6 +47,33 @@ the gear (F1).
 
 A photograph of the whole cluster for F1, F3 (*Most*), F5, F6 and F9 is the
 most useful thing to send back.
+
+## A diesel (0.9.6) — for a diesel car
+
+Never run on a diesel: every line here is a question. Petrol as it comes;
+*GENERAL → Engine → Diesel*.
+
+| # | Check | Expect |
+|---|---|---|
+| D1 | *Engine* on **Petrol** (as it comes), a diesel idling | The rev counter shows the idle (about 750) low on a dial to 8,000. **If the needle or marker does not move at all when the engine is revved, stop here and say so**, with whether the speed and the gear show: that is not what the Diesel setting is for |
+| D2 | *Engine* → **Diesel**, Toro | The dial is marked **1 to 6**. Idle sits a little before the 1; 3,000 rpm is half-way round |
+| D3 | The same, M Sport and M Sport Plus | The rev dial has seven numerals, **0 to 6**, spread over its whole height, each level with its tick; the two beside the marker are lit. The title still reads *1/min x 1000* |
+| D4 | Accelerate hard through a gear (or rev in P/N if the car allows it past 4,000) | Toro: the shift lights begin to come on a little above **3,200** and are full by 5,000; the dial is red from **4,500**. M styles: the pale field then the red one begin at 4,500. **Say where your engine actually changes up or stops revving**: if that is not near 5,000, set *Redline* and *Limiter* to suit and say what you chose |
+| D5 | The limiter flash (dial and screen edges) | Only at the limit set: with 5,000 and a gearbox that changes up at 4,800 you may never see it. That is right; say if it flashes in ordinary driving |
+| D6 | A diesel **without BeeM-Flash**, Toro | The lower left gauge reads **PRESS. TURBO**, not oil pressure. An M style's footer on *Intake air* or *Battery* shows figures if the engine unit answers the standard readings, `--` if it does not: **say which** |
+| D7 | *Engine* back on **Petrol** | Everything as before the change |
+
+A photograph of the whole cluster at D2, D3 and D4 is the most useful
+thing to send back.
+
+## M Sport's centre lines (0.9.6)
+
+| # | Check | Expect |
+|---|---|---|
+| L1 | M SPORT → Centre picture on the phone's map (or BMW's map, or the camera), the picture showing | **Neither the pale blue line nor the red one crosses the picture.** Under the window their last short stretch still runs into the blue and the red rail. As the window opens and shuts they fade with it |
+| L2 | The same with *Centre picture: how much shows → More* | The same: no line across the picture |
+| L3 | *Centre picture: the two lines across it* → **Keep them over the picture** | Both lines across the picture, as before 0.9.6 |
+| L4 | Centre picture → **Closed**, or **Next turn, as a card** | The two lines whole, as they have always been |
 
 ## Electric range (0.9.2) — for a plug-in hybrid or an electric car
 
