@@ -101,12 +101,13 @@ test('the units as AK Cluster Layouts sets them: each on its own, Auto pressure 
     }
 });
 
-test('the driver camera: Toro\'s rev numbers stand clear of its cowl as it comes, and no shift light is under it', () => {
+test('the driver camera: Toro\'s rev numbers stand clear of its cowl as it comes, and no shift light is under it or the turn arrows', () => {
     const Theme = require('../src/theme/index.js');
     const Panel = require('../src/geometry/panel.js');
     const atlas = require('../assets/fonts/atlas.json');
     const CAM = Panel.CAMERA;
-    const under = (r) => r.x < CAM.x + CAM.w && r.x + r.w > CAM.x && r.y < CAM.y + CAM.h && r.y + r.h > CAM.y;
+    const meets = (r, z) => r.x < z.x + z.w && r.x + r.w > z.x && r.y < z.y + z.h && r.y + r.h > z.y;
+    const under = (r) => meets(r, CAM);
     const t = Theme.build(atlas, 'x3m40i', {});
     const G = t.guide, T = G.TACH;
     /* each numeral's cap height about its place on the arc (the numerals are 1 - 9 there) */
@@ -125,6 +126,8 @@ test('the driver camera: Toro\'s rev numbers stand clear of its cowl as it comes
             /* the lit part: the whole bar, or either side of its empty middle */
             const parts = gap ? [{ x: L.x, y: L.y, w: mid - gap - L.x, h: L.h }, { x: mid + gap, y: L.y, w: L.x + L.w - mid - gap, h: L.h }] : [L];
             parts.forEach((p) => assert.ok(!under(p), shiftStyle + ': ' + L.id + ' under the camera'));
+            /* nor under the turn signal arrows beside it */
+            parts.forEach((p) => Panel.TURN_ARROWS.forEach((z) => assert.ok(!meets(p, z), shiftStyle + ': ' + L.id + ' under ' + z.name)));
             /* and not in the glass's cut corners */
             assert.ok(!Panel.inCutCorner(L.x, L.y) && !Panel.inCutCorner(L.x + L.w, L.y), shiftStyle + ': ' + L.id + ' in a corner');
         }

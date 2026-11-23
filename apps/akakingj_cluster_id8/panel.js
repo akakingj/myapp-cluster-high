@@ -78,6 +78,13 @@ var CORNER_RIGHT = [{ x: 1920, y: 0 }, { x: 1650, y: 0 }, { x: 1920, y: 200 }];
  * with 10 px each side: what is drawn under it is not seen.
  */
 var CAMERA = { x: 720, y: 0, w: 480, h: 128 };
+/*
+ * The KOMBI's green turn signal arrows, drawn over every layer: either side
+ * of the cowl at the top. Not measured yet - where a sketch of the car's
+ * cluster has them, with room to spare: x 660 - 730 and 1190 - 1260.
+ */
+var TURN_ARROWS = [{ id: 'turnL', x: 660, y: 0, w: 70, h: 64, name: 'Turn signal, left' },
+                   { id: 'turnR', x: 1190, y: 0, w: 70, h: 64, name: 'Turn signal, right' }];
 
 /* Telltales the KOMBI draws over us, whatever we put there. */
 var TELLTALES = [
@@ -221,6 +228,7 @@ return {
     CORNER_LEFT: CORNER_LEFT,
     CORNER_RIGHT: CORNER_RIGHT,
     CAMERA: CAMERA,
+    TURN_ARROWS: TURN_ARROWS,
     TELLTALES: TELLTALES,
     FALLBACK_GEAR_BOX: FALLBACK_GEAR_BOX,
     PROFILES: PROFILES,
