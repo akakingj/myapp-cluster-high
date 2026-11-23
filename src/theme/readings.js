@@ -29,31 +29,32 @@
      * unit, and what says which it is - a symbol, or a short word in
      * capitals before the figures. The frames' own three need neither.
      *
-     * opts: { metric, clock12 }
+     * opts: { u: the units shown (units.js), clock12 }
      */
     function table(opts) {
-        var metric = !!(opts && opts.metric), clock12 = !!(opts && opts.clock12);
-        var DEG = metric ? '°C' : '°F';
+        var L = opts.u.labels, clock12 = !!(opts && opts.clock12);
+        var DEG = L.temp;
         return {
             time: { value: function (s) { return known(s.clockText) ? s.clockText : null; },
                     unit: function (s) { return clock12 ? s.clockHalf : ''; } },
             range: { icon: 'r', value: function (s) { return known(s.rangeText) ? s.rangeText : null; },
-                     unit: metric ? 'km' : 'mi' },
+                     unit: L.dist },
             outside: { value: function (s) {
                            if (!known(s.ambientText)) return null;
                            return s.ambientText.charAt(0) === '-' ? s.ambientText : '+' + s.ambientText;
                        }, unit: DEG },
-            /* the trip computer's average: "l/100km" says so by itself, and with a word before it
-               would not fit the left place; "mpg" has the room and needs the word */
-            economy: { tag: metric ? null : 'AVG', value: infoOf('economy'), unit: metric ? 'l/100km' : 'mpg' },
+            /* the trip computer's average: "l/100km" and "km/l" say so by themselves, and with a word
+               before them would not fit the left place; "mpg" has the room and needs the word */
+            economy: { tag: opts.u.econ === 'mpg' ? 'AVG' : null, value: infoOf('economy'),
+                       unit: { l100: 'l/100km', kml: 'km/l', mpg: 'mpg' }[opts.u.econ] },
             iat: { tag: 'IAT', value: infoOf('iat'), unit: DEG },
             rpm: { value: infoOf('rpm'), unit: 'rpm' },
             oil: { tag: 'OIL', value: infoOf('oil'), unit: DEG },
             coolant: { tag: 'WATER', value: infoOf('coolant'), unit: DEG },
-            boost: { tag: 'BOOST', value: infoOf('boost'), unit: metric ? 'bar' : 'psi' },
+            boost: { tag: 'BOOST', value: infoOf('boost'), unit: L.press },
             volts: { tag: 'BATT', value: infoOf('volts'), unit: 'v' },
             /* a plug-in hybrid's or an electric car's own (General: Electric range) */
-            erange: { tag: 'EV', value: infoOf('erange'), unit: metric ? 'km' : 'mi' },
+            erange: { tag: 'EV', value: infoOf('erange'), unit: L.dist },
             hvtemp: { tag: 'BATT', value: infoOf('hvtemp'), unit: DEG },
             charge: { tag: 'CHARGE', value: infoOf('charge'), unit: '' }   /* per cent: the face has no % */
         };

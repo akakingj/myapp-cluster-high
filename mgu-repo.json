@@ -2,11 +2,11 @@
   "schema": 1,
   "components": [
     {
-      "id": "mgustyles_toro",
+      "id": "akakingj_cluster_id8",
       "kind": "app",
-      "path": "apps/mgustyles_toro",
-      "title": "mgu-styles2",
-      "description": "Four instrument clusters drawn over the whole iDrive 7 cluster: Toro (Lamborghini Huracan), M Sport (BMW M View), M Sport Plus (M stripes, a wide picture in the centre) and M Track Mode (BMW M's track view: four gauge rows, the gear, a leaning rev counter). The phone's map, BMW's own map or Turn View's camera in each. Off until you turn it on.",
+      "path": "apps/akakingj_cluster_id8",
+      "title": "AK Cluster ID8",
+      "description": "MGU Styles' four clusters (Toro, M Sport, M Sport Plus, M Track Mode) with the AK Cluster settings: the Car profile, the AK units, each style's readouts chosen on its preview, the iDrive 7 skin. A personal modification of MGU Styles by waliworld, kept private.",
       "mguHmi": [
         "ID7"
       ],
@@ -18,42 +18,14 @@
       "build": {
         "python": "kit/tools/build.py",
         "args": [
-          "mgustyles_toro"
+          "akakingj_cluster_id8"
         ],
         "sdk": "oap-sdk",
         "shared": [
           "kit",
           "oap-sdk"
         ],
-        "output": "dist/mgustyles_toro@{version}.tgz",
-        "network": []
-      }
-    },
-    {
-      "id": "mgustyles_ak",
-      "kind": "app",
-      "path": "apps/mgustyles_ak",
-      "title": "MGU Styles AK",
-      "description": "MGU Styles with the AK settings: the Car profile's units, clock, engine and rev limits, and the speed and engine speed held as the car's own cluster holds them. A personal modification, kept private.",
-      "mguHmi": [
-        "ID7"
-      ],
-      "requires": {
-        "cluster-render": "0.6.9",
-        "mgu-deploy": "0.8.27",
-        "mgu-render": "0.6.11"
-      },
-      "build": {
-        "python": "kit/tools/build.py",
-        "args": [
-          "mgustyles_ak"
-        ],
-        "sdk": "oap-sdk",
-        "shared": [
-          "kit",
-          "oap-sdk"
-        ],
-        "output": "dist/mgustyles_ak@{version}.tgz",
+        "output": "dist/akakingj_cluster_id8@{version}.tgz",
         "network": []
       }
     }

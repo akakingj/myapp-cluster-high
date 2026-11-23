@@ -29,6 +29,7 @@ const OUT = path.join(ROOT, 'apps', ID);
 const MODULES = [
     ['src/geometry/panel.js', 'panel.js'],
     ['src/engine/text.js', 'text.js'],
+    ['src/engine/units.js', 'units.js'],
     ['src/engine/state.js', 'state.js'],
     ['src/engine/clock.js', 'clock.js'],
     ['src/shaders/prelude.js', 'shaders_prelude.js'],

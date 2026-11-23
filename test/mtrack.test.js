@@ -14,6 +14,7 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const Panel = require('../src/geometry/panel.js');
+const Units = require('../src/engine/units.js');
 const Themes = require('../src/theme/index.js');
 const MTrack = require('../src/theme/mtrack.js');
 const Readings = require('../src/theme/readings.js');
@@ -449,7 +450,7 @@ test('a row\'s mark stands at its reading, clamped to the rail, and is not there
 });
 
 test('each row can be given any reading, or left out: its figures, unit, symbol and mark follow', () => {
-    const scales = MTrack.rowScales(true);
+    const scales = MTrack.rowScales(Units.of({ units: 'metric' }));
     assert.deepStrictEqual(Object.keys(scales).concat(['off']), MTrack.ROW_KINDS);
     for (const [kind, sc] of Object.entries(scales)) {
         assert.strictEqual(sc.marks.length, 3, kind);
@@ -459,7 +460,7 @@ test('each row can be given any reading, or left out: its figures, unit, symbol 
         assert.ok(sc.marks.join('').split('').every((ch) => atlas.faces.mn.glyphs[ch]), kind + ': its figures can be written');
         /* the figures are the scale's own ends */
         assert.ok(Math.abs(Number(sc.marks[0]) - sc.lo) < 1e-9 && Math.abs(Number(sc.marks[2]) - sc.hi) < 1e-9, kind);
-        const imp = MTrack.rowScales(false)[kind];
+        const imp = MTrack.rowScales(Units.of({ units: 'imperial' }))[kind];
         assert.ok(Math.abs(Number(imp.marks[0]) - imp.lo) < 1e-9 && Math.abs(Number(imp.marks[2]) - imp.hi) < 1e-9, kind + ' (imperial)');
     }
     const t = build({ units: 'metric', kRow1: 'oilp', kRow2: 'volts', kRow3: 'off', kRow4: 'charge', electric: 'hybrid' });
@@ -898,7 +899,7 @@ test('the atlas: the track style\'s symbols, gear letters and signs are in it, a
     }
     assert.ok(highestNew >= lowestOld, `the new faces start at row ${highestNew}, the old end at ${lowestOld}`);
     /* the symbols a row or a strip draws are all there */
-    for (const sc of Object.values(MTrack.rowScales(true))) assert.ok(atlas.faces.mt.glyphs[sc.icon].tw > 0);
+    for (const sc of Object.values(MTrack.rowScales(Units.of({ units: 'metric' })))) assert.ok(atlas.faces.mt.glyphs[sc.icon].tw > 0);
 });
 
 /* ------------------------------------------------- a mark that slides */

@@ -1,7 +1,7 @@
 'use strict';
 /*
  * Runs the app's own page off the car: the staged app
- * (apps/mgustyles_ak/main.js) exactly as it is, with the kit's recorder
+ * (apps/akakingj_cluster_id8/main.js) exactly as it is, with the kit's recorder
  * and stand-ins for what only the head unit can give - the settings store,
  * the cluster service, and the kit's display (the finger, the controller).
  * tools/page-shot.js draws from it; test/page.test.js presses its places.
@@ -20,7 +20,7 @@ const path = require('path');
 const Module = require('module');
 
 const ROOT = path.resolve(__dirname, '..');
-const APP = path.join(ROOT, 'apps', 'mgustyles_ak');
+const APP = path.join(ROOT, 'apps', 'akakingj_cluster_id8');
 const KIT = path.join(ROOT, 'kit', 'runtime');
 const { Recorder } = require(path.join(KIT, 'record.js'));
 const EXTRA = 80;               /* 720 / 1.2 - 520: the rows "fill" leaves below the page (kit/runtime/display.js) */

@@ -294,7 +294,7 @@ test('the head unit\'s diagnostic service not up: nothing is sent, and it counts
 });
 
 test('the manifest asks for the diagnostic transport the way every app that reads the car does, and as optional', () => {
-    const app = require('../apps/mgustyles_ak/app.json');
+    const app = require('../apps/akakingj_cluster_id8/app.json');
     const t = app.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu'];
     assert.deepStrictEqual({ i: t._instances, m: t._methods, b: t._broadcasts }, { i: 'SystemFunctionsInternalTasuInst1', m: ['sendTasuRequest'], b: ['sendTasuResponse'] });
     assert.ok(typeof t._optional === 'string' && /read only/.test(t._optional), 'a head unit without it still installs the app');

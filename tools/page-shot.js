@@ -5,12 +5,12 @@
  *   node tools/page-shot.js out.png [key=value ...]
  * e.g. node tools/page-shot.js build/page.png style=mplus pCentre=camera @tab=mplus
  *
- * The staged app (apps/mgustyles_ak/main.js) is run as it is, with the
+ * The staged app (apps/akakingj_cluster_id8/main.js) is run as it is, with the
  * kit's own recorder and software canvas (kit/runtime/record.js, canvas.js:
  * what the head unit falls back to without its GPU renderer), and stand-ins
  * for what only the car can give: the settings store, and a cluster service
  * that says it is on the cluster. Settings start at the app's defaults
- * (apps/mgustyles_ak/app.json); key=value changes them.
+ * (apps/akakingj_cluster_id8/app.json); key=value changes them.
  *
  * What is drawn (the words that start with @ are for this tool, not settings):
  *   @own=1 (default)  the page as the kit runs it on the car: the whole

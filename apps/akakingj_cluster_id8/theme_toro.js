@@ -110,12 +110,14 @@
         function keyCol() { return S.accentScope === 'full' ? C.accent : GC.corsaRed; }
         var names = gearNames(P);
         var layers = [];
-        var imperial = S.units !== 'metric';
+        /* the units shown (S.u, units.js), as this style letters them */
+        var UN = S.u;
+        var imperial = UN.miles;
         var U = {
-            dist: imperial ? 'MI' : 'KM',
-            temp: imperial ? '°F' : '°C',
-            press: imperial ? 'PSI' : 'BAR',
-            speed: imperial ? 'MPH' : 'KM/H'
+            dist: UN.labels.dist.toUpperCase(),
+            temp: UN.labels.temp,
+            press: UN.labels.press.toUpperCase(),
+            speed: UN.labels.speed.toUpperCase()
         };
         var bandFlash = S.revFlash === 'band' || S.revFlash === 'both';
         var edgeFlash = S.revFlash === 'edges' || S.revFlash === 'both';
@@ -556,7 +558,7 @@
 
         /* scale numbers in the units shown: the pods' fractions are fixed in C */
         function tLabels(cs) {
-            return cs.map(function (c) { return String(Math.round(imperial ? c * 9 / 5 + 32 : c)); });
+            return cs.map(function (c) { return String(Math.round(UN.tempIn(c))); });
         }
         /*
          * The right pair reads right to left, the mirror of the left pair:
@@ -611,8 +613,8 @@
              */
             gaugeOr('oilP', 'auxPress', [0, 540, 290, 640], {
                 side: 'left', icon: 2, label: 'PRESS. TURBO', key: 'auxPress', dir: 1,
-                marks: imperial ? ['0', '12', '25'] : ['0', '0.8', '1.7'], red: [0.86, 1],
-                alt: { label: 'PRESS. OLIO', marks: imperial ? ['0', '70', '140'] : ['0', '5', '10'],
+                marks: { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press], red: [0.86, 1],
+                alt: { label: 'PRESS. OLIO', marks: { psi: ['0', '70', '140'], bar: ['0', '5', '10'], kpa: ['0', '500', '1000'] }[UN.press],
                        red: [0, 0.08] }
             });
         }
@@ -708,22 +710,23 @@
              * faint hanging wedge gauge whose needle sweeps right to left,
              * deepest at the top of the range beside the figure.
              */
-            var bTop = imperial ? Math.ceil(P.boostMaxPsi / 10) * 10
-                : Math.ceil(P.boostMaxPsi / 14.503774 * 10) / 10;
-            var bSteps = imperial ? bTop : Math.round(bTop * 10);
-            var bShown = function (s) { return Math.max(0, s.boostPsi); };     /* psi or bar, as shown */
+            /* the top of its range, in the unit shown: a whole 10 psi, tenth of a bar, 10 kPa */
+            var bMaxShown = UN.pressIn(P.boostMaxPsi / 14.503774), bGrain = UN.press === 'psi' ? 10 : UN.pressStep;
+            var bTop = Math.round(Math.ceil(bMaxShown / bGrain - 1e-9) * bGrain * 100) / 100;
+            var bSteps = Math.round(bTop / UN.pressStep);
+            var bShown = function (s) { return Math.max(0, s.boostPsi); };     /* in the pressure unit shown */
             var base = sp.y + G.gs(92);              /* the speed's own baseline */
             var bRight = 548;                        /* the figure's right edge */
             var bBase = G.gs(52) / 0.70;
             txt('boostNum', 30, { x: bRight - 196, y: base - 118, w: 220, h: 134 },
-                { face: imperial ? 'gear' : 'display', align: 'right', x: bRight, y: base,
+                { face: UN.press === 'bar' ? 'display' : 'gear', align: 'right', x: bRight, y: base,
                   size: function (s) {
-                      var step = Math.floor(bShown(s) * (imperial ? 1 : 10) + 1e-6);
+                      var step = Math.floor(bShown(s) / UN.pressStep + 1e-6);
                       return bBase * (1 + 0.55 * Math.min(1, step / bSteps));
                   },
                   color: function (s) { return bShown(s) >= bTop * 0.88 ? GC.corsaRed : GC.primaryWhite; } },
                 function (s) {
-                    return imperial ? String(Math.floor(bShown(s) + 1e-6)) : bShown(s).toFixed(2);
+                    return UN.press === 'bar' ? bShown(s).toFixed(2) : String(Math.floor(bShown(s) + 1e-6));
                 });
             statics('boostUnit', 30, { x: bRight + 4, y: base - G.gs(30) - 8, w: 80, h: G.gs(38) + 8 },
                 { face: 'label', size: G.gs(28) / 0.70, align: 'left',
@@ -743,8 +746,8 @@
         }
 
         var PSI_PER_BAR = 14.503774;
-        var bMax = imperial ? P.boostMaxPsi : P.boostMaxPsi / PSI_PER_BAR;
-        var bMin = imperial ? -10 : -10 / PSI_PER_BAR;
+        var bMax = UN.pressIn(P.boostMaxPsi / PSI_PER_BAR);
+        var bMin = UN.pressIn(-10 / PSI_PER_BAR);
 
         return { id: 'toro', name: 'Toro', layers: layers, profile: P,
                  /* the row the instrument ends above: the strip's top, or lower (S.lower) */

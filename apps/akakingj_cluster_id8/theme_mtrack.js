@@ -112,17 +112,21 @@
     var ROW_KINDS = ['boost', 'coolant', 'oil', 'iat', 'oilp', 'volts', 'charge', 'hvtemp', 'off'];
     /* the four as they come: the frame's - or, in an electric car, what it has instead */
     var ROW_HOME = { frame: ['boost', 'coolant', 'oil', 'iat'], bev: ['charge', 'hvtemp', 'off', 'off'] };
-    function rowScales(metric) {
-        var DEG = metric ? '°C' : '°F';
+    /* u: the units shown (units.js) */
+    function rowScales(u) {
+        var celsius = u.temp === 'c';
         function temp(key, icon, lo, hi, marksC, marksF, loF, hiF, cold, hot) {
-            return { key: key, icon: icon, unit: DEG, marks: metric ? marksC : marksF,
-                     lo: metric ? lo : loF, hi: metric ? hi : hiF,
-                     show: function (v) { return metric ? v : c2f(v); }, cold: cold, hot: hot };
+            return { key: key, icon: icon, unit: u.labels.temp, marks: celsius ? marksC : marksF,
+                     lo: celsius ? lo : loF, hi: celsius ? hi : hiF,
+                     show: function (v) { return celsius ? v : c2f(v); }, cold: cold, hot: hot };
         }
+        /* (kPa: the bar's scale a hundredfold) */
         function press(key, icon, hiBar, marksBar, hiPsi, marksPsi) {
-            return { key: key, icon: icon, unit: metric ? 'bar' : 'psi', marks: metric ? marksBar : marksPsi,
-                     lo: 0, hi: metric ? hiBar : hiPsi,
-                     show: function (v) { return metric ? v : v * PSI_PER_BAR; } };
+            var p = u.press;
+            return { key: key, icon: icon, unit: u.labels.press,
+                     marks: p === 'psi' ? marksPsi : p === 'kpa' ? marksBar.map(function (m) { return String(Math.round(Number(m) * 100)); }) : marksBar,
+                     lo: 0, hi: p === 'psi' ? hiPsi : p === 'kpa' ? hiBar * 100 : hiBar,
+                     show: function (v) { return p === 'psi' ? v * PSI_PER_BAR : p === 'kpa' ? v * 100 : v; } };
         }
         return {
             boost: press('boostBar', 'u', 1.9, ['0.0', '0.9', '1.9'], 28, ['0', '14', '28']),
@@ -208,7 +212,8 @@
         S.mode = '';
         S.centreSize = 'standard';
         var fixture = !!(settings && settings.mtFixture);
-        var metric = S.units === 'metric';
+        /* the units shown (S.u, units.js): the speed's, and the temperatures' */
+        var kmh = S.u.speed === 'kmh', celsius = S.u.temp === 'c';
         var bev = S.electric === 'bev';
         /* the four rows: each the reading asked for, or the frame's own */
         var home = bev ? ROW_HOME.bev : ROW_HOME.frame;
@@ -347,7 +352,7 @@
         });
 
         /* ------------------------------------------------------- the gauge rows */
-        var R = T.ROWS, SCALES = rowScales(metric);
+        var R = T.ROWS, SCALES = rowScales(S.u);
         var rowOf = S.rows.map(function (kind) { return kind === 'off' ? null : SCALES[kind]; });
         /* a reading along its row's rail: 0..1, or -1 with nothing to show */
         function rowValue(sc, s, i) {
@@ -453,15 +458,15 @@
             if (bev) return typeof s.hvTempFrac === 'number' ? s.hvTempFrac : null;
             var t = typeof s.oilTempC === 'number' && isFinite(s.oilTempC) ? s.oilTempC : null;
             if (t === null) return null;
-            return metric ? (t - 50) / 100 : (c2f(t) - 120) / 180;
+            return celsius ? (t - 50) / 100 : (c2f(t) - 120) / 180;
         });
         strip('fuelStrip', ST.fuel, 0, function (s) {
             var f = s.pods && s.pods.fuel;
             return f && f.text !== '--' ? f.frac : null;
         });
         var LBL = 16.7;
-        var oilMarks = bev ? (metric ? ['60', '25', '-10'] : ['140', '77', '14'])
-            : metric ? ['150', '100', '50'] : ['300', '210', '120'];
+        var oilMarks = bev ? (celsius ? ['60', '25', '-10'] : ['140', '77', '14'])
+            : celsius ? ['150', '100', '50'] : ['300', '210', '120'];
         /* (the oil's and the fuel's apart: each a layer the size of its own three figures) */
         snug('stripLabels', 30, { face: 'mn', size: fig(LBL), align: 'left', color: K.label },
             [{ str: oilMarks[0], x: 1248.0, y: 336.5, ink: 'r' }, { str: oilMarks[1], x: 1211.8, y: 398.9, ink: 'r' },
@@ -470,7 +475,7 @@
             [{ str: '1', x: 1362.4, y: 336.9, ink: 'r' }, { str: '1/2', x: 1329.0, y: 400.6, ink: 'r' },
              { str: '0', x: 1292.8, y: 462.2, ink: 'r' }]);
         fixed('oilUnit', 30, box(1196, 344, 1236, 376), { face: 'ms', size: words(24.5), align: 'left', color: K.unit },
-            [{ str: metric ? '°C' : '°F', x: 1202.5, y: 369.5 }]);
+            [{ str: celsius ? '°C' : '°F', x: 1202.5, y: 369.5 }]);
         /* (the oil can and the pump are an engine's: an electric car's strips go without them) */
         if (!bev) {
             icon('oilIcon', 30, 'mi', 'o', 1178.2, 420.85, 0.94, K.stripIcon);
@@ -513,14 +518,14 @@
                      x: X(SPD.right), y: Y(SPD.base), ink: 'r', color: K.white };
         });
         fixed('speedUnit', 30, box(834, 340, 896, 374), { face: 'ms', size: words(22.2), align: 'left', color: K.speedUnit },
-            [{ str: metric ? 'km/h' : 'mph', x: 840.2, y: 364.6 }]);
+            [{ str: kmh ? 'km/h' : 'mph', x: 840.2, y: 364.6 }]);
 
         /* ------------------------------------------------------- the footer */
         /* the M mark: the frame's own, heavier of line than the M View's */
         icon('mMark', 30, 'mt', 'm', 184.4, 468.1, 1.0, K.soft);
 
         var FOOT_H = 22.4, FOOT_Y = 538.6, UNIT_EM = 24.0;
-        var READINGS = Readings.table({ metric: metric, clock12: S.clock12 });
+        var READINGS = Readings.table({ u: S.u, clock12: S.clock12 });
         var TAG_H = 11.7, TAG_GAP = 6.8, UNIT_GAP = 6.0, ICON_GAP = 8.9;
         /*
          * A place: [symbol or word] figures unit, set from the place's left
@@ -667,7 +672,7 @@
                  /* the holiday dressing: snow left of the wing and right of the strips, the tree right of the fuel */
                  places: { snow: snow, tree: tree,
                            clearOf: /^(foot[LMR]|mMark)/ },
-                 palette: K, imperial: !metric, hasCentre: true, art: A, rows: S.rows.slice(),
+                 palette: K, imperial: !kmh, hasCentre: true, art: A, rows: S.rows.slice(),
                  /* is the whole wing over the picture (S.wing, where it can be)? */
                  wingWhole: whole,
                  /* row readings the car side passes on as they arrive unless asked: a degree or a tenth of a

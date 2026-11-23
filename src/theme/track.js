@@ -213,8 +213,9 @@
             (S.centre === 'waze' || S.centre === 'map' || S.centre === 'camera');
         function footShows(kind) { return S.footL === kind || S.footM === kind || S.footR === kind; }
         var fixture = !!(settings && settings.mFixture);
-        var metric = S.units === 'metric';
-        var units = metric ? 'metric' : 'imperial';
+        /* the units shown (S.u, units.js): the speed's, and the temperatures' */
+        var kmh = S.u.speed === 'kmh', celsius = S.u.temp === 'c';
+        var units = kmh ? 'metric' : 'imperial';          /* the speed scale (M.SPEED_SCALE) */
         var layers = [];
         var TL = TextLayers.create(atlas, layers, { text: K.white, muted: K.soft });
         var txt = TL.txt, statics = TL.statics;
@@ -423,7 +424,7 @@
             if (bev) return typeof s.hvTempFrac === 'number' ? s.hvTempFrac : null;
             var t = oilC(s);
             if (t === null) return null;
-            return metric ? (t - 50) / 100 : (t * 1.8 + 32 - 120) / 180;
+            return celsius ? (t - 50) / 100 : (t * 1.8 + 32 - 120) / 180;
         });
 
         /* ------------------------------------------------- the scale numerals */
@@ -517,7 +518,7 @@
 
         statics('speedTitle', 20, box(302, 36, 380, 72),
             { face: 'ms', size: words(24.8), align: 'left', color: K.blueTitle },
-            [{ str: metric ? 'km/h' : 'mph', x: X(309.5), y: Y(64.6) }]);
+            [{ str: kmh ? 'km/h' : 'mph', x: X(309.5), y: Y(64.6) }]);
         statics('revTitle', 20, box(1356, 34, 1530, 70),
             { face: 'ms', size: words(26.1), align: 'left', color: K.redTitle },
             [{ str: '1/min x 1000', x: X(1364.5), y: Y(62.4) }]);
@@ -531,18 +532,18 @@
             function (s) { return s.speedText !== undefined ? s.speedText : String(Math.round(Math.max(0, s.speed || 0))); });
         statics('speedUnit', 30, box(520, 296, 616, 330),
             { face: 'ms', size: words(25.5), align: 'right', color: K.unit },
-            [{ str: metric ? 'km/h' : 'mph', x: X(606.0), y: Y(321.2) }]);
+            [{ str: kmh ? 'km/h' : 'mph', x: X(606.0), y: Y(321.2) }]);
         var SMALL = 25.3;
         /* the other unit's speed underneath: as the M View has it, unless turned off (S.speed2) */
         if (S.speed2) txt('speed2', 30, box(480, 332, 616, 372),
             { face: 'mw', size: fig(SMALL), align: 'right', x: X(607.2 + 0.1025 * SMALL), y: Y(364.3), color: K.white },
             function (s) {
                 var v = Math.max(0, s.speed || 0);
-                return String(Math.round(metric ? v / KM_PER_MI : v * KM_PER_MI));
+                return String(Math.round(kmh ? v / KM_PER_MI : v * KM_PER_MI));
             });
         if (S.speed2) statics('speed2Unit', 30, box(520, 364, 616, 398),
             { face: 'ms', size: words(25.5), align: 'right', color: K.unit2 },
-            [{ str: metric ? 'mph' : 'km/h', x: X(607.5), y: Y(388.2) }]);
+            [{ str: kmh ? 'mph' : 'km/h', x: X(607.5), y: Y(388.2) }]);
 
         if (S.mGear === 'gear') {
             txt('gear', 30, box(1228, 234, 1390, 304),
@@ -567,8 +568,8 @@
              { str: '0', x: X(473.6 - 0.075 * LBL), y: Y(497.2) }]);
         /* (the pump and the oil can are an engine's: an electric car's strips go without them) */
         if (!bev) icon('fuelIcon', 30, 'f', 455.0, 443.0, 32, 24, K.soft);
-        var oilMarks = bev ? (metric ? ['60', '25', '-10'] : ['140', '77', '14'])
-            : metric ? ['150', '100', '50'] : ['300', '210', '120'];
+        var oilMarks = bev ? (celsius ? ['60', '25', '-10'] : ['140', '77', '14'])
+            : celsius ? ['150', '100', '50'] : ['300', '210', '120'];
         statics('oilLabels', 30, box(1272, 338, 1428, 502),
             { face: 'mn', size: fig(LBL), align: 'right', color: K.soft },
             [{ str: oilMarks[0], x: X(1421.0 + 0.075 * LBL), y: Y(360.2) },
@@ -576,7 +577,7 @@
              { str: oilMarks[2], x: X(1335.3 + 0.075 * LBL), y: Y(498.0) }]);
         statics('oilUnit', 30, box(1364, 368, 1404, 404),
             { face: 'ms', size: words(26.1), align: 'left', color: K.soft },
-            [{ str: metric ? '°C' : '°F', x: X(1370.0), y: Y(397.0) }]);
+            [{ str: celsius ? '°C' : '°F', x: X(1370.0), y: Y(397.0) }]);
         if (!bev) icon('oilIcon', 30, 'o', 1319.0, 440.0, 42, 28, K.oilIcon);
 
         /* ------------------------------------------------------- the footer */
@@ -592,7 +593,7 @@
          * filled never just goes dark (the intake air and the battery come
          * from BeeM-Flash's feed, which is not always running).
          */
-        var READINGS = Readings.table({ metric: metric, clock12: S.clock12 });
+        var READINGS = Readings.table({ u: S.u, clock12: S.clock12 });
         var TAG_H = 12.0, TAG_GAP = 7.0, UNIT_GAP = 5.6;
         /*
          * A place holding something other than the frame's own reading:
@@ -681,7 +682,7 @@
             dyn('rangeUnit', 30, box(400, 554, 530, 594), function (s) {
                 if (!s.rangeText || s.rangeText === '--') return null;
                 var w = Text.measure(atlas, 'mn', s.rangeText, fig(FOOT_H), 0);
-                return { str: metric ? 'km' : 'mi', face: 'ms', size: words(26.0), x: rangePen + w + 6.3 * SC,
+                return { str: kmh ? 'km' : 'mi', face: 'ms', size: words(26.0), x: rangePen + w + 6.3 * SC,
                          y: Y(FOOT_Y - 1.4), color: K.soft };
             });
 
@@ -725,7 +726,7 @@
             statics('ambientUnit', 30, box(1676, 558, 1716, 596),
                 { face: 'ms', size: words(26.1), align: 'left', color: K.soft,
                   show: function (s) { return s.ambientText && s.ambientText !== '--'; } },
-                [{ str: metric ? '°C' : '°F', x: X(1682.0), y: Y(FOOT_Y + 2.6) }]);
+                [{ str: celsius ? '°C' : '°F', x: X(1682.0), y: Y(FOOT_Y + 2.6) }]);
 
         } else if (S.footR !== 'off') {
             place('slotR', S.footR, { x: 1674.3, y: FOOT_Y + 1.6, right: true, box: box(1440, 552, 1800, 598) });
@@ -821,7 +822,7 @@
                     right of the rev scale (src/theme/overlays.js) */
                  places: { snow: [[0, 0, 300, 646], [1620, 0, 300, 646]], tree: tree,
                            clearOf: /^(speedScale|revScale|lamp|mMark|clock|ambient|slot)/ },
-                 palette: K, imperial: !metric, hasCentre: true, art: A,
+                 palette: K, imperial: !kmh, hasCentre: true, art: A,
                  /* the picture's rectangle on the artboard, where the glass is held to it (lowered: null as it comes) */
                  slot: plus ? slot : null,
                  /* readings shown that the car's bus may not carry (see Toro's): here only
