@@ -18,6 +18,8 @@
       "build": {
         "python": "kit/tools/build.py",
         "args": [
+          "--language",
+          "ko",
           "akakingj_cluster_id8"
         ],
         "sdk": "oap-sdk",

@@ -13,6 +13,17 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.12.0
+
+- **Korean.** The Store builds the app in Korean (`mgu-repo.json`: `--language ko`): the iDrive
+  screens, the settings and their choices, the CLUSTER page and its status lines in Korean
+  (`kit/runtime/locales/ko.tsv`, then `python3 kit/tools/sync_locales.py ko`; the page's words
+  go through the kit's catalogue, `app/entry.js` tr). The styles' names, the units and the
+  start-up message's words stay as they are, and the cluster itself stays in its own lettering.
+  The Korean glyph atlas (`kit/localization/fonts/korean.json`, Noto Sans KR, SIL OFL 1.1) is
+  AK Cluster's. A Korean build keeps the plain version (`kit/tools/localize.py`), so the Store
+  finds `dist/akakingj_cluster_id8@<version>.tgz`.
+
 ## AK 0.11.2
 
 - **The page's pictures on the Store's renderer.** The kit (`kit/runtime/record.js`,

@@ -34,6 +34,10 @@ const MGeom = require('./mgeom.js');
 const TGeom = require('./tgeom.js');
 const Theme = require('./theme.js');
 const Previews = require('./previews.js');
+/* the page's words in the app's language (the Store builds it in Korean): drawn as literal text, so they go through
+   the kit's catalogue here; the cluster's own lettering stays as the styles have it */
+let tr = (s) => String(s);
+try { tr = require('./kit/i18n').t; } catch (e) { /* tools: English */ }
 let Record = null;
 try { Record = require('./kit/record'); } catch (e) { /* no pixel images: the designs' sketches */ }
 
@@ -471,9 +475,9 @@ mgu.run({
             if (sig === last) return;
             last = sig;
 
-            const label = (s, x, y, size, c, o) => cv.text(s, x, y, size, c || INK, Object.assign({ literal: true }, o || {}));
+            const label = (s, x, y, size, c, o) => cv.text(tr(s), x, y, size, c || INK, Object.assign({ literal: true }, o || {}));
             const fitLabel = (s, x, y, size, maxW, c, o) => {
-                const w = cv.textWidth(String(s), size, { literal: true });
+                const w = cv.textWidth(tr(s), size, { literal: true });
                 label(String(s), x, y, w > maxW ? size * maxW / w : size, c, o);
             };
             cv.fillRect(0, 0, W, H, BG);
@@ -504,7 +508,7 @@ mgu.run({
                 let x = 352;
                 TABS.forEach((t) => {
                     const word = SK7 ? t.name : t.label, wf = SK7 ? { literal: true } : { literal: true, font: 'bold', spacing: 1 };
-                    const tw = cv.textWidth(word, SK7 ? 23 : 21, wf) + 44;
+                    const tw = cv.textWidth(tr(word), SK7 ? 23 : 21, wf) + 44;
                     const sel = t.id === tab;
                     if (sel && SK7) focus7(cv, x, 12, tw, 46);
                     else cv.roundRect(x, 12, tw, 46, rad(23), sel ? RED : CARD);
@@ -565,15 +569,15 @@ mgu.run({
             y += bh + 26;
             const cardsY = bottom - (TH + 46);
             if (y + 18 < cardsY - 8) {
-                fitLabel('Phone map: ' + (centre ? centre.waze : '-') + '   ·   Turn View: ' + (centre ? centre.turnView : '-'), BX, y, 18, PW, DIM);
-                if (y + 42 < cardsY - 8) fitLabel('Readings: ' + (feed || '-') + '   ·   ' + (!on ? 'Off: BMW\'s own cluster.'
+                fitLabel(tr('Phone map') + ': ' + tr(centre ? centre.waze : '-') + '   ·   Turn View: ' + tr(centre ? centre.turnView : '-'), BX, y, 18, PW, DIM);
+                if (y + 42 < cardsY - 8) fitLabel(tr('Readings') + ': ' + tr(feed || '-') + '   ·   ' + tr(!on ? 'Off: BMW\'s own cluster.'
                     : auto ? 'On at every start.' : 'On for this drive; BMW\'s own at the next start.'), BX, y + 26, 18, PW, FAINT);
             }
 
             /* ---- right: the design, its state, and what each of its places shows ---- */
             const RX = 664, RW = W - 24 - RX;
             fitLabel(D.name, RX, top + 40, 34, RW - 300, INK, { font: SK7 ? undefined : 'bold' });
-            label(lowered(st) ? 'BMW strip hidden: ' + lowered(st) + ' px lower (BETA)' : status, RX + RW, top + 40, 18,
+            label(lowered(st) ? tr('BMW strip hidden') + ': ' + lowered(st) + ' ' + tr('px lower (BETA)') : status, RX + RW, top + 40, 18,
                 statusColour(status), { align: 'right', font: SK7 ? undefined : 'bold' });
             fitLabel(D.sub, RX, top + 68, 18, RW, DIM);
             const keys = (PLACES[st] || []).map((k) => settings.item(k)).filter((s) => s && offered(s));
@@ -657,7 +661,7 @@ mgu.run({
             /* over the rows that have scrolled up: the page's own line - whose settings these are, and
                the way to that style (the bar is drawn over the rest, last) */
             cv.fillRect(0, 0, W, y0 - 4, BG);
-            fitLabel(t.style ? STYLE_NAME[t.style] + (inUse ? ': the style on the cluster now.' : ': its own settings, kept for when it is chosen.')
+            fitLabel(t.style ? STYLE_NAME[t.style] + tr(inUse ? ': the style on the cluster now.' : ': its own settings, kept for when it is chosen.')
                              : 'For every style: the car, units, the limiter, BMW\'s strip, extras.',
                      30, top + 32, 21, t.style && !inUse ? 1180 : 1500, inUse ? INK : DIM);
             if (t.style && !inUse) {
