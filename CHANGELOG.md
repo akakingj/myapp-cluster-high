@@ -4,7 +4,229 @@
 Each earlier release is kept on a branch of its own name. To go back to
 one: `git checkout <branch>`, or point the Store's source at that branch.
 
-## Beta 6 — `main`, app version 0.9.6
+**The stable beta is Beta 6 (0.9.6), on the branch `beta-6`.** It is the
+release before this one, and the last that has been on cars; Beta 7 adds
+a good deal that has not been yet. If anything in 0.10.0 misbehaves on
+your car, `beta-6` is the one to go back to: in the MGU Store, add the
+repository as a source and choose the branch **beta-6** where it asks
+what to follow, in place of **main**.
+
+## Beta 7 — `main`, app version 0.10.0
+
+**A fourth style: M Track Mode.** BMW M's track view, rebuilt for the
+iDrive 7 panel from a photograph of it and a written guide, the way M
+Sport was. *GENERAL → Style → M Track Mode (BMW M's track view)*.
+
+- **What it draws**: a pointed blue wing with the three M bands and four
+  gauge rows; the gear large on a black band, with one speed under it; a
+  leaning red rev counter hung from a level line, a white marker across it
+  and the band lit red beneath; oil temperature and fuel as two ladders
+  beside it; and a footer of three readings round a four-pane panel.
+  **Everything on it is the car's live figures**, in the units chosen. The
+  photograph's own values (0 km/h, D, 840 rpm, 19:02, 402 km, +21.0 °C)
+  are only its reference fixture, `preview/index.html?fixture=mt`.
+- **The four rows are BMW's as they come** - turbo boost, coolant, oil
+  temperature, intake air - **and each is yours to choose**: *M TRACK →
+  Gauge row 1 (top)* … *Gauge row 4 (bottom)*. Also oil pressure, battery
+  voltage, a drive battery's charge and temperature, or nothing (the row
+  is left out). A car set as fully electric gets charge and battery
+  temperature. Each reading brings its own scale and its own too-cold and
+  too-hot ends, in bar and °C or psi and °F.
+- **A reading shows as a mark on its rail.** That is as much as one frame
+  with the car idling gives away: all four rails are whole and white in
+  it, and the one mark stands at 0.0 bar. *Gauge rows: the reading shows
+  as → A bar* dims the rail past the mark instead, for anyone who finds
+  the marks too small to read driving.
+- **The left wing can hold a picture**: *M TRACK → Left wing shows*: the
+  four gauges (as it comes), the phone's map, BMW's own map, or Turn
+  View's camera. The rows fade out and the picture shows in the wing and
+  nowhere else - soft at every edge, the M bands and the fine lines kept
+  faintly over it - and nothing right of the first seam changes, as the
+  guide asks.
+- **The picture fills the wing, to its point.** Asked for: as first built
+  the window began at a straight edge part way along the wing, because the
+  car's picture begins there - its slot (416,120 1088×480) cannot be moved
+  and has nothing left of x 416. So with a picture chosen it is the style
+  that moves: **193 px further right**, the same size at the same height,
+  which puts the wing's point on the picture's left edge. The window is
+  then the wing's own outline, its two leaning edges meeting at the point.
+  The wing shows 44 % more of the picture (30 % of it, from 21 %), and the
+  picture's middle - where a phone's map has the car - is now inside the
+  wing. With the gauges the style is where the frame has it. *M TRACK →
+  Left wing: how much of it a picture takes → The style stays where it is*
+  is the earlier arrangement, and what a lowered cluster and an M car get
+  (there the move would put the gear under one of those cars' own boxes).
+- **The rev counter follows the car**: the red field starts at the
+  redline, the limiter flashes it, and a diesel (*GENERAL → Engine*) gets
+  seven marks to 6,000, as in the other styles.
+- **Its figures and symbols were drawn for it**: the gear's letters,
+  traced off the frame's own D, and nine symbols (turbo, coolant, oil
+  temperature, oil pressure, intake air, battery, charge, cell
+  temperature, the M mark). They are packed into the atlas after
+  everything that was there: every earlier glyph is where it was, byte for
+  byte.
+- **Measured, not eyeballed.** The photograph is of a curved display,
+  taken from one side, so it is rectified first (two fitted maps) and
+  every line is measured in the frame that gives: `src/theme/tgeom.js`,
+  with the working in `docs/ref/M-TRACK-MEASUREMENTS.md`.
+  `tools/mt-compare.py` holds the render against it: 98.1 % of the
+  photograph's edges have one of ours within 2 px, and of 182 control
+  points the photograph's picture sits within 1 px of ours at 161 and
+  within 2 px at 177. It is a reconstruction from one frame, and makes no
+  claim to be BMW's cluster pixel for pixel.
+- **The other styles look exactly as they did.** Toro, M Sport and
+  M Sport Plus draw the same pictures as in 0.9.6: 26 preview frames
+  across the three, every one pixel for pixel. What a footer place can
+  show moved into a table of its own (`src/theme/readings.js`), now shared
+  by all three M styles.
+- The app's page has a sixth design and an **M TRACK** tab. Every setting
+  is on iDrive; none is on the cluster.
+
+**BETA: the whole cluster lowered, and larger by as much.** Asked for:
+with BMW's strip hidden, the rows it stood in held nothing but black.
+*GENERAL → BETA: lower and enlarge the cluster* — **off as it comes**.
+
+- **20, 40, 58 or 74 px lower, and 3, 6, 9 or 11 % larger**: the scale is
+  the amount, (646 + d) / 646, about the top of the screen's middle. The
+  top stays where it is, the foot goes d rows lower, and it is the same
+  picture, bigger - nothing is stretched or moved about. It hides the
+  strip itself; BMW's gear letter stays, as ever.
+- **Every style, each as far as it has room for**: the M styles to the
+  screen's edge; Toro 58 px, where it stands at the size the brief drew
+  it and its side gauges are 13 px off the screen's sides.
+- **Nothing of ours in the gear's columns** (`x 1384 – 1500` from `y 664`
+  down), lowered or shaken: the same rule *Hide it* drives on. Toro's
+  speed, which then stands beside BMW's gear letter, is set as far left as
+  keeps its unit clear under the limiter's hardest jolt. The limiter's
+  flash and the start-up message's veil are drawn round the columns, in
+  three pieces, so they still take in the whole style.
+- **The picture in the middle does not grow** (the car draws it where it
+  always does): a style's window is larger round it, M Sport Plus's glass
+  is held to the picture's own edge where a larger window could pass it,
+  and M Track Mode's wing begins its window where the picture begins.
+- Off, nothing is different: the same layers, in the same places, sending
+  the same figures - and the pictures compared with 0.9.6 are the same
+  pixel for pixel.
+- To know: lowered, an M style's speed scale reaches the place the tyre
+  pressure lamp lights (the lamp is drawn over it); a style's background
+  still ends where the strip began. **Not yet on a car.**
+
+**The widest picture, in M Sport and M Sport Plus.** Asked for: "an even
+broader view … within very nice transparent edges fading out". *M SPORT*
+and *M SPORT PLUS → Centre picture: how much shows → Widest*. The other
+sizes are as they were, and *Standard* is still what a style comes with.
+
+- **All of the car's picture, not a shape cut in the style.** The glass
+  opens over the picture's whole rectangle - 1088 px across, from its top
+  edge to just under the rails - and fades out at all four edges: over 90
+  px at the sides, about 50 at the top and the foot. It shows **55 % of
+  the picture**, strength for strength, where M Sport's *More* shows 36 %
+  and M Sport Plus's *Fullest* 48 %.
+- **The plates make way.** They go altogether as the picture comes up, and
+  M Sport's two lines with them (unless kept). The first cut thinned them
+  by the same field as the glass, as the other windows do, and was looked
+  at: with no outline of its own for a plate to end on, it left fragments
+  of plate along the picture's edges and inside every pad. What stands
+  round the picture is the dials, the strips, the rails, the figures and
+  the footer - which stays shut.
+- **Every figure keeps dark glass under it**: a soft-edged pad round the
+  speeds, one round the gear's place, and one along each of the fuel and
+  oil strips, leaning as the strip leans. Each is its figures' own reach
+  at their widest value and no more, and smaller when less is shown: with
+  one speed and nothing in the gear's place the picture is 61 % seen.
+- **With no picture the style is whole**, exactly as with any other size:
+  the centre closed, a turn card, the phone's map not on the cluster.
+- **It stays on the picture.** The field is told where the car's picture
+  is, so a lowered cluster (BETA), which is larger than the picture it
+  stands round, keeps the window on it.
+- It asks less of the renderer than the standard window: once the picture
+  is open the plates are not drawn at all (see below).
+
+**The start-up message comes up on the dark.** Asked: is the message
+still fading in and out as it did, and not standing over the cluster as a
+picture of it showed?
+
+- **It is as it was, frame for frame - with one slip, now gone.** The
+  message was drawn at fifteen moments in this version and in 0.9.6: the
+  same pictures, pixel for pixel, before the change below.
+- **The slip was real, and was there from the first version of it**: the
+  dark behind the words was whole for the first 0.6 s, fell clear in one
+  frame, and closed again over the next 1.2 s. So for about a second at
+  every start the cluster stood behind the half-faded words - which is
+  what that picture had caught. The dark is now whole from the first frame
+  until the words have come up. Three of the fifteen moments differ from
+  0.9.6, all in that second; the rest are the same pixels.
+- The end is unchanged: the words fade over 2.8 s and the dark thins
+  1.2 s after them, so the cluster comes up through the last of the
+  words - "fading slowly into the cluster", as the setting says.
+
+**Nothing has slowed down, measured - and a frame now asks less.** Asked
+for: with everything added since the first public release, is the cluster
+still as light as it was? `docs/PERFORMANCE.md` has the figures, 0.9.1
+against this version.
+
+- **Toro, M Sport and M Sport Plus, as they come, ask what they asked in
+  0.9.1**: the same layers (43, 39, 39), the same messages and bytes a
+  frame to the byte, the same processor time within the measurement's
+  noise, and 44 of their 46 shaders byte for byte the same (the other two
+  are M Sport Plus's glass, 151 characters longer). Parked, a style still
+  sends nothing at all.
+- Two things that had crept into every frame since then are out again
+  (each a fraction of a microsecond, found by looking): two empty gauge
+  objects a frame that the electric gauges made for every car, and M Track
+  Mode's readings-as-numbers made for every style.
+- **The renderer has less to draw than it had.** The limiter's flash lay
+  over the whole style and was drawn on every frame, lit or not: a quarter
+  to a third of every pixel the renderer filled. It is now drawn only as
+  the limiter nears - hidden the way a turn card is when there is no turn.
+  Pixels filled in an ordinary frame: Toro −22 %, M Sport −31 %, M Sport
+  Plus −32 %; the M styles draw about 10 % faster for it. Nothing looks
+  different.
+- **M Track Mode is the lightest style to draw.** As first built its
+  labels stood in boxes many times their size; each now has a box of its
+  own. 47 % faster to draw than it was, and about a quarter faster than
+  M Sport.
+- **The package is 13 % larger than 0.9.6** (407 KB against 361 KB to
+  fetch): M Track Mode's code, shaders and symbols. Read once at start-up;
+  a style that is not on the cluster costs a frame nothing.
+- **The lowered cluster costs what its size costs**, and only when turned
+  on: 8 % more to draw for Toro, about 20 % for the M styles.
+- **Held from now on**: `test/budget.test.js` fails the build if a style
+  as it comes has more layers, covers more of the screen or sends more
+  than these figures - none of which may exceed 0.9.1's. `npm run perf`
+  and `npm run perf-draw` measure any checkout the same way.
+- These are measurements on a computer, not on the car: they compare one
+  version with another. Toro is three times the M styles to draw and
+  always was (its dial's numerals are half of it); it was left exactly as
+  it has been driven.
+
+**Checked**: 267 tests (54 more than 0.9.6); every shader compiled, in 36
+preview frames; the simulated car in 46 runs with the replay of what it
+drew - 25 of the three styles and their options (four with the widest
+picture), 11 of M Track Mode (its wing's pictures in both arrangements,
+its rows, a diesel, with and without BeeM-Flash), 10 lowered - and the
+release tree itself in 11 more, with the page on the kit's real runtime;
+the three styles' pictures against 0.9.6, 26 frames, pixel for pixel;
+M Track Mode with the style kept in place against its first build, 8
+frames, pixel for pixel; the start-up message at fifteen moments against
+0.9.6 (twelve the same pixels, the three in the mended second not); the
+widest picture's glass as rendered against the geometry's own sums, seven
+renders, every pixel (never any picture where the sums have none); M Track
+Mode against its photograph; and what a frame costs, against 0.9.1.
+
+**Not yet on a car**: M Track Mode and its picture over the whole wing,
+the lowered cluster, the M styles' widest picture, the start-up message's
+mended second, and the flash that is no longer drawn when idle - see
+`docs/IN-CAR-TEST.md` (*M Track Mode*, *Lowered and larger*, *The widest
+picture*, *The start-up message*, *As smooth as it was*). To know before
+it is: in M Track Mode a picture in the wing stands the whole style 193 px
+further right (its fuel ladder then ends 7 px inside the screen's edge),
+and on an M car the lower part of its gear may stand under one of the
+boxes those cars draw over any style; lowered, an M style's speed scale
+reaches the tyre pressure lamp's place; and with the widest picture the
+blue plates are gone while a picture shows.
+
+## Beta 6 — branch `beta-6`, app version 0.9.6
 
 **0.9.6: diesels, and M Sport's two lines off the map.** Both from testers.
 

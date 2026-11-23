@@ -5,11 +5,14 @@ before it goes out. This list is what the simulation **cannot** prove. Do
 the parked steps first; do the driving steps on a quiet road or with a
 passenger watching the cluster.
 
-**What has not come back from a car yet comes first**, below: Beta 6's
-checks for the three things Beta 4's drive asked for (Beta 6 runs on its
-owner's car - "all themes work" - but these have not been answered one by
-one), the diesel setting and M Sport's lines (0.9.6), electric range, then
-Beta 5's readings without BeeM-Flash. Beta 4's table follows (it has been
+**What has not come back from a car yet comes first**, below: **M Track
+Mode** and the BETA that **lowers and enlarges the cluster** (both Beta 7,
+new and never on a car), the M styles' **widest picture** and the
+**start-up message** (also Beta 7), then Beta 6's checks for the
+three things Beta 4's drive asked for (Beta 6 runs on its owner's car -
+"all themes work" - but these have not been answered one by one), the
+diesel setting and M Sport's lines (0.9.6), electric range, then Beta 5's
+readings without BeeM-Flash. Beta 4's table follows (it has been
 driven: "overall very good", B4 – B6 confirmed); the older tables after it
 still stand, except where a newer check says otherwise.
 
@@ -25,6 +28,111 @@ still stand, except where a newer check says otherwise.
   a key-off hands the cluster back; a head-unit restart always does.
 - For anything in the middle (a map, the camera): the car's **Instrument
   cluster > Central display area** on **Map view**.
+
+## M Track Mode (Beta 7, 0.10.0)
+
+A fourth style: BMW M's track view, rebuilt from one photograph
+(`docs/ref/m-track-reference.jpg`). Choose it on the page's CLUSTER tab
+(◀ ▶ to *M Track Mode*) or under *GENERAL → Style*. It has not been on a
+car: a photograph of the cluster with it on is worth more than any line
+below.
+
+| # | Do | Look for |
+|---|---|---|
+| T1 | Parked, engine running, in P | The style as in the photograph: the pointed blue wing on the left with the light blue and red **M bands** and four gauge rows, the **gear** large on a black band with the **speed** under it, the leaning red **rev counter** on the right with oil and fuel as ladders beside it, the footer. Nothing of BMW's own gauges shows anywhere above its strip |
+| T2 | The edges of the screen | The wing's point stands clear of the tyre-pressure light's place on the left; the title *1/min x 1000* and the 8 are whole at the top right (the glass is cut at that corner); the outside temperature is whole at the bottom right. **If anything is cut off or under one of the car's own lamps, say what** |
+| T3 | Rev gently | The white marker climbs the leaning scale and the band under it fills red, down to its foot. The fine pale strip beside the rail near the top is the red field: it runs from the top of the scale down to your redline (6,750 on the X3 M40i). Level with each numeral there is a tick; the marker is level with 3 at 3,000 |
+| T4 | The four gauge rows, engine warm | Top to bottom: turbo boost (psi or bar), coolant, oil temperature, intake air. On each a **small block joining the rail and the fine line under it** stands at the reading — at the left end for boost at idle, moving right as you accelerate. **Say whether you can read them at a glance.** If not: M TRACK → *Gauge rows: the reading shows as → A bar*, which dims the rail past the mark |
+| T5 | Compare each row with what you know | Coolant near the middle of its row when warm (about 100 °C / 210 °F is the middle figure); oil temperature the same figure as the ladder right of the rev counter shows; intake air a little above the outside temperature when moving. Boost and intake air need the car to supply them: **a row with no mark at all has no reading — say which** (intake air comes from BeeM-Flash or the engine unit, as in the M styles' footer) |
+| T6 | M TRACK → *Gauge row 1 … 4*: give a row *Oil pressure*, *Battery voltage*, *Nothing* | The row's figures, unit, symbol and mark change to the reading chosen; *Nothing* leaves the row out and the others stay where they are |
+| T7 | M TRACK → *Left wing shows* → **Phone map (Waze)**, phone navigating | **As you choose it, the whole style moves about a tenth of the screen to the right** (193 px; the same size, at the same height) - that is meant: it puts the wing's point on the left edge of the car's picture. Then, within a second or two of the map being there, the four rows fade out and **the map fills the left wing, right to its point**, and shows nowhere else: soft at every edge and along the wing's two leaning sides, the M bands and the fine lines still over it, everything right of the black seam - gear, speed, rev counter - as before. Stop navigating: the gauges come back (the style stays where it is until you choose *The four gauges* again). **Say how much of your map you can use like this** |
+| T7a | With the map in the wing: the right edge of the screen | The **fuel ladder** right of the rev counter ends just inside the screen (7 px), all of it showing; the outside temperature at the bottom right is whole. **If the screen's edge or its cut corner takes anything, say what** - and use T7b meanwhile |
+| T7b | M TRACK → *Left wing: how much of it a picture takes* → **The style stays where it is** | The style goes back to where it stands with the gauges and does not move for a picture; the map then starts part way along the wing, on a soft upright edge, with the wing's point plain blue |
+| T8 | *Left wing shows* → **BMW's own map**, then **Turn View camera** | The same wing over BMW's map (open all the time), and over the camera (Turn View switches on by itself, and off again when you leave the setting) |
+| T9 | Drive | The gear is the frame's large letter (P, R, N) or the engaged gear's number; the speed one figure in your units, flush right before *mph* / *km/h*. BMW's head-up display agrees |
+| T10 | Fuel and oil ladders | Fuel lit from the foot to the tank's level (half a tank: two pieces, the last one a shade dimmer). Oil rises from the foot as it warms: its fine line is blue at the foot (cold) and red at the top |
+| T11 | Rev to the limiter, parked | The lit band flashes, and the screen's edges with it (*GENERAL → Limiter flash*) |
+| T12 | M TRACK → *Footer, left / middle / right*; GENERAL → *BMW's bottom strip* | As in the M styles: each place takes any reading or nothing; the strip can be trimmed or hidden, BMW's gear letter always left |
+| T13 | An **M car** (if yours is one) | The car may draw two boxes of its own over a cluster app. The lower part of the large gear is under the left one on the car this was measured from; the rev counter's numerals should all be clear of the right one. **Say what the car puts where** |
+| T14 | A diesel: *GENERAL → Engine → Diesel* | The rev counter reads **0 to 6**, seven numerals spread evenly over the same height, red from 4,500 |
+
+## Lowered and larger (BETA, 0.10.0)
+
+Off as it comes: *GENERAL → BETA: lower and enlarge the cluster*. It draws
+the whole style further down, into the rows BMW's strip leaves when it is
+hidden, and larger by as much. **Start parked, and start small.** The one
+thing to watch for above all is BMW's **black box in the rev dial**: it
+means something of ours stood over the gear's window. The option is built
+never to do that (it keeps to the columns *Hide it* already drives on),
+but no car has run it yet.
+
+| # | Do | Expect |
+|---|---|---|
+| W1 | Any style on the cluster. *BETA: lower and enlarge the cluster* → **20 px lower** | Within half a second the style is a little larger and reaches further down. BMW's strip is gone but for its **gear letter**, which stands where it always does. **No black box** in the rev dial |
+| W2 | The top of the style | Where it was: only the foot has moved. Nothing is stretched - circles are still circles |
+| W3 | **40**, then **58**, then **74 px lower** | Larger each time (6, 9, 11 %). M Sport, M Sport Plus and M Track Mode go to the screen's edge at 74; **Toro stops at 58** and looks the same at 74 |
+| W4 | Shift through P R N D S and M1 … at the largest setting | BMW's gear letter changes in its place and is never covered or cut. Still no black box |
+| W5 | Toro at 58: the speed, bottom right | It stands just left of BMW's gear letter, and its unit (MPH or KM/H) does not touch the letter |
+| W6 | Toro at 58, at the rev limiter with *Shake the screen* on **Hard** | The whole instrument shakes; BMW's gear letter does not, and nothing jumps over it. The red flash takes in the whole instrument, with a black gap where the gear letter is |
+| W7 | An M style at 74: the footer (time, range, outside temperature) | All of it on the screen, on its last rows. Say if the screen's own edge cuts any figure |
+| W8 | An M style, lowered: the speed scale's numerals on the left | They now reach the place the **tyre pressure lamp** lights. If that lamp is on, it is drawn over them - that is expected; say if it is a nuisance |
+| W9 | A map or the camera in the middle, lowered | The picture is where it always is and the same size; the style's window round it is a little larger. Nothing of BMW's own cluster shows at the window's edges - look closely at M Sport Plus with *Centre picture: how much shows → More* and *Fullest* |
+| W10 | M Track Mode at 74 with a map in the wing | The picture begins where it begins, on a soft edge, not a hard line |
+| W11 | The start-up message (*GENERAL → Start-up message*), lowered | The whole style is dimmed behind it, the footer too |
+| W12 | Set it back to **Off** | Exactly the style as it was, and *BMW's bottom strip* as you had it set |
+| W13 | Lock the car, let it sleep, start again with it lowered | It comes up lowered, with no black box |
+
+If the black box ever appears: set the option to **Off**, note which style
+and amount, and report it. It can stay until the cluster has restarted
+(lock the car and let it sleep).
+
+## The widest picture, M Sport and M Sport Plus (0.10.0)
+
+Off as it comes: *M SPORT* or *M SPORT PLUS → Centre picture: how much
+shows → Widest*, with a picture chosen under *Centre picture* (the phone's
+map, BMW's own, or the camera). It has not been on a car.
+
+| # | Do | Expect |
+|---|---|---|
+| V1 | *Widest*, BMW's own map in the middle | **The map fills the whole middle between the two dials**: from its own top edge down to the two coloured rails, and almost from dial to dial. Its four edges fade out softly into black - no hard line anywhere, no corner |
+| V2 | The blue plates | **Gone while the map shows** (that is meant), and M Sport's two fine lines with them. The dials, the fuel and oil strips, the rails and the footer are as ever |
+| V3 | The speed, the gear, the fuel and oil strips, **by day** (a bright map) | Each stands on a soft patch of dark glass, **as easy to read as with no map**. Nothing white is on the bright map. Say if any figure is hard to read, or if a patch looks too large or too hard-edged |
+| V4 | *Second speed underneath → One speed only*; *The gear's place shows → Nothing* | The patch under the speed is shorter; the one at the gear's place is gone and the map shows there |
+| V5 | The phone's map: start navigating, then stop | The plates fade out as the map comes up, over about half a second, and come back as it goes. **No flash, no frame of plain black, no plate left half drawn** |
+| V6 | *Centre picture → Next turn, as a card*, or *Closed* | The style whole, exactly as with any other size |
+| V7 | Under the rails | The map ends there; the footer - time, range, the 4WD panel, outside temperature - is on black, untouched |
+| V8 | Lowered (BETA) with *Widest* | The map is where it always is and the same size, soft at its edges, with the larger style round it. Nothing of BMW's own cluster shows at its edges |
+| V9 | M Sport: *Centre picture: the two lines across it → Keep them over the picture* | The two lines stay, over the map; everything else as V1 |
+
+## The start-up message (0.10.0)
+
+*GENERAL → Start-up message* (on as it comes). One slip in it was put
+right in 0.10.0; nothing else about it was changed.
+
+| # | Do | Expect |
+|---|---|---|
+| U1 | Start the car with the app set to come up, and watch the first two seconds | **The screen is dark and the words fade in on the dark.** The cluster is **not** seen behind them as they appear (until 0.10.0 it showed through for about a second, then was covered again) |
+| U2 | Keep watching | The words stand with the fine coloured line under them for the time set (10 s as it comes), then fade; **the cluster comes up through the last of them** and is clear about a second after they have gone |
+| U3 | *Start-up message: how long* → 6 s, and 20 s | The same, sooner or later |
+
+## As smooth as it was (0.10.0)
+
+Nothing a style asks of the head unit has grown since the first public
+release, and one thing has shrunk: the limiter's red flash, which used to
+be drawn across the whole screen on every frame with nothing in it, is now
+drawn only while the limiter is near (`docs/PERFORMANCE.md`). That was
+measured on a computer. The car is what counts:
+
+| # | Do | Expect |
+|---|---|---|
+| S1 | Each style in turn, a normal drive | As smooth as you remember it: the rev counter and the speed move without steps, nothing stutters when the map or the camera opens |
+| S2 | Run to the limiter (any style, *Limiter flash* on) | The flash is there **at once** as the limiter nears, flashing as it always did - not a frame late, not missing its first beat |
+| S3 | Lift off | The flash is gone at once. **Nothing is left behind**: no faint red at the screen's edges while driving normally afterwards |
+| S4 | M Track Mode: the figures over its gauge rows, the rev counter's numerals, the 150 / 100 / 50 beside the oil strip | All there, whole and sharp, none cut off at an edge (each now has a box just its own size) |
+
+If any style feels less smooth than it did, say which, with its settings
+(above all: lowered or not, the centre picture, the holiday theme) and
+what else the head unit was doing - navigation, CarPlay, a camera.
 
 ## Beta 6 — what Beta 4's drive asked for
 

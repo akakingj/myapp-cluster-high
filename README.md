@@ -1,7 +1,7 @@
 # mgu-styles2
 
 MGU Styles: custom instrument clusters for BMW iDrive 7 (MGU), an app by **#tunedbywali**.
-Three styles you switch between on iDrive:
+Four styles you switch between on iDrive:
 
 - **Toro** — after a modern Lamborghini: a wide rev band, a big gear
   numeral (outline, heavy or bold; in the middle or in a corner), wedge
@@ -9,19 +9,30 @@ Three styles you switch between on iDrive:
 - **M Sport** — BMW M's iDrive 8 M View, rebuilt for the iDrive 7 panel.
 - **M Sport Plus** — the same dials round the M stripes, with a wide
   picture in the middle.
+- **M Track Mode** — BMW M's track view, rebuilt the same way: four gauge
+  rows of your choosing in a blue wing, the gear large beside them, a
+  leaning red rev counter. **New in this version and not yet driven**:
+  see *M Track Mode*, below.
 
-Each can show the phone's map, BMW's own map or Turn View's camera in its
-middle, and each has its own settings on the app's page.
+Each can show the phone's map, BMW's own map or Turn View's camera — in
+its middle, or in M Track Mode's left wing — and each has its own settings
+on the app's page.
 
-![The five designs and the app's page](docs/screenshots/overview.png)
+![The six designs and the app's page](docs/screenshots/overview.png)
 
 > **Unofficial. Nothing to do with BMW AG or Automobili Lamborghini.**
 > Changing what your cluster shows can distract you and may affect your
 > warranty. The car's own warning lights and its gear display are never
 > covered. Test it parked. You use it entirely at your own risk.
 
-This is version **0.9.6**. What changed in each version is in
+This is version **0.10.0**. What changed in each version is in
 [CHANGELOG.md](CHANGELOG.md).
+
+**Would you rather have the stable beta?** This version adds a good deal
+that has not been on a car yet. The release before it, **0.9.6**, has: it
+is kept on this repository's **`beta-6`** branch. In the MGU Store, add
+this repository as a source and choose **beta-6** where it asks what to
+follow; **main** is this version.
 
 ## What you need
 
@@ -41,7 +52,8 @@ This is version **0.9.6**. What changed in each version is in
 
    That is all: no `https://`, no spaces, a hyphen (not an underscore),
    and the **2** on the end. Capitals do not matter. The Store checks the
-   repository and adds it on its `main` branch.
+   repository and asks what to follow: choose the branch **main** for
+   this version (**beta-6** is the stable beta, 0.9.6).
 2. Install **mgu-styles2**.
 3. Open it from iDrive's menu. It is **off** after install: nothing on
    your cluster changes until you press the switch on the **CLUSTER** tab.
@@ -77,8 +89,9 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
   hybrid gets its electric range beside the fuel's; a fully electric car
   gets range, charge and battery temperature in place of fuel and oil),
   the holiday theme, the start-up message.
-- **TORO / M SPORT / M SPORT PLUS**: each style's own — what its middle
-  shows and how much of it, colours, the gear, the footer's readings.
+- **TORO / M SPORT / M SPORT PLUS / M TRACK**: each style's own — what
+  its middle (or M Track Mode's left wing) shows and how much of it,
+  colours, the gear, the gauge rows, the footer's readings.
   **km/h only** in an M style: *GENERAL → Units → km/h*, then on the
   style's tab *Second speed underneath → One speed only* (the M View
   otherwise shows mph and km/h together).
@@ -94,6 +107,17 @@ the middle, soft at every edge and reaching further down, with the speed
 and the gear kept on dark ground. M SPORT PLUS tab → *Centre picture: how
 much shows*.
 
+**New in 0.10.0 — *Widest*, in M Sport and M Sport Plus.** The car's whole
+picture between the two dials, fading out softly at every edge: more than
+half of the map, where *More* shows about a third of it. The blue plates
+make way for the picture while it shows (and M Sport's two lines with
+them), and come back when it goes; the speed, the gear and the fuel and oil
+strips each keep a soft patch of dark glass under them, so they read the
+same over a bright daytime map. M SPORT or M SPORT PLUS tab → *Centre
+picture: how much shows → Widest*. It is off until you choose it.
+
+![The widest window: all of the car's picture, in both M styles, by day, by night and over the camera](docs/screenshots/m-widest.png)
+
 **M Sport's two centre lines no longer cross the map.** Where a picture
 shows (the phone's map, BMW's map or the camera) they fade out with the
 rest of the window; under it they still run into the rails. To have them
@@ -101,6 +125,69 @@ over the picture as before: M SPORT tab → *Centre picture: the two lines
 across it → Keep them over the picture*.
 
 ![M Sport's centre lines: faded where the picture shows, or kept](docs/screenshots/m-lines.png)
+
+**The start-up message comes up on a dark screen** (GENERAL tab: *Start-up
+message*, on as it comes). The words fade in, stay for the time you set,
+and fade away as the cluster comes up through them. Until 0.10.0 the
+cluster could be seen behind the words for about a second just as they
+appeared — a slip that had been there from the start, now gone. Nothing
+else about it has changed.
+
+![The start-up message from the first frame to the last: the words come up on the dark and dissolve into the cluster](docs/screenshots/startup-sequence.png)
+
+## M Track Mode
+
+New in 0.10.0: BMW M's track view, rebuilt for the iDrive 7 panel from a
+photograph of it. *GENERAL → Style → M Track Mode*.
+
+![M Track Mode](docs/screenshots/m-track.png)
+
+Everything on it is your car's live figures, in the units you chose.
+
+- **Four gauge rows** in the left wing. As they come they are BMW's own
+  four: turbo boost, coolant, oil temperature and intake air. On the
+  **M TRACK** tab, *Gauge row 1 (top)* … *Gauge row 4 (bottom)* give each
+  row another reading — oil pressure, battery voltage, a drive battery's
+  charge or temperature — or leave it out.
+- **A row shows its reading as a small mark on its rail.** That is as much
+  as the photograph gives away (it was taken with the car idling). If the
+  marks are too small to read at a glance: *Gauge rows: the reading shows
+  as → A bar*, which dims the rail past the mark.
+- **The gear**, large, with the speed under it; **the rev counter** on the
+  right, red under its white marker, with the red zone, the limiter flash
+  and a diesel's range as in the other styles; **oil temperature and
+  fuel** beside it; and three places along the foot that take any reading
+  (*Footer, left / middle / right*).
+
+![The gauge rows: as marks, as bars, in other units, with other readings](docs/screenshots/m-track-rows.png)
+
+**A map or the camera in the left wing.** *M TRACK → Left wing shows*: the
+four gauges (as it comes), the phone's map (Waze), BMW's own map, or Turn
+View's camera. With a picture the four rows make way for it, and it shows
+in the wing only: the gear, the speed and the rev counter stay exactly
+where they are.
+
+**The picture fills the wing, right to its point.** The car puts its map
+in one fixed place on the cluster, and no app can move it — and that place
+starts well right of the wing's point. So when you choose a picture the
+whole style stands about a tenth of the screen further right (the same
+size, at the same height), which lets the picture fill the wing. With the
+gauges it stands where it always has. If you would rather it never moved:
+*M TRACK → Left wing: how much of it a picture takes → The style stays
+where it is* (the picture then starts part way along the wing).
+
+The wing shows the part of the map under it — about a third of the car's
+picture, its middle included — not all of it. If the whole map is what you
+want while driving, choose M Sport or M Sport Plus with *Widest*.
+
+![M Track Mode's left wing: the gauges, a map by night and by day, the camera](docs/screenshots/m-track-wing.png)
+
+**It has not been on a car yet** — please say how it goes, above all:
+whether the marks on the gauge rows can be read while driving; what the
+left wing shows of your map, and whether anything at the screen's right
+edge is cut off when a picture is in the wing; and, **on an M car** (M3, M4, X3 M …),
+whether one of the boxes those cars draw over any style stands over the
+gear.
 
 ## If your car is a diesel
 
@@ -170,11 +257,37 @@ BMW's cluster draws a black box in the rev dial instead. Warning lamps
 still show over the covered strip.
 
 With the strip hidden, the M styles' footer can carry what it showed:
-**M SPORT** or **M SPORT PLUS** tab → *Footer, left / middle / right* (time,
-range, outside temperature and more), and *The gear's place shows* if you
-would rather not see the gear twice.
+**M SPORT**, **M SPORT PLUS** or **M TRACK** tab → *Footer, left / middle /
+right* (time, range, outside temperature and more), and on the first two
+*The gear's place shows* if you would rather not see the gear twice.
 
 ![BMW's bottom strip at each setting](docs/screenshots/strip.png)
+
+### BETA: lower and enlarge the cluster
+
+With the strip hidden, the rows it stood in are plain black. This option
+draws the whole style into them — lower, and larger by the same amount:
+
+1. Open the app, choose the **GENERAL** tab.
+2. Press **BETA: lower and enlarge the cluster** and pick an amount:
+   **20, 40, 58 or 74 px lower** (3, 6, 9 or 11 % larger). **Off** puts it
+   back exactly as it was.
+
+It hides BMW's strip for you; **BMW's gear letter stays**, and nothing is
+ever drawn over it. The top of the style stays where it is and nothing is
+stretched: it is the same picture, bigger. The M styles go to the screen's
+edge at 74; **Toro goes 58** (any further and its side gauges would leave
+the screen), so 74 looks the same as 58 there.
+
+![Each style with the strip hidden, and lowered as far as it goes](docs/screenshots/lowered.png)
+
+**It is a BETA and has not been on a car yet.** Try it parked first, start
+with 20, and look at the rev dial: if BMW's **black box** appears there,
+set the option back to **Off**, lock the car and let it sleep once — and
+please report it with your car, the style and the amount. Two things are
+expected and are not faults: lowered, an M style's speed numbers reach the
+place the tyre pressure lamp lights (the lamp shows over them), and the map
+or camera picture in the middle stays the size the car draws it.
 
 (The pictures are the app's own preview, not photographs of a car.)
 
@@ -184,6 +297,18 @@ It should not: the app never covers the gear letter. If you see one after
 choosing *Hide it*, choose *Hide it, a wider gap left beside the gear*,
 lock the car and let it sleep once (the box can stay until the cluster
 restarts) — and please report it, with your car and model year.
+
+## Is it still as smooth?
+
+It should be exactly as smooth as it was, or a little better. Each style
+as it comes asks the head unit for the same as it did in the first public
+release — the same number of layers, the same handful of bytes a frame —
+and the cluster's GPU now has less to draw: the limiter's red flash is no
+longer drawn when nothing is flashing
+([docs/PERFORMANCE.md](docs/PERFORMANCE.md) has the measurements). That
+was measured on a computer, not in a car, so **if any style feels less
+smooth than it did, please say so**, with the style, your settings, and what else the head unit was doing
+(navigation, CarPlay, a camera).
 
 ## Tell me how it goes
 
