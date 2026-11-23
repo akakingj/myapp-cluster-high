@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Toro cluster preview</title>
+<style>
+  html, body { margin: 0; background: #07090c; color: #9aa6b2;
+               font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; }
+  #wrap { position: relative; width: 1920px; height: 720px; }
+  canvas { display: block; width: 1920px; height: 720px; background: #000; }
+  /* The strip the car keeps for itself. Shown only as a guide. */
+  #strip { position: absolute; left: 0; top: 646px; width: 1920px; height: 74px;
+           box-sizing: border-box; border-top: 1px dashed rgba(255,120,60,.55);
+           background: repeating-linear-gradient(45deg, rgba(255,120,60,.06) 0 10px,
+                       transparent 10px 20px); color: rgba(255,150,90,.75);
+           font: 12px ui-monospace, monospace; padding: 6px 12px; pointer-events: none; }
+  #strip.off { display: none; }
+  #err { position: absolute; left: 0; top: 0; padding: 16px; color: #ff6b6b;
+         white-space: pre-wrap; font: 12px ui-monospace, monospace; max-width: 1860px; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c" width="1920" height="720"></canvas>
+  <div id="strip">BMW keeps this strip &mdash; gear, drive mode, ranges. Nothing of ours draws below y=646.</div>
+  <div id="err"></div>
+</div>
+
+<script src="../src/geometry/panel.js"></script>
+
+<script src="../src/shaders/prelude.js"></script>
+<script src="../src/shaders/core.js"></script>
+<script src="../src/shaders/dial.js"></script>
+<script src="../src/shaders/parts.js"></script>
+<script src="../src/theme/mgeom.js"></script>
+<script src="../src/shaders/mcluster.js"></script>
+<script src="../src/theme/tgeom.js"></script>
+<script src="../src/shaders/tcluster.js"></script>
+<script src="./fixtures.js"></script>
+<script src="../src/engine/text.js"></script>
+<script src="../src/engine/state.js"></script>
+<script src="../src/engine/clock.js"></script>
+<script src="../src/theme/strip.js"></script>
+<script src="../src/theme/palette.js"></script>
+<script src="../src/theme/guide.js"></script>
+<script src="../src/theme/textlayers.js"></script>
+<script src="../src/theme/lambo.js"></script>
+<script src="../src/theme/readings.js"></script>
+<script src="../src/theme/track.js"></script>
+<script src="../src/theme/mtrack.js"></script>
+<script src="../src/theme/overlays.js"></script>
+<script src="../src/theme/index.js"></script>
+<script src="./engine.js"></script>
+<script src="./sim.js"></script>
+<script>
+(function () {
+  'use strict';
+  var out = document.getElementById('err');
+  function fail(e) { out.textContent = String(e && e.stack || e); }
+  window.__ready = false; window.__error = null;
+
+  var params = new URLSearchParams(location.search);
+  if (params.get('strip') === 'off') document.getElementById('strip').className = 'off';
+
+  var shaders = {};
+  [MGUShadersCore, MGUShadersParts, MGUShadersDial, MGUShadersM, MGUShadersT, MGUShadersFixture].forEach(function (set) {
+    for (var k in set) if (set.hasOwnProperty(k)) shaders[k] = set[k];
+  });
+
+  fetch('../assets/fonts/atlas.json').then(function (r) { return r.json(); })
+  .then(function (atlas) {
+    return new Promise(function (res, rej) {
+      var img = new Image();
+      img.onload = function () { res({ atlas: atlas, img: img }); };
+      img.onerror = function () { rej(new Error('atlas.png did not load')); };
+      img.src = '../assets/fonts/atlas.png';
+    });
+  })
+  .then(function (a) {
+    var profileId = params.get('profile') || 'x3m40i';
+    /*
+     * fixture=m: the M style in the exact state of its reference frame
+     * (docs/ref/m-view-reference.jpg): 0 km/h, P, idling, 12:04 pm, 207 km,
+     * 4WD, +12.5 C, and the frame's lamps. tools/m-compare.py renders this.
+     */
+    var mFixture = params.get('fixture') === 'm';
+    /*
+     * fixture=mt: M Track Mode in the state of its reference frame
+     * (docs/ref/m-track-reference.jpg): 0 km/h, D, 840 rpm, 19:02, 402 km,
+     * +21.0 C, the boost row's mark at 0.0 and no other row's showing, the
+     * speed limit sign. tools/mt-compare.py renders this.
+     */
+    var mtFixture = params.get('fixture') === 'mt';
+    /* art=native: the M style's artboard 1:1 at the top-left corner, as
+       the photograph is - what tools/m-compare.py measures. art=N: N panel px a unit. */
+    if (params.get('art')) {
+      var artS = params.get('art') === 'native' ? 1 : parseFloat(params.get('art'));
+      if (artS > 0) { MGUMGeom.setFit({ s: artS, ox: 0, oy: 0 }); MGUTGeom.setFit({ s: artS, ox: 0, oy: 0 }); }
+    }
+    var units = params.get('units') || (mFixture || mtFixture ? 'metric' : 'imperial');
+    var cfg = { units: units };
+    if (mFixture) { cfg.style = 'track'; cfg.centre = 'off'; cfg.clock12 = true; cfg.mFixture = true; cfg.rpmRedline = 7000; }
+    if (mtFixture) { cfg.style = 'mtrack'; cfg.centre = 'off'; cfg.mtFixture = true; cfg.rpmRedline = 7620; }
+    ['accent', 'accentScope', 'litColour', 'revFlash', 'flashStyle', 'flashColour',
+     'mode', 'background', 'style', 'centre', 'mPanel', 'mPop', 'shiftStyle', 'shake',
+     'introText', 'bottomExtra', 'footL', 'footM', 'footR', 'mGear',
+     'gearFill', 'gearPlace', 'centreSize', 'electric', 'electricGauge', 'speed2', 'mLines', 'engine',
+     'row1', 'row2', 'row3', 'row4', 'rowMark', 'wing'].forEach(function (k) {
+      if (params.get(k)) cfg[k] = params.get(k);
+    });
+    ['scaleMaxRpm', 'rpmRedline', 'rpmLimiter', 'redFromScale', 'flashFromRpm',
+     'flashRate', 'flashStrength', 'hexagons', 'hexSize', 'stipple',
+     'facets', 'introSeconds', 'zoom', 'shiftY', 'lower'].forEach(function (k) {
+      if (params.get(k)) cfg[k] = parseFloat(params.get(k));
+    });
+    ['shiftLights', 'showBoost', 'showAuxLeft', 'showZeroNumeral', 'holiday', 'intro', 'numeralFill',
+     'clock12', 'mFixture', 'mtFixture', 'signCover'].forEach(function (k) {
+      if (params.get(k) === 'off') cfg[k] = false;
+      if (params.get(k) === 'on') cfg[k] = true;
+    });
+    var engine = MGUEngine.create(document.getElementById('c'),
+      { onWarn: function (m) { out.textContent += m + '\n'; }, clock: MGUClock });
+    engine.build(shaders, MGUPrelude);
+    engine.setAtlas(a.img);
+
+    var profile = MGUPanel.profile(profileId);
+    var theme = MGUThemes.build(a.atlas, profileId, cfg);
+    var ambHex = params.get('ambient');
+    var amb = ambHex && /^[0-9a-fA-F]{6}$/.test(ambHex)
+      ? [parseInt(ambHex.slice(0, 2), 16) / 255, parseInt(ambHex.slice(2, 4), 16) / 255,
+         parseInt(ambHex.slice(4, 6), 16) / 255] : null;
+    /* Track: what is under the window (show=map|camera|magenta) and what the
+       centre shows (mode=map|camera|turn|neutral, turn=left|roundabout|...) */
+    var show = params.get('show');
+    var fixtureKind = { map: 1, camera: 2, grid: 2, magenta: 3, day: 4 }[show] || 0;
+    if (theme.hasCentre && fixtureKind) theme.layers.push(MGUFixtureLayer(fixtureKind));
+    /* bmwStrip=on: a stand-in for the car's own bottom strip, under ours
+       (bmwMode=SPORT|COMFORT|...: the driving mode it names) */
+    if (params.get('bmwStrip') === 'on') {
+      MGUStripFixture(a.atlas, MGUTextLayers, { mode: params.get('bmwMode') }).forEach(function (L) { theme.layers.push(L); });
+    }
+    var centre = null;
+    if (theme.hasCentre) {
+      var cm = params.get('cmode') || (fixtureKind ? (show === 'map' || show === 'day' ? 'map' : 'camera') : (params.get('turn') ? 'turn' : 'neutral'));
+      var open = params.get('open') !== null ? parseFloat(params.get('open')) : 1;
+      centre = { mode: cm, open: cm === 'map' || cm === 'camera' ? open : 0,
+                 maneuver: MGUSampleTurns[params.get('turn') || 'left'] };
+    }
+    /* a diesel is driven like one: it changes up where its own limiter is */
+    var sim = MGUSim.create(profile, theme.settings.engine === 'diesel' ? { shiftAt: theme.settings.rpmLimiter - 120 } : null);
+
+    /* A fixed point in the drive, so a screenshot is repeatable. */
+    var seek = parseFloat(params.get('t'));
+    var frozen = params.get('freeze') === '1';
+    var elapsed = 0;
+
+    var FIXTURE_RAW = { rpm: 738, speedKmh: 0, gear: 'P', fuelPct: 40.5, oilTempC: 57.8, coolantC: 60,
+                        rangeKm: 207, ambientC: 12.5, clock: { h: 12, m: 4 }, odoKm: 18420,
+                        avgL100: 9.6, iatC: 24, batteryV: 14.1 };
+    /* the track frame's own state: only the boost reads (its mark stands at 0.0); oil about 75 C on its ladder */
+    var MT_FIXTURE_RAW = { rpm: 840, speedKmh: 0, gear: 'D', fuelPct: 54.7, oilTempC: 75.2, boostBar: 0,
+                           rangeKm: 402, ambientC: 21.0, clock: { h: 19, m: 2 } };
+    function draw(time) {
+      var rawNow = mFixture ? FIXTURE_RAW : mtFixture ? MT_FIXTURE_RAW : sim.raw();
+      /* electric=hybrid|bev: a battery to show (the simulated car has none of its own) */
+      if (cfg.electric === 'hybrid') { rawNow.evRangeKm = 43; rawNow.socPct = 78; }
+      if (cfg.electric === 'bev') { rawNow.evRangeKm = 310; rawNow.socPct = 64; rawNow.hvTempC = 26; }
+      var st = MGUState.present(rawNow, profile, theme.settings);
+      if (centre) st.centre = centre;
+      /* now=S: the clock's own seconds, apart from where the drive is (t):
+         what moves by the clock alone - the snow, the tree - with the car held still */
+      st.now = (params.get('now') !== null ? parseFloat(params.get('now')) : time) * 1000;
+      /* since=S: seconds since the cluster came up (the start-up message) */
+      st.sinceOn = params.get('since') !== null ? parseFloat(params.get('since')) : time;
+      if (params.get('drive')) st.modeLabel = params.get('drive');
+      /* ambient=RRGGBB stands in for the car's interior light */
+      if (amb && theme.setAccent) theme.setAccent(amb);
+      engine.render(theme, st, time, 720, MGUPanel.BOTTOM_CUT);
+      window.__state = st;
+    }
+
+    if (isFinite(seek)) { for (var i = 0; i < Math.round(seek * 60); i++) sim.step(1 / 60); }
+    if (params.get('rpm')) sim.poke({ rpm: parseFloat(params.get('rpm')) });
+    if (params.get('speed')) sim.poke({ speedKmh: parseFloat(params.get('speed')) });
+
+    draw(isFinite(seek) ? seek : 0);
+    window.__ready = true;
+
+    if (!frozen) {
+      var last = performance.now();
+      (function loop(now) {
+        var dt = Math.min(0.05, (now - last) / 1000); last = now;
+        elapsed += dt;
+        sim.step(dt);
+        draw(elapsed);
+        requestAnimationFrame(loop);
+      })(last);
+    }
+  })
+  .catch(function (e) { window.__error = String(e && e.stack || e); fail(e); });
+})();
+</script>
+</body>
+</html>

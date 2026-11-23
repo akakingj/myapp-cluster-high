@@ -1,0 +1,63 @@
+(function (root, factory) {
+    if (typeof module === 'object' && module.exports) module.exports = factory();
+    else root.MGUReadings = factory();
+}(typeof self !== 'undefined' ? self : this, function () {
+    'use strict';
+
+    /*
+     * What a place in an M style's footer can show: the readings
+     * themselves, apart from where a style puts them. M Sport, M Sport
+     * Plus and M Track Mode each lay their footer out to their own
+     * reference frame; all of them fill its three places from this one
+     * table, so a reading means the same thing - and has the same unit and
+     * the same name - in each.
+     *
+     * The frames have the time, the range and the outside temperature
+     * there, which the car's own bottom strip shows too, right under them:
+     * so each place can be given something the strip does not have, or
+     * nothing.
+     */
+    var KINDS = ['time', 'range', 'economy', 'outside', 'iat', 'rpm', 'oil', 'coolant', 'boost', 'volts',
+                 'erange', 'charge', 'hvtemp', 'off'];
+    function kind(v, home) { return KINDS.indexOf(v) >= 0 ? v : home; }
+
+    function known(v) { return v !== null && v !== undefined && v !== '' && v !== '--'; }
+    function infoOf(key) { return function (s) { return s.info && known(s.info[key]) ? s.info[key] : null; }; }
+
+    /*
+     * A reading for a place: its figures (null: nothing to show), its
+     * unit, and what says which it is - a symbol, or a short word in
+     * capitals before the figures. The frames' own three need neither.
+     *
+     * opts: { metric, clock12 }
+     */
+    function table(opts) {
+        var metric = !!(opts && opts.metric), clock12 = !!(opts && opts.clock12);
+        var DEG = metric ? '°C' : '°F';
+        return {
+            time: { value: function (s) { return known(s.clockText) ? s.clockText : null; },
+                    unit: function (s) { return clock12 ? s.clockHalf : ''; } },
+            range: { icon: 'r', value: function (s) { return known(s.rangeText) ? s.rangeText : null; },
+                     unit: metric ? 'km' : 'mi' },
+            outside: { value: function (s) {
+                           if (!known(s.ambientText)) return null;
+                           return s.ambientText.charAt(0) === '-' ? s.ambientText : '+' + s.ambientText;
+                       }, unit: DEG },
+            /* the trip computer's average: "l/100km" says so by itself, and with a word before it
+               would not fit the left place; "mpg" has the room and needs the word */
+            economy: { tag: metric ? null : 'AVG', value: infoOf('economy'), unit: metric ? 'l/100km' : 'mpg' },
+            iat: { tag: 'IAT', value: infoOf('iat'), unit: DEG },
+            rpm: { value: infoOf('rpm'), unit: 'rpm' },
+            oil: { tag: 'OIL', value: infoOf('oil'), unit: DEG },
+            coolant: { tag: 'WATER', value: infoOf('coolant'), unit: DEG },
+            boost: { tag: 'BOOST', value: infoOf('boost'), unit: metric ? 'bar' : 'psi' },
+            volts: { tag: 'BATT', value: infoOf('volts'), unit: 'v' },
+            /* a plug-in hybrid's or an electric car's own (General: Electric range) */
+            erange: { tag: 'EV', value: infoOf('erange'), unit: metric ? 'km' : 'mi' },
+            hvtemp: { tag: 'BATT', value: infoOf('hvtemp'), unit: DEG },
+            charge: { tag: 'CHARGE', value: infoOf('charge'), unit: '' }   /* per cent: the face has no % */
+        };
+    }
+
+    return { KINDS: KINDS, kind: kind, known: known, table: table };
+}));
