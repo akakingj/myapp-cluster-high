@@ -11,6 +11,17 @@ your car, `beta-6` is the one to go back to: in the MGU Store, add the
 repository as a source and choose the branch **beta-6** where it asks
 what to follow, in place of **main**.
 
+## AK 0.11.2 — `ak`
+
+- **The page's pictures on the Store's renderer.** The kit (`kit/runtime/record.js`,
+  `renderd.js`) sends a pixel image as an mgu-render/1 picture (message 10, premultiplied,
+  the version before dropped with 11) and names it in the native `OP_IMAGE`, as AK Cluster
+  Layouts' kit does since its 0.36.5. Before, on that renderer (the car's, and the MGU demo's)
+  the CLUSTER page's design pictures and cards were empty, and the preview showed only its
+  red frame once the cluster was on.
+- **Start-up message off as the app comes** (GENERAL > Start-up message turns it on), and
+  turned off once on a car that had it on (`reset`).
+
 ## AK 0.11.1 — `ak`
 
 - The tile's icon: ID8 in white, in Michroma (thickened, SIL OFL 1.1, as

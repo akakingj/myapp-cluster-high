@@ -224,8 +224,10 @@ test('the message: the default words, uppercase, wrapped to fit', () => {
     assert.deepStrictEqual(words.options.map((o) => o[0]), ['mgu', 'nicole', 'welcome', 'drive', 'buongiorno', 'andiamo', 'custom']);
     assert.strictEqual(words.default, 'mgu');
     words.options.forEach((o) => { if (o[0] !== 'custom') assert.strictEqual(o[1], Palette.INTRO_WORDS[o[0]]); });
-    /* it shows at every start unless turned off: the app's setting comes on (a style built bare has none) */
-    assert.strictEqual(require('../app/app.base.json').settings.find((x) => x.key === 'intro').default, true);
+    /* (AK 0.11.2) off as the app comes, and off once on a car that had it on (reset): GENERAL > Start-up message turns it on */
+    const intro = require('../app/app.base.json').settings.find((x) => x.key === 'intro');
+    assert.strictEqual(intro.default, false);
+    assert.strictEqual(intro.reset, 1);
     assert.strictEqual(Palette.resolve({}, P).intro, false);
     assert.strictEqual(Palette.resolve({ introMessage: 'welcome' }, P).introText, 'Welcome back');
     assert.strictEqual(Palette.resolve({ introMessage: 'custom', introText: 'Ciao bella' }, P).introText, 'Ciao bella');

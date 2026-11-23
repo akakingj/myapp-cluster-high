@@ -61,12 +61,61 @@ function atlasById(id) { const a = atlasList.find((x) => x.id === id); return a 
 
 // pixel images (e.g. a game's frame): id -> { w, h, data (RGBA bytes), ver }. setImage() bumps ver;
 // a frame records id + ver, so a changed picture is a changed frame, and the transport uploads it
+// (nid: the picture's id on a renderer speaking mgu-render/1, a new one for each version: its OP_IMAGE names no version,
+// so a changed picture still makes a changed frame; renderd.js drops the old one)
 const imageById = new Map();
+let nidSeq = 0x6b690000;
 function setImage(id, w, h, data) {
     const im = imageById.get(id) || { ver: 0 };
     im.w = w | 0; im.h = h | 0; im.data = data; im.ver = (im.ver + 1) >>> 0;
+    im.nid = nidSeq = (nidSeq + 1) >>> 0;
     imageById.set(id, im);
     return im;
+}
+
+/* Words after each op (op word not counted), u from i (the word after the op); -1: an op this kit doesn't record. */
+function opWords(op, u, i) {
+    switch (op) {
+    case OP.CLEAR: return 1;
+    case OP.RECT: return 5;
+    case OP.GRAD: return 5 + u[i + 4] * 2;
+    case OP.CARD: return 6 + u[i + 5] * 2;
+    case OP.RRECT: return 6;
+    case OP.RSTROKE: return 7;
+    case OP.RAMPRECT: return 8;
+    case OP.ARC: return 11;
+    case OP.LINE: return 6;
+    case OP.QUAD: return 9;
+    case OP.TRIS: return 1 + u[i] * 9;
+    case OP.GLYPHS: return 3 + u[i + 2] * 8;
+    case OP.LAYER: return 3;
+    case OP.IMAGE: return 6;
+    case OP.CLIP: return 4;
+    case OP.NOCLIP: return 0;
+    case OP.ALPHA: return 1;
+    case OP.XF: return 3;
+    default: return -1;
+    }
+}
+/**
+ * The words with each pixel image in mgu-render/1's form (OP_IMAGE x y w h r id, the picture's nid) instead of this
+ * kit's (id ver x y w h): a copy; the words themselves when they draw no image. An image not set is drawn as nothing.
+ */
+function nativeImages(words) {
+    const u = words instanceof Uint32Array ? words : new Uint32Array(words);
+    let out = null, i = 0;
+    while (i < u.length) {
+        const op = u[i++], k = opWords(op, u, i);
+        if (k < 0) break;
+        if (op === OP.IMAGE) {
+            if (!out) { out = new Uint32Array(u); }
+            const im = imageById.get(u[i]), o = new Float32Array(out.buffer, out.byteOffset, out.length);
+            const x = o[i + 2], y = o[i + 3], w = o[i + 4], h = o[i + 5];
+            o[i] = x; o[i + 1] = y; o[i + 2] = im ? w : 0; o[i + 3] = im ? h : 0; o[i + 4] = 0; out[i + 5] = im ? im.nid : 0;
+        }
+        i += k;
+    }
+    return out || u;
 }
 
 // cached layers (static parts of widgets): drawn once, used by id
@@ -441,4 +490,4 @@ function play(words, real) {
     return real;
 }
 
-module.exports = { triangulate, stripTris, Recorder, OP, pack, unpack, rampId, rampList, atlasId, atlasList, atlasById, makeLayer, dropLayer, layerById, play, softLayer, setImage, imageById };
+module.exports = { triangulate, stripTris, Recorder, OP, pack, unpack, rampId, rampList, atlasId, atlasList, atlasById, makeLayer, dropLayer, layerById, play, softLayer, setImage, imageById, nativeImages };

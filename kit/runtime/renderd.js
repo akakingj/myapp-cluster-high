@@ -315,9 +315,9 @@ class RenderClient extends EventEmitter {
     }
     /** upload a pixel image when this connection hasn't got its current version */
     _ensureImage(id) {
-        if (this.native) { if (!this.imgWarned) { this.imgWarned = true; this.log.warn('renderd: pixel images need the upstream dialect'); } return; }
         const im = rec.imageById.get(id);
         if (!im || !im.data) return;
+        if (this.native) return this._ensurePicture(id, im);
         if (this.sent.image.get(id) === im.ver) return;
         const n = im.w * im.h * 4, b = this._imageBuf(8 + 12 + n);
         b.writeUInt32LE(M.IMAGE, 0); b.writeUInt32LE(12 + n, 4);
@@ -326,6 +326,32 @@ class RenderClient extends EventEmitter {
         this._write(b);
         this.sent.image.set(id, im.ver);
     }
+    /**
+     * mgu-render/1 (the Store's renderer): a pixel image is a picture (message 10: u32 id, w, h, then w*h RGBA
+     * premultiplied, at most 1024 a side) under its version's own id (record.js nid), the version before dropped
+     * (message 11); the frame names it in the native OP_IMAGE (record.js nativeImages).
+     */
+    _ensurePicture(id, im) {
+        const was = this.sent.image.get(id);
+        if (was === im.nid) return;
+        if (im.w < 1 || im.h < 1 || im.w > 1024 || im.h > 1024) {
+            if (!this.imgWarned) { this.imgWarned = true; this.log.warn('renderd: picture ' + im.w + 'x' + im.h + ' too large for mgu-render/1'); }
+            return;
+        }
+        if (was !== undefined) this._write(this._u32msg(11, [was]));
+        const n = im.w * im.h * 4, b = Buffer.alloc(20 + n);
+        b.writeUInt32LE(10, 0); b.writeUInt32LE(12 + n, 4);
+        b.writeUInt32LE(im.nid, 8); b.writeUInt32LE(im.w, 12); b.writeUInt32LE(im.h, 16);
+        const src = Buffer.from(im.data.buffer, im.data.byteOffset, n);
+        for (let k = 0; k < n; k += 4) {
+            const a = src[k + 3];
+            if (a === 255) { b[20 + k] = src[k]; b[21 + k] = src[k + 1]; b[22 + k] = src[k + 2]; b[23 + k] = 255; }
+            else { b[20 + k] = (src[k] * a + 127) / 255 | 0; b[21 + k] = (src[k + 1] * a + 127) / 255 | 0; b[22 + k] = (src[k + 2] * a + 127) / 255 | 0; b[23 + k] = a; }
+        }
+        this._write(b);
+        this.sent.image.set(id, im.nid);
+        if (!this.picLogged) { this.picLogged = true; this.log.info('renderd: pictures as mgu-render/1 pictures (' + im.w + 'x' + im.h + ')'); }
+    }
     _ensureLayer(id) {
         if (this.sent.layer.has(id)) return;
         const L = rec.layerById.get(id);
@@ -333,7 +359,7 @@ class RenderClient extends EventEmitter {
         this._ensureRes(L);
         const head = Buffer.alloc(12);
         head.writeUInt32LE(id, 0); head.writeFloatLE(L.w, 4); head.writeFloatLE(L.h, 8);
-        this._write(msg(M.LAYER, Buffer.concat([head, words(L.words)])));
+        this._write(msg(M.LAYER, Buffer.concat([head, words(this.native ? rec.nativeImages(L.words) : L.words)])));
         this.sent.layer.add(id);
     }
     dropLayer(id) {
@@ -345,7 +371,8 @@ class RenderClient extends EventEmitter {
         if (!this.ready || !this.placement) return false;
         this._ensureRes(r);
         this.waiting = true;
-        return this._write(msg(M.FRAME, words(r.words())));
+        const w = this.native && r.images && r.images.size ? rec.nativeImages(r.words()) : r.words();
+        return this._write(msg(M.FRAME, words(w)));
     }
 }
 
