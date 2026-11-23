@@ -350,5 +350,5 @@ would be the most useful thing to send back.
 
 For anything wrong, a phone photo of the cluster plus the item number is
 enough. The app's log is in its data folder on the head unit
-(`mgustyles_toro.log`) and records every state change, which makes a
+(`akakingj_cluster_id8.log`) and records every state change, which makes a
 mismatch quick to trace.
