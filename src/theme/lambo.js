@@ -348,14 +348,18 @@
         /* Three kinds (src/shaders/core.js shiftbar). The Lamborghini one
            is wider, closes in from both ends and fires in bursts at the
            limit, with the screen flash in step and the cluster shaking.
-           All stand clear of the driver camera's cowl (Panel.CAMERA) and the
-           turn signal arrows either side of it (Panel.TURN_ARROWS): the
-           Lamborghini blades either side of an empty middle, the GT3 LEDs
-           and the blade in two halves, left then right. */
+           All stand clear of the driver camera's cowl (Panel.CAMERA), and of
+           the turn signal arrows at its lower corners (Panel.TURN_ARROWS,
+           below them): the Lamborghini blades either side of an empty
+           middle, the GT3 LEDs and the blade in two halves, left then
+           right. */
         var toroShift = S.shiftStyle === 'toro';
         if (S.shiftLights) {
-            /* the empty middle: from the left arrow's outer edge to the right one's */
-            var GAP_L = Panel.TURN_ARROWS[0].x, GAP_R = Panel.TURN_ARROWS[1].x + Panel.TURN_ARROWS[1].w;
+            /* the empty middle: the cowl's width, and an arrow's where one stands in the bar's rows (top 50) */
+            var GAP_L = Panel.CAMERA.x, GAP_R = Panel.CAMERA.x + Panel.CAMERA.w;
+            Panel.TURN_ARROWS.forEach(function (a) {
+                if (a.y < 50) { GAP_L = Math.min(GAP_L, a.x); GAP_R = Math.max(GAP_R, a.x + a.w); }
+            });
             var shiftFrac = function (s) {
                 var start = S.shiftFromRpm;      /* 1,800 below the redline; a diesel's, in proportion */
                 return clamp01((s.rpm - start) / Math.max(1, S.rpmLimiter - start));
@@ -378,11 +382,11 @@
             var orange = [1.0, 0.45, 0.08];
             if (toroShift) {
                 /* (from where the glass's corners leave it whole, the middle the cowl's width) */
-                shiftLayer('shift', { x: 400, y: 2, w: 1120, h: 46, leds: 7, gap: (GAP_R - GAP_L) / 2 },
+                shiftLayer('shift', { x: 400, y: 2, w: 1120, h: 46, leds: 8, gap: (GAP_R - GAP_L) / 2 },
                     function (f) { return f; }, [GC.primaryWhite, orange, GC.corsaRed]);
             } else {
                 var blade = S.shiftStyle === 'blade';
-                var half = blade ? { y: 8, h: 30, leds: 1 } : { y: 6, h: 34, leds: 7 };
+                var half = blade ? { y: 8, h: 30, leds: 1 } : { y: 6, h: 34, leds: 8 };
                 var L = { x: 400, w: GAP_L - 400 }, R = { x: GAP_R, w: 1520 - GAP_R };
                 shiftLayer('shift', Object.assign({}, half, L), function (f) { return clamp01(f * 2); },
                     blade ? [GC.primaryWhite, GC.primaryWhite, GC.primaryWhite] : [C.green, C.green, C.amber]);

@@ -79,12 +79,14 @@ var CORNER_RIGHT = [{ x: 1920, y: 0 }, { x: 1650, y: 0 }, { x: 1920, y: 200 }];
  */
 var CAMERA = { x: 720, y: 0, w: 480, h: 128 };
 /*
- * The KOMBI's green turn signal arrows, drawn over every layer: either side
- * of the cowl at the top. Not measured yet - where a sketch of the car's
- * cluster has them, with room to spare: x 660 - 730 and 1190 - 1260.
+ * The KOMBI's green turn signal arrows, drawn over every layer: at the
+ * cowl's two lower corners, below the top row (measured off a photograph
+ * of a G05's cluster with the hazard lights on, 2026-11-23, its cowl laid
+ * on the one above: about x 685 - 749, y 98 - 158 and x 1146 - 1212, y 94 -
+ * 149), with 10 px round each.
  */
-var TURN_ARROWS = [{ id: 'turnL', x: 660, y: 0, w: 70, h: 64, name: 'Turn signal, left' },
-                   { id: 'turnR', x: 1190, y: 0, w: 70, h: 64, name: 'Turn signal, right' }];
+var TURN_ARROWS = [{ id: 'turnL', x: 675, y: 88, w: 84, h: 80, name: 'Turn signal, left' },
+                   { id: 'turnR', x: 1136, y: 84, w: 86, h: 75, name: 'Turn signal, right' }];
 
 /* Telltales the KOMBI draws over us, whatever we put there. */
 var TELLTALES = [
