@@ -571,7 +571,8 @@ mgu.run({
             y += bh + 26;
             const cardsY = bottom - (TH + 46);
             if (y + 18 < cardsY - 8) {
-                fitLabel(tr('Phone map') + ': ' + tr(centre ? centre.waze : '-') + '   ·   Turn View: ' + tr(centre ? centre.turnView : '-'), BX, y, 18, PW, DIM, { done: true });
+                const tv = centre ? centre.turnView : '-';      /* (most of Turn View's lines name it already) */
+                fitLabel(tr('Phone map') + ': ' + tr(centre ? centre.waze : '-') + '   ·   ' + (/^Turn View/.test(tv) ? tr(tv) : 'Turn View: ' + tr(tv)), BX, y, 18, PW, DIM, { done: true });
                 if (y + 42 < cardsY - 8) fitLabel(tr('Readings') + ': ' + tr(feed || '-') + '   ·   ' + tr(!on ? 'Off: BMW\'s own cluster.'
                     : auto ? 'On at every start.' : 'On for this drive; BMW\'s own at the next start.'), BX, y + 26, 18, PW, FAINT, { done: true });
             }
