@@ -61,6 +61,8 @@ const MODULES = [
     ['src/car/cluster_render_client.js', 'cluster_render_client.js'],
     /* the package's own atlas loader stands in for the repository's */
     ['app/atlas.staged.js', 'atlas.js', 'src/car/atlas.js'],
+    ['app/previews_data.js', 'previews_data.js'],
+    ['app/previews.js', 'previews.js'],
     ['app/entry.js', 'main.js']
 ];
 const FLAT = {};

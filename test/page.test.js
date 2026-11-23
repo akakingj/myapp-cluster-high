@@ -75,12 +75,23 @@ test('the settings are in five groups, and each style keeps its own adjustments 
     assert.strictEqual(item('centre'), undefined, 'the one centre for every style is gone');
 });
 
+/* each style's places on the CLUSTER page, as app/entry.js has them, and the designs' cards */
+const PLACES = {
+    toro: ['tCentre', 'tCentreSize', 'gearPlace', 'showBoost', 'showAuxLeft', 'electricGauge', 'modeLabel', 'shiftStyle'],
+    track: ['mCentre', 'mCentreSize', 'mGear', 'mSpeed2', 'mFootL', 'mFootM', 'mFootR', 'mPanel'],
+    mplus: ['pCentre', 'pCentreSize', 'pGear', 'pSpeed2', 'pFootL', 'pFootM', 'pFootR', 'pPanel'],
+    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kFootL', 'kFootM', 'kFootR']
+};
+const DESIGN_IDS = ['toro_genuine', 'toro_modern', 'toro_revuelto', 'track', 'mplus', 'mtrack'];
+const placesOf = (style, values) => PLACES[style].filter((k) => Object.keys(item(k).when || {}).every((w) =>
+    w === 'style' || [].concat(item(k).when[w]).indexOf(values[w]) >= 0)).map((k) => 'place:' + k);
+
 test('own: the bar across the top - the way out, a tab each, the style in use marked - then the page', () => {
     const page = Harness.open({ values: { style: 'mplus' } });
     const order = page.targets().map((t) => t.key);
     assert.deepStrictEqual(order.slice(0, 7), ['exit', 'tab:cluster', 'tab:general', 'tab:toro', 'tab:msport', 'tab:mplus', 'tab:mtrack'],
         'the controller\'s knob: out, the tabs, then the page');
-    assert.deepStrictEqual(order.slice(7), ['show', 'prev', 'next', 'centre:off', 'centre:waze', 'centre:map', 'centre:camera', 'centre:turn']);
+    assert.deepStrictEqual(order.slice(7), ['show'].concat(placesOf('mplus', page.values), DESIGN_IDS.map((d) => 'design:' + d)));
     /* the page is the whole screen: 1600 x 600 of its own units */
     assert.deepStrictEqual([page.shot().w, page.shot().h], [1600, 600]);
     page.targets().forEach((t) => {
@@ -100,46 +111,37 @@ test('own: the bar across the top - the way out, a tab each, the style in use ma
     assert.deepStrictEqual(page.closed, ['MAIN']);
 });
 
-test('CLUSTER: on / off, the design, and what shows in this style\'s middle - each one press', () => {
+test('CLUSTER: on / off, a design by its card, and each of its places - one press each', () => {
     const page = Harness.open({ values: { style: 'track', enabled: false } });
     page.run('show');
     assert.strictEqual(page.values.enabled, true);
     page.run('show');
     assert.strictEqual(page.values.enabled, false);
-    /* the middle: this style's own setting, no other's */
-    assert.deepStrictEqual(keys(page, 'centre:'), item('mCentre').options.map((o) => 'centre:' + o[0]));
-    page.run('centre:camera');
-    assert.deepStrictEqual([page.values.mCentre, page.values.pCentre, page.values.tCentre], ['camera', 'waze', 'off']);
-    /* the arrows step through the designs, round and back */
-    page.run('next');
-    assert.strictEqual(page.values.style, 'mplus');
-    assert.deepStrictEqual(keys(page, 'centre:'), item('pCentre').options.map((o) => 'centre:' + o[0]));
-    page.run('centre:map');
-    assert.deepStrictEqual([page.values.mCentre, page.values.pCentre, page.values.tCentre], ['camera', 'map', 'off']);
-    /* M Track Mode: its picture goes in its left wing, in place of its gauges - and it has no turn card */
-    page.run('next');
-    assert.strictEqual(page.values.style, 'mtrack');
-    assert.deepStrictEqual(keys(page, 'centre:'), ['centre:off', 'centre:waze', 'centre:map', 'centre:camera']);
-    page.run('centre:waze');
-    assert.deepStrictEqual([page.values.mCentre, page.values.pCentre, page.values.tCentre, page.values.kCentre],
-        ['camera', 'map', 'off', 'waze']);
-    page.run('next');
-    assert.deepStrictEqual([page.values.style, page.values.background], ['toro', 'genuine']);
-    /* Toro has no turn card */
-    assert.deepStrictEqual(keys(page, 'centre:'), ['centre:off', 'centre:waze', 'centre:map', 'centre:camera']);
-    page.run('centre:waze');
-    assert.deepStrictEqual([page.values.mCentre, page.values.pCentre, page.values.tCentre, page.values.kCentre],
-        ['camera', 'map', 'waze', 'waze']);
-    page.run('prev');
-    assert.strictEqual(page.values.style, 'mtrack');
-    page.run('prev');
-    assert.strictEqual(page.values.style, 'mplus');
-    /* and the cluster is built with the style's own: the app's names reach the builder */
-    const atlas = require('../assets/fonts/atlas.json');
-    assert.strictEqual(Themes.build(atlas, 'x3m40i', page.values).settings.centre, 'map');
-    assert.strictEqual(Themes.build(atlas, 'x3m40i', Object.assign({}, page.values, { style: 'track' })).settings.centre, 'camera');
-    assert.strictEqual(Themes.build(atlas, 'x3m40i', Object.assign({}, page.values, { style: 'toro' })).settings.centre, 'waze');
-    assert.strictEqual(Themes.build(atlas, 'x3m40i', Object.assign({}, page.values, { style: 'mtrack' })).settings.centre, 'waze');
+    /* a card: its style (and Toro's background) */
+    page.run('design:toro_modern');
+    assert.deepStrictEqual([page.values.style, page.values.background], ['toro', 'modern']);
+    assert.deepStrictEqual(keys(page, 'place:'), placesOf('toro', page.values));
+    /* a switch goes over at a press */
+    const boost = page.values.showBoost;
+    page.run('place:showBoost');
+    assert.strictEqual(page.values.showBoost, !boost);
+    /* a place with values: its list over the page, the value set marked */
+    for (const style of ['track', 'mplus', 'mtrack']) {
+        page.run('design:' + style);
+        assert.strictEqual(page.values.style, style);
+        assert.deepStrictEqual(keys(page, 'place:'), placesOf(style, page.values), style);
+    }
+    page.run('design:track');
+    page.run('place:mFootL');
+    const sh = page.sheet();
+    assert.ok(sh && sh.open && sh.open.key === 'mFootL', 'Footer, left: its values to pick from');
+    /* a place offered only while another says so: the centre's size, with a picture there */
+    page.values.mCentre = 'off';
+    page.run('design:mplus'); page.run('design:track');
+    assert.ok(keys(page, 'place:').indexOf('place:mCentreSize') < 0);
+    page.values.mCentre = 'waze';
+    page.run('design:mplus'); page.run('design:track');
+    assert.ok(keys(page, 'place:').indexOf('place:mCentreSize') >= 0);
 });
 
 test('a tab of settings holds its own style\'s adjustments and nothing of another\'s', () => {

@@ -11,18 +11,32 @@ your car, `beta-6` is the one to go back to: in the MGU Store, add the
 repository as a source and choose the branch **beta-6** where it asks
 what to follow, in place of **main**.
 
-## AK 0.11.0 — `ak`, the app MGU Styles AK (`mgustyles_ak`)
+## AK 0.11.0 — `ak`, the app AK Cluster ID8 (`akakingj_cluster_id8`)
 
 A personal modification of 0.10.0, installed beside the original as an app
-of its own.
+of its own, from this branch's `mgu-repo.json` in the Store. The four
+styles are all there, with AK Cluster Layouts' settings:
 
-- **The Car profile** (the Car profile app of akakingj/myapp-id7): Units
-  follow its speed unit, Clock its clock, Engine and Electric range its
-  engine, Redline its red light, Limiter its redline (the fuel cut), Dial
-  scale its gauge top, and the new *Shift lights from* (where Toro's shift
-  lights begin) its yellow light. A setting the profile sets shows its
-  value with "Car profile" beside it and is changed there; one it leaves
-  to each app is this app's own.
+- **The CLUSTER page as Layouts' page**: the design's picture as the
+  cluster draws it (baked by `tools/make-previews.py`), on / off under it,
+  a cell for each of the style's places - its centre picture, gear place,
+  second speed, footers, panel, M Track Mode's wing and gauge rows,
+  Toro's gauges and lights - each a press to change, and a card for each
+  design along the foot.
+- **Skin** (General, or the Car profile's): Classic, or iDrive 7 - the
+  head unit's own look, near-black with flat rows, check boxes and the
+  orange focus, on the page and on the kit's lists.
+- **Units as Layouts has them**: Speed, Temperature, Pressure (psi, bar,
+  kPa, or with the speed unit) and Fuel economy (km/L, L/100km, mpg, or
+  with the speed unit), each on its own, for every figure, scale and unit
+  word of the four styles.
+- **The Car profile** (the Car profile app of akakingj/myapp-id7): the
+  units, Skin, Clock, Engine and Electric range, Redline (its red light),
+  Limiter (its redline, the fuel cut), Dial scale (its gauge top) and the
+  new *Shift lights from* (where Toro's shift lights begin; its yellow
+  light). A setting the profile sets shows its value with "Car profile"
+  beside it and is changed there; one it leaves to each app is this
+  app's own.
 - **The figures as the car's own cluster keeps them**: the speed's digits
   move on once the reading is 0.75 past them, the engine speed's once it is
   15 rpm past (shown to the nearest ten), so they no longer flick between

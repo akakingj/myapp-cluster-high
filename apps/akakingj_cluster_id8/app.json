@@ -141,6 +141,24 @@
       "tab": "general"
     },
     {
+      "key": "skin",
+      "label": "Skin",
+      "type": "choice",
+      "default": "classic",
+      "options": [
+        [
+          "classic",
+          "Classic"
+        ],
+        [
+          "idrive7",
+          "iDrive 7"
+        ]
+      ],
+      "profile": "skin",
+      "tab": "general"
+    },
+    {
       "key": "speedUnit",
       "profile": "speedUnit",
       "label": "Speed unit",

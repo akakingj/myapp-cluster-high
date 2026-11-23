@@ -1,7 +1,8 @@
 'use strict';
 /*
- * MGU Styles - the iDrive app (the Toro, M Sport, M Sport Plus and M Track
- * Mode styles).
+ * AK Cluster ID8 - the iDrive app: MGU Styles' four styles (Toro, M Sport,
+ * M Sport Plus and M Track Mode; waliworld's, modified for its owner's own
+ * use) with AK Cluster Layouts' settings.
  *
  * An adapter between the MGU App Kit (kit/runtime/mgu.js) and the cluster
  * service (service.js, built from src/car/main.js), and the app's own
@@ -11,22 +12,29 @@
  *
  * The page is the whole screen where the kit runs it (app.json: "hmi":
  * false, "fill": true - the GPU renderer, touch and the controller): its
- * own way out at the top left, and six tabs - CLUSTER (on / off, the
- * design, what shows in its middle) and one page of settings each for
+ * own way out at the top left, and six tabs - CLUSTER (the design's
+ * picture, on / off, what each of its places shows, the designs to pick
+ * from, as AK Cluster Layouts' page) and one page of settings each for
  * GENERAL, TORO, M SPORT, M SPORT PLUS and M TRACK, so a style's own
  * adjustments are never mixed up with another's. Everywhere else (no renderer) the
  * CLUSTER tab is drawn in the HMI's own page, with the HMI's bar buttons
- * and its settings list, which offers only the style in use.
+ * and its settings list, which offers only the style in use. Skin (as AK
+ * Cluster Layouts', or the Car profile's): Classic, or iDrive 7 - near-black,
+ * flat rows and the orange focus, as the head unit's own screens.
  *
  * This file is staged as main.js by tools/stage-app.js; the kit's builder
  * makes it the package's app.js. Node 8.
  */
 const mgu = require('./kit/mgu');
 const Sheet = require('./kit/sheet');
+const { withAlpha } = require('./kit/canvas');
 const Service = require('./service.js');
 const MGeom = require('./mgeom.js');
 const TGeom = require('./tgeom.js');
 const Theme = require('./theme.js');
+const Previews = require('./previews.js');
+let Record = null;
+try { Record = require('./kit/record'); } catch (e) { /* no pixel images: the designs' sketches */ }
 
 /*
  * How often each interface is re-read. Notifications carry most readings,
@@ -97,8 +105,28 @@ function hostFor(bg) {
 
 /* ------------------------------------------------------------ the screen */
 
-const INK = '#e8f0f6', DIM = '#8d9aa6', FAINT = '#55626e', RED = '#ff263d';
-const CARD = '#121b25', FIELD = '#05090f';
+/* the page's colours, as the skin has them (useSkin) */
+const SKINS = {
+    classic: { INK: '#e8f0f6', DIM: '#8d9aa6', FAINT: '#55626e', RED: '#ff263d', CARD: '#121b25', FIELD: '#05090f',
+               BG: '#070b11', BAR: '#0b1119', LINE: '#18222e', OFF: '#2a3846', R: 1 },
+    /* the head unit's own screens: near-black, silver-grey words, the orange focus, square corners */
+    idrive7: { INK: '#f4f3f2', DIM: '#b5b3b4', FAINT: '#7d7c81', RED: '#ff570c', CARD: '#0b0b0d', FIELD: '#060607',
+               BG: '#030304', BAR: '#0b0b0d', LINE: '#2c2b2f', OFF: '#4b4a50', R: 0 }
+};
+let INK, DIM, FAINT, RED, CARD, FIELD, BG, BAR, LINE, OFF, SK7 = false;
+/* a corner's radius in the skin: as drawn (Classic), or nearly square (iDrive 7) */
+const rad = (r) => (SK7 ? Math.min(r, 3) : r);
+function useSkin(id) {
+    const k = SKINS[id] || SKINS.classic;
+    ({ INK, DIM, FAINT, RED, CARD, FIELD, BG, BAR, LINE, OFF } = k);
+    SK7 = !k.R;
+}
+useSkin('classic');
+/* iDrive 7: the focus gradient, a thin orange edge at its top and bottom */
+function focus7(cv, x, y, w, h) {
+    cv.gradientRect(x, y, w, h, [[0, '#743008'], [1, '#361303']]);
+    cv.fillRect(x, y, w, 2, RED); cv.fillRect(x, y + h - 2, w, 2, RED);
+}
 
 function statusColour(status) {
     if (/^On the cluster/.test(status)) return '#3ddc84';
@@ -213,69 +241,46 @@ function tSketch(cv, x, y, w) {
     cv.text('76', x + 742 * s, y + 366 * s, 37 * s * 1.42, INK, { literal: true });
 }
 
-/* The Toro backgrounds' own marks behind the dial sketch. */
-function toroBackdrop(cv, bgName, x0, y0, w, h, accent) {
-    if (bgName === 'modern') {
-        /* the side lattice: hexagons down both sides */
-        const r = 22;
-        for (let side = 0; side < 2; side++) {
-            for (let row = 0; row < 7; row++) {
-                for (let col = 0; col < 3; col++) {
-                    const cx = side ? x0 + w - 40 - col * r * 1.75 : x0 + 40 + col * r * 1.75;
-                    const cy = y0 + 40 + row * r * 1.55 + (col % 2) * r * 0.78;
-                    if (cy > y0 + h - 20) continue;
-                    for (let k = 0; k < 6; k++) {
-                        const a0 = Math.PI / 3 * k + Math.PI / 6, a1 = a0 + Math.PI / 3;
-                        cv.line(cx + r * 0.9 * Math.cos(a0), cy + r * 0.9 * Math.sin(a0),
-                                cx + r * 0.9 * Math.cos(a1), cy + r * 0.9 * Math.sin(a1), 1, '#3a4654');
-                    }
-                    cv.circle(cx + r * 0.9 * Math.cos(Math.PI / 6), cy + r * 0.9 * Math.sin(Math.PI / 6), 2.5, accent);
-                }
-            }
-        }
-    } else if (bgName === 'revuelto') {
-        /* the Revuelto's Y lights, sweeping in from both sides */
-        for (let side = 0; side < 2; side++) {
-            const sx = side ? -1 : 1, bx = side ? x0 + w - 30 : x0 + 30, my = y0 + h * 0.5;
-            cv.line(bx, my, bx + sx * 120, my - 90, 3, accent);
-            cv.line(bx, my, bx + sx * 120, my + 90, 3, accent);
-            cv.line(bx + sx * 120, my - 90, bx + sx * 220, my - 100, 2, accent);
-            cv.line(bx + sx * 120, my + 90, bx + sx * 220, my + 100, 2, accent);
-        }
-    } else {
-        /* genuine: the Huracan's fine stipple */
-        for (let i = 0; i < 140; i++) {
-            const px = x0 + 20 + ((i * 97) % (w - 40)), py = y0 + 20 + ((i * 53) % (h - 40));
-            cv.circle(px, py, 1, '#1d2731');
-        }
-    }
-}
-
 /*
- * The designs the arrows step through, in order. Each is a style and, for
- * Toro, its background; the colours and everything else stay as set.
+ * The designs, in the order of their cards on the CLUSTER page (and of the
+ * HMI bar's Design button). Each is a style and, for Toro, its background;
+ * the colours and everything else stay as set. id: its picture's
+ * (previews_data.js).
  */
 const DESIGNS = [
-    { name: 'Toro', sub: 'Lamborghini Huracan, genuine', style: 'toro', background: 'genuine' },
-    { name: 'Toro', sub: 'Lamborghini, modern hex lattice', style: 'toro', background: 'modern' },
-    { name: 'Toro', sub: 'Lamborghini Revuelto', style: 'toro', background: 'revuelto' },
-    { name: 'M Sport', sub: 'BMW M View, iDrive 8', style: 'track' },
-    { name: 'M Sport Plus', sub: 'M stripes, a wide picture in the centre', style: 'mplus' },
-    { name: 'M Track Mode', sub: 'BMW M\'s track view: four gauges, the gear, a leaning rev counter', style: 'mtrack' }
+    { id: 'toro_genuine', name: 'Toro', card: 'Toro', sub: 'Lamborghini Huracan, genuine', style: 'toro', background: 'genuine' },
+    { id: 'toro_modern', name: 'Toro', card: 'Toro hex', sub: 'Lamborghini, modern hex lattice', style: 'toro', background: 'modern' },
+    { id: 'toro_revuelto', name: 'Toro', card: 'Toro Revuelto', sub: 'Lamborghini Revuelto', style: 'toro', background: 'revuelto' },
+    { id: 'track', name: 'M Sport', card: 'M Sport', sub: 'BMW M View, iDrive 8', style: 'track' },
+    { id: 'mplus', name: 'M Sport Plus', card: 'M Sport Plus', sub: 'M stripes, a wide picture in the centre', style: 'mplus' },
+    { id: 'mtrack', name: 'M Track Mode', card: 'M Track', sub: 'BMW M\'s track view: four gauges, the gear, a leaning rev counter', style: 'mtrack' }
 ];
+/*
+ * Each style's places on the CLUSTER page, as AK Cluster Layouts' readouts: what shows where (the settings of its
+ * own tab that say so). A place is offered while its setting is (its "when").
+ */
+const PLACES = {
+    toro: ['tCentre', 'tCentreSize', 'gearPlace', 'showBoost', 'showAuxLeft', 'electricGauge', 'modeLabel', 'shiftStyle'],
+    track: ['mCentre', 'mCentreSize', 'mGear', 'mSpeed2', 'mFootL', 'mFootM', 'mFootR', 'mPanel'],
+    mplus: ['pCentre', 'pCentreSize', 'pGear', 'pSpeed2', 'pFootL', 'pFootM', 'pFootR', 'pPanel'],
+    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kFootL', 'kFootM', 'kFootR']
+};
+/* the page's pictures (kit/record.js setImage): the big one, and each design's card (+ its index) */
+const IMG_BIG = 0x49443801, IMG_CARD = 0x49443810;
 function designIndex(style, background) {
     const i = DESIGNS.findIndex((d) => d.style === style && (d.style !== 'toro' || d.background === background));
     return i < 0 ? 0 : i;
 }
 
 /* The page's tabs: the cluster itself, then a page of settings each. */
+/* (label: the Classic skin's capitals; name: the iDrive 7 skin's words, as the head unit writes them) */
 const TABS = [
-    { id: 'cluster', label: 'CLUSTER' },
-    { id: 'general', label: 'GENERAL' },
-    { id: 'toro', label: 'TORO', style: 'toro' },
-    { id: 'msport', label: 'M SPORT', style: 'track' },
-    { id: 'mplus', label: 'M SPORT PLUS', style: 'mplus' },
-    { id: 'mtrack', label: 'M TRACK', style: 'mtrack' }
+    { id: 'cluster', label: 'CLUSTER', name: 'Cluster' },
+    { id: 'general', label: 'GENERAL', name: 'General' },
+    { id: 'toro', label: 'TORO', name: 'Toro', style: 'toro' },
+    { id: 'msport', label: 'M SPORT', name: 'M Sport', style: 'track' },
+    { id: 'mplus', label: 'M SPORT PLUS', name: 'M Sport Plus', style: 'mplus' },
+    { id: 'mtrack', label: 'M TRACK', name: 'M Track', style: 'mtrack' }
 ];
 const STYLE_NAME = { toro: 'Toro', track: 'M Sport', mplus: 'M Sport Plus', mtrack: 'M Track Mode' };
 /* what a style's middle can show, as the short words the buttons carry */
@@ -285,13 +290,6 @@ const WING_WORDS = Object.assign({}, CENTRE_WORDS, { off: 'Gauges' });
 
 const W = 1600;
 const ROW_H = 60, ROW_GAP = 8;
-
-function arrow(cv, cx, cy, r, dir, col) {
-    cv.circle(cx, cy, r, '#1a2633');
-    const t = r * 0.42;
-    cv.line(cx - dir * t * 0.5, cy - t, cx + dir * t * 0.7, cy, 4, col);
-    cv.line(cx + dir * t * 0.7, cy, cx - dir * t * 0.5, cy + t, 4, col);
-}
 
 /*
  * An install from before "BeeM-Flash readings" existed took its extra
@@ -387,6 +385,35 @@ mgu.run({
             refresh();
         }
         function toggleShown() { settings.set('enabled', settings.get('enabled') !== true); refresh(); }
+        function useDesign(d) {
+            settings.set('style', d.style);
+            if (d.background) settings.set('background', d.background);
+            refresh();
+        }
+        /*
+         * A design's picture at x, y (w x h): handed to the renderer once (kit/record.js setImage), then drawn by its
+         * id. False where there is none, or no way to draw one (the design's sketch is drawn instead).
+         */
+        const sent = {};
+        function picture(cv, id, key, px, w, h, x, y) {
+            if (!px || !Record || typeof cv.image !== 'function') return false;
+            if (sent[id] !== key) { Record.setImage(id, w, h, px); sent[id] = key; }
+            cv.image(id, x, y, w, h);
+            return true;
+        }
+        /* the drawing of a design where its picture can't be shown */
+        function sketchOf(cv, d, st, x, y, w, h) {
+            if (st === 'mtrack') {
+                const tw = Math.min(w - 8, (h - 8) * TGeom.ART.w / TGeom.ART.h);
+                tSketch(cv, x + (w - tw) / 2, y + (h - tw * TGeom.ART.h / TGeom.ART.w) / 2, tw);
+            } else if (st === 'track' || st === 'mplus') {
+                const mw = Math.min(w - 8, (h - 8) * MGeom.ART.w / MGeom.ART.h);
+                mSketch(cv, x + (w - mw) / 2, y + (h - mw * MGeom.ART.h / MGeom.ART.w) / 2, mw, st === 'mplus');
+            } else {
+                const r = Math.min(w * 0.42, h - 24);
+                dialSketch(cv, x + w / 2, y + h - 12, r, '#ff6a1a');
+            }
+        }
         function nextCentre() {
             const opts = centreOptions(), i = opts.indexOf(centreOf());
             if (opts.length) settings.set(centreKey(), opts[(i + 1) % opts.length]);
@@ -427,6 +454,7 @@ mgu.run({
             const centre = background && background.centre ? background.centre() : null;
             const feed = background && background.feed ? background.feed() : null;
 
+            useSkin(settings.get('skin'));
             const cv = ctx.canvas(W, 520);
             /* the kit runs the screen: the page is the whole display, with its own tabs and way out */
             const own = !!cv.own;
@@ -447,7 +475,7 @@ mgu.run({
                 const w = cv.textWidth(String(s), size, { literal: true });
                 label(String(s), x, y, w > maxW ? size * maxW / w : size, c, o);
             };
-            cv.fillRect(0, 0, W, H, '#070b11');
+            cv.fillRect(0, 0, W, H, BG);
             listBox = null;
 
             /*
@@ -462,24 +490,27 @@ mgu.run({
             function drawBar() {
                 if (!own) return;
                 const tgt = place(barPlaces);
-                cv.fillRect(0, 0, W, 72, '#070b11');
-                cv.fillRect(0, 0, W, 70, '#0b1119');
-                cv.fillRect(0, 70, W, 2, '#18222e');
+                cv.fillRect(0, 0, W, 72, BG);
+                cv.fillRect(0, 0, W, 70, BAR);
+                cv.fillRect(0, 70, W, 2, LINE);
                 /* the way out (the HMI's back arrow is under the page) */
-                cv.roundRect(14, 10, 92, 50, 25, CARD);
+                cv.roundRect(14, 10, 92, 50, rad(25), CARD);
                 cv.line(66, 23, 52, 35, 4, INK); cv.line(52, 35, 66, 47, 4, INK);
                 tgt(14, 10, 92, 50, exit, 'exit', 25);
                 /* the app's own name, as its manifest has it (a public release may carry another) */
-                fitLabel(String(ctx.spec.title || 'MGU Styles').toUpperCase(), 124, 45, 26, 214, INK, { font: 'bold', spacing: 1.5 });
+                const title = String(ctx.spec.title || 'AK Cluster ID8');
+                fitLabel(SK7 ? title : title.toUpperCase(), 124, 45, 26, 214, INK, SK7 ? {} : { font: 'bold', spacing: 1.5 });
                 let x = 352;
                 TABS.forEach((t) => {
-                    const tw = cv.textWidth(t.label, 21, { literal: true, font: 'bold', spacing: 1 }) + 44;
+                    const word = SK7 ? t.name : t.label, wf = SK7 ? { literal: true } : { literal: true, font: 'bold', spacing: 1 };
+                    const tw = cv.textWidth(word, SK7 ? 23 : 21, wf) + 44;
                     const sel = t.id === tab;
-                    cv.roundRect(x, 12, tw, 46, 23, sel ? RED : CARD);
-                    label(t.label, x + 22, 43, 21, sel ? '#ffffff' : (t.style && t.style === st ? INK : DIM), { font: 'bold', spacing: 1 });
+                    if (sel && SK7) focus7(cv, x, 12, tw, 46);
+                    else cv.roundRect(x, 12, tw, 46, rad(23), sel ? RED : CARD);
+                    label(word, x + 22, 43, SK7 ? 23 : 21, sel ? '#ffffff' : (t.style && t.style === st ? INK : DIM), SK7 ? {} : { font: 'bold', spacing: 1 });
                     /* the style in use carries a mark */
                     if (t.style && t.style === st) cv.circle(x + tw - 12, 22, 4, sel ? '#ffffff' : '#3ddc84');
-                    tgt(x, 12, tw, 46, () => show(t.id), 'tab:' + t.id, 23);
+                    tgt(x, 12, tw, 46, () => show(t.id), 'tab:' + t.id, rad(23));
                     x += tw + 10;
                 });
                 cv.circle(x + 26, 35, 8, statusColour(status));
@@ -499,96 +530,81 @@ mgu.run({
             const auto = settings.get('autoStart') !== false;
             const di = designIndex(settings.get('style'), settings.get('background'));
             const D = DESIGNS[di];
+            const PW = Previews.W, PH = Previews.H, TW = Previews.TW, TH = Previews.TH;
 
-            /* ---- left: what it is, and what it is doing ---- */
-            cv.roundRect(16, top, 640, ch, 16, CARD);
-            label(D.name.toUpperCase(), 44, top + 60, 48, INK);
-            fitLabel(D.sub, 44, top + 94, 20, 580, DIM);
-            let y = top + 114;
-            if (own) {
-                /* on / off: the one button that matters most */
-                cv.roundRect(44, y, 584, 62, 31, on ? '#12301f' : FIELD);
-                cv.strokeRoundRect(44, y, 584, 62, 31, 2, on ? '#3ddc84' : '#2a3846');
-                cv.circle(80, y + 31, 9, statusColour(status));
-                fitLabel(on ? 'ON THE CLUSTER  -  press to give BMW\'s back' : 'OFF  -  press to show it on the cluster',
-                    104, y + 39, 22, 500, INK);
-                tgt(44, y, 584, 62, toggleShown, 'show', 31);
-            } else {
-                cv.roundRect(44, y, 584, 62, 10, FIELD);
-                cv.circle(74, y + 31, 9, statusColour(status));
-                fitLabel(status, 96, y + 40, 24, 510, INK);
+            /* ---- left: the design as it looks on the cluster ---- */
+            const BX = 24, BY = top + 8;
+            cv.roundRect(BX - 4, BY - 4, PW + 8, PH + 8, rad(10), on ? RED : LINE);
+            if (!picture(cv, IMG_BIG, D.id, Previews.big(D.id), PW, PH, BX, BY)) {
+                cv.fillRect(BX, BY, PW, PH, FIELD);
+                sketchOf(cv, D, st, BX, BY, PW, PH);
             }
-            y += 100;
-            const cw = centreOf();
-            const rows = [
-                [wing ? 'Left wing' : 'Centre', (words[cw] || cw) + (centre && centre.mode && cw !== 'off'
-                    ? (centre.mode === 'map' || centre.mode === 'camera' ? ': open' : centre.mode === 'turn' ? ': turn card' : ': waiting') : '')],
-                ['Phone map', centre ? centre.waze : '-'],
-                ['Turn View', centre ? centre.turnView : '-'],
-                track || wing ? ['Footer', [choice(Theme.keyFor(st, 'footL')), choice(Theme.keyFor(st, 'footM')), choice(Theme.keyFor(st, 'footR'))]
-                            .map((t) => t.replace(/ \(.*$/, '')).join('  |  ')]
-                      : ['Colour', choice('accent')],
-                ['BMW strip', lowered(st) ? 'Hidden: the cluster ' + lowered(st) + ' px lower (BETA)' : choice('bottomExtra')],
-                ['Readings', feed || '-']
-            ];
-            const rowStep = Math.min(40, (bottom - 64 - y) / (rows.length - 1));
-            rows.forEach((r, i) => {
-                label(r[0], 44, y + i * rowStep, 18, FAINT);
-                fitLabel(r[1], 190, y + i * rowStep, 20, 440, INK);
+            if (!on) {
+                cv.fillRect(BX, BY, PW, PH, withAlpha('#000000', 0.55));
+                label('BMW\'s own cluster shows', BX + PW / 2, BY + PH / 2 + 10, 28, INK, { align: 'center', font: SK7 ? undefined : 'bold' });
+            }
+            /* under it: on / off, the one button that matters most, and what the centre has to show */
+            let y = BY + PH + 14;
+            const bw = PW + 8, bh = 56;
+            if (own) {
+                if (on && SK7) focus7(cv, BX - 4, y, bw, bh);
+                else {
+                    cv.roundRect(BX - 4, y, bw, bh, rad(28), on ? (SK7 ? CARD : '#12301f') : FIELD);
+                    cv.strokeRoundRect(BX - 4, y, bw, bh, rad(28), 2, on ? (SK7 ? RED : '#3ddc84') : OFF);
+                }
+                cv.circle(BX + 26, y + bh / 2, 9, statusColour(status));
+                fitLabel(on ? 'On the cluster  -  press for BMW\'s own' : 'Off  -  press to show it on the cluster',
+                    BX + 48, y + bh / 2 + 8, 22, bw - 70, INK);
+                tgt(BX - 4, y, bw, bh, toggleShown, 'show', rad(28));
+            } else {
+                cv.roundRect(BX - 4, y, bw, bh, rad(10), FIELD);
+                cv.circle(BX + 26, y + bh / 2, 9, statusColour(status));
+                fitLabel(status, BX + 48, y + bh / 2 + 8, 22, bw - 70, INK);
+            }
+            y += bh + 26;
+            const cardsY = bottom - (TH + 46);
+            if (y + 18 < cardsY - 8) {
+                fitLabel('Phone map: ' + (centre ? centre.waze : '-') + '   ·   Turn View: ' + (centre ? centre.turnView : '-'), BX, y, 18, PW, DIM);
+                if (y + 42 < cardsY - 8) fitLabel('Readings: ' + (feed || '-') + '   ·   ' + (!on ? 'Off: BMW\'s own cluster.'
+                    : auto ? 'On at every start.' : 'On for this drive; BMW\'s own at the next start.'), BX, y + 26, 18, PW, FAINT);
+            }
+
+            /* ---- right: the design, its state, and what each of its places shows ---- */
+            const RX = 664, RW = W - 24 - RX;
+            fitLabel(D.name, RX, top + 40, 34, RW - 300, INK, { font: SK7 ? undefined : 'bold' });
+            label(lowered(st) ? 'BMW strip hidden: ' + lowered(st) + ' px lower (BETA)' : status, RX + RW, top + 40, 18,
+                statusColour(status), { align: 'right', font: SK7 ? undefined : 'bold' });
+            fitLabel(D.sub, RX, top + 68, 18, RW, DIM);
+            const keys = (PLACES[st] || []).map((k) => settings.item(k)).filter((s) => s && offered(s));
+            const COLS = keys.length <= 6 ? 2 : 3, gap = 10;
+            const CW = (RW - gap * (COLS - 1)) / COLS, CH = 54;
+            const rowsRoom = Math.max(1, Math.floor((cardsY - 12 - (top + 84) + 8) / (CH + 8)));
+            keys.slice(0, COLS * rowsRoom).forEach((s, i) => {
+                const x = RX + (i % COLS) * (CW + gap), yy = top + 84 + Math.floor(i / COLS) * (CH + 8);
+                const isOn = s.type === 'bool' ? !!settings.get(s.key) : null;
+                cv.roundRect(x, yy, CW, CH, rad(10), SK7 ? CARD : withAlpha('#ffffff', 0.07));
+                if (SK7) cv.fillRect(x, yy + CH - 1, CW, 1, LINE);
+                fitLabel(s.label.replace(/\s*\(.*\)$/, ''), x + 16, yy + 20, 14, CW - 30, DIM, { font: SK7 ? undefined : 'bold' });
+                const v = s.type === 'bool' ? (isOn ? 'On' : 'Off') : choice(s.key).replace(/ \(.*$/, '');
+                fitLabel(v, x + 16, yy + 44, 19, CW - 30, isOn === false ? FAINT : INK, { font: SK7 ? undefined : 'bold' });
+                if (own) tgt(x, yy, CW, CH, () => press(s), 'place:' + s.key, rad(10));
             });
-            label(!on ? 'Off: BMW\'s own cluster.'
-                : auto ? 'On at every start.' : 'On for this drive; BMW\'s own at the next start.',
-                  44, bottom - 22, 17, DIM);
-            label("Warnings and BMW's gear letter always stay BMW's.", 260, bottom - 22, 17, FAINT);
 
-            /* ---- right: the design, with arrows to step through them ---- */
-            const rx = 672, rw = 912;
-            cv.roundRect(rx, top, rw, ch, 16, CARD);
-            const pills = own ? 96 : 0;                        /* the centre's buttons, under the sketch */
-            const fy = top + 20, fh = ch - 96 - pills;
-            cv.roundRect(rx + 102, fy, 708, fh, 12, FIELD);
-            const accent = { arancio: '#ff6a1a', giallo: '#ffd117', rosso: '#ff2e1c', verde: '#2ee07a',
-                             blu: '#3394ff', viola: '#b073ff', bianco: '#ebf2fb', magenta: '#ff2bd6' }[settings.get('accent')] || '#ff6a1a';
-            const mid = rx + rw / 2;
-            if (wing) {
-                const tw = Math.min(684, (fh - 16) * TGeom.ART.w / TGeom.ART.h);
-                tSketch(cv, mid - tw / 2, fy + (fh - tw * TGeom.ART.h / TGeom.ART.w) / 2, tw);
-            } else if (track) {
-                const mw = Math.min(684, (fh - 16) * MGeom.ART.w / MGeom.ART.h);
-                mSketch(cv, mid - mw / 2, fy + (fh - mw * MGeom.ART.h / MGeom.ART.w) / 2, mw, st === 'mplus');
-            } else {
-                /* the dial's arc stands on a centre just above the field's foot, all of it inside */
-                const r = Math.min(300, fh - 60);
-                toroBackdrop(cv, D.background, rx + 102, fy, 708, fh, accent);
-                dialSketch(cv, mid, fy + fh - 22, r, accent);
-                label('4', mid - 24 * r / 300, fy + fh - 78 * r / 300, 96 * r / 300, RED);
-            }
-            const ay = fy + fh / 2;
-            arrow(cv, rx + 52, ay, 30, -1, INK);
-            arrow(cv, rx + rw - 52, ay, 30, 1, INK);
-            if (own) {
-                tgt(rx + 14, ay - 38, 76, 76, () => step(-1), 'prev', 38);
-                tgt(rx + rw - 90, ay - 38, 76, 76, () => step(1), 'next', 38);
-            }
-            /* which design, and where it is in the list */
-            const name = D.name + '  ' + (di + 1) + ' / ' + DESIGNS.length;
-            label(name, mid, fy + fh + 58, 22, INK, { align: 'center' });
-            DESIGNS.forEach((d, i) => cv.circle(mid - (DESIGNS.length - 1) * 11 + i * 22, fy + fh + 26, 4.5,
-                i === di ? accent : '#2a3846'));
-
-            /* what shows in this style's middle: one press each */
-            if (own) {
-                const opts = centreOptions();
-                const py = bottom - 66, gap = 10, pw = (rw - 44 - 150 - gap * (opts.length - 1)) / Math.max(1, opts.length);
-                label(wing ? 'WING' : 'CENTRE', rx + 22, py + 33, 18, FAINT, { font: 'bold', spacing: 1 });
-                opts.forEach((v, i) => {
-                    const px = rx + 22 + 128 + i * (pw + gap), sel = v === cw;
-                    cv.roundRect(px, py, pw, 50, 25, sel ? RED : FIELD);
-                    if (!sel) cv.strokeRoundRect(px, py, pw, 50, 25, 1.5, '#2a3846');
-                    fitLabel(words[v] || v, px + pw / 2, py + 33, 21, pw - 28, sel ? '#ffffff' : INK, { align: 'center', font: 'bold' });
-                    tgt(px, py, pw, 50, () => { settings.set(centreKey(), v); refresh(); }, 'centre:' + v, 25);
-                });
-            }
+            /* ---- the designs: a card each, the one in use framed; a tap shows it on the cluster ---- */
+            const CWD = Math.floor((W - 48 - (DESIGNS.length - 1) * 12) / DESIGNS.length), CHT = TH + 40;
+            DESIGNS.forEach((d, i) => {
+                const x = 24 + i * (CWD + 12), mine = i === di;
+                if (mine && SK7) focus7(cv, x, cardsY, CWD, CHT);
+                else cv.roundRect(x, cardsY, CWD, CHT, rad(10), mine ? RED : CARD);
+                cv.roundRect(x + 3, cardsY + 3, CWD - 6, CHT - 6, rad(8), BG);
+                const ix = x + Math.round((CWD - TW) / 2), iy = cardsY + 6;
+                if (!picture(cv, IMG_CARD + i, d.id + ':card', Previews.thumb(d.id), TW, TH, ix, iy)) {
+                    cv.fillRect(ix, iy, TW, TH, FIELD);
+                    sketchOf(cv, d, d.style, ix, iy, TW, TH);
+                }
+                fitLabel(d.card, x + CWD / 2, cardsY + CHT - 10, 18, CWD - 16, mine ? '#ffffff' : INK, { align: 'center', font: SK7 ? undefined : 'bold' });
+                if (own) tgt(x, cardsY, CWD, CHT, () => useDesign(d), 'design:' + d.id, rad(10));
+            });
             return done();
         }
 
@@ -608,12 +624,19 @@ mgu.run({
                 listBox.rows.push({ key: s.key, y, s });
                 if (y + ROW_H < y0 || y > y0 + vh) return;
                 const x = 16, w = W - 32 - (max ? 16 : 0);
-                cv.roundRect(x, y, w, ROW_H, 14, CARD);
+                cv.roundRect(x, y, w, ROW_H, rad(14), CARD);
+                if (SK7) cv.fillRect(x, y + ROW_H + ROW_GAP / 2, w, 1, LINE);
                 const cy = y + ROW_H / 2;
                 let right = x + w - 26;
-                if (s.type === 'bool') {
+                if (s.type === 'bool' && SK7) {
+                    /* iDrive 7: a check box, the orange tick when on */
                     const onV = !!settings.get(s.key);
-                    cv.roundRect(right - 76, cy - 19, 76, 38, 19, onV ? RED : '#2a3846');
+                    cv.strokeRoundRect(right - 30, cy - 15, 30, 30, 2, 2, '#bdbcc0');
+                    if (onV) { cv.line(right - 24, cy, right - 18, cy + 7, 4, RED); cv.line(right - 18, cy + 7, right - 5, cy - 8, 4, RED); }
+                    right -= 54;
+                } else if (s.type === 'bool') {
+                    const onV = !!settings.get(s.key);
+                    cv.roundRect(right - 76, cy - 19, 76, 38, 19, onV ? RED : OFF);
                     cv.circle(onV ? right - 19 : right - 57, cy, 14, '#ffffff');
                     right -= 100;
                 } else {
@@ -628,19 +651,19 @@ mgu.run({
             });
             if (max) {
                 const bh = Math.max(40, vh * vh / total), by = y0 + (vh - bh) * (sy / max);
-                cv.roundRect(W - 22, by, 6, bh, 3, '#3a4654');
+                cv.roundRect(W - 22, by, 6, bh, rad(3), SK7 ? '#8d8c92' : '#3a4654');
             }
             /* over the rows that have scrolled up: the page's own line - whose settings these are, and
                the way to that style (the bar is drawn over the rest, last) */
-            cv.fillRect(0, 0, W, y0 - 4, '#070b11');
+            cv.fillRect(0, 0, W, y0 - 4, BG);
             fitLabel(t.style ? STYLE_NAME[t.style] + (inUse ? ': the style on the cluster now.' : ': its own settings, kept for when it is chosen.')
                              : 'For every style: the car, units, the limiter, BMW\'s strip, extras.',
                      30, top + 32, 21, t.style && !inUse ? 1180 : 1500, inUse ? INK : DIM);
             if (t.style && !inUse) {
-                cv.roundRect(W - 330, top + 2, 304, 46, 23, FIELD);
-                cv.strokeRoundRect(W - 330, top + 2, 304, 46, 23, 1.5, '#3ddc84');
-                label('USE THIS STYLE', W - 178, top + 33, 20, INK, { align: 'center', font: 'bold', spacing: 1 });
-                tgt(W - 330, top + 2, 304, 46, () => { settings.set('style', t.style); refresh(); }, 'use:' + t.style, 23);
+                cv.roundRect(W - 330, top + 2, 304, 46, rad(23), FIELD);
+                cv.strokeRoundRect(W - 330, top + 2, 304, 46, rad(23), 1.5, SK7 ? RED : '#3ddc84');
+                label(SK7 ? 'Use this style' : 'USE THIS STYLE', W - 178, top + 33, SK7 ? 22 : 20, INK, { align: 'center', font: SK7 ? undefined : 'bold', spacing: SK7 ? 0 : 1 });
+                tgt(W - 330, top + 2, 304, 46, () => { settings.set('style', t.style); refresh(); }, 'use:' + t.style, rad(23));
             }
             /* every row is a place for the controller, in view or not (one out of view is brought in when
                the controller reaches it: onPageFocus). Those out of view stand well clear of the page, in
@@ -649,7 +672,7 @@ mgu.run({
                 const y = y0 + i * (ROW_H + ROW_GAP) - sy;
                 const inView = y >= y0 - 1 && y + ROW_H <= y0 + vh + 1;
                 const ty = inView ? y : (y < y0 ? y - 4000 : y + 4000);
-                tgt(16, ty, W - 32 - (max ? 16 : 0), ROW_H, () => press(s), 'set:' + s.key, 14);
+                tgt(16, ty, W - 32 - (max ? 16 : 0), ROW_H, () => press(s), 'set:' + s.key, rad(14));
             });
         }
 

@@ -64,7 +64,7 @@ const shot = page.shot(), sheet = page.sheet();
 const W = shot.w, H = shot.h, K = own ? 1.2 : 1;
 /* at the display's own size: the page's 1600-wide units, 1.2 screen px each where it fills the screen */
 const cv = new ScaledCanvas(W, H, K);
-const theme = themes.theme(page.values.theme);
+const theme = themes.theme(page.values.theme, page.values.skin);
 if (sheet) {
     /* the kit's list over the page, as display.js draws it */
     const r = new Recorder(W, 520, { textScale: K });

@@ -1,10 +1,12 @@
 > **보관 기록:** 2026-11-23 저작자 waliworld의 이메일 허락을 받아 akakingj가 개인 테스트용으로 보관하는 MGU-Styles2 사본입니다. 라이선스는 저작자가 수정해 준 LICENSE를 따릅니다. 비공개로 유지하며 타인에게 공개·재배포하지 않습니다.
 >
-> **MGU Styles AK (브랜치 `ak`):** 2026-11-23 저작자 waliworld가 개인·비상업 용도의 사용·수정·빌드·설치를 허락했습니다
-> (LICENSE 1.c-e, 3). 이 브랜치의 `apps/mgustyles_ak`이 그 개인 수정판입니다. 원본(`apps/mgustyles_toro`)과 따로 설치되는
-> 앱이고, 저작권 고지(LICENSE, `app/NOTICE`)는 그대로 둡니다. 공개 저장소·공개 Store 카탈로그에 올리거나 남에게 주지 않습니다.
-> 원본 0.10.0의 소스(`src/`, `app/`, `test/`, `tools/`)에서 `node tools/stage-app.js`로 `apps/mgustyles_ak`을 만들고,
-> `node --test test/*.test.js`로 검사합니다. 바뀐 것은 `CHANGELOG.md` 맨 위 "AK" 항목에 있습니다.
+> **AK Cluster ID8 (브랜치 `ak`):** 2026-11-23 저작자 waliworld가 개인·비상업 용도의 사용·수정·빌드·설치를 허락했습니다
+> (LICENSE 1.c-e, 3). 이 브랜치의 `apps/akakingj_cluster_id8`이 그 개인 수정판이고, 이 브랜치의 `mgu-repo.json`이 그 앱
+> 하나를 Store에 내놓습니다. 원본(`apps/mgustyles_toro`)과 따로 설치되는 앱이고, 저작권 고지(LICENSE, `app/NOTICE`)는
+> 그대로 둡니다. 공개 저장소·공개 Store 카탈로그에 올리거나 남에게 주지 않습니다.
+> 원본 0.10.0의 소스(`src/`, `app/`, `test/`, `tools/`)에서 `node tools/stage-app.js`로 `apps/akakingj_cluster_id8`을 만들고,
+> `node --test test/*.test.js`로 검사합니다. 디자인 그림이 바뀌면 `python3 tools/make-previews.py`로 페이지의 미리보기를
+> 다시 굽습니다. 바뀐 것은 `CHANGELOG.md` 맨 위 "AK" 항목에 있습니다.
 
 # mgu-styles2
 

@@ -23,11 +23,28 @@ const { t: translate } = require('./i18n');
 
 const W = 1600, TOP = 46, BOTTOM = 512;
 const ROW_H = 66, GAP = 8;
+const SK = (t) => !!(t && t.skin === 'idrive7');
+const SK_ROW = 76;                       // iDrive 7: a row's height (name, and its value under it), no gap
 
 /* ---------------- drawing helpers ---------------- */
+/** iDrive 7 focus (a row, a tab, a button): the orange gradient, a thin orange edge at its top and bottom (edge px). */
+function focusFill(r, t, x, y, w, h, edge) {
+    const S = t.sel || t.accent;
+    r.gradientRect(x, y, w, h, [[0, t.focusTop || withAlpha(S, 0.45)], [1, t.focusBottom || withAlpha(S, 0.2)]]);
+    const e = edge == null ? 2 : edge;
+    if (e) { r.fillRect(x, y, w, e, S); r.fillRect(x, y + h - e, w, e, S); }
+}
 function pill(r, t, x, y, w, h, label, on, opts) {
     const o = opts || {}, S = t.sel || t.accent;
     const c = o.color || S;
+    if (SK(t)) {
+        // a flat button with a fine frame; the controller on it (or a primary one): the focus gradient
+        if (on && !o.color) focusFill(r, t, x, y, w, h, 2);
+        else if (on) r.roundRect(x, y, w, h, 3, withAlpha(c, 0.8));
+        else { r.roundRect(x, y, w, h, 3, withAlpha('#ffffff', 0.04)); r.strokeRoundRect(x, y, w, h, 3, 1.5, o.color ? withAlpha(o.color, 0.8) : t.line); }
+        r.text(label, x + w / 2, y + h / 2 + 9, 26, on ? '#ffffff' : o.color || t.text, { align: 'center', font: 'label' });
+        return;
+    }
     r.roundRect(x, y, w, h, h / 2, on ? withAlpha(c, 0.9) : withAlpha('#ffffff', 0.08));
     if (!on) r.strokeRoundRect(x, y, w, h, h / 2, 1.5, withAlpha(o.color || '#ffffff', o.color ? 0.7 : 0.22));
     r.text(label, x + w / 2, y + h / 2 + 9, 24, on ? '#ffffff' : o.color || t.text, { align: 'center', font: 'bold', spacing: 1 });
@@ -36,6 +53,16 @@ function toggle(r, t, x, y, on) {
     const S = t.sel || t.accent, w = 76, h = 38;
     r.roundRect(x, y, w, h, h / 2, on ? S : withAlpha('#ffffff', 0.16));
     r.circle(on ? x + w - h / 2 : x + h / 2, y + h / 2, h / 2 - 5, '#ffffff');
+}
+/** iDrive 7: a radio button (silver ring, red dot when on) centred at (cx, cy); a check box (orange tick when on) at (x, y). */
+function radio7(r, t, cx, cy, on) {
+    r.circle(cx, cy, 15, '#bdbcc0');
+    r.circle(cx, cy, 12.8, '#08080a');
+    if (on) r.circle(cx, cy, 8.5, '#f32d2e');
+}
+function check7(r, t, x, y, on) {
+    r.strokeRoundRect(x, y, 30, 30, 2, 2, '#bdbcc0');
+    if (on) { const c = t.sel || t.accent; r.line(x + 6, y + 15, x + 12, y + 22, 4, c); r.line(x + 12, y + 22, x + 25, y + 7, 4, c); }
 }
 function chevron(r, t, x, y, c) {
     r.line(x, y - 9, x + 9, y, 3, c);
@@ -53,6 +80,7 @@ function fit(r, s, size, w, font) {
  * Draws them from y0, keeps row `focus` in view (smooth), returns the rows' rects.
  */
 function list(r, t, key, rows, focus, y0, controller) {
+    if (SK(t)) return list7(r, t, key, rows, focus, y0, controller);
     // (r.extra: the page reaches lower on screen, display.js)
     const S = t.sel || t.accent, bottom = BOTTOM + (r.extra || 0), H = bottom - y0;
     const total = rows.length * (ROW_H + GAP) - GAP;
@@ -97,6 +125,52 @@ function list(r, t, key, rows, focus, y0, controller) {
     return rects;
 }
 list.scroll = {};
+
+/**
+ * list() in the iDrive 7 skin: flat rows of SK_ROW px, a fine divider under each, the focused row in the focus gradient
+ * (once the controller is used, as the classic list). A row's value goes under its name, a radio button to its left, a
+ * switch's check box and a "more" row's corner mark to its right.
+ */
+function list7(r, t, key, rows, focus, y0, controller) {
+    const bottom = BOTTOM + (r.extra || 0), H = bottom - y0, RH = SK_ROW;
+    const x = 40, w = W - 80;
+    const total = rows.length * RH, fy = focus * RH;
+    const st = list.scroll[key] || (list.scroll[key] = { y: 0, show: 0, focus: -1, drag: false });
+    if (st.focus !== focus) {
+        st.focus = focus;
+        if (fy < st.y) st.y = fy;
+        if (fy + RH > st.y + H) st.y = fy + RH - H;
+    }
+    st.y = Math.max(0, Math.min(st.y, Math.max(0, total - H)));
+    st.show = st.drag || Math.abs(st.y - st.show) < 0.5 ? st.y : st.show + (st.y - st.show) * 0.35;
+    const sy = st.show, rects = [];
+    r.clip(x, y0, w, H);
+    rows.forEach((row, i) => {
+        const y = y0 + i * RH - sy;
+        if (y + RH < y0 || y > bottom) return;
+        const on = i === focus && controller;
+        r.fillRect(x, y, w, RH, withAlpha('#ffffff', 0.035));
+        if (on) focusFill(r, t, x, y, w, RH, 2);
+        r.fillRect(x, y + RH - 1, w, 1, t.line);
+        const cy = y + RH / 2;
+        let left = x + 28, right = x + w - 24;
+        if (row.kind === 'radio') { radio7(r, t, left + 15, cy, row.on); left += 48; }
+        if (row.kind === 'toggle') { check7(r, t, right - 30, cy - 15, row.on); right -= 52; }
+        if (row.kind === 'more') { const bx = x + w - 16, by = y + RH - 14; r.quad([[bx - 12, by], [bx, by], [bx, by - 12], [bx, by - 12]], on ? '#ffffff' : '#d8d7da'); right -= 24; }
+        const hasVal = row.value != null && String(row.value) !== '';
+        if (hasVal) {
+            r.text(fit(r, row.label, 28, right - left), left, y + 34, 28, t.text);
+            r.text(fit(r, row.value, 22, right - left), left, y + 63, 22, on ? '#e8e2de' : t.dim);
+        } else r.text(fit(r, row.label, 28, right - left), left, cy + 10, 28, t.text);
+        rects.push({ i, x, y: Math.max(y, y0), w, h: Math.min(y + RH, bottom) - Math.max(y, y0) });
+    });
+    r.noclip();
+    if (total > H) {
+        const bh = Math.max(40, H * H / total), by = y0 + (H - bh) * (sy / (total - H));
+        r.fillRect(x + w - 4, by, 3, bh, withAlpha('#ffffff', 0.45));
+    }
+    return rects;
+}
 
 /* ---------------- settings ---------------- */
 function values(s, settings) {

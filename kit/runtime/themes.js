@@ -43,7 +43,29 @@ const THEMES = {
     },
 };
 
-function theme(id) { return THEMES[id] || THEMES.m_tricolour; }
+/*
+ * Skins: the shape of the kit's drawing as well as its colours, picked per app in its settings ("skin", or the Car
+ * profile's for every app), as akakingj's kit has them. 'classic' (the default) is the themes above. 'idrive7' draws as
+ * the head unit's own screens: near-black, flat rows with fine dividers and the orange focus gradient (focusTop ->
+ * focusBottom, a thin orange edge), regular-weight text. Its palette is its own: the colour theme applies to the classic
+ * skin only. line = the fine dividers.
+ */
+const SKINS = {
+    idrive7: {
+        name: 'iDrive 7', skin: 'idrive7',
+        bg: '#030304', panelTop: '#0b0b0d', panelBottom: '#060607', panelEdge: '#2c2b2f',
+        tab: '#f4f3f2', track: '#4b4a50', tick: '#8f8d92', text: '#f4f3f2', dim: '#b5b3b4',
+        accent: '#ff570c', accent2: '#ff8a4c', ok: '#e6e5e8', warn: '#ffb020', crit: '#f32d2e', cold: '#7fd1ff',
+        glow: '#ff570c40', stripes: ['#ff570c'], oil: '#f32d2e', bar: '#cfced3', sel: '#ff570c', selText: '#ffffff',
+        marker: '#f32d2e', needle: '#f32d2e',
+        ramp: ['#8e8d92', '#c9c8cc', '#f2f2f4'],
+        hotRamp: ['#8e8d92', '#b4b3b7', '#dcdbde', '#f0eff2', '#f32d2e'],
+        line: '#545154', focusTop: '#743008', focusBottom: '#361303',
+    },
+};
+
+/** The colours (and with a skin other than classic, the skin) to draw with. */
+function theme(id, skin) { return (skin && SKINS[skin]) || THEMES[id] || THEMES.m_tricolour; }
 const ids = () => Object.keys(THEMES);
 
-module.exports = { THEMES, theme, ids };
+module.exports = { THEMES, SKINS, theme, ids };
