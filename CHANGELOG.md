@@ -11,6 +11,12 @@ your car, `beta-6` is the one to go back to: in the MGU Store, add the
 repository as a source and choose the branch **beta-6** where it asks
 what to follow, in place of **main**.
 
+## AK 0.11.1 — `ak`
+
+- The tile's icon: ID8 in white, in Michroma (thickened, SIL OFL 1.1, as
+  AK Cluster Layouts' Sport face), drawn from Layouts' baked atlas
+  (`app/icon.png`).
+
 ## AK 0.11.0 — `ak`, the app AK Cluster ID8 (`akakingj_cluster_id8`)
 
 A personal modification of 0.10.0, installed beside the original as an app
