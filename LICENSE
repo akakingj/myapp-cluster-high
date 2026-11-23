@@ -1,77 +1,105 @@
-MGU Styles - licence
+# MGU Styles - Licence
 
 Copyright (c) 2026 waliworld (github.com/waliworld). All rights reserved.
 
-This software is published so that the app can be installed, used and
-tested, and so that the people who use it can say what they find. It is
-currently free, and open for public testing, without its source code.
-Publishing it - as source, or as the built and minified app alone - grants
-no rights beyond the ones below.
+This software is published for personal use, modification, testing and feedback.
 
-1. What you may do
+It is currently free and available for public testing. The source code may not be included in the published distribution.
 
-   a. Read what has been published.
-   b. Install the app, unmodified, on a BMW head unit that is yours or that
-      you are responsible for - through the MGU Store, or built from the
-      published repository as it stands - and run it there for your own
-      personal, non-commercial use.
-   c. Report problems and send feedback.
+Personal, non-commercial modifications are permitted under the conditions below. All other rights remain reserved.
 
-2. What you may not do without the copyright holder's written permission
+## 1. What you may do
 
-   a. Copy, modify, adapt, translate or build on the source code, the
-      designs or the artwork, or make anything derived from them.
-   b. Use any part of them in another app, project, product or service.
-   c. Redistribute, publish, sublicense, sell, rent or otherwise pass them
-      on, as source or built, changed or unchanged.
-   d. Remove or alter this notice, or any other notice in the files.
-   e. Reverse engineer, decompile, de-minify or otherwise reconstruct the
-      source from a built or minified form in order to do any of the
-      above.
+a. Read and examine the published software and its contents.
 
-   Viewing this repository, and forking it on GitHub as GitHub's Terms of
-   Service allow every user to, are not affected. A fork carries this
-   licence with it and gives no rights beyond those in section 1.
+b. Download, install and use the app on a BMW head unit that you own or are responsible for, for personal, non-commercial purposes.
 
-3. Feedback
+c. **Modify, customize, adapt or improve the app, its source code, designs and artwork for your own personal, non-commercial use.**
 
-   If you send feedback, suggestions or changes, you agree that they may be
-   used in this project freely and without obligation to you.
+d. Build, compile and install your personally modified version on a compatible BMW head unit.
 
-4. Other people's work in this repository
+e. Keep private copies of the original and modified versions for personal use, backup, research and testing.
 
-   Some parts are not the copyright holder's, and stay under their own
-   licences, which this one neither replaces nor restricts:
+f. Examine or de-minify the published app for personal, non-commercial modification and testing, to the extent permitted by applicable law.
 
-   - kit/ - the MGU App Kit, MIT licence (kit/LICENSE);
-   - src/car/cluster_render_client.js (cluster_render_client.js in the
-     package) - Mozilla Public License 2.0, copyright Robert Nisipeanu;
-   - the typefaces the glyph atlas is baked from - SIL Open Font License
-     1.1 (assets/fonts/OFL.txt).
+g. Report problems, provide feedback and suggest improvements.
 
-   app/NOTICE lists them with their notices. Sections 1 and 2 apply to
-   everything else here.
+**Personal modifications do not require prior written permission from the copyright holder, provided they remain private and non-commercial.**
 
-5. No warranty, and your own risk
+## 2. What you may not do without the copyright holder's written permission
 
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-   THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-   OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+a. Redistribute, publicly upload, publish, sublicense, sell, rent or otherwise distribute the original or modified software, whether as source code or built applications.
 
-   This software changes what a car's instrument cluster shows and reads
-   from the car's control units. It runs on a modified head unit. It can
-   distract a driver and may affect a warranty. You install and use it
-   entirely at your own risk.
+b. Use the software, its designs, artwork or modified versions for commercial purposes.
 
-6. No connection with any car maker
+c. Incorporate any part of the software into another publicly distributed application, project, product or service without permission.
 
-   This project is unofficial. It is not affiliated with, endorsed by or
-   connected to BMW AG or Automobili Lamborghini S.p.A., and their names are
-   used only to say what the software runs on and what its styles recall.
+d. Claim ownership of the original software or remove or alter copyright notices, licence notices or attribution requirements.
 
-7. Ending
+e. Share or distribute modified versions, reconstructed source code or de-minified code publicly without permission.
 
-   These permissions end at once if you do anything section 2 forbids.
+f. Use the software or its modifications as part of a paid installation, modification or commercial service without permission.
+
+Viewing this repository and forking it on GitHub, as permitted by GitHub's Terms of Service, are not affected.
+
+A fork retains this licence. Public distribution of modified versions is not authorized merely because the repository can be forked.
+
+## 3. Personal modifications
+
+Users are expressly permitted to modify and customize MGU Styles for their own private, non-commercial use.
+
+This includes, but is not limited to:
+
+- Changing layouts, colours, icons and visual styles.
+- Adjusting settings, behaviour and functionality.
+- Fixing bugs and improving compatibility.
+- Adding or removing features.
+- Building and testing customized versions.
+
+These modifications may be kept and used privately without requesting additional permission.
+
+**This permission does not grant the right to publicly redistribute or commercially exploit the original or modified software.**
+
+## 4. Feedback
+
+If you send feedback, suggestions or changes to the project, you agree that they may be used in this project freely and without obligation to you.
+
+## 5. Other people's work in this repository
+
+Some components are owned by third parties and remain subject to their respective licences:
+
+- `kit/` — the MGU App Kit, MIT Licence (`kit/LICENSE`);
+- `src/car/cluster_render_client.js` (`cluster_render_client.js` in the package) — Mozilla Public License 2.0, copyright Robert Nisipeanu;
+- Typefaces used in the glyph atlas — SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
+
+`app/NOTICE` contains the relevant notices.
+
+Nothing in this licence replaces, restricts or overrides the applicable third-party licences.
+
+Sections 1, 2 and 3 apply to the remaining original content owned by the copyright holder.
+
+## 6. No warranty, and your own risk
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+This software changes what a car's instrument cluster shows and reads from the car's control units.
+
+It runs on a modified head unit. It can distract a driver, affect vehicle functionality and may affect a vehicle warranty.
+
+You install, modify and use this software entirely at your own risk.
+
+## 7. No connection with any car maker
+
+This project is unofficial.
+
+It is not affiliated with, endorsed by or connected to BMW AG or Automobili Lamborghini S.p.A.
+
+Their names are used only to identify compatibility and describe the styles referenced by the software.
+
+## 8. Termination
+
+The permissions granted under this licence terminate immediately if you violate the restrictions in Section 2.
+
+Personal, non-commercial modifications made in accordance with Sections 1 and 3 do not constitute a violation of this licence.

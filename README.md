@@ -1,3 +1,5 @@
+> **보관 기록:** 2026-11-23 저작자 waliworld의 이메일 허락을 받아 akakingj가 개인 테스트용으로 보관하는 MGU-Styles2 사본입니다. 라이선스는 저작자가 수정해 준 LICENSE를 따릅니다. 비공개로 유지하며 타인에게 공개·재배포하지 않습니다.
+
 # mgu-styles2
 
 MGU Styles: custom instrument clusters for BMW iDrive 7 (MGU), an app by **#tunedbywali**.
