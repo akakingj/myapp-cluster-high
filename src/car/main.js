@@ -26,6 +26,7 @@ var path = require('path');
 var Feed = require('./feed.js');
 var Message = require('./message.js');
 var Smooth = require('./smooth.js');
+var Presence = require('./presence.js');
 var Panel = require('../geometry/panel.js');
 var core = require('../shaders/core.js');
 var parts = require('../shaders/parts.js');
@@ -140,6 +141,8 @@ function start(host, deps) {
     var theme = null;
     var driver = null;
     var cr = deps.cr || new ClusterRenderMod.ClusterRender(deps.appId || 'wali_mgu_styles');
+    /* taking turns with the AK Cluster apps (presence.js) */
+    var presence = deps.presence || Presence.create({ app: deps.appId || 'wali_mgu_styles' });
     var reader = Vehicle.createReader({});
     var smoother = Smooth.create();
     /* how long one frame is, from the refresh rate setting */
@@ -344,8 +347,10 @@ function start(host, deps) {
             if (theme) raw = smoother.apply(raw, now(), Smooth.TAU[theme.settings.smoothing] || 0, theme.glide);
             var car = carState(raw);
             var enabled = theme && theme.settings.enabled;
+            /* AK Cluster Layouts on the cluster: this one steps aside while it is */
+            var yielded = !!enabled && presence.othersShowing(now());
 
-            var want = enabled && connected && !!driver &&
+            var want = enabled && !yielded && connected && !!driver &&
                 (car === 'on' || (car === 'starting' && running));
 
             if (car === 'off') onAt = 0;
@@ -391,6 +396,7 @@ function start(host, deps) {
             } catch (e) { log.warn('engine: ' + e); }
 
             if (running) {
+                presence.mark(now());
                 var st = State.present(raw, profile, theme.settings);
                 if (hasCentre) st.centre = centre.state();
                 st.sinceOn = onAt ? (now() - onAt) / 1000 : -1;
@@ -399,6 +405,7 @@ function start(host, deps) {
             }
 
             setStatus(!enabled ? 'Off - BMW original cluster'
+                : yielded ? 'Waiting: AK Cluster Layouts is on the cluster'
                 : !connected ? 'Waiting for cluster-render'
                 : car === 'off' ? 'Waiting for the car to switch on'
                 : car === 'starting' ? 'Car switching on'

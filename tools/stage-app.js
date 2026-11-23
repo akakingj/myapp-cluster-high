@@ -56,6 +56,7 @@ const MODULES = [
     ['src/car/engine.js', 'engine.js'],
     ['src/car/message.js', 'message.js'],
     ['src/car/smooth.js', 'smooth.js'],
+    ['src/car/presence.js', 'presence.js'],
     ['src/car/vehicle.js', 'vehicle.js'],
     ['src/car/main.js', 'service.js'],
     ['src/car/cluster_render_client.js', 'cluster_render_client.js'],

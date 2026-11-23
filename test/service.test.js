@@ -38,12 +38,14 @@ function harness(t, initial, centre, more) {
         onSettingsChanged(fn) { changed = fn; },
         subscribe(sig, cb) { onValue = cb; calls.signals = sig; }
     };
-    const deps = Object.assign({ cr, now: () => clock, centre }, more);
+    /* taking turns with the AK Cluster apps (presence.js): no one else, unless a test says */
+    const presence = { other: false, marks: 0, othersShowing() { return this.other; }, mark() { this.marks++; } };
+    const deps = Object.assign({ cr, now: () => clock, centre, presence }, more);
     delete deps.dataDir;
     const svc = Main.start(host, deps);
     t.after(() => svc.stop());   /* a failed assertion must not leave a timer running */
     return {
-        calls, logs, svc, on,
+        calls, logs, svc, on, presence,
         send: (s, f, v) => onValue(s, f, v),
         tick: ms => { clock += ms; },
         rpm: v => onValue(CDS, 'statusEngineSpeed2', { actualValueRPMEngineCrankshaft: v * 4 }),
@@ -83,6 +85,44 @@ test('turned on with the car ready, it draws', { timeout: 10000 }, async (t) => 
     assert.ok(h.calls.effect > 30, 'the layers go up');
     assert.ok(h.calls.uniform > 0, 'and are driven');
     assert.strictEqual(h.svc.status(), 'On the cluster');
+});
+
+test('it takes turns with AK Cluster Layouts: says it is on the cluster, and steps aside while Layouts is', { timeout: 10000 }, async (t) => {
+    const h = harness(t);
+    h.on.ready();
+    h.condition('FAHREN');
+    h.rpm(2000);
+    await wait(320);
+    assert.ok(h.presence.marks > 0, 'its mark, for Cluster Centre to step aside');
+    const drops = h.calls.drop;
+    h.presence.other = true;
+    await wait(320);
+    assert.ok(h.calls.drop > drops, 'its layers go');
+    assert.strictEqual(h.svc.status(), 'Waiting: AK Cluster Layouts is on the cluster');
+    const marks = h.presence.marks;
+    await wait(200);
+    assert.strictEqual(h.presence.marks, marks, 'no mark while it waits');
+    h.presence.other = false;
+    await wait(320);
+    assert.strictEqual(h.svc.status(), 'On the cluster', 'back once Layouts is off');
+});
+
+test('presence.js: its mark carries its id, and only another app\'s fresh mark counts', () => {
+    const fs = require('fs'), os = require('os'), path = require('path');
+    const Presence = require('../src/car/presence.js');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'presence-'));
+    try {
+        const p = Presence.create({ app: 'akakingj_cluster_id8', dir });
+        assert.strictEqual(p.othersShowing(0), false, 'no file: no one');
+        p.mark(5000);
+        assert.strictEqual(JSON.parse(fs.readFileSync(p.file, 'utf8')).app, 'akakingj_cluster_id8');
+        assert.strictEqual(p.othersShowing(1000), false, 'its own mark');
+        /* Cluster Layouts' mark: no app, its time */
+        fs.writeFileSync(p.file, JSON.stringify({ centre: 'info', at: Date.now() }));
+        assert.strictEqual(p.othersShowing(2000), true);
+        fs.writeFileSync(p.file, JSON.stringify({ centre: 'info', at: Date.now() - 5000 }));
+        assert.strictEqual(p.othersShowing(3000), false, 'an old mark: Layouts has stopped');
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
 test('nothing goes up while the car is off or switching on', { timeout: 10000 }, async (t) => {
