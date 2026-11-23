@@ -475,9 +475,11 @@ mgu.run({
             if (sig === last) return;
             last = sig;
 
-            const label = (s, x, y, size, c, o) => cv.text(tr(s), x, y, size, c || INK, Object.assign({ literal: true }, o || {}));
+            /* (o.done: words put together from parts already in the app's language: not looked up again) */
+            const inLang = (s, o) => (o && o.done ? String(s) : tr(s));
+            const label = (s, x, y, size, c, o) => cv.text(inLang(s, o), x, y, size, c || INK, Object.assign({ literal: true }, o || {}));
             const fitLabel = (s, x, y, size, maxW, c, o) => {
-                const w = cv.textWidth(tr(s), size, { literal: true });
+                const w = cv.textWidth(inLang(s, o), size, { literal: true });
                 label(String(s), x, y, w > maxW ? size * maxW / w : size, c, o);
             };
             cv.fillRect(0, 0, W, H, BG);
@@ -569,16 +571,16 @@ mgu.run({
             y += bh + 26;
             const cardsY = bottom - (TH + 46);
             if (y + 18 < cardsY - 8) {
-                fitLabel(tr('Phone map') + ': ' + tr(centre ? centre.waze : '-') + '   ·   Turn View: ' + tr(centre ? centre.turnView : '-'), BX, y, 18, PW, DIM);
+                fitLabel(tr('Phone map') + ': ' + tr(centre ? centre.waze : '-') + '   ·   Turn View: ' + tr(centre ? centre.turnView : '-'), BX, y, 18, PW, DIM, { done: true });
                 if (y + 42 < cardsY - 8) fitLabel(tr('Readings') + ': ' + tr(feed || '-') + '   ·   ' + tr(!on ? 'Off: BMW\'s own cluster.'
-                    : auto ? 'On at every start.' : 'On for this drive; BMW\'s own at the next start.'), BX, y + 26, 18, PW, FAINT);
+                    : auto ? 'On at every start.' : 'On for this drive; BMW\'s own at the next start.'), BX, y + 26, 18, PW, FAINT, { done: true });
             }
 
             /* ---- right: the design, its state, and what each of its places shows ---- */
             const RX = 664, RW = W - 24 - RX;
             fitLabel(D.name, RX, top + 40, 34, RW - 300, INK, { font: SK7 ? undefined : 'bold' });
-            label(lowered(st) ? tr('BMW strip hidden') + ': ' + lowered(st) + ' ' + tr('px lower (BETA)') : status, RX + RW, top + 40, 18,
-                statusColour(status), { align: 'right', font: SK7 ? undefined : 'bold' });
+            label(lowered(st) ? tr('BMW strip hidden') + ': ' + lowered(st) + ' ' + tr('px lower (BETA)') : tr(status), RX + RW, top + 40, 18,
+                statusColour(status), { align: 'right', font: SK7 ? undefined : 'bold', done: true });
             fitLabel(D.sub, RX, top + 68, 18, RW, DIM);
             const keys = (PLACES[st] || []).map((k) => settings.item(k)).filter((s) => s && offered(s));
             const COLS = keys.length <= 6 ? 2 : 3, gap = 10;
@@ -662,8 +664,8 @@ mgu.run({
                the way to that style (the bar is drawn over the rest, last) */
             cv.fillRect(0, 0, W, y0 - 4, BG);
             fitLabel(t.style ? STYLE_NAME[t.style] + tr(inUse ? ': the style on the cluster now.' : ': its own settings, kept for when it is chosen.')
-                             : 'For every style: the car, units, the limiter, BMW\'s strip, extras.',
-                     30, top + 32, 21, t.style && !inUse ? 1180 : 1500, inUse ? INK : DIM);
+                             : tr('For every style: the car, units, the limiter, BMW\'s strip, extras.'),
+                     30, top + 32, 21, t.style && !inUse ? 1180 : 1500, inUse ? INK : DIM, { done: true });
             if (t.style && !inUse) {
                 cv.roundRect(W - 330, top + 2, 304, 46, rad(23), FIELD);
                 cv.strokeRoundRect(W - 330, top + 2, 304, 46, rad(23), 1.5, SK7 ? RED : '#3ddc84');
