@@ -650,7 +650,7 @@ mgu.run({
                     /* (no arrow where the Car profile sets it: nothing to pick here) */
                     if (!held(s.key)) { cv.line(right - 9, cy - 9, right, cy, 3, DIM); cv.line(right, cy, right - 9, cy + 9, 3, DIM); right -= 30; }
                     const v = choice(s.key);
-                    const vw = Math.min(700, cv.textWidth(v, 22, { literal: true }));
+                    const vw = Math.min(700, cv.textWidth(tr(v), 22, { literal: true }));
                     fitLabel(v, right - vw, cy + 8, 22, 700, DIM);
                     right -= vw + 24;
                 }
