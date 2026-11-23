@@ -77,6 +77,11 @@ Version 1.1:
 It also holds figures and symbols drawn for this project (the faces mw, mn
 and mi, tools/mglyphs.py), which are not taken from any font.
 
+The iDrive screens' Korean letters (kit/fonts/korean.json, in the Korean
+build) are baked from Noto Sans CJK KR, Copyright 2010-2012 Google
+Corporation (https://github.com/notofonts/noto-cjk), under the same licence
+(kit/fonts/OFL-NotoSansKR.txt).
+
 The baked atlas is a derivative of those fonts and is distributed under the
 same licence, reproduced in full below.
 

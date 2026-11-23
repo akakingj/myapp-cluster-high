@@ -327,7 +327,7 @@ or sell it, or use any part of it in something else. The terms are in
 
 Parts that are other people's keep their own licences: the MGU App Kit in
 `kit/` (MIT), `cluster_render_client.js` (MPL 2.0) and the typefaces
-(SIL OFL 1.1) — see `apps/mgustyles_toro/NOTICE`.
+(SIL OFL 1.1) — see `app/NOTICE`.
 
 ## Credits
 

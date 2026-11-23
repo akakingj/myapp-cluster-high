@@ -2,7 +2,7 @@
 >
 > **AK Cluster ID8 (배포 `main`, 작업 `test`):** 2026-11-23 저작자 waliworld가 개인·비상업 용도의 사용·수정·빌드·설치를 허락했습니다
 > (LICENSE 1.c-e, 3). `apps/akakingj_cluster_id8`이 그 개인 수정판이고, `mgu-repo.json`이 그 앱
-> 하나를 Store에 내놓습니다. 원본(`apps/mgustyles_toro`)과 따로 설치되는 앱이고, 저작권 고지(LICENSE, `app/NOTICE`)는
+> 하나를 Store에 내놓습니다. 원본 MGU Styles와 따로 설치되는 앱이고(원본은 저작자 저장소에 있습니다), 저작권 고지(LICENSE, `app/NOTICE`)는
 > 그대로 둡니다. 공개 저장소·공개 Store 카탈로그에 올리거나 남에게 주지 않습니다.
 > 원본 0.10.0의 소스(`src/`, `app/`, `test/`, `tools/`)에서 `node tools/stage-app.js`로 `apps/akakingj_cluster_id8`을 만들고,
 > `node --test test/*.test.js`로 검사합니다. 디자인 그림이 바뀌면 `python3 tools/make-previews.py`로 페이지의 미리보기를
@@ -337,7 +337,7 @@ or sell it, or use any part of it in something else. The terms are in
 
 Parts that are other people's keep their own licences: the MGU App Kit in
 `kit/` (MIT), `cluster_render_client.js` (MPL 2.0) and the typefaces
-(SIL OFL 1.1) — see `apps/mgustyles_toro/NOTICE`.
+(SIL OFL 1.1) — see `app/NOTICE`.
 
 ## Credits
 
