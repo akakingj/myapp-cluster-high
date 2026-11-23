@@ -11,7 +11,9 @@ your car, `beta-6` is the one to go back to: in the MGU Store, add the
 repository as a source and choose the branch **beta-6** where it asks
 what to follow, in place of **main**.
 
-## AK 0.11.2 — `ak`
+Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
+
+## AK 0.11.2
 
 - **The page's pictures on the Store's renderer.** The kit (`kit/runtime/record.js`,
   `renderd.js`) sends a pixel image as an mgu-render/1 picture (message 10, premultiplied,
@@ -22,13 +24,13 @@ what to follow, in place of **main**.
 - **Start-up message off as the app comes** (GENERAL > Start-up message turns it on), and
   turned off once on a car that had it on (`reset`).
 
-## AK 0.11.1 — `ak`
+## AK 0.11.1
 
 - The tile's icon: ID8 in white, in Michroma (thickened, SIL OFL 1.1, as
   AK Cluster Layouts' Sport face), drawn from Layouts' baked atlas
   (`app/icon.png`).
 
-## AK 0.11.0 — `ak`, the app AK Cluster ID8 (`akakingj_cluster_id8`)
+## AK 0.11.0 — the app AK Cluster ID8 (`akakingj_cluster_id8`)
 
 A personal modification of 0.10.0, installed beside the original as an app
 of its own, from this branch's `mgu-repo.json` in the Store. The four
