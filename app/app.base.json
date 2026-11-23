@@ -1,9 +1,9 @@
 {
-  "id": "mgustyles_toro",
-  "title": "MGU Styles",
+  "id": "mgustyles_ak",
+  "title": "MGU Styles AK",
   "vendor": "MGU-Styles",
-  "version": "0.10.0",
-  "loggingId": "TORO",
+  "version": "0.11.0",
+  "loggingId": "TORK",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
   "startType": "autostart",
@@ -20,7 +20,7 @@
     {
       "name": "MAIN",
       "kind": "canvas",
-      "title": "MGU Styles",
+      "title": "MGU Styles AK",
       "hmi": false,
       "fill": true,
       "buttons": [
@@ -99,7 +99,12 @@
           "km/h, C, bar"
         ]
       ],
-      "tab": "general"
+      "tab": "general",
+      "profile": "speedUnit",
+      "profileMap": {
+        "kmh": "metric",
+        "mph": "imperial"
+      }
     },
     {
       "key": "clock12",
@@ -116,7 +121,8 @@
           "12-hour"
         ]
       ],
-      "tab": "general"
+      "tab": "general",
+      "profile": "clock"
     },
     {
       "key": "profile",
@@ -158,7 +164,11 @@
           "Diesel: the rev counter reads 0 - 6,000, red from 4,500"
         ]
       ],
-      "tab": "general"
+      "tab": "general",
+      "profile": "engine",
+      "profileMap": {
+        "phev": "petrol"
+      }
     },
     {
       "key": "rpmRedline",
@@ -203,8 +213,16 @@
           "5,750"
         ],
         [
+          "5800",
+          "5,800"
+        ],
+        [
           "6000",
           "6,000"
+        ],
+        [
+          "6200",
+          "6,200"
         ],
         [
           "6250",
@@ -219,8 +237,16 @@
           "6,750"
         ],
         [
+          "6800",
+          "6,800"
+        ],
+        [
           "7000",
           "7,000"
+        ],
+        [
+          "7200",
+          "7,200"
         ],
         [
           "7250",
@@ -235,11 +261,20 @@
           "7,750"
         ],
         [
+          "7800",
+          "7,800"
+        ],
+        [
           "8000",
           "8,000"
+        ],
+        [
+          "8500",
+          "8,500"
         ]
       ],
-      "tab": "general"
+      "tab": "general",
+      "profile": "lightRed"
     },
     {
       "key": "rpmLimiter",
@@ -276,8 +311,16 @@
           "5,750"
         ],
         [
+          "5800",
+          "5,800"
+        ],
+        [
           "6000",
           "6,000"
+        ],
+        [
+          "6200",
+          "6,200"
         ],
         [
           "6250",
@@ -292,8 +335,16 @@
           "6,750"
         ],
         [
+          "6800",
+          "6,800"
+        ],
+        [
           "7000",
           "7,000"
+        ],
+        [
+          "7200",
+          "7,200"
         ],
         [
           "7250",
@@ -306,6 +357,10 @@
         [
           "7750",
           "7,750"
+        ],
+        [
+          "7800",
+          "7,800"
         ],
         [
           "8000",
@@ -328,7 +383,62 @@
           "9,000"
         ]
       ],
-      "tab": "general"
+      "tab": "general",
+      "profile": "redline"
+    },
+    {
+      "key": "shiftFrom",
+      "label": "Shift lights from",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "Auto (1,800 under the redline)"
+        ],
+        [
+          "3000",
+          "3,000"
+        ],
+        [
+          "3500",
+          "3,500"
+        ],
+        [
+          "4000",
+          "4,000"
+        ],
+        [
+          "4500",
+          "4,500"
+        ],
+        [
+          "5000",
+          "5,000"
+        ],
+        [
+          "5500",
+          "5,500"
+        ],
+        [
+          "6000",
+          "6,000"
+        ],
+        [
+          "6500",
+          "6,500"
+        ],
+        [
+          "7000",
+          "7,000"
+        ],
+        [
+          "7500",
+          "7,500"
+        ]
+      ],
+      "tab": "general",
+      "profile": "lightStart"
     },
     {
       "key": "revFlash",
@@ -500,7 +610,13 @@
           "Fully electric: range, charge and battery temperature in place of fuel and oil"
         ]
       ],
-      "tab": "general"
+      "tab": "general",
+      "profile": "engine",
+      "profileMap": {
+        "phev": "hybrid",
+        "petrol": "off",
+        "diesel": "off"
+      }
     },
     {
       "key": "refreshHz",
@@ -1004,7 +1120,8 @@
         "style": "toro",
         "engine": "petrol"
       },
-      "tab": "toro"
+      "tab": "toro",
+      "profile": "rpmScale"
     },
     {
       "key": "zoom",

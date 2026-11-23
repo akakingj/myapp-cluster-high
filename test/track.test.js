@@ -27,7 +27,12 @@ const PROFILE = Panel.profile('x3m40i');
 const build = (cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'x3m40i', Object.assign({ style: 'track' }, cfg));
 const layer = (t, id) => t.layers.find((L) => L.id === id);
 /* a presented state, with anything in `over` laid on top */
-const state = (t, raw, over) => Object.assign(State.present(raw || {}, t.profile, t.settings), over);
+/* (a speed given here is the one shown: its held digits, speedText, come from the raw reading) */
+const state = (t, raw, over) => {
+    const s = Object.assign(State.present(raw || {}, t.profile, t.settings), over);
+    if (over && 'speed' in over && !('speedText' in over)) delete s.speedText;
+    return s;
+};
 
 const TURNS = [
     { kind: 'intersection', angle: 90, side: -1, exit: 0, text: '0.3 mi' },

@@ -688,7 +688,7 @@
             { face: 'gear', size: G.gs(79) / 0.70, align: 'right',
               x: sp.x + sp.w - G.gs(175) - spDx, y: sp.y + G.gs(92),
               color: GC.primaryWhite },
-            function (s) { return String(Math.max(0, Math.round(s.speed))); });
+            function (s) { return s.speedText !== undefined ? s.speedText : String(Math.max(0, Math.round(s.speed))); });
         statics('speedUnit', 30, unitBox,
             { face: 'label', size: unitSize, align: 'left',
               color: GC.secondaryWhite, tracking: 0.5 },

@@ -1,0 +1,2638 @@
+{
+  "id": "mgustyles_ak",
+  "title": "MGU Styles AK",
+  "vendor": "MGU-Styles",
+  "version": "0.11.0",
+  "loggingId": "TORK",
+  "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
+  "autostart": true,
+  "startType": "autostart",
+  "iconGlyph": "gauge",
+  "mguHmi": [
+    "ID7"
+  ],
+  "requires": {
+    "cluster-render": "0.6.9",
+    "mgu-deploy": "0.8.27",
+    "mgu-render": "0.6.11"
+  },
+  "screens": [
+    {
+      "name": "MAIN",
+      "kind": "canvas",
+      "title": "MGU Styles AK",
+      "hmi": false,
+      "fill": true,
+      "buttons": [
+        [
+          "BTN_SHOW",
+          "Cluster on / off"
+        ],
+        [
+          "BTN_DESIGN",
+          "Design"
+        ],
+        [
+          "BTN_CENTRE",
+          "Centre picture"
+        ],
+        [
+          "BTN_SETTINGS",
+          "Settings"
+        ]
+      ]
+    }
+  ],
+  "signals": {
+    "de.bmw.infotainment.vehicle.Vehicle2": {
+      "statusCarSpeed2": "rs"
+    },
+    "de.bmw.infotainment.vehicle.CDS": {
+      "statusEngineSpeed2": "rs",
+      "statusEngineTemperature": "rs"
+    },
+    "de.bmw.infrastructure.VehicleInformation": {
+      "statusGearboxDrive": "s",
+      "DataPowerTrain2": "s"
+    },
+    "de.bmw.infrastructure.VehicleCondition": {
+      "VehicleCondition": "s",
+      "_optional": "the car switching on and off: the theme stays off the cluster then"
+    },
+    "de.bmw.infotainment.KombiIF": {
+      "statusRangeTankStatus": "rs",
+      "statusShowTimeDate": "rs",
+      "statusBordcomputerAverage": "rs",
+      "displayRangeElectricVehicle": "rs",
+      "_optional": "Fuel range, tank level and odometer; the time of day the cluster shows; the trip computer's average consumption; electric range"
+    },
+    "de.bmw.infotainment.drivingexcitement.Efficiencytainment2": {
+      "statusChargeOfBatteryHybrid": "rs",
+      "statusBatteryTemperature": "rs",
+      "_optional": "The drive battery's charge and temperature, on a plug-in hybrid or an electric car"
+    },
+    "de.bmw.infrastructure.EnvironmentalInformation": {
+      "ExteriorTemperature": "s",
+      "_optional": "Outside temperature"
+    },
+    "de.bmw.infotainment.drivingexcitement.FES": {
+      "statusSwitchDriveDynamicSport2": "rs",
+      "statusFESVehicleDynamicSwitchHMI": "rs",
+      "_optional": "Boost pressure from the Sport Display, and the driving mode"
+    },
+    "de.bmw.infotainment.misc.MDrive": {
+      "controlDisplayMSystems": "s",
+      "_optional": "Driving mode on M cars"
+    },
+    "de.bmw.infotainment.vehicle.CDS2": {
+      "statusLateralAccelerationMassCenter": "rs",
+      "statusLongitudinalAccelerationMassCenter": "rs",
+      "_optional": "Lateral and longitudinal load for the G meter"
+    },
+    "com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu": {
+      "_instances": "SystemFunctionsInternalTasuInst1",
+      "_methods": [
+        "sendTasuRequest"
+      ],
+      "_broadcasts": [
+        "sendTasuResponse"
+      ],
+      "_optional": "Oil pressure, intake air temperature and battery voltage read from the engine unit (read only), for cars without BeeM-Flash"
+    }
+  },
+  "settings": [
+    {
+      "key": "enabled",
+      "label": "Show on the cluster",
+      "type": "bool",
+      "default": false,
+      "tab": "general"
+    },
+    {
+      "key": "autoStart",
+      "label": "Start at every startup",
+      "type": "bool",
+      "default": true,
+      "tab": "general"
+    },
+    {
+      "key": "style",
+      "label": "Style",
+      "type": "choice",
+      "default": "toro",
+      "options": [
+        [
+          "toro",
+          "Toro (Lamborghini Huracan)"
+        ],
+        [
+          "track",
+          "M Sport (BMW M View, iDrive 8)"
+        ],
+        [
+          "mplus",
+          "M Sport Plus (M stripes, a wide picture in the centre)"
+        ],
+        [
+          "mtrack",
+          "M Track Mode (BMW M's track view)"
+        ]
+      ],
+      "tab": "general"
+    },
+    {
+      "key": "units",
+      "label": "Units",
+      "type": "choice",
+      "default": "imperial",
+      "options": [
+        [
+          "imperial",
+          "mph, F, psi"
+        ],
+        [
+          "metric",
+          "km/h, C, bar"
+        ]
+      ],
+      "tab": "general",
+      "profile": "speedUnit",
+      "profileMap": {
+        "kmh": "metric",
+        "mph": "imperial"
+      }
+    },
+    {
+      "key": "clock12",
+      "label": "Clock (M styles)",
+      "type": "choice",
+      "default": "24",
+      "options": [
+        [
+          "24",
+          "24-hour"
+        ],
+        [
+          "12",
+          "12-hour"
+        ]
+      ],
+      "tab": "general",
+      "profile": "clock"
+    },
+    {
+      "key": "profile",
+      "label": "Car",
+      "type": "choice",
+      "default": "x3m40i",
+      "options": [
+        [
+          "x3m40i",
+          "X3 M40i (B58)"
+        ],
+        [
+          "b58",
+          "Other B58 (340i, 540i, X5 40i)"
+        ],
+        [
+          "mCarS58",
+          "M car (S58)"
+        ],
+        [
+          "hybrid",
+          "Plug-in hybrid"
+        ]
+      ],
+      "tab": "general"
+    },
+    {
+      "key": "engine",
+      "label": "Engine",
+      "type": "choice",
+      "default": "petrol",
+      "options": [
+        [
+          "petrol",
+          "Petrol"
+        ],
+        [
+          "diesel",
+          "Diesel: the rev counter reads 0 - 6,000, red from 4,500"
+        ]
+      ],
+      "tab": "general",
+      "profile": "engine",
+      "profileMap": {
+        "phev": "petrol"
+      }
+    },
+    {
+      "key": "rpmRedline",
+      "label": "Redline",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "From the car"
+        ],
+        [
+          "4000",
+          "4,000"
+        ],
+        [
+          "4250",
+          "4,250"
+        ],
+        [
+          "4500",
+          "4,500"
+        ],
+        [
+          "4750",
+          "4,750"
+        ],
+        [
+          "5000",
+          "5,000"
+        ],
+        [
+          "5250",
+          "5,250"
+        ],
+        [
+          "5500",
+          "5,500"
+        ],
+        [
+          "5750",
+          "5,750"
+        ],
+        [
+          "5800",
+          "5,800"
+        ],
+        [
+          "6000",
+          "6,000"
+        ],
+        [
+          "6200",
+          "6,200"
+        ],
+        [
+          "6250",
+          "6,250"
+        ],
+        [
+          "6500",
+          "6,500"
+        ],
+        [
+          "6750",
+          "6,750"
+        ],
+        [
+          "6800",
+          "6,800"
+        ],
+        [
+          "7000",
+          "7,000"
+        ],
+        [
+          "7200",
+          "7,200"
+        ],
+        [
+          "7250",
+          "7,250"
+        ],
+        [
+          "7500",
+          "7,500"
+        ],
+        [
+          "7750",
+          "7,750"
+        ],
+        [
+          "7800",
+          "7,800"
+        ],
+        [
+          "8000",
+          "8,000"
+        ],
+        [
+          "8500",
+          "8,500"
+        ]
+      ],
+      "tab": "general",
+      "profile": "lightRed"
+    },
+    {
+      "key": "rpmLimiter",
+      "label": "Limiter",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "From the car"
+        ],
+        [
+          "4500",
+          "4,500"
+        ],
+        [
+          "4750",
+          "4,750"
+        ],
+        [
+          "5000",
+          "5,000"
+        ],
+        [
+          "5250",
+          "5,250"
+        ],
+        [
+          "5500",
+          "5,500"
+        ],
+        [
+          "5750",
+          "5,750"
+        ],
+        [
+          "5800",
+          "5,800"
+        ],
+        [
+          "6000",
+          "6,000"
+        ],
+        [
+          "6200",
+          "6,200"
+        ],
+        [
+          "6250",
+          "6,250"
+        ],
+        [
+          "6500",
+          "6,500"
+        ],
+        [
+          "6750",
+          "6,750"
+        ],
+        [
+          "6800",
+          "6,800"
+        ],
+        [
+          "7000",
+          "7,000"
+        ],
+        [
+          "7200",
+          "7,200"
+        ],
+        [
+          "7250",
+          "7,250"
+        ],
+        [
+          "7500",
+          "7,500"
+        ],
+        [
+          "7750",
+          "7,750"
+        ],
+        [
+          "7800",
+          "7,800"
+        ],
+        [
+          "8000",
+          "8,000"
+        ],
+        [
+          "8250",
+          "8,250"
+        ],
+        [
+          "8500",
+          "8,500"
+        ],
+        [
+          "8750",
+          "8,750"
+        ],
+        [
+          "9000",
+          "9,000"
+        ]
+      ],
+      "tab": "general",
+      "profile": "redline"
+    },
+    {
+      "key": "shiftFrom",
+      "label": "Shift lights from",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "Auto (1,800 under the redline)"
+        ],
+        [
+          "3000",
+          "3,000"
+        ],
+        [
+          "3500",
+          "3,500"
+        ],
+        [
+          "4000",
+          "4,000"
+        ],
+        [
+          "4500",
+          "4,500"
+        ],
+        [
+          "5000",
+          "5,000"
+        ],
+        [
+          "5500",
+          "5,500"
+        ],
+        [
+          "6000",
+          "6,000"
+        ],
+        [
+          "6500",
+          "6,500"
+        ],
+        [
+          "7000",
+          "7,000"
+        ],
+        [
+          "7500",
+          "7,500"
+        ]
+      ],
+      "tab": "general",
+      "profile": "lightStart"
+    },
+    {
+      "key": "revFlash",
+      "label": "Limiter flash",
+      "type": "choice",
+      "default": "both",
+      "options": [
+        [
+          "both",
+          "Dial and screen edges"
+        ],
+        [
+          "band",
+          "Dial only"
+        ],
+        [
+          "edges",
+          "Screen edges only"
+        ],
+        [
+          "off",
+          "Off"
+        ]
+      ],
+      "tab": "general"
+    },
+    {
+      "key": "flashStyle",
+      "label": "Limiter flash: shape",
+      "type": "choice",
+      "default": "wide",
+      "options": [
+        [
+          "wide",
+          "Wide border"
+        ],
+        [
+          "edges",
+          "Thin border"
+        ],
+        [
+          "full",
+          "Whole screen"
+        ],
+        [
+          "top",
+          "Across the top"
+        ]
+      ],
+      "when": {
+        "revFlash": [
+          "both",
+          "edges"
+        ]
+      },
+      "tab": "general"
+    },
+    {
+      "key": "bottomExtra",
+      "label": "BMW's bottom strip",
+      "type": "choice",
+      "default": "18",
+      "options": [
+        [
+          "0",
+          "Show all of it"
+        ],
+        [
+          "6",
+          "Trim its top edge: 6 px"
+        ],
+        [
+          "12",
+          "Trim its top edge: 12 px"
+        ],
+        [
+          "18",
+          "Trim its top edge: 18 px"
+        ],
+        [
+          "hideWide",
+          "Hide it, a wider gap left beside the gear"
+        ],
+        [
+          "hide",
+          "Hide it (BMW's own gear letter stays)"
+        ]
+      ],
+      "aliases": {
+        "24": "18",
+        "48": "hide",
+        "74": "hide"
+      },
+      "tab": "general"
+    },
+    {
+      "key": "signCover",
+      "label": "Cover the speed limit sign's edge in BMW's strip",
+      "type": "bool",
+      "default": false,
+      "tab": "general"
+    },
+    {
+      "key": "lower",
+      "label": "BETA: lower and enlarge the cluster",
+      "type": "choice",
+      "default": "0",
+      "options": [
+        [
+          "0",
+          "Off"
+        ],
+        [
+          "20",
+          "20 px lower, 3 % larger (BMW's strip hidden)"
+        ],
+        [
+          "40",
+          "40 px lower, 6 % larger (BMW's strip hidden)"
+        ],
+        [
+          "58",
+          "58 px lower, 9 % larger (as far as Toro goes)"
+        ],
+        [
+          "74",
+          "74 px lower, 11 % larger: to the screen's edge"
+        ]
+      ],
+      "tab": "general"
+    },
+    {
+      "key": "beemFlash",
+      "type": "choice",
+      "default": "auto",
+      "label": "BeeM-Flash readings",
+      "options": [
+        [
+          "auto",
+          "Automatic: BeeM-Flash if this head unit has it, else the engine unit"
+        ],
+        [
+          "on",
+          "On: BeeM-Flash only (the engine unit is never asked)"
+        ],
+        [
+          "off",
+          "Off: the engine unit only (no BeeM-Flash)"
+        ]
+      ],
+      "tab": "general"
+    },
+    {
+      "key": "electric",
+      "label": "Electric range",
+      "type": "choice",
+      "default": "off",
+      "options": [
+        [
+          "off",
+          "Off"
+        ],
+        [
+          "hybrid",
+          "Plug-in hybrid: electric range as well as the fuel's"
+        ],
+        [
+          "bev",
+          "Fully electric: range, charge and battery temperature in place of fuel and oil"
+        ]
+      ],
+      "tab": "general",
+      "profile": "engine",
+      "profileMap": {
+        "phev": "hybrid",
+        "petrol": "off",
+        "diesel": "off"
+      }
+    },
+    {
+      "key": "refreshHz",
+      "label": "Refresh rate",
+      "type": "choice",
+      "default": "60",
+      "options": [
+        [
+          "60",
+          "60 a second, the smoothest"
+        ],
+        [
+          "45",
+          "45 a second"
+        ],
+        [
+          "30",
+          "30 a second"
+        ],
+        [
+          "20",
+          "20 a second, the lightest"
+        ]
+      ],
+      "tab": "general"
+    },
+    {
+      "key": "smoothing",
+      "label": "Needles between the car's updates",
+      "type": "choice",
+      "default": "smooth",
+      "options": [
+        [
+          "smooth",
+          "Glide smoothly"
+        ],
+        [
+          "light",
+          "Glide quickly"
+        ],
+        [
+          "off",
+          "Jump to each reading"
+        ]
+      ],
+      "tab": "general"
+    },
+    {
+      "key": "holiday",
+      "label": "Holiday theme: falling snow and a Christmas tree",
+      "type": "bool",
+      "default": false,
+      "tab": "general"
+    },
+    {
+      "key": "intro",
+      "label": "Start-up message",
+      "type": "bool",
+      "default": true,
+      "tab": "general"
+    },
+    {
+      "key": "introMessage",
+      "label": "Start-up message: words",
+      "type": "choice",
+      "default": "mgu",
+      "options": [
+        [
+          "mgu",
+          "MGU Styles an app by #tunedbywali"
+        ],
+        [
+          "nicole",
+          "For my beautiful wife, Nicole Wali, I love you"
+        ],
+        [
+          "welcome",
+          "Welcome back"
+        ],
+        [
+          "drive",
+          "Drive safe and come home soon"
+        ],
+        [
+          "buongiorno",
+          "Buongiorno"
+        ],
+        [
+          "andiamo",
+          "Andiamo"
+        ],
+        [
+          "custom",
+          "Your own: mgu-styles-message.txt on a USB stick"
+        ]
+      ],
+      "when": {
+        "intro": true
+      },
+      "tab": "general"
+    },
+    {
+      "key": "introSeconds",
+      "label": "Start-up message: how long",
+      "type": "choice",
+      "default": "10",
+      "options": [
+        [
+          "6",
+          "6 seconds"
+        ],
+        [
+          "10",
+          "10 seconds"
+        ],
+        [
+          "15",
+          "15 seconds"
+        ],
+        [
+          "20",
+          "20 seconds"
+        ]
+      ],
+      "when": {
+        "intro": true
+      },
+      "tab": "general"
+    },
+    {
+      "key": "tCentre",
+      "type": "choice",
+      "default": "off",
+      "label": "Map opening",
+      "options": [
+        [
+          "off",
+          "Closed (the style as it is)"
+        ],
+        [
+          "waze",
+          "Phone map (Waze): opens while it is on the cluster"
+        ],
+        [
+          "map",
+          "BMW's own map: always open"
+        ],
+        [
+          "camera",
+          "Turn View camera"
+        ]
+      ],
+      "tab": "toro",
+      "when": {
+        "style": "toro"
+      }
+    },
+    {
+      "key": "tCentreSize",
+      "type": "choice",
+      "default": "standard",
+      "label": "Map opening: how much shows",
+      "options": [
+        [
+          "standard",
+          "Standard: a lens of it behind the gear"
+        ],
+        [
+          "more",
+          "More: the inside of the dial, soft at the edge"
+        ],
+        [
+          "most",
+          "Most: all of the inside of the dial"
+        ]
+      ],
+      "tab": "toro",
+      "when": {
+        "style": "toro",
+        "tCentre": [
+          "waze",
+          "map",
+          "camera"
+        ]
+      }
+    },
+    {
+      "key": "background",
+      "label": "Background",
+      "type": "choice",
+      "default": "genuine",
+      "options": [
+        [
+          "genuine",
+          "Genuine Huracan (stipple)"
+        ],
+        [
+          "modern",
+          "Modern hex lattice"
+        ],
+        [
+          "revuelto",
+          "Revuelto (Y signature)"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "accent",
+      "label": "Colour",
+      "type": "choice",
+      "default": "arancio",
+      "options": [
+        [
+          "arancio",
+          "Arancio"
+        ],
+        [
+          "giallo",
+          "Giallo"
+        ],
+        [
+          "rosso",
+          "Rosso"
+        ],
+        [
+          "verde",
+          "Verde"
+        ],
+        [
+          "blu",
+          "Blu"
+        ],
+        [
+          "viola",
+          "Viola"
+        ],
+        [
+          "magenta",
+          "Magenta"
+        ],
+        [
+          "bianco",
+          "Bianco"
+        ],
+        [
+          "ambient",
+          "Match the interior light"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "accentScope",
+      "label": "Colour applies to",
+      "type": "choice",
+      "default": "highlights",
+      "options": [
+        [
+          "highlights",
+          "Lights and highlights"
+        ],
+        [
+          "full",
+          "Everything, gear and labels too"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "nodeColour",
+      "label": "Hex lattice: joint colour",
+      "type": "choice",
+      "default": "",
+      "options": [
+        [
+          "",
+          "A touch of the colour"
+        ],
+        [
+          "accent",
+          "Full colour"
+        ],
+        [
+          "white",
+          "White"
+        ],
+        [
+          "arancio",
+          "Arancio"
+        ],
+        [
+          "rosso",
+          "Rosso"
+        ],
+        [
+          "blu",
+          "Blu"
+        ],
+        [
+          "verde",
+          "Verde"
+        ],
+        [
+          "magenta",
+          "Magenta"
+        ],
+        [
+          "giallo",
+          "Giallo"
+        ]
+      ],
+      "when": {
+        "style": "toro",
+        "background": "modern"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "hexTint",
+      "label": "Hex lattice: lines take the colour",
+      "type": "choice",
+      "default": "0.3",
+      "options": [
+        [
+          "0",
+          "Silver"
+        ],
+        [
+          "0.3",
+          "A little"
+        ],
+        [
+          "0.6",
+          "More"
+        ],
+        [
+          "1",
+          "Fully"
+        ]
+      ],
+      "when": {
+        "style": "toro",
+        "background": "modern"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "dialFill",
+      "label": "Rev band",
+      "type": "choice",
+      "default": "1",
+      "options": [
+        [
+          "1",
+          "Full fill and needle"
+        ],
+        [
+          "0.5",
+          "Subtle"
+        ],
+        [
+          "0",
+          "Off (ticks and numerals only)"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "numeralFill",
+      "label": "Rev number at the needle",
+      "type": "choice",
+      "default": "outline",
+      "options": [
+        [
+          "outline",
+          "Outline"
+        ],
+        [
+          "filled",
+          "Bold, filled in colour"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "gearFill",
+      "label": "Gear numeral",
+      "type": "choice",
+      "default": "outline",
+      "options": [
+        [
+          "outline",
+          "Outline"
+        ],
+        [
+          "heavy",
+          "Heavy outline"
+        ],
+        [
+          "filled",
+          "Bold, filled in colour"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "gearPlace",
+      "label": "Gear numeral's place",
+      "type": "choice",
+      "default": "centre",
+      "options": [
+        [
+          "centre",
+          "Middle of the dial, large"
+        ],
+        [
+          "left",
+          "Left corner, smaller: above the boost gauge"
+        ],
+        [
+          "right",
+          "Right corner, smaller: above the speed"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "modeLabel",
+      "label": "Mode name",
+      "type": "choice",
+      "default": "lamborghini",
+      "options": [
+        [
+          "lamborghini",
+          "Strada / Sport / Corsa"
+        ],
+        [
+          "bmw",
+          "BMW's own names"
+        ],
+        [
+          "fixed",
+          "Always CORSA"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "scaleMaxRpm",
+      "label": "Dial scale",
+      "type": "choice",
+      "default": "8000",
+      "options": [
+        [
+          "6000",
+          "0 - 6,000"
+        ],
+        [
+          "7000",
+          "0 - 7,000"
+        ],
+        [
+          "8000",
+          "0 - 8,000"
+        ],
+        [
+          "9000",
+          "0 - 9,000"
+        ],
+        [
+          "10000",
+          "0 - 10,000 (Lamborghini)"
+        ]
+      ],
+      "when": {
+        "style": "toro",
+        "engine": "petrol"
+      },
+      "tab": "toro",
+      "profile": "rpmScale"
+    },
+    {
+      "key": "zoom",
+      "label": "Fill the screen",
+      "type": "choice",
+      "default": "1",
+      "options": [
+        [
+          "0.94",
+          "Smaller"
+        ],
+        [
+          "0.97",
+          "Slightly smaller"
+        ],
+        [
+          "1",
+          "Standard"
+        ],
+        [
+          "1.03",
+          "Slightly larger"
+        ],
+        [
+          "1.06",
+          "Larger"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "shiftY",
+      "label": "Nudge up",
+      "type": "choice",
+      "default": "0",
+      "options": [
+        [
+          "0",
+          "None"
+        ],
+        [
+          "-8",
+          "A little"
+        ],
+        [
+          "-16",
+          "More"
+        ],
+        [
+          "-24",
+          "Most"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "shiftStyle",
+      "label": "Shift lights",
+      "type": "choice",
+      "default": "toro",
+      "options": [
+        [
+          "toro",
+          "Lamborghini, bursts at the limit"
+        ],
+        [
+          "gt3",
+          "GT3 LEDs"
+        ],
+        [
+          "blade",
+          "Single blade"
+        ],
+        [
+          "off",
+          "Off"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "shake",
+      "label": "Shake the screen at the limiter",
+      "type": "choice",
+      "default": "medium",
+      "options": [
+        [
+          "medium",
+          "Medium"
+        ],
+        [
+          "hard",
+          "Hard"
+        ],
+        [
+          "light",
+          "Light"
+        ],
+        [
+          "off",
+          "Off"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "flashColour",
+      "label": "Limiter flash: colour",
+      "type": "choice",
+      "default": "",
+      "options": [
+        [
+          "",
+          "Red"
+        ],
+        [
+          "arancio",
+          "Arancio"
+        ],
+        [
+          "giallo",
+          "Giallo"
+        ],
+        [
+          "rosso",
+          "Rosso"
+        ],
+        [
+          "verde",
+          "Verde"
+        ],
+        [
+          "blu",
+          "Blu"
+        ],
+        [
+          "viola",
+          "Viola"
+        ],
+        [
+          "magenta",
+          "Magenta"
+        ],
+        [
+          "bianco",
+          "Bianco"
+        ]
+      ],
+      "when": {
+        "style": "toro",
+        "revFlash": [
+          "both",
+          "edges"
+        ]
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "showBoost",
+      "label": "Boost gauge",
+      "type": "bool",
+      "default": true,
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "showAuxLeft",
+      "label": "Oil temperature and pressure gauges",
+      "type": "bool",
+      "default": true,
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "electricGauge",
+      "label": "Electric range takes the place of",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "Automatic: oil pressure (hybrid) or fuel (electric car)"
+        ],
+        [
+          "oilP",
+          "Oil pressure gauge"
+        ],
+        [
+          "oilT",
+          "Oil temperature gauge"
+        ],
+        [
+          "coolant",
+          "Coolant gauge"
+        ],
+        [
+          "fuel",
+          "Fuel gauge"
+        ]
+      ],
+      "when": {
+        "style": "toro",
+        "electric": [
+          "hybrid",
+          "bev"
+        ]
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "mCentre",
+      "type": "choice",
+      "default": "off",
+      "label": "Centre picture",
+      "options": [
+        [
+          "off",
+          "Closed (the style as it is)"
+        ],
+        [
+          "waze",
+          "Phone map (Waze): opens while it is on the cluster"
+        ],
+        [
+          "map",
+          "BMW's own map: always open"
+        ],
+        [
+          "camera",
+          "Turn View camera"
+        ],
+        [
+          "turn",
+          "Next turn, as a card"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track"
+      }
+    },
+    {
+      "key": "mCentreSize",
+      "type": "choice",
+      "default": "standard",
+      "label": "Centre picture: how much shows",
+      "options": [
+        [
+          "standard",
+          "Standard: between the two dials"
+        ],
+        [
+          "more",
+          "More: also above the speed and the gear, clear to the edge"
+        ],
+        [
+          "full",
+          "Widest: the car's whole picture, fading out softly at its edges"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track",
+        "mCentre": [
+          "waze",
+          "map",
+          "camera"
+        ]
+      }
+    },
+    {
+      "key": "mLines",
+      "type": "choice",
+      "default": "fade",
+      "label": "Centre picture: the two lines across it",
+      "options": [
+        [
+          "fade",
+          "Fade out where the picture shows"
+        ],
+        [
+          "keep",
+          "Keep them over the picture"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track",
+        "mCentre": [
+          "waze",
+          "map",
+          "camera"
+        ]
+      }
+    },
+    {
+      "key": "mGear",
+      "type": "choice",
+      "default": "gear",
+      "label": "The gear's place shows",
+      "options": [
+        [
+          "gear",
+          "The gear"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "off",
+          "Nothing (BMW's own gear letter stays below)"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track"
+      }
+    },
+    {
+      "key": "mSpeed2",
+      "type": "choice",
+      "default": "on",
+      "label": "Second speed underneath",
+      "options": [
+        [
+          "on",
+          "Show both: mph and km/h"
+        ],
+        [
+          "off",
+          "One speed only, in the units chosen"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track"
+      }
+    },
+    {
+      "key": "mFootL",
+      "type": "choice",
+      "default": "time",
+      "label": "Footer, left",
+      "options": [
+        [
+          "time",
+          "Time"
+        ],
+        [
+          "range",
+          "Range (distance to empty)"
+        ],
+        [
+          "economy",
+          "Fuel economy (trip average)"
+        ],
+        [
+          "outside",
+          "Outside temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature (needs BeeM-Flash)"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "volts",
+          "Battery voltage (needs BeeM-Flash)"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track"
+      }
+    },
+    {
+      "key": "mFootM",
+      "type": "choice",
+      "default": "range",
+      "label": "Footer, middle",
+      "options": [
+        [
+          "time",
+          "Time"
+        ],
+        [
+          "range",
+          "Range (distance to empty)"
+        ],
+        [
+          "economy",
+          "Fuel economy (trip average)"
+        ],
+        [
+          "outside",
+          "Outside temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature (needs BeeM-Flash)"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "volts",
+          "Battery voltage (needs BeeM-Flash)"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track"
+      }
+    },
+    {
+      "key": "mFootR",
+      "type": "choice",
+      "default": "outside",
+      "label": "Footer, right",
+      "options": [
+        [
+          "time",
+          "Time"
+        ],
+        [
+          "range",
+          "Range (distance to empty)"
+        ],
+        [
+          "economy",
+          "Fuel economy (trip average)"
+        ],
+        [
+          "outside",
+          "Outside temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature (needs BeeM-Flash)"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "volts",
+          "Battery voltage (needs BeeM-Flash)"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track"
+      }
+    },
+    {
+      "key": "mPanel",
+      "label": "Footer panel shows",
+      "type": "choice",
+      "default": "4wd",
+      "options": [
+        [
+          "4wd",
+          "4WD"
+        ],
+        [
+          "2wd",
+          "2WD"
+        ],
+        [
+          "mode",
+          "The driving mode"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track"
+      }
+    },
+    {
+      "key": "mPop",
+      "label": "Scale numbers at the needle",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "As the car has them (the same size)"
+        ],
+        [
+          "on",
+          "Grow as the needle passes"
+        ],
+        [
+          "off",
+          "Stay the same size"
+        ]
+      ],
+      "tab": "msport",
+      "when": {
+        "style": "track"
+      }
+    },
+    {
+      "key": "pCentre",
+      "type": "choice",
+      "default": "waze",
+      "label": "Centre picture",
+      "options": [
+        [
+          "off",
+          "Closed (the style as it is)"
+        ],
+        [
+          "waze",
+          "Phone map (Waze): opens while it is on the cluster"
+        ],
+        [
+          "map",
+          "BMW's own map: always open"
+        ],
+        [
+          "camera",
+          "Turn View camera"
+        ],
+        [
+          "turn",
+          "Next turn, as a card"
+        ]
+      ],
+      "tab": "mplus",
+      "when": {
+        "style": "mplus"
+      }
+    },
+    {
+      "key": "pCentreSize",
+      "type": "choice",
+      "default": "standard",
+      "label": "Centre picture: how much shows",
+      "options": [
+        [
+          "standard",
+          "Standard: fading out from the middle"
+        ],
+        [
+          "more",
+          "More: full strength to the edges, and above the speed"
+        ],
+        [
+          "most",
+          "Fullest: one blended picture, soft at every edge and further down"
+        ],
+        [
+          "full",
+          "Widest: the car's whole picture, fading out softly at its edges"
+        ]
+      ],
+      "tab": "mplus",
+      "when": {
+        "style": "mplus",
+        "pCentre": [
+          "waze",
+          "map",
+          "camera"
+        ]
+      }
+    },
+    {
+      "key": "pGear",
+      "type": "choice",
+      "default": "gear",
+      "label": "The gear's place shows",
+      "options": [
+        [
+          "gear",
+          "The gear"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "off",
+          "Nothing (BMW's own gear letter stays below)"
+        ]
+      ],
+      "tab": "mplus",
+      "when": {
+        "style": "mplus"
+      }
+    },
+    {
+      "key": "pSpeed2",
+      "type": "choice",
+      "default": "on",
+      "label": "Second speed underneath",
+      "options": [
+        [
+          "on",
+          "Show both: mph and km/h"
+        ],
+        [
+          "off",
+          "One speed only, in the units chosen"
+        ]
+      ],
+      "tab": "mplus",
+      "when": {
+        "style": "mplus"
+      }
+    },
+    {
+      "key": "pFootL",
+      "type": "choice",
+      "default": "time",
+      "label": "Footer, left",
+      "options": [
+        [
+          "time",
+          "Time"
+        ],
+        [
+          "range",
+          "Range (distance to empty)"
+        ],
+        [
+          "economy",
+          "Fuel economy (trip average)"
+        ],
+        [
+          "outside",
+          "Outside temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature (needs BeeM-Flash)"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "volts",
+          "Battery voltage (needs BeeM-Flash)"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "mplus",
+      "when": {
+        "style": "mplus"
+      }
+    },
+    {
+      "key": "pFootM",
+      "type": "choice",
+      "default": "range",
+      "label": "Footer, middle",
+      "options": [
+        [
+          "time",
+          "Time"
+        ],
+        [
+          "range",
+          "Range (distance to empty)"
+        ],
+        [
+          "economy",
+          "Fuel economy (trip average)"
+        ],
+        [
+          "outside",
+          "Outside temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature (needs BeeM-Flash)"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "volts",
+          "Battery voltage (needs BeeM-Flash)"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "mplus",
+      "when": {
+        "style": "mplus"
+      }
+    },
+    {
+      "key": "pFootR",
+      "type": "choice",
+      "default": "outside",
+      "label": "Footer, right",
+      "options": [
+        [
+          "time",
+          "Time"
+        ],
+        [
+          "range",
+          "Range (distance to empty)"
+        ],
+        [
+          "economy",
+          "Fuel economy (trip average)"
+        ],
+        [
+          "outside",
+          "Outside temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature (needs BeeM-Flash)"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "volts",
+          "Battery voltage (needs BeeM-Flash)"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "mplus",
+      "when": {
+        "style": "mplus"
+      }
+    },
+    {
+      "key": "pPanel",
+      "label": "Footer panel shows",
+      "type": "choice",
+      "default": "4wd",
+      "options": [
+        [
+          "4wd",
+          "4WD"
+        ],
+        [
+          "2wd",
+          "2WD"
+        ],
+        [
+          "mode",
+          "The driving mode"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "mplus",
+      "when": {
+        "style": "mplus"
+      }
+    },
+    {
+      "key": "pPop",
+      "label": "Scale numbers at the needle",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "As the style has them (they grow)"
+        ],
+        [
+          "on",
+          "Grow as the needle passes"
+        ],
+        [
+          "off",
+          "Stay the same size"
+        ]
+      ],
+      "tab": "mplus",
+      "when": {
+        "style": "mplus"
+      }
+    },
+    {
+      "key": "kCentre",
+      "type": "choice",
+      "default": "off",
+      "label": "Left wing shows",
+      "options": [
+        [
+          "off",
+          "The four gauges (the style as it is)"
+        ],
+        [
+          "waze",
+          "Phone map (Waze) in place of the gauges, while it is on the cluster"
+        ],
+        [
+          "map",
+          "BMW's own map in place of the gauges: always"
+        ],
+        [
+          "camera",
+          "Turn View camera in place of the gauges"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kWing",
+      "label": "Left wing: how much of it a picture takes",
+      "type": "choice",
+      "default": "whole",
+      "options": [
+        [
+          "whole",
+          "The whole wing, to its point (the style stands further right)"
+        ],
+        [
+          "slot",
+          "The style stays where it is (the picture starts part way along)"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kRow1",
+      "type": "choice",
+      "default": "auto",
+      "label": "Gauge row 1 (top)",
+      "options": [
+        [
+          "auto",
+          "As BMW's: turbo boost"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing: the row left out"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kRow2",
+      "type": "choice",
+      "default": "auto",
+      "label": "Gauge row 2",
+      "options": [
+        [
+          "auto",
+          "As BMW's: coolant temperature"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing: the row left out"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kRow3",
+      "type": "choice",
+      "default": "auto",
+      "label": "Gauge row 3",
+      "options": [
+        [
+          "auto",
+          "As BMW's: oil temperature"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing: the row left out"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kRow4",
+      "type": "choice",
+      "default": "auto",
+      "label": "Gauge row 4 (bottom)",
+      "options": [
+        [
+          "auto",
+          "As BMW's: intake air temperature"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing: the row left out"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kRowMark",
+      "type": "choice",
+      "default": "mark",
+      "label": "Gauge rows: the reading shows as",
+      "options": [
+        [
+          "mark",
+          "A mark on the rail (as BMW's)"
+        ],
+        [
+          "fill",
+          "A bar: the rail past the mark dimmed"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kFootL",
+      "type": "choice",
+      "default": "time",
+      "label": "Footer, left",
+      "options": [
+        [
+          "time",
+          "Time"
+        ],
+        [
+          "range",
+          "Range (distance to empty)"
+        ],
+        [
+          "economy",
+          "Fuel economy (trip average)"
+        ],
+        [
+          "outside",
+          "Outside temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature (needs BeeM-Flash)"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "volts",
+          "Battery voltage (needs BeeM-Flash)"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kFootM",
+      "type": "choice",
+      "default": "range",
+      "label": "Footer, middle",
+      "options": [
+        [
+          "time",
+          "Time"
+        ],
+        [
+          "range",
+          "Range (distance to empty)"
+        ],
+        [
+          "economy",
+          "Fuel economy (trip average)"
+        ],
+        [
+          "outside",
+          "Outside temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature (needs BeeM-Flash)"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "volts",
+          "Battery voltage (needs BeeM-Flash)"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kFootR",
+      "type": "choice",
+      "default": "outside",
+      "label": "Footer, right",
+      "options": [
+        [
+          "time",
+          "Time"
+        ],
+        [
+          "range",
+          "Range (distance to empty)"
+        ],
+        [
+          "economy",
+          "Fuel economy (trip average)"
+        ],
+        [
+          "outside",
+          "Outside temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature (needs BeeM-Flash)"
+        ],
+        [
+          "rpm",
+          "Engine speed, in figures"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "volts",
+          "Battery voltage (needs BeeM-Flash)"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    }
+  ]
+}

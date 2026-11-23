@@ -508,7 +508,7 @@
         /* the speed: flush right, its unit after it */
         var SPD = { h: 37.0, right: 831.8, base: 365.2 };
         dyn('speed', 30, box(644, 322, 840, 372), function (s) {
-            return { str: String(Math.round(Math.max(0, s.speed || 0))), face: 'mw', size: fig(SPD.h),
+            return { str: s.speedText !== undefined ? s.speedText : String(Math.round(Math.max(0, s.speed || 0))), face: 'mw', size: fig(SPD.h),
                      x: X(SPD.right), y: Y(SPD.base), ink: 'r', color: K.white };
         });
         fixed('speedUnit', 30, box(834, 340, 896, 374), { face: 'ms', size: words(22.2), align: 'left', color: K.speedUnit },

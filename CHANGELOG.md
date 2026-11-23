@@ -11,6 +11,23 @@ your car, `beta-6` is the one to go back to: in the MGU Store, add the
 repository as a source and choose the branch **beta-6** where it asks
 what to follow, in place of **main**.
 
+## AK 0.11.0 — `ak`, the app MGU Styles AK (`mgustyles_ak`)
+
+A personal modification of 0.10.0, installed beside the original as an app
+of its own.
+
+- **The Car profile** (the Car profile app of akakingj/myapp-id7): Units
+  follow its speed unit, Clock its clock, Engine and Electric range its
+  engine, Redline its red light, Limiter its redline (the fuel cut), Dial
+  scale its gauge top, and the new *Shift lights from* (where Toro's shift
+  lights begin) its yellow light. A setting the profile sets shows its
+  value with "Car profile" beside it and is changed there; one it leaves
+  to each app is this app's own.
+- **The figures as the car's own cluster keeps them**: the speed's digits
+  move on once the reading is 0.75 past them, the engine speed's once it is
+  15 rpm past (shown to the nearest ten), so they no longer flick between
+  two figures.
+
 ## Beta 7 — `main`, app version 0.10.0
 
 **A fourth style: M Track Mode.** BMW M's track view, rebuilt for the

@@ -288,6 +288,9 @@
         s.rpmLimiter = Math.min(limiter, scale);
         /* where Toro's shift lights begin to come on */
         s.shiftFromRpm = s.rpmRedline - (diesel ? DIESEL.shiftSpan : SHIFT_SPAN);
+        /* ... or where "Shift lights from" (the Car profile's yellow light) says, below the limiter */
+        var from = Number(settings.shiftFrom);
+        if (from > 0 && from < s.rpmLimiter) s.shiftFromRpm = from;
         s.redFromScale = settings.redFromScale === undefined ? null
             : settings.redFromScale;
         /* Where the warning starts. Default: a breath before the limiter. */

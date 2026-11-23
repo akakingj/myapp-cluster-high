@@ -528,7 +528,7 @@
         var BIG = 51.6;
         txt('speed', 30, box(372, 234, 616, 304),
             { face: 'mw', size: fig(BIG), align: 'right', x: X(603.0 + 0.1025 * BIG), y: Y(295.0), color: K.white },
-            function (s) { return String(Math.round(Math.max(0, s.speed || 0))); });
+            function (s) { return s.speedText !== undefined ? s.speedText : String(Math.round(Math.max(0, s.speed || 0))); });
         statics('speedUnit', 30, box(520, 296, 616, 330),
             { face: 'ms', size: words(25.5), align: 'right', color: K.unit },
             [{ str: metric ? 'km/h' : 'mph', x: X(606.0), y: Y(321.2) }]);

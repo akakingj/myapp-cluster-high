@@ -83,9 +83,10 @@ test('Redline and Limiter can be set for a diesel, and Toro\'s dial scale is a p
     const red = item('rpmRedline').options.map((o) => o[0]), lim = item('rpmLimiter').options.map((o) => o[0]);
     assert.deepStrictEqual([red[0], lim[0]], ['auto', 'auto']);
     const nums = (a) => a.slice(1).map(Number);
-    /* every step of 250 from a diesel's range to a petrol's, in order */
-    assert.deepStrictEqual(nums(red), Array.from({ length: 17 }, (_, i) => 4000 + 250 * i));
-    assert.deepStrictEqual(nums(lim), Array.from({ length: 19 }, (_, i) => 4500 + 250 * i));
+    /* every step of 250 from a diesel's range to a petrol's, and the Car profile's steps between them, in order */
+    const steps = (from, n, extra) => Array.from({ length: n }, (_, i) => from + 250 * i).concat(extra).sort((a, b) => a - b);
+    assert.deepStrictEqual(nums(red), steps(4000, 17, [5800, 6200, 6800, 7200, 7800, 8500]));
+    assert.deepStrictEqual(nums(lim), steps(4500, 19, [5800, 6200, 6800, 7200, 7800]));
     /* each is shown as the figure it is */
     for (const o of item('rpmRedline').options.slice(1).concat(item('rpmLimiter').options.slice(1))) {
         assert.strictEqual(o[1].replace(',', ''), o[0]);

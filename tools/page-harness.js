@@ -1,7 +1,7 @@
 'use strict';
 /*
  * Runs the app's own page off the car: the staged app
- * (apps/mgustyles_toro/main.js) exactly as it is, with the kit's recorder
+ * (apps/mgustyles_ak/main.js) exactly as it is, with the kit's recorder
  * and stand-ins for what only the head unit can give - the settings store,
  * the cluster service, and the kit's display (the finger, the controller).
  * tools/page-shot.js draws from it; test/page.test.js presses its places.
@@ -20,7 +20,7 @@ const path = require('path');
 const Module = require('module');
 
 const ROOT = path.resolve(__dirname, '..');
-const APP = path.join(ROOT, 'apps', 'mgustyles_toro');
+const APP = path.join(ROOT, 'apps', 'mgustyles_ak');
 const KIT = path.join(ROOT, 'kit', 'runtime');
 const { Recorder } = require(path.join(KIT, 'record.js'));
 const EXTRA = 80;               /* 720 / 1.2 - 520: the rows "fill" leaves below the page (kit/runtime/display.js) */
@@ -76,6 +76,8 @@ function open(opts) {
     const settings = {
         schema: items,
         get: (k) => values[k],
+        /* set by the Car profile (opts.held: the settings it holds) */
+        held: (k) => (opts.held || []).indexOf(k) >= 0,
         set(k, v) { values[k] = v; listeners.slice().forEach((fn) => fn(k, v)); },
         item: (k) => items.find((s) => s.key === k),
         shown: (s) => !!s && !s.hidden,

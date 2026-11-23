@@ -351,8 +351,10 @@ mgu.run({
             const item = settings.item(key);
             const v = settings.get(key);
             const opt = item && item.options && item.options.find((o) => o[0] === String(v));
-            return opt ? opt[1] : String(v);
+            return (opt ? opt[1] : String(v)) + (held(key) ? '  ·  Car profile' : '');
         }
+        /* set by the Car profile app (the kit's Settings.held): shown with its value, changed there */
+        const held = (key) => !!(settings.held && settings.held(key));
         const style = () => (STYLE_NAME[settings.get('style')] ? settings.get('style') : 'toro');
         /* BETA: how many px lower a style is drawn (0: as it comes) - what was asked, as far as the style goes */
         const lowered = (st) => Math.max(0, Math.min(Math.round(Number(settings.get('lower')) || 0), Theme.lowerMost(st || style())));
@@ -404,7 +406,7 @@ mgu.run({
             return sh;
         }
         function press(s) {
-            if (!s) return;
+            if (!s || held(s.key)) return;
             if (s.type === 'bool') settings.set(s.key, !settings.get(s.key));
             else if (!(ctx.sheet && ctx.sheet(pick(s)))) {
                 /* no sheet here: step to the next value */
@@ -615,8 +617,8 @@ mgu.run({
                     cv.circle(onV ? right - 19 : right - 57, cy, 14, '#ffffff');
                     right -= 100;
                 } else {
-                    cv.line(right - 9, cy - 9, right, cy, 3, DIM); cv.line(right, cy, right - 9, cy + 9, 3, DIM);
-                    right -= 30;
+                    /* (no arrow where the Car profile sets it: nothing to pick here) */
+                    if (!held(s.key)) { cv.line(right - 9, cy - 9, right, cy, 3, DIM); cv.line(right, cy, right - 9, cy + 9, 3, DIM); right -= 30; }
                     const v = choice(s.key);
                     const vw = Math.min(700, cv.textWidth(v, 22, { literal: true }));
                     fitLabel(v, right - vw, cy + 8, 22, 700, DIM);

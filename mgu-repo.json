@@ -28,6 +28,34 @@
         "output": "dist/mgustyles_toro@{version}.tgz",
         "network": []
       }
+    },
+    {
+      "id": "mgustyles_ak",
+      "kind": "app",
+      "path": "apps/mgustyles_ak",
+      "title": "MGU Styles AK",
+      "description": "MGU Styles with the AK settings: the Car profile's units, clock, engine and rev limits, and the speed and engine speed held as the car's own cluster holds them. A personal modification, kept private.",
+      "mguHmi": [
+        "ID7"
+      ],
+      "requires": {
+        "cluster-render": "0.6.9",
+        "mgu-deploy": "0.8.27",
+        "mgu-render": "0.6.11"
+      },
+      "build": {
+        "python": "kit/tools/build.py",
+        "args": [
+          "mgustyles_ak"
+        ],
+        "sdk": "oap-sdk",
+        "shared": [
+          "kit",
+          "oap-sdk"
+        ],
+        "output": "dist/mgustyles_ak@{version}.tgz",
+        "network": []
+      }
     }
   ]
 }

@@ -39,6 +39,23 @@
         return t[mode] || fallback;
     }
 
+    /*
+     * The figures as the car's own cluster keeps them: the speed's digits move on once the reading is
+     * 0.75 past the one shown (79 holds through 79.6 and 80.4 alike, not flicking between them), the
+     * engine speed's once it is 15 rpm past, shown to the nearest ten. One held speed per unit, so a
+     * change of unit starts afresh.
+     */
+    var held = { speed: null, speedUnit: '', rpm: null };
+    function speedShown(v, unit) {
+        if (held.speedUnit !== unit) { held.speedUnit = unit; held.speed = null; }
+        if (held.speed === null || Math.abs(v - held.speed) >= 0.75) held.speed = Math.round(v);
+        return held.speed;
+    }
+    function rpmShown(v) {
+        if (held.rpm === null || Math.abs(v - held.rpm) >= 15) held.rpm = Math.round(v / 10) * 10;
+        return held.rpm;
+    }
+
     /* A reading that has gone stale shows dashes rather than a stale number. */
     function has(v) { return typeof v === 'number' && isFinite(v); }
 
@@ -158,8 +175,8 @@
          */
         var MPG_PER_L100 = 235.215;      /* US gallons: what a US car's cluster shows */
         var info = {
-            /* engine speed to the nearest ten: a last digit that flickers reads as noise */
-            rpm: has(raw.rpm) ? String(Math.round(raw.rpm / 10) * 10) : dash,
+            /* engine speed to the nearest ten, held (rpmShown): a last digit that flickers reads as noise */
+            rpm: has(raw.rpm) ? String(rpmShown(Math.max(0, raw.rpm))) : dash,
             /* the trip computer's average, in the units chosen here */
             economy: has(raw.avgL100) && raw.avgL100 > 0
                 ? (imperial ? MPG_PER_L100 / raw.avgL100 : raw.avgL100).toFixed(1) : dash,
@@ -189,6 +206,8 @@
         return {
             rpm: rpm,
             speed: speed,
+            /* the speed's digits (speedShown); the needles and bars take speed */
+            speedText: String(speedShown(Math.max(0, speed), imperial ? 'mph' : 'kmh')),
             gear: raw.gear || 'P',
             driveMode: raw.driveMode || '',
             modeLabel: modeLabelOf(raw.driveMode, opts.modeLabel,

@@ -5,12 +5,12 @@
  *   node tools/page-shot.js out.png [key=value ...]
  * e.g. node tools/page-shot.js build/page.png style=mplus pCentre=camera @tab=mplus
  *
- * The staged app (apps/mgustyles_toro/main.js) is run as it is, with the
+ * The staged app (apps/mgustyles_ak/main.js) is run as it is, with the
  * kit's own recorder and software canvas (kit/runtime/record.js, canvas.js:
  * what the head unit falls back to without its GPU renderer), and stand-ins
  * for what only the car can give: the settings store, and a cluster service
  * that says it is on the cluster. Settings start at the app's defaults
- * (apps/mgustyles_toro/app.json); key=value changes them.
+ * (apps/mgustyles_ak/app.json); key=value changes them.
  *
  * What is drawn (the words that start with @ are for this tool, not settings):
  *   @own=1 (default)  the page as the kit runs it on the car: the whole
@@ -25,6 +25,7 @@
  *                     centre:waze ...): the kit's ring is drawn round it
  *   @press=<key>      press a place first (set:accent opens its list)
  *   @scroll=<px>      a settings list scrolled that far
+ *   @held=<keys>      the settings the Car profile holds (units,rpmRedline ...): shown as set there
  *   @centre=...       what the stand-in service reports (waze, camera, idle)
  */
 'use strict';
@@ -40,7 +41,7 @@ const spec = JSON.parse(fs.readFileSync(path.join(Harness.APP, 'app.json'), 'utf
 const defaults = {};
 (spec.settings || []).forEach((s) => { defaults[s.key] = s.default; });
 const values = {};
-const tool = { own: '1', tab: 'cluster', focus: '', press: '', scroll: '', centre: '' };
+const tool = { own: '1', tab: 'cluster', focus: '', press: '', scroll: '', centre: '', held: '' };
 for (const kv of process.argv.slice(3)) {
     const i = kv.indexOf('=');
     const k = kv.slice(0, i), v = kv.slice(i + 1);
@@ -48,7 +49,7 @@ for (const kv of process.argv.slice(3)) {
     values[k] = v === 'true' ? true : v === 'false' ? false : (v !== '' && !isNaN(Number(v)) && typeof defaults[k] === 'number' ? Number(v) : v);
 }
 const own = tool.own !== '0';
-const page = Harness.open({ values, own, centre: tool.centre });
+const page = Harness.open({ values, own, centre: tool.centre, held: tool.held ? tool.held.split(',') : [] });
 
 if (own && tool.tab !== 'cluster') page.run('tab:' + tool.tab);
 if (own && tool.scroll) {
