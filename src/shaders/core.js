@@ -198,6 +198,8 @@
      *            whole bar fires in bursts - three hard flashes, a beat, again
      *   2 blade  one slim sweep, the Huracan's own top line, red at the end
      * u_burst picks the limit's pattern: 0 a steady strobe, 1 bursts.
+     * u_gap (toro, px): the empty middle's half width, the blades either side
+     * of it (the driver camera's cowl); 0: the hexagonal core.
      */
     var shiftbar = [
         'uniform float u_frac;',
@@ -205,6 +207,7 @@
         'uniform float u_leds;',
         'uniform float u_style;',
         'uniform float u_burst;',
+        'uniform float u_gap;',
         'uniform vec3 u_c1;',
         'uniform vec3 u_c2;',
         'uniform vec3 u_c3;',
@@ -236,7 +239,7 @@
         /* mirrored about the middle: blades step in from each end */
         '    float hw = u_size.x * 0.5;',
         '    float x = abs(p.x - hw);',
-        '    float core = u_size.y * 0.55;',
+        '    float core = u_gap > 0.0 ? u_gap : u_size.y * 0.55;',
         '    float n = u_leds;',
         '    float span = hw - core - 6.0;',
         '    float pitch = span / n;',
@@ -254,7 +257,7 @@
         '    lit = inBlades > 0.5 ? step(frac, u_frac) : step(0.999, u_frac);',
         '    lit = max(lit, f);',
         '    col = frac < 0.55 ? u_c1 : (frac < 0.82 ? u_c2 : u_c3);',
-        '    if (inBlades < 0.5) { d = min(ringd, hex + u_size.y * 0.16); col = u_c3; }',
+        '    if (inBlades < 0.5) { d = u_gap > 0.0 ? 1e3 : min(ringd, hex + u_size.y * 0.16); col = u_c3; }',
         '    col = mix(col, u_c3, u_strobe);',                 /* at the limit it is all red */
         '  } else {',
         '    float y = p.y - u_size.y * 0.5;',

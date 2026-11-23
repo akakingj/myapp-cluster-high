@@ -169,13 +169,13 @@ test('the scale is the amount, about the top of the screen\'s middle: a point d 
         assert.ok(Math.abs(T.px((960 - T.PANEL_FIT.ox) / T.PANEL_FIT.s) - 960) < 1e-9, 'the screen\'s middle column stays');
         /* Toro: the brief's grid; at 58 it is the brief's own size */
         if (d <= MOST.toro) {
-            build('toro', { lower: d });
+            build('toro', { lower: d, zoom: 1 });
             assert.ok(Math.abs(Guide.gy(704) - (646 + d)) < 1e-9 && Math.abs(Guide.gy(0)) < 1e-9);
             assert.ok(Math.abs(Guide.gx(960) - 960) < 1e-9);
             assert.ok(Math.abs(Guide.gs(1) - (646 / 704) * k) < 1e-12);
         }
     }
-    build('toro', { lower: 58 });
+    build('toro', { lower: 58, zoom: 1 });
     assert.ok(Math.abs(Guide.gs(1) - 1) < 1e-12, 'Toro at 58: one screen pixel a unit of the brief');
     /* "fill the screen" cannot add to it: there is no room left to grow into */
     build('toro', { lower: 58, zoom: 1.06 });

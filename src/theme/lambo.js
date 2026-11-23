@@ -347,26 +347,46 @@
         /* ------------------------------------------------ shift lights */
         /* Three kinds (src/shaders/core.js shiftbar). The Lamborghini one
            is wider, closes in from both ends and fires in bursts at the
-           limit, with the screen flash in step and the cluster shaking. */
+           limit, with the screen flash in step and the cluster shaking.
+           All stand clear of the driver camera's cowl (Panel.CAMERA): the
+           Lamborghini blades either side of an empty middle under it, the
+           GT3 LEDs and the blade in two halves, left then right. */
         var toroShift = S.shiftStyle === 'toro';
         if (S.shiftLights) {
-            var SB = toroShift ? { x: 520, y: 2, w: 880, h: 46, leds: 11 }
-                : S.shiftStyle === 'blade' ? { x: 600, y: 8, w: 720, h: 30, leds: 1 }
-                : { x: 640, y: 6, w: 580, h: 34, leds: 15 };
-            layers.push({
-                id: 'shift', z: 60, shader: 'shiftbar',
-                x: SB.x, y: SB.y, w: SB.w, h: SB.h,
-                uniforms: function (s) {
-                    var start = S.shiftFromRpm;      /* 1,800 below the redline; a diesel's, in proportion */
-                    return {
-                        u_frac: clamp01((s.rpm - start) / Math.max(1, S.rpmLimiter - start)),
-                        u_leds: SB.leds, u_style: S.shiftStyleIndex, u_burst: toroShift ? 1 : 0,
-                        u_strobe: s.rpm >= S.rpmLimiter - 60 ? 1 : 0,
-                        u_c1: toroShift || S.shiftStyle === 'blade' ? GC.primaryWhite : C.green,
-                        u_c2: toroShift ? [1.0, 0.45, 0.08] : C.amber, u_c3: GC.corsaRed
-                    };
-                }
-            });
+            var CAM = Panel.CAMERA;
+            var shiftFrac = function (s) {
+                var start = S.shiftFromRpm;      /* 1,800 below the redline; a diesel's, in proportion */
+                return clamp01((s.rpm - start) / Math.max(1, S.rpmLimiter - start));
+            };
+            var shiftLayer = function (id, SB, frac, c) {
+                layers.push({
+                    id: id, z: 60, shader: 'shiftbar',
+                    x: SB.x, y: SB.y, w: SB.w, h: SB.h,
+                    uniforms: function (s) {
+                        return {
+                            u_frac: frac(shiftFrac(s)),
+                            u_leds: SB.leds, u_style: S.shiftStyleIndex, u_burst: toroShift ? 1 : 0,
+                            u_gap: SB.gap || 0,
+                            u_strobe: s.rpm >= S.rpmLimiter - 60 ? 1 : 0,
+                            u_c1: c[0], u_c2: c[1], u_c3: c[2]
+                        };
+                    }
+                });
+            };
+            var orange = [1.0, 0.45, 0.08];
+            if (toroShift) {
+                /* (from where the glass's corners leave it whole, the middle the cowl's width) */
+                shiftLayer('shift', { x: 400, y: 2, w: 1120, h: 46, leds: 8, gap: CAM.w / 2 },
+                    function (f) { return f; }, [GC.primaryWhite, orange, GC.corsaRed]);
+            } else {
+                var blade = S.shiftStyle === 'blade';
+                var half = blade ? { y: 8, h: 30, leds: 1 } : { y: 6, h: 34, leds: 8 };
+                var L = { x: 400, w: CAM.x - 400 }, R = { x: CAM.x + CAM.w, w: 1520 - (CAM.x + CAM.w) };
+                shiftLayer('shift', Object.assign({}, half, L), function (f) { return clamp01(f * 2); },
+                    blade ? [GC.primaryWhite, GC.primaryWhite, GC.primaryWhite] : [C.green, C.green, C.amber]);
+                shiftLayer('shiftR', Object.assign({}, half, R), function (f) { return clamp01(f * 2 - 1); },
+                    blade ? [GC.primaryWhite, GC.primaryWhite, GC.corsaRed] : [C.amber, GC.corsaRed, GC.corsaRed]);
+            }
         }
         if (edgeFlash) {
             /* (lowered, it is the instrument's own size: three pieces, round the gear's columns - src/theme/strip.js) */

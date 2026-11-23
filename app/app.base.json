@@ -1216,8 +1216,12 @@
       "key": "zoom",
       "label": "Fill the screen",
       "type": "choice",
-      "default": "1",
+      "default": "0.9",
       "options": [
+        [
+          "0.9",
+          "Clear of the driver's camera"
+        ],
         [
           "0.94",
           "Smaller"

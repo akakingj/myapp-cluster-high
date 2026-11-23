@@ -148,7 +148,7 @@
         holeFeather: null,       /* how far the fade reaches, px */
         holeChamfer: null,       /* corner cut: a long hexagon, as the car's own glass */
         holeMax: 0.9,            /* never fully clear: the artwork keeps a veil over it */
-        zoom: 1,                 /* 0.9-1.1, how much of the screen it fills */
+        zoom: 0.9,               /* 0.9-1.1, how much of the screen it fills: 0.9 keeps the dial's top clear of the driver camera */
         shiftY: 0,               /* -30..30 px, nudge the whole cluster up or down */
         /*
          * The dial keeps the Huracan's sweep and styling but is marked in

@@ -71,6 +71,13 @@ var SIGN_PATCH = { x: 440, y: BOTTOM_CUT, w: 90, h: 30 };          /* 440 - 530,
 var CORNER_LEFT = [{ x: 0, y: 0 }, { x: 325, y: 0 }, { x: 0, y: 190 }];
 var CORNER_RIGHT = [{ x: 1920, y: 0 }, { x: 1650, y: 0 }, { x: 1920, y: 200 }];
 
+/*
+ * The driver camera's cowl over the top middle of the glass (measured from
+ * photographs of the car by AK Cluster Layouts: x 730 - 1190, y 0 - 128),
+ * with 10 px each side: what is drawn under it is not seen.
+ */
+var CAMERA = { x: 720, y: 0, w: 480, h: 128 };
+
 /* Telltales the KOMBI draws over us, whatever we put there. */
 var TELLTALES = [
     { id: 'tyre', x: 40, y: 260, w: 96, h: 96, name: 'Tyre pressure warning' },
@@ -212,6 +219,7 @@ return {
     SIGN_PATCH: SIGN_PATCH,
     CORNER_LEFT: CORNER_LEFT,
     CORNER_RIGHT: CORNER_RIGHT,
+    CAMERA: CAMERA,
     TELLTALES: TELLTALES,
     FALLBACK_GEAR_BOX: FALLBACK_GEAR_BOX,
     PROFILES: PROFILES,

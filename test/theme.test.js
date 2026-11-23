@@ -69,6 +69,11 @@ test('below the cut: only the background and the plain covers, and never over th
  */
 const KNOWN_OVERLAPS = new Set([
     'mCarS58/gearBig/M box (left)',
+    /* at 0.9 (clear of the driver camera) the mode name's box reaches 10 px into the M box; its words end
+       well before (CORSA ends at about x 720, the box starts at 793) */
+    'mCarS58/corsa/M box (left)',
+    /* ... and the ESC mode's 20 px into the right one; its words, centred at x 1463, start past it (x 1394) */
+    'mCarS58/escMode/M box (right)',
 ]);
 
 test('no layer overlaps a factory keep-clear zone', () => {

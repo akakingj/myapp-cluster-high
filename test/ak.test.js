@@ -100,3 +100,33 @@ test('the units as AK Cluster Layouts sets them: each on its own, Auto pressure 
         for (const w of [u.labels.press, u.labels.dist, u.labels.speed]) assert.ok(has('label', w.toUpperCase()), 'label: ' + w);
     }
 });
+
+test('the driver camera: Toro\'s rev numbers stand clear of its cowl as it comes, and no shift light is under it', () => {
+    const Theme = require('../src/theme/index.js');
+    const Panel = require('../src/geometry/panel.js');
+    const atlas = require('../assets/fonts/atlas.json');
+    const CAM = Panel.CAMERA;
+    const under = (r) => r.x < CAM.x + CAM.w && r.x + r.w > CAM.x && r.y < CAM.y + CAM.h && r.y + r.h > CAM.y;
+    const t = Theme.build(atlas, 'x3m40i', {});
+    const G = t.guide, T = G.TACH;
+    /* each numeral's cap height about its place on the arc (the numerals are 1 - 9 there) */
+    for (let v = T.vMin; v < T.vMax; v++) {
+        const at = G.point(v, T.rNumeral), h = G.gs(T.numeralHeight);
+        const box = { x: at.x - h * 0.4, y: at.y - h * 0.5, w: h * 0.8, h: h };
+        assert.ok(!under(box), 'the numeral ' + v + ' under the camera: ' + JSON.stringify(box));
+    }
+    for (const shiftStyle of ['toro', 'gt3', 'blade']) {
+        const th = Theme.build(atlas, 'x3m40i', { shiftStyle });
+        const bars = th.layers.filter((L) => L.shader === 'shiftbar');
+        assert.ok(bars.length >= 1, shiftStyle);
+        for (const L of bars) {
+            const u = L.uniforms({ rpm: 0, limiter: 0 }, 0);
+            const gap = u.u_gap || 0, mid = L.x + L.w / 2;
+            /* the lit part: the whole bar, or either side of its empty middle */
+            const parts = gap ? [{ x: L.x, y: L.y, w: mid - gap - L.x, h: L.h }, { x: mid + gap, y: L.y, w: L.x + L.w - mid - gap, h: L.h }] : [L];
+            parts.forEach((p) => assert.ok(!under(p), shiftStyle + ': ' + L.id + ' under the camera'));
+            /* and not in the glass's cut corners */
+            assert.ok(!Panel.inCutCorner(L.x, L.y) && !Panel.inCutCorner(L.x + L.w, L.y), shiftStyle + ': ' + L.id + ' in a corner');
+        }
+    }
+});

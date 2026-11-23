@@ -37,6 +37,14 @@ styles are all there, with AK Cluster Layouts' settings:
   light). A setting the profile sets shows its value with "Car profile"
   beside it and is changed there; one it leaves to each app is this
   app's own.
+- **Clear of the driver camera's cowl** (top middle of the glass): Toro
+  comes at 0.9 of its size (Fill the screen: "Clear of the driver's
+  camera"), so its rev numbers stand below the cowl, and its shift lights
+  stand either side of it - the Lamborghini blades closing in on an empty
+  middle, the GT3 LEDs and the single blade in two halves, left then right.
+- **Taking turns with the AK Cluster apps**: it says it is on the cluster
+  as AK Cluster Layouts does, so AK Cluster Centre steps aside for it, and
+  it steps aside while Layouts is on the cluster.
 - **The figures as the car's own cluster keeps them**: the speed's digits
   move on once the reading is 0.75 past them, the engine speed's once it is
   15 rpm past (shown to the nearest ten), so they no longer flick between
