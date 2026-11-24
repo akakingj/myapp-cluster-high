@@ -33,7 +33,7 @@ still stand, except where a newer check says otherwise.
 
 | # | Do | Look for |
 |---|---|---|
-| C1 | GENERAL → *Car*: B48, then B58, then S58 (M car) | The tach ends at 7 / 8 / 8 (thousand), red from 6,000 / 6,500 / 7,000; revved past 6,500 / 7,000 / 7,500 the speed and the gear blink and Toro's shift lights flash. S58: the M dials amber from 6,500 and the speedometer to 330 km/h. Redline, Limiter, Shift lights from, Shift now at and Tach scale are not on GENERAL |
+| C1 | GENERAL → *Car*: B48, then B58, then S58 (M car) | The tach ends at 7 / 8 / 8 (thousand), red from 6,000 / 6,500 / 7,000; revved past 6,500 / 7,000 / 7,500 the speed and the gear blink and Toro's shift lights flash. S58: the M dials amber from 6,500 and the speedometer to 330 km/h. Redline, Limiter, Shift lights from, Shift now warning at and Tach scale are not on GENERAL |
 | C2 | *Car → Car profile values* (or *Plug-in hybrid*) | Those rows come back, with the speedometer's top, the boost gauge's top (not for the plug-in hybrid) and the fuel tank; what they say (or the Car profile app's) is what the cluster shows |
 | C3 | Toro, in D, then S, then M (manual) | D1 … / S1 … / M1 … beside the gear's figure, the pair a little smaller; *TORO → Gear → The figure alone, as a Lamborghini* shows 1 … as before |
 | C4 | M Track: rows and footer places set to *Gearbox oil temperature*, *Torque*, *Odometer*, *Trip* | TRANS (row), TQ, ODO, TRIP with sensible figures; the gearbox oil climbs slower than the engine oil after a cold start |
@@ -47,10 +47,10 @@ With GENERAL → *Car → Car profile values* or *Plug-in hybrid* (the other car
 
 | # | Do | Look for |
 |---|---|---|
-| S1 | Car profile: set *Red light at*, *Engine's top rpm*, *Yellow light at*, *Shift now warning at*, *Gauge goes up to* | Within a few seconds GENERAL shows each as *Redline*, *Limiter*, *Shift lights from*, *Shift now at*, *Tach scale* with "Car profile" beside it, and they can't be changed here. *Red light at → Auto* shows *At the limiter* |
-| S2 | *Shift now at* set (or Auto), rev past it, parked | The speed and the gear blink red, four times a second, in every style; in Toro the shift lights are full at the shift point and flash from there. Under it, nothing blinks |
-| S3 | *Shift now at → Off* | Nothing blinks at the shift point; Toro's shift lights flash at the limiter, as before |
-| S4 | Car profile *Cold-engine rev guard → On* (or GENERAL → *Cold engine* on), a cold start | The red field of the rev counter starts low (about the cold rev limit plus 300) and climbs to the redline as the oil reaches *Oil is warm at*; the shift point (S2) goes with it |
+| S1 | Car profile: set *Red light at*, *Engine's top rpm*, *Yellow light at*, *Shift now warning at*, *Gauge goes up to* | Within a few seconds GENERAL shows each as *Redline*, *Limiter*, *Shift lights from*, *Shift now warning at*, *Tach scale* with "Car profile" beside it, and they can't be changed here. *Red light at → Auto* shows *At the limiter* |
+| S2 | *Shift now warning at* set (or Auto), rev past it, parked | The speed and the gear blink red, four times a second, in every style; in Toro the shift lights are full at the shift point and flash from there. Under it, nothing blinks |
+| S3 | *Shift now warning at → Off* | Nothing blinks at the shift point; Toro's shift lights flash at the limiter, as before |
+| S4 | Car profile *Cold-engine rev guard → On* (or GENERAL → *Cold engine* on), a cold start | The red field of the rev counter starts low (about the cold rev limit plus 300) and climbs to the redline as the oil reaches *Cold engine: oil warm at*; the shift point (S2) goes with it |
 
 ## M Track Mode (Beta 7, 0.10.0)
 
@@ -278,7 +278,8 @@ useful thing to send back.
 
 | # | Check | Expect |
 |---|---|---|
-| S1 | AK 0.17.0: Show on the cluster on, key off, then start the car (and once more with only the ignition on, then start) | BMW's own cluster, then about a second after the car is on the whole style at once: **no black screen** between them. **If it still goes black, say for how long, and whether the style then comes in piece by piece** |
+| L1 | AK 0.17.0: the LOGS tab, a USB stick plugged in | Three QR codes a page, *Next* to the rest; the line under the title names the file on the stick. **Photograph every page and send the photos** |
+| S0 | AK 0.17.0: Show on the cluster on, key off, then start the car (and once more with only the ignition on, then start) | BMW's own cluster, then about a second after the car is on the whole style at once: **no black screen** between them. **If it still goes black, say for how long, and whether the style then comes in piece by piece** |
 | 1 | Open MGU Styles on iDrive | The CLUSTER tab: the style, its switch, a sketch of the design. Status: *Off – BMW original cluster* |
 | 2 | Press the switch with the ignition off | Status: *Waiting for the car to switch on*. Cluster unchanged |
 | 3 | Ignition on (engine off), then start | Toro appears within about a second of drive readiness |

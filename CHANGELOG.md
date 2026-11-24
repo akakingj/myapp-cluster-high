@@ -15,6 +15,14 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
 
 ## AK 0.17.0
 
+- **A LOGS tab**, as AK Cluster Layouts' Logs: what's needed to find a problem (the settings, the service's state, the
+  engine unit's readings, the readings now, the cluster-render log and this app's) as QR codes to photograph, three a
+  page (*Previous*, *Next*, *Make again*), and the whole as a file in the app's data folder and on a USB stick. The
+  same codes as Layouts' (`tools/decode_logs.py` puts them back together).
+- **Settings named and set as Cluster Layouts' where they are the same**: *Shift now warning at*, *Cold engine: shift
+  point with the oil at 30 °C*, *Cold engine: oil warm at*; *Cold engine: lower the shift point and red zone* on by
+  default with Layouts' words for its choices; the clock 12-hour first and by default; the fuel tank 59 L by default.
+  (The Car profile app sets each of them for both apps where it is used.)
 - **Every reading the car gives, the same set as AK Cluster Layouts' places.** A footer place (M Sport, M Sport Plus,
   M Track Mode) offers the rpm, the speed in the other unit, the gear (D4), boost, the **boost target** and this
   drive's **peak boost**, engine power and this drive's **peak power**, torque, oil temperature and **oil pressure**,

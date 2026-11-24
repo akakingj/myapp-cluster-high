@@ -93,7 +93,7 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 
 - **GENERAL**: on / off, start with the car, the style, units, **your car** (B48, B58 or S58, each with its own
   red zone, limiter, shift point and speedometer; a plug-in hybrid or *Car profile values*, which bring the
-  tach scale, redline, limiter and **Shift now at** to set yourself or from the Car profile app, as Cluster
+  tach scale, redline, limiter and **Shift now warning at** to set yourself or from the Car profile app, as Cluster
   Layouts does), **petrol or diesel**, the limiter flash
   (past the shift point the shift lights flash and the speed and the gear blink red, in every style), the
   **cold engine** guard (the shift point and the red zone lower while the oil is cold),
@@ -114,6 +114,9 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 - **TORO / M SPORT / M SPORT PLUS / M TRACK**: each style's own — what
   its middle (or M Track Mode's left wing) shows and how much of it,
   colours, the gear (Toro: D1, S1, M1).
+- **LOGS** (AK 0.17.0): the app's state and logs as QR codes to photograph and send with a problem, three a page,
+  and as a file on a USB stick - the same codes as AK Cluster Layouts' Logs (`python3 tools/decode_logs.py
+  photo1.jpg photo2.jpg ...` puts them back together).
 - **The readings' places are on the CLUSTER page** (AK 0.17.0): the footer's three, Toro's four side gauges, M Track
   Mode's gauge rows and strips — a press on the place lists its readings. They offer the same readings as AK Cluster
   Layouts' places: a footer the rpm, the speed in the other unit, the gear, boost, its target and this drive's peak,
@@ -265,10 +268,10 @@ it sets is shown here with "Car profile" beside it and changed there:
 |---|---|
 | Yellow light at | Shift lights from |
 | Red light at (Auto: the redline) | Redline (*At the limiter*) |
-| Shift now warning at (Auto: redline - 300) | Shift now at (*Auto*) |
+| Shift now warning at (Auto: redline - 300) | Shift now warning at (*Auto*) |
 | Gauge goes up to | Tach scale |
 | Engine's top rpm (redline) | Limiter |
-| Cold-engine rev guard, Cold rev limit, Oil is warm at | Cold engine, Cold rev limit, Oil is warm at |
+| Cold-engine rev guard, Cold rev limit, Oil is warm at | Cold engine: lower the shift point and red zone, Cold engine: shift point with the oil at 30 °C, Cold engine: oil warm at (as Cluster Layouts names them) |
 | Engine, the units, the clock, the skin | the same |
 
 ## Trimming or hiding BMW's bottom strip

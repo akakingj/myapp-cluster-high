@@ -33,6 +33,9 @@ const MGeom = require('./mgeom.js');
 const TGeom = require('./tgeom.js');
 const Theme = require('./theme.js');
 const Previews = require('./previews.js');
+/* the LOGS tab's codes and file: AK Cluster Layouts' logs.js, the same codes as its Logs (tools/decode_logs.py) */
+const Logs = require('./logs.js');
+const path = require('path');
 /* the page's words in the app's language (the Store builds it in Korean): drawn as literal text, so they go through
    the kit's catalogue here; the cluster's own lettering stays as the styles have it */
 let tr = (s) => String(s);
@@ -286,7 +289,8 @@ const TABS = [
     { id: 'toro', label: 'TORO', name: 'Toro', style: 'toro' },
     { id: 'msport', label: 'M SPORT', name: 'M Sport', style: 'track' },
     { id: 'mplus', label: 'M SPORT PLUS', name: 'M Sport Plus', style: 'mplus' },
-    { id: 'mtrack', label: 'M TRACK', name: 'M Track', style: 'mtrack' }
+    { id: 'mtrack', label: 'M TRACK', name: 'M Track', style: 'mtrack' },
+    { id: 'logs', label: 'LOGS', name: 'Logs' }
 ];
 const STYLE_NAME = { toro: 'Toro', track: 'M Sport', mplus: 'M Sport Plus', mtrack: 'M Track Mode' };
 /* what a style's middle can show, as the short words the buttons carry */
@@ -360,6 +364,8 @@ mgu.run({
         function refresh() { last = ''; loop.kick(); }
         function show(id) {
             if (!TABS.some((t) => t.id === id)) return;
+            /* the logs made afresh each time the tab opens */
+            if (id === 'logs' && tab !== 'logs') logView = null;
             tab = id;
             refresh();
         }
@@ -513,6 +519,7 @@ mgu.run({
             const bottom = H - (own ? 14 : 6);
             const ch = bottom - top;
 
+            if (page === 'logs') { drawLogs(cv, label, fitLabel, tgt, top, ch); return done(); }
             if (page !== 'cluster') { drawSettings(cv, label, fitLabel, tgt, page, top, ch, st); return done(); }
 
             const auto = settings.get('autoStart') !== false;
@@ -595,6 +602,70 @@ mgu.run({
                 if (own) tgt(x, cardsY, CWD, CHT, () => useDesign(d), 'design:' + d.id, rad(10));
             });
             return done();
+        }
+
+        /*
+         * LOGS: what's needed to find a problem, as AK Cluster Layouts' Logs gathers it - QR codes to photograph,
+         * three a page (tools/decode_logs.py puts them back together), and the whole as a file in the app's data folder
+         * and on a USB stick. Made when the tab opens and at Make again.
+         */
+        let logView = null;      /* { codes, page, saved } */
+        const LOG_PER_PAGE = 3;
+        function logBundle(full) {
+            const snap = background && background.snapshot ? background.snapshot() : { status: 'the cluster service did not start' };
+            const n = (short, long) => (full ? long : short);
+            return Logs.bundle(String(ctx.spec.title || 'AK Cluster ID8') + ' ' + String(ctx.spec.version || ''), [
+                ['settings', JSON.stringify(settingsOf(settings, ctx.spec))],
+                ['service', JSON.stringify({ status: snap.status, running: snap.running, connected: snap.connected, profile: snap.profile,
+                    style: snap.style, electric: snap.electric, phevFound: snap.phevFound })],
+                ['readings from', String((background && background.feed && background.feed()) || '-')],
+                ['engine unit', JSON.stringify({ needs: snap.needs, engine: snap.engine })],
+                ['centre', JSON.stringify((background && background.centre && background.centre()) || null)],
+                ['data now', JSON.stringify(snap.readings || {})],
+                ['cluster-render log', Logs.tail(Logs.RENDER_LOG, n(20, 1500))],
+                ['this app\'s log', Logs.tail(path.join(ctx.dataDir || '.', String(ctx.spec.id) + '.log'), n(40, 600))]
+            ]);
+        }
+        function makeLogs() {
+            const log = ctx.log || { info() {}, warn() {} };
+            let saved = [];
+            try {
+                saved = Logs.save(logBundle(true), ctx.dataDir, 'cluster-logs-id8-' + new Date().toISOString().replace(/[:.]/g, '-') + '.txt');
+                saved.forEach((r) => log.info('logs: ' + (r.file ? 'saved ' + r.file : r.dir + ': ' + r.error)));
+            } catch (e) { log.warn('logs: ' + e); }
+            let codes = [];
+            try { codes = Logs.codes(logBundle(false)).codes; } catch (e) { log.warn('logs: ' + e); }
+            logView = { codes, page: 0, saved };
+        }
+        function drawLogs(cv, label, fitLabel, tgt, top, ch) {
+            if (!logView) makeLogs();
+            const n = logView.codes.length, pages = Math.max(1, Math.ceil(n / LOG_PER_PAGE));
+            logView.page = Math.min(logView.page, pages - 1);
+            const first = logView.page * LOG_PER_PAGE;
+            const usb = logView.saved.filter((r) => r.file && !/exports/.test(r.file));
+            fitLabel(tr('Photograph each code') + '  ·  ' + tr('page') + ' ' + (logView.page + 1) + ' / ' + pages + '  ·  ' + tr('codes') + ' ' +
+                (n ? (first + 1) + '-' + Math.min(n, first + LOG_PER_PAGE) : '0') + ' / ' + n, 30, top + 30, 21, 900, INK, { done: true });
+            fitLabel(usb.length ? tr('The full logs are also on the USB stick:') + ' ' + usb[0].file
+                : tr('Plug in a USB stick and press Make again for the full logs as a file'), 30, top + 58, 16, 900, DIM, { done: true });
+            /* the page's buttons, right of those lines */
+            const btn = (x, w, word, run, key, on) => {
+                if (on && SK7) focus7(cv, x, top + 4, w, 46);
+                else cv.roundRect(x, top + 4, w, 46, rad(23), on ? RED : CARD);
+                label(SK7 ? word : word.toUpperCase(), x + w / 2, top + 35, SK7 ? 21 : 18, on ? '#ffffff' : INK,
+                    SK7 ? { align: 'center' } : { align: 'center', font: 'bold', spacing: 1 });
+                tgt(x, top + 4, w, 46, run, key, rad(23));
+            };
+            btn(W - 600, 180, 'Previous', () => { logView.page = Math.max(0, logView.page - 1); refresh(); }, 'logs:prev', false);
+            btn(W - 410, 180, 'Next', () => { logView.page = (logView.page + 1) % pages; refresh(); }, 'logs:next', true);
+            btn(W - 220, 196, 'Make again', () => { makeLogs(); refresh(); }, 'logs:make', false);
+            const cy = top + 84, room = Math.max(120, top + ch - cy - 30);
+            logView.codes.slice(first, first + LOG_PER_PAGE).forEach((q, i) => {
+                const px = Math.max(2, Math.floor(Math.min(420, room) / (q.size + 8)));
+                const side = (q.size + 8) * px, x = 40 + i * 520;
+                Logs.draw(cv, q, x, cy, px);
+                label(String(first + i + 1) + ' / ' + n, x + side / 2, cy + side + 22, 18, INK, { align: 'center', font: SK7 ? undefined : 'bold', done: true });
+            });
+            if (!n) label('Nothing to show yet', 30, cy + 40, 22, DIM);
         }
 
         /* A page of settings: the rows of one tab, each a place to press. */

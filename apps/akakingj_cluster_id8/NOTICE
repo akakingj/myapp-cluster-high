@@ -12,6 +12,12 @@ This package carries third-party work under its own licences:
   The copy here is the one vendored by ALMSTRA/idv7lol, which the MGU Store
   builds on the head unit.
 
+* logs.js and logs_qr.js (the LOGS tab's codes), from AK Cluster Layouts
+  (https://github.com/akakingj/myapp-cluster shared/logs.js, shared/qr.js),
+  after eroobeeroo's idrive7-cluster-info: PolyForm Noncommercial License
+  1.0.0, https://polyformproject.org/licenses/noncommercial/1.0.0
+  Required Notice: Copyright (C) 2026 eroobeeroo (https://github.com/eroobeeroo)
+
 * cluster_render_client.js, Mozilla Public License 2.0.
   Copyright (C) 2026 Robert Nisipeanu. Its source is the file itself and
   https://github.com/robertnisipeanu/idrive-apps (native/cluster-render/js).

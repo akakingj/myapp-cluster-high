@@ -243,15 +243,15 @@
       "key": "clock12",
       "label": "Clock (M styles)",
       "type": "choice",
-      "default": "24",
+      "default": "12",
       "options": [
-        [
-          "24",
-          "24-hour"
-        ],
         [
           "12",
           "12-hour"
+        ],
+        [
+          "24",
+          "24-hour"
         ]
       ],
       "tab": "general",
@@ -390,7 +390,7 @@
       "key": "tankLitres",
       "label": "Fuel tank size",
       "type": "choice",
-      "default": "60",
+      "default": "59",
       "options": [
         [
           "40",
@@ -778,7 +778,7 @@
     },
     {
       "key": "shiftAt",
-      "label": "Shift now at",
+      "label": "Shift now warning at",
       "type": "choice",
       "default": "off",
       "options": [
@@ -867,15 +867,15 @@
       "key": "coldGuard",
       "label": "Cold engine: lower the shift point and red zone",
       "type": "choice",
-      "default": "off",
+      "default": "on",
       "options": [
         [
-          "off",
-          "Off"
+          "on",
+          "On (as the Redline app: from the cold rev limit up to the red line as the oil warms)"
         ],
         [
-          "on",
-          "On"
+          "off",
+          "Off (the red zone where it is set)"
         ]
       ],
       "tab": "general",
@@ -883,7 +883,7 @@
     },
     {
       "key": "coldLimit",
-      "label": "Cold rev limit (oil at 30 °C)",
+      "label": "Cold engine: shift point with the oil at 30 °C",
       "type": "choice",
       "default": "4500",
       "options": [
@@ -928,7 +928,7 @@
     },
     {
       "key": "warmOil",
-      "label": "Oil is warm at",
+      "label": "Cold engine: oil warm at",
       "type": "choice",
       "default": "80",
       "options": [
@@ -1729,7 +1729,7 @@
       "options": [
         [
           "toro",
-          "Lamborghini, bursts at the limit (or Shift now at)"
+          "Lamborghini, bursts at the limit (or Shift now warning at)"
         ],
         [
           "gt3",

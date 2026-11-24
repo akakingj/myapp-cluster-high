@@ -93,9 +93,9 @@ const placesOf = (style, values) => PLACES[style].filter((k) => Object.keys(item
 test('own: the bar across the top - the way out, a tab each, the style in use marked - then the page', () => {
     const page = Harness.open({ values: { style: 'mplus' } });
     const order = page.targets().map((t) => t.key);
-    assert.deepStrictEqual(order.slice(0, 7), ['exit', 'tab:cluster', 'tab:general', 'tab:toro', 'tab:msport', 'tab:mplus', 'tab:mtrack'],
+    assert.deepStrictEqual(order.slice(0, 8), ['exit', 'tab:cluster', 'tab:general', 'tab:toro', 'tab:msport', 'tab:mplus', 'tab:mtrack', 'tab:logs'],
         'the controller\'s knob: out, the tabs, then the page');
-    assert.deepStrictEqual(order.slice(7), ['show'].concat(placesOf('mplus', page.values), DESIGN_IDS.map((d) => 'design:' + d)));
+    assert.deepStrictEqual(order.slice(8), ['show'].concat(placesOf('mplus', page.values), DESIGN_IDS.map((d) => 'design:' + d)));
     /* the page is the whole screen: 1600 x 600 of its own units */
     assert.deepStrictEqual([page.shot().w, page.shot().h], [1600, 600]);
     page.targets().forEach((t) => {
@@ -330,4 +330,24 @@ test('the page\'s words fit the head unit\'s string budget (the kit\'s builder c
     assert.strictEqual(seen.length, 2);
     seen.forEach((n) => assert.ok(n <= 1024, n + ' strings'));
     require('fs').rmSync(path.join(__dirname, '..', 'dist'), { recursive: true, force: true });
+});
+
+test('LOGS: the codes to photograph, three a page, and the whole as a file, as Cluster Layouts\' Logs', () => {
+    const dir = require('fs').mkdtempSync(path.join(require('os').tmpdir(), 'id8-logs-'));
+    const page = Harness.open({ values: { style: 'toro' }, dataDir: dir });
+    page.run('tab:logs');
+    assert.deepStrictEqual(keys(page, 'logs:'), ['logs:prev', 'logs:next', 'logs:make']);
+    const saved = require('fs').readdirSync(path.join(dir, 'exports'));
+    assert.strictEqual(saved.length, 1);
+    assert.match(saved[0], /^cluster-logs-id8-/);
+    const text = require('fs').readFileSync(path.join(dir, 'exports', saved[0]), 'utf8');
+    assert.match(text, /^=== AK Cluster ID8 /);
+    ['settings', 'service', 'engine unit', 'data now', 'this app\'s log'].forEach((t) => assert.ok(text.indexOf('--- ' + t + ' ---') >= 0, t));
+    /* the codes: the same as Cluster Layouts' (CLG1) */
+    const Logs = require('../src/car/logs.js');
+    assert.ok(Logs.codes(text).codes.length >= 1);
+    page.run('logs:next');
+    page.run('logs:make');
+    assert.strictEqual(require('fs').readdirSync(path.join(dir, 'exports')).length, 2, 'made again: another file');
+    page.run('tab:cluster');
 });

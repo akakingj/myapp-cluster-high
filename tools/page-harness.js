@@ -88,6 +88,7 @@ function open(opts) {
     const mStyle = () => values.style === 'track' || values.style === 'mplus';
     const ctx = {
         spec,
+        dataDir: opts.dataDir,
         ui: {
             image(name, cv) { shot = cv; },
             onClick(id, fn) { clicks[id] = fn; },

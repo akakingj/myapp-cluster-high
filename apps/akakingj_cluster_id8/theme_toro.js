@@ -420,7 +420,7 @@
             Panel.TURN_ARROWS.forEach(function (a) {
                 if (a.y < 50) { GAP_L = Math.min(GAP_L, a.x); GAP_R = Math.max(GAP_R, a.x + a.w); }
             });
-            /* lit from Shift lights from up to the limiter, flashing there; with Shift now at set, up to the
+            /* lit from Shift lights from up to the limiter, flashing there; with Shift now warning at set, up to the
                shift point, flashing from there */
             var shiftEnd = function (s) { return S.shiftWarn && s.shiftRpm ? s.shiftRpm : S.rpmLimiter; };
             var shiftFrac = function (s) {

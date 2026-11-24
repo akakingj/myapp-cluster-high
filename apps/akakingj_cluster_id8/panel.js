@@ -115,7 +115,7 @@ var M_BOX_B = { id: 'mBoxB', x: 1223, y: 328, w: 171, h: 78, name: 'M box (right
  * engines (`rev`): the most the engine revs (the limiter; the tach goes to the thousand at or above it), where
  * the red zone starts, where to shift (Shift now: the shift lights flash, the speed and the gear blink), where
  * the yellow starts (the shift lights and the M dial's amber), and the speedometer's top (km/h). With one of
- * them chosen, GENERAL's Redline, Limiter, Shift lights from, Shift now at and Tach scale are not used.
+ * them chosen, GENERAL's Redline, Limiter, Shift lights from, Shift now warning at and Tach scale are not used.
  * "carprofile" takes all of those from GENERAL as set there or by the Car profile app (its own figures below
  * only where neither says). Also each car's: the top of Toro's boost gauge, the fuel tank (the fuel's litres as
  * a level), and the boxes some KOMBIs draw over a panel layer.

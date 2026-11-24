@@ -71,7 +71,7 @@
         clock12: false,
         secondaryGlyph: null,     /* the small glyph beside the gear; off */
         shiftLights: true,
-        /* toro (Lamborghini blades, bursts at the limit, or from Shift now at) | gt3 | blade | off */
+        /* toro (Lamborghini blades, bursts at the limit, or from Shift now warning at) | gt3 | blade | off */
         shiftStyle: 'toro',
         /* how hard the whole cluster shakes at the limiter: off | light | medium | hard */
         shake: 'medium',
@@ -268,7 +268,7 @@
     function resolve(settings, profile) {
         settings = settings || {};
         /* A car's own figures (src/geometry/panel.js rev) in place of GENERAL's Redline, Limiter, Shift lights
-           from, Shift now at and Tach scale (the tach to the thousand at or over its limiter) */
+           from, Shift now warning at and Tach scale (the tach to the thousand at or over its limiter) */
         var rev = profile && profile.rev;
         if (rev) {
             settings = Object.assign({}, settings, {

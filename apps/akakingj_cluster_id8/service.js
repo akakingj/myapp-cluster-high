@@ -514,6 +514,23 @@ function start(host, deps) {
             try { return centre.info(); } catch (e) { return null; }
         },
         status: function () { return status; },
+        /* the state of things as plain values, for the page's Logs tab */
+        snapshot: function () {
+            var raw = {}, eng = null;
+            try {
+                var r = reader.raw(now(), profileTank(profile));
+                Object.keys(r).forEach(function (k) {
+                    var v = r[k];
+                    if (typeof v === 'number') raw[k] = Math.round(v * 100) / 100;
+                    else if (typeof v === 'string' || typeof v === 'boolean') raw[k] = v;
+                });
+            } catch (e) { raw = { error: String(e) }; }
+            try { eng = engine.info(needs, now()); } catch (e) { eng = { error: String(e) }; }
+            return { status: status, running: running, connected: connected, profile: profile && profile.id,
+                     style: theme && theme.settings && theme.settings.style,
+                     electric: theme && theme.settings && theme.settings.electric, phevFound: phevFound,
+                     needs: needs, engine: eng, readings: raw };
+        },
         /* for tests */
         reader: reader,
         driver: function () { return driver; },
