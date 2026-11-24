@@ -20,17 +20,11 @@
  *
  *   CAR_SIM_THEME=toro|track|mplus     the style (toro)
  *   CAR_SIM_CENTRE=waze|map|camera|turn|off   that style's centre (waze)
- *   CAR_SIM_BEEM=none|feeding|idle|off|on|upgrade   BeeM-Flash and its setting (none):
- *        none     no BeeM-Flash on the head unit, the setting as it comes
- *                 (automatic): the engine unit is asked, read-only
- *        feeding  BeeM-Flash feeding throughout: nothing is asked of the car
- *        idle     BeeM-Flash on the head unit (its folder is there) but not
- *                 feeding: nothing is asked of the car all the same
- *        off      BeeM-Flash feeding, "BeeM-Flash readings" off: its feed
- *                 is ignored and the engine unit is asked
- *        on       no BeeM-Flash, the setting on: nothing is asked
- *        upgrade  a car that ran an earlier version (its saved settings have
- *                 no such choice): kept to BeeM-Flash only, nothing is asked
+ *   CAR_SIM_BEEM=none|feeding|idle   BeeM-Flash on the head unit (none). The app has no setting for it
+ *        (0.13.0): the engine unit is asked, read-only, whatever BeeM-Flash does.
+ *        none     no BeeM-Flash on the head unit
+ *        feeding  BeeM-Flash feeding throughout: its feed is not looked at
+ *        idle     BeeM-Flash on the head unit (its folder is there) but not feeding
  *   CAR_SIM_BG=genuine|modern|revuelto Toro's background
  *   CAR_SIM_DIESEL=1                   a diesel: it pulls to 5,050 rpm and cruises at 2,200, its
  *        engine unit is a DDE (it answers the standard identifiers - and BMW's petrol ones with
@@ -45,11 +39,9 @@ const net = require('net');
 const cp = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
-/* MGU_RELEASE_ROOT: run the public release tree (tools/make-release.js) instead of the source's own app */
-const PKG_ROOT = process.env.MGU_RELEASE_ROOT ? path.resolve(ROOT, process.env.MGU_RELEASE_ROOT) : ROOT;
 const spec = JSON.parse(fs.readFileSync(path.join(ROOT, 'app', 'app.base.json'), 'utf8'));
 const ID = spec.id;
-const PKG = path.join(PKG_ROOT, 'dist', ID);
+const PKG = path.join(ROOT, 'dist', ID);
 const SRC = path.join(PKG, 'source');
 const OUT = path.join(ROOT, 'build', 'car-sim');
 const SOCK_DIR = '/dev/shm/cluster-render';
@@ -59,12 +51,12 @@ function sh(cmd, cwd) { cp.execSync(cmd, { cwd: cwd || ROOT, stdio: ['ignore', '
 
 /* ------------------------------------------------------------ build */
 function build() {
-    if (PKG_ROOT === ROOT) sh('node tools/stage-app.js');
-    sh('python3 kit/tools/build.py --preview-only ' + ID, PKG_ROOT);
+    sh('node tools/stage-app.js');
+    sh('python3 kit/tools/build.py --preview-only ' + ID, ROOT);
 }
 
 /* ------------------------------------------------- the head unit's parts */
-function installHeadUnit(settings, earlier) {
+function installHeadUnit(settings) {
     const nm = path.join(SRC, 'node_modules');
     const put = (rel, text) => {
         fs.mkdirSync(path.dirname(path.join(nm, rel)), { recursive: true });
@@ -133,7 +125,7 @@ exports.buildProxy = (cfg, instance) => cfg.interface === TASU ? Promise.resolve
 });
 `);
     /* Per-interface configs, as the head unit keeps them. */
-    const app = JSON.parse(fs.readFileSync(path.join(PKG_ROOT, 'apps', ID, 'app.json'), 'utf8'));
+    const app = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps', ID, 'app.json'), 'utf8'));
     const dir = path.join(PKG, 'someipInterfaces');
     fs.mkdirSync(dir, { recursive: true });
     Object.keys(app.signals).forEach((iface) => {
@@ -144,15 +136,13 @@ exports.buildProxy = (cfg, instance) => cfg.interface === TASU ? Promise.resolve
             JSON.stringify({ interface: iface, fields }));
     });
     /* Settings, as the iDrive screen saves them: every one of them, whole (the kit writes them
-       all when any is changed). A car that ran an earlier version has only that version's: its
-       file is written without what `earlier` names. */
+       all when any is changed). */
     const data = path.join(PKG, 'data');
     fs.rmSync(data, { recursive: true, force: true });
     fs.mkdirSync(data, { recursive: true });
     const all = {};
     (app.settings || []).forEach((it) => { all[it.key] = it.default; });
     Object.assign(all, settings);
-    (earlier || []).forEach((k) => { delete all[k]; });
     fs.writeFileSync(path.join(data, 'settings.json'), JSON.stringify(all));
     return data;
 }
@@ -424,18 +414,14 @@ function snapshot(state, t) {
 }
 
 /*
- * BeeM-Flash on this head unit, and its setting: who is to supply the readings the bus does not
- * carry, whether the engine unit may be asked (engine), and whose figures the cluster must show
- * (shows: 'engine', 'beem', or null for neither).
+ * BeeM-Flash on this head unit: whether the engine unit may be asked (engine), and whose figures the cluster
+ * must show (shows: 'engine', 'beem', or null for neither). The app has no BeeM-Flash setting (0.13.0): the
+ * engine unit is asked on every head unit, BeeM-Flash's feed not looked at.
  */
 const BEEM_RUNS = {
-    none: { feeding: false, setting: null, engine: true, shows: 'engine', what: 'none on this head unit, the setting as it comes (automatic)' },
-    feeding: { feeding: true, setting: null, engine: false, shows: 'beem', what: 'feeding throughout, the setting as it comes (automatic)' },
-    idle: { feeding: false, folder: true, setting: null, engine: false, shows: null, what: 'on this head unit but not feeding, the setting as it comes (automatic)' },
-    off: { feeding: true, setting: 'off', engine: true, shows: 'engine', what: 'feeding, but its readings turned off' },
-    on: { feeding: false, setting: 'on', engine: false, shows: null, what: 'none on this head unit, the setting on (BeeM-Flash only)' },
-    /* a car that ran an earlier version: no such setting saved, so it is kept to BeeM-Flash only */
-    upgrade: { feeding: false, setting: null, earlier: true, engine: false, shows: null, what: 'an install from before the setting existed: kept to BeeM-Flash only' }
+    none: { feeding: false, engine: true, shows: 'engine', what: 'none on this head unit' },
+    feeding: { feeding: true, engine: true, shows: 'engine', what: 'feeding throughout, its feed not looked at' },
+    idle: { feeding: false, folder: true, engine: true, shows: 'engine', what: 'on this head unit but not feeding' }
 };
 
 /* what each text layer on the wire says: its glyphs, looked up in the atlas the app sent */
@@ -484,8 +470,7 @@ async function main() {
     const settings = { enabled: true, style: THEME, background: process.env.CAR_SIM_BG || 'genuine', intro: false };
     if (DIESEL) settings.engine = 'diesel';
     settings[CENTRE_KEY[THEME]] = CENTRE;
-    if (BEEM_RUNS[BEEM].setting) settings.beemFlash = BEEM_RUNS[BEEM].setting;
-    const data = installHeadUnit(Object.assign(settings, extra), BEEM_RUNS[BEEM].earlier ? ['beemFlash'] : null);
+    const data = installHeadUnit(Object.assign(settings, extra));
     const scenarioFile = path.join(OUT, 'scenario.js');
     writeScenario(scenarioFile);
     const r = renderer();
@@ -677,7 +662,7 @@ async function main() {
     if (nb.tv.heldMs > 500 || nb.tv.open > 0) problems.push('a Turn View connection was held open');
     if (CENTRE === 'off' && nb.tv.connects) problems.push('Turn View was polled with the centre off');
 
-    /* ---- the readings the bus does not carry: BeeM-Flash's, or the engine unit's, read-only */
+    /* ---- the readings the bus does not carry: the engine unit's, read-only */
     const hex = (n) => n.toString(16).toUpperCase().padStart(2, '0');
     const ids = {};
     asked.forEach((q) => { const k = hex(q.sid) + ' ' + q.data.map(hex).join(''); ids[k] = (ids[k] || 0) + 1; });
@@ -724,7 +709,7 @@ async function main() {
         console.log('  a diesel: asked the standard identifiers only (' + (Object.keys(ids).join(', ') || 'nothing') + ')');
     }
     if (BEEM_RUNS[BEEM].engine && wanted) {
-        if (!asked.length) problems.push('the engine unit was never asked, with no BeeM-Flash to supply the readings');
+        if (!asked.length) problems.push('the engine unit was never asked for the readings the cluster shows');
         const perSec = asked.length / ((KEY_OFF - 4000) / 1000);
         if (perSec > 9) problems.push('the engine unit was asked ' + perSec.toFixed(1) + ' times a second');
     } else if (asked.length) {

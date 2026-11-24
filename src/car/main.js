@@ -155,10 +155,10 @@ function start(host, deps) {
     /* the Track theme's centre: Waze and Turn View, asked for, never held */
     var centre = deps.centre || Centre.create({ log: log, dataDir: host.dataDir });
     try { centre.start(); } catch (e) { log.warn('centre: ' + e); }
-    /* readings another app on the head unit can supply (docs/BEEM-FLASH-FEED.md): started in
+    /* readings another app on the head unit can supply (src/car/feed.js): started in
        configure(), and only in a mode other than "off" (feedModeOf: none, for this app) */
     var feed = deps.feed || Feed.create({ log: log, now: now });
-    /* the same readings from the engine unit itself, for a head unit without BeeM-Flash */
+    /* the same readings from the engine unit itself: where this app's come from */
     var engine = deps.engine || Engine.create({
         log: log, now: now,
         open: host.diag ? function () { return host.diag(); } : null

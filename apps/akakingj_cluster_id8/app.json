@@ -1204,12 +1204,11 @@
         [
           "bianco",
           "Bianco"
-        ],
-        [
-          "ambient",
-          "Match the interior light"
         ]
       ],
+      "aliases": {
+        "ambient": "arancio"
+      },
       "when": {
         "style": "toro"
       },

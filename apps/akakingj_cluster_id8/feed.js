@@ -9,14 +9,13 @@
  * sample to one small file; we read it and let the matching channels drive
  * the gauges, so oil pressure stops reading dashes.
  *
- * The contract is in docs/BEEM-FLASH-FEED.md. Nothing of BeeM-Flash is
- * needed here: a file that is missing, stale, truncated or malformed just
+ * The contract is the file read below (PATHS, read()). Nothing of BeeM-Flash
+ * is needed here: a file that is missing, stale, truncated or malformed just
  * means no feed, and the cluster carries on with the car's own signals.
  *
- * Not everyone has BeeM-Flash. On a head unit that has never had it the
- * readings come from the engine unit instead (src/car/engine.js), and the
- * setting "BeeM-Flash readings" can turn this off altogether (the service
- * then never starts it: the file is not looked for).
+ * AK Cluster ID8 runs with the feed off (src/car/main.js feedModeOf: the app
+ * has no setting for it): its readings come from the engine unit
+ * (src/car/engine.js), and this file is not looked for.
  *
  * Node 8.
  */

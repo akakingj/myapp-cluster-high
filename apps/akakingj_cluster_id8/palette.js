@@ -35,10 +35,11 @@
     };
 
     /*
-     * "ambient" follows the car's interior light. The colour arrives on the
-     * feed (docs/BEEM-FLASH-FEED.md) and is applied live, so the cluster
-     * changes with the light instead of being rebuilt. Until one arrives
-     * the scheme below stands in.
+     * "ambient" follows the car's interior light: the colour arrives on a
+     * feed (src/car/feed.js) and is applied live, so the cluster changes
+     * with the light instead of being rebuilt. Until one arrives the scheme
+     * below stands in. (The app offers no such accent: it runs with the feed
+     * off, and a saved "ambient" is read as Arancio, app.json aliases.)
      */
     var AMBIENT_FALLBACK = 'arancio';
 

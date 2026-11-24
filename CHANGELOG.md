@@ -25,6 +25,19 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   CLUSTER (it still looked for the arrows and centre buttons the page had before), and *Shift now at* where it
   asked about the BeeM-Flash setting (gone in 0.13.0). It passes again, with the renderer and without.
 - docs/IN-CAR-TEST.md: S1 - S4, Shift now, the cold engine and the Car profile.
+- **BeeM-Flash as 0.13.0 left it, everywhere.** Toro's *Colour → Match the interior light* is gone: its colour came
+  on BeeM-Flash's feed, which the app no longer reads (a saved choice is read as Arancio, `aliases`).
+  docs/ENGINE-READINGS.md and IN-CAR-TEST's E rows say the engine unit is asked on every head unit, with no
+  setting; `tools/car-sim.js`'s BeeM-Flash runs are none, feeding and idle, each asking the engine unit (its
+  on / off / upgrade runs set a setting the app no longer has). The comments that named
+  docs/BEEM-FLASH-FEED.md (never in this repository) name src/car/feed.js.
+- **Leftovers of the author's public release.** docs/RELEASE-README.md and `MGU_RELEASE_ROOT` (for
+  `tools/make-release.js`, left out in AK 0.11.0) are gone; test/diesel.test.js holds README.md to the diesel's
+  figures instead. package.json has no version of its own (it said 0.11.0).
+- **The screenshots the docs show, and no others.** `tools/screenshots.py` draws, as it comes, the pictures
+  README.md and docs/*.md show; `--gallery` the whole set with docs/GALLERY.md and docs/img, for looking at.
+  The five pictures nothing showed (app-page, m-sport, m-sport-plus, startup-message, toro-genuine) are gone.
+- README: Redline and Limiter from 3,000 and 4,000.
 
 ## AK 0.14.0
 

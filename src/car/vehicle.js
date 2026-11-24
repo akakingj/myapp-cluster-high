@@ -333,8 +333,8 @@ function createReader(opts) {
         put('gLon', lon, now || Date.now());
     }
     /* Readings the bus does not carry: the intake air's temperature (C) and
-       the battery's voltage, from BeeM-Flash's feed (docs/BEEM-FLASH-FEED.md)
-       or from the engine unit (src/car/engine.js). They age out like any
+       the battery's voltage, from the engine unit (src/car/engine.js; or a
+       feed, src/car/feed.js, where a host turns one on). They age out like any
        other, so a source that stops leaves dashes, not a number. */
     function setFeed(key, value, now) {
         if ((key === 'iatC' || key === 'batteryV') && typeof value === 'number' && isFinite(value)) {

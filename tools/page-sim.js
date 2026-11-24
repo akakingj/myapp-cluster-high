@@ -30,11 +30,9 @@ const path = require('path');
 const cp = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
-/* MGU_RELEASE_ROOT: run the public release tree (tools/make-release.js) instead of the source's own app */
-const PKG_ROOT = process.env.MGU_RELEASE_ROOT ? path.resolve(ROOT, process.env.MGU_RELEASE_ROOT) : ROOT;
 const spec = JSON.parse(fs.readFileSync(path.join(ROOT, 'app', 'app.base.json'), 'utf8'));
 const ID = spec.id;
-const PKG = path.join(PKG_ROOT, 'dist', ID);
+const PKG = path.join(ROOT, 'dist', ID);
 const SRC = path.join(PKG, 'source');
 const OUT = path.join(ROOT, 'build', 'page-sim');
 
@@ -95,7 +93,7 @@ exports.buildProxy = () => Promise.resolve({
   shutdown() { return Promise.resolve(); }
 });
 `);
-    const app = JSON.parse(fs.readFileSync(path.join(PKG_ROOT, 'apps', ID, 'app.json'), 'utf8'));
+    const app = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps', ID, 'app.json'), 'utf8'));
     const dir = path.join(PKG, 'someipInterfaces');
     fs.mkdirSync(dir, { recursive: true });
     Object.keys(app.signals).forEach((iface) => {
@@ -325,8 +323,8 @@ function main() {
     fs.rmSync(OUT, { recursive: true, force: true });
     fs.mkdirSync(OUT, { recursive: true });
     process.stdout.write('building the package with the kit\'s builder... ');
-    if (PKG_ROOT === ROOT) cp.execSync('node tools/stage-app.js', { cwd: ROOT, stdio: ['ignore', 'pipe', 'inherit'] });
-    cp.execSync('python3 kit/tools/build.py --preview-only ' + ID, { cwd: PKG_ROOT, stdio: ['ignore', 'pipe', 'inherit'] });
+    cp.execSync('node tools/stage-app.js', { cwd: ROOT, stdio: ['ignore', 'pipe', 'inherit'] });
+    cp.execSync('python3 kit/tools/build.py --preview-only ' + ID, { cwd: ROOT, stdio: ['ignore', 'pipe', 'inherit'] });
     console.log('done');
     let failed = 0;
     [['gpu', 'with the Store\'s renderer: the whole screen, the controller, a finger',

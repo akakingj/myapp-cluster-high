@@ -1,43 +1,11 @@
-# Readings from the engine unit, without BeeM-Flash
+# Readings from the engine unit
 
 Three readings a style can show are not on the head unit's bus: **oil
 pressure**, the **intake air's temperature** and the **battery's voltage**.
-BeeM-Flash supplies them through its feed ([BEEM-FLASH-FEED.md](BEEM-FLASH-FEED.md)).
-Not everyone has BeeM-Flash, so MGU Styles can also ask the engine unit for
-them itself — and for **boost**, on a car whose Sport Display sends none.
-
-*GENERAL → BeeM-Flash readings* chooses:
-
-| Setting | BeeM-Flash's feed | The engine unit |
-|---|---|---|
-| **Automatic** (as it comes) | used whenever BeeM-Flash is feeding | asked only on a head unit that does **not** have BeeM-Flash |
-| **On: BeeM-Flash only** | used | never asked |
-| **Off: the engine unit only** | not looked for at all | asked |
-
-*Automatic* needs no thought on either kind of car. A head unit counts as
-having BeeM-Flash while it is feeding, while its folder is there (it has
-run since the head unit started), and for two weeks after it last fed. On
-such a head unit the engine unit is never asked, feeding or not: when
-BeeM-Flash pauses its feed it is doing something else on the same link — a
-tool on its bridge, a flash — and nothing of ours should be in its way.
-The cluster then shows what it showed before this existed: dashes, or
-turbo pressure on Toro's left gauge.
-
-**An install from before this setting existed is put on *On*.** It took
-its readings from BeeM-Flash and asked the car nothing, and after an update
-it still does, until its owner chooses otherwise. Only a new install comes
-as *Automatic*.
-
-*Off* is the owner's word that BeeM-Flash is not to be used: the engine
-unit is asked even if BeeM-Flash is on the head unit, so with BeeM-Flash
-logging at the same moment the two share the link. If you have BeeM-Flash
-and want its readings only while it feeds and nothing else, *Automatic*
-and *On* both do that.
-
-With BeeM-Flash's readings not in use, two things it also supplies have no
-other source and simply stop: the accent *Match the interior light* (the
-colour is in the body controller, which is not asked) stays on the last
-colour chosen, and Toro's G meter goes back to the car's own bus readings.
+AK Cluster ID8 asks the engine unit for them itself, on every head unit —
+and for **boost**, on a car whose Sport Display sends none. There is no
+setting for it, and nothing is taken from BeeM-Flash: its feed is not looked
+at, whether it is on the head unit or not (AK 0.13.0).
 
 ## What "asked" means
 
@@ -55,8 +23,6 @@ colour chosen, and Toro's G meter goes back to the car's own bus readings.
   unit is coded or flashed. (An engine stopped by auto start-stop is still
   asked, for up to three minutes: the car is in drive readiness then, and a
   gauge that went blank at every traffic light would be no gauge.)
-- **Never while BeeM-Flash is feeding**, and on *Automatic* never on a head
-  unit that has BeeM-Flash at all. It has the readings, and the link.
 - **Only what is shown.** Toro's left gauges want oil pressure; an M
   style's footer wants whatever its three places hold. A reading no style
   is showing is never asked.
@@ -69,7 +35,7 @@ colour chosen, and Toro's G meter goes back to the car's own bus readings.
 
 The app's page says what is happening on the CLUSTER tab's *Readings* row:
 *Engine unit: oil pressure, intake air*, *read while the engine runs*,
-*no answer*, *no diagnostic link* — or *BeeM-Flash: 9 channels*.
+*no answer*, *no diagnostic link*.
 
 ## The identifiers, and where each is published
 
@@ -131,16 +97,14 @@ PIDs mean the same on every engine.
 What a diesel is asked, each from the table above:
 
 - **Oil pressure**: nothing. There is no standard identifier for it;
-  Toro's left gauge shows turbo pressure unless BeeM-Flash supplies the
-  oil's.
+  Toro's left gauge shows turbo pressure.
 - **Ambient pressure and the barometer**: `DID F433`, then `OBD 33`.
 - **Intake air temperature**: `DID F40F`, then `OBD 0F`.
 - **Battery voltage**: `DID F442`, then `OBD 42`.
 - **Boost, absolute**: `DID F470`, then `OBD 70`, then `OBD 0B`.
 
 Everything else is as for a petrol car: only while the engine runs, only
-what a style shows, one request at a time, never where BeeM-Flash is
-supplying the readings. Changing *Engine* drops what was read and starts
+what a style shows, one request at a time. Changing *Engine* drops what was read and starts
 again. `test/diesel.test.js` holds this against the kit's own diagnostic
 stack, with an engine unit that answers the BMW identifiers with figures
 that would pass for readings; so does the simulated car
@@ -159,5 +123,5 @@ that would pass for readings; so does the simulated car
   car is. Whether a diesel's unit answers the standard forms through this
   link is not known: no diesel has run it.
 - Whether asking twice a second is noticed anywhere else. Upstream apps ask
-  the same unit more often than this; if anything seems off, *On:
-  BeeM-Flash only* stops every request.
+  the same unit more often than this; if anything seems off, a style that
+  shows none of these readings asks nothing.

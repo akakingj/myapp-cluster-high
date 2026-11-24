@@ -207,22 +207,18 @@ Never run on such a car: every line here is a question. Off by default;
 | V6 | Speed Limit Info on, a limit showing, *Cover the speed limit sign's edge* on | The red arc right of the strip's clock is gone; the clock, and everything else in BMW's strip, is whole. **If the arc is elsewhere or still shows, a photograph** |
 | V5 | Any of them showing `--` | Say which car and which reading: its cluster is not sent that signal, or sends it differently |
 
-## Beta 5 — readings without BeeM-Flash
+## Readings from the engine unit (Beta 5; on every head unit since AK 0.13.0)
 
-For a car **with** BeeM-Flash, E0 – E2. For a car **without** it (or with
-*BeeM-Flash readings* set to *Off* for the test), E3 – E7. Nothing here
+The engine unit is asked on every head unit, BeeM-Flash or not; there is no setting for it. Nothing here
 writes to the car: the app can only read (docs/ENGINE-READINGS.md).
 
 | # | Check | Expect |
 |---|---|---|
-| E0 | After updating from an earlier version: GENERAL → BeeM-Flash readings | It says **On: BeeM-Flash only**: an install from before the setting existed is kept as it was, and the car is asked nothing. (A new install says *Automatic*) |
-| E1 | With BeeM-Flash, BeeM-Flash readings *On* or *Automatic*, BeeM-Flash feeding | Everything as before: Toro's left gauge reads PRESS. OLIO from BeeM-Flash. CLUSTER → *Readings* says *BeeM-Flash: N channels* |
-| E2 | The same, BeeM-Flash's feed stopped | The gauge goes back to PRESS. TURBO (intake air and battery in an M footer to `--`). *Readings* says *BeeM-Flash: … (engine unit not asked)*. MGU Styles asks the car nothing on a head unit that has BeeM-Flash |
-| E3 | No BeeM-Flash (or the setting *Off*), Toro, engine running | Within a second or two the left gauge reads **PRESS. OLIO** with a figure that rises with the revs and agrees with what you would expect warm at idle and on the road. *Readings* says *Engine unit: oil pressure*. **Say what it reads at warm idle and at 3,000 rpm** |
+| E3 | Toro, engine running | Within a second or two the left gauge reads **PRESS. OLIO** with a figure that rises with the revs and agrees with what you would expect warm at idle and on the road. *Readings* says *Engine unit: oil pressure*. **Say what it reads at warm idle and at 3,000 rpm** |
 | E4 | The same, ignition on, engine **not** running (before starting it) | PRESS. TURBO, no oil figure; *Readings* says *read while the engine runs*. The car is not asked with the engine off |
 | E4b | Auto start-stop stops the engine at a light | The gauge stays PRESS. OLIO and falls to about 0; it rises again as the engine restarts. No flicker to PRESS. TURBO |
 | E5 | M Sport, Footer left → *Intake air temperature*, middle → *Battery voltage*, engine running | Both show a figure within a few seconds (intake air a little above outside temperature when moving, the battery about 13.5 – 14.8 V with the engine running). **If either stays at `--`, say which**: this car's engine unit does not answer that identifier |
-| E6 | Any style, a few minutes' drive | Nothing else changes: no warning, no message, nothing slower. **If anything at all seems off, set *BeeM-Flash readings* to *On* (which stops every request) and say what it was** |
+| E6 | Any style, a few minutes' drive | Nothing else changes: no warning, no message, nothing slower. **If anything at all seems off, say what it was** (a style showing none of these readings asks nothing) |
 | E7 | Key off | The readings go with the cluster; nothing is asked of the car once the engine has stopped |
 
 ## Beta 4 — what Beta 3's drive asked for

@@ -371,8 +371,8 @@ test('what the documents say a diesel is asked is what it is asked', () => {
         assert.ok(part.includes('`' + did + '`'), did + ' is named as not asked');
         assert.ok(!asked.has('DID ' + did));
     }
-    /* the public instructions name the setting as the app does */
-    const pub = fs.readFileSync(path.join(__dirname, '..', 'docs', 'RELEASE-README.md'), 'utf8');
+    /* the README names the setting as the app does */
+    const pub = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
     assert.match(pub, /## If your car is a diesel/);
     assert.match(pub, /Press \*\*Engine\*\* and choose \*\*Diesel\*\*/);
     assert.strictEqual(item('engine').label, 'Engine');

@@ -221,7 +221,7 @@ That gives every style a diesel's rev counter:
 | Toro's shift lights begin at | 1,800 below the redline | **3,200** |
 
 If your engine revs higher or lower than that, set **Redline** and
-**Limiter** on the same tab (from 4,000 and 4,500 upwards); *From the car*
+**Limiter** on the same tab (from 3,000 and 4,000 upwards); *From the car*
 is the diesel's own figures above.
 
 On a diesel, Toro's lower left gauge shows turbo

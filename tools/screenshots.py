@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-Takes the program's pictures: every style, option and screen, as the docs
-show them.
+Takes the program's pictures, as the docs show them.
 
-  python3 tools/screenshots.py [--jobs 4] [--only NAME[,NAME...]]
+  python3 tools/screenshots.py [--jobs 4] [--only NAME[,NAME...]] [--gallery]
   npm run screenshots
 
-Writes docs/screenshots/ and docs/GALLERY.md (which lists every picture with
-the preview address that draws it, so each can be opened live). Run it again
-after changing how anything looks; nothing here is edited by hand.
+As it comes it draws the pictures the README and docs/*.md show
+(docs/screenshots/<name>.png): the ones the repository keeps. --gallery draws
+every style, option and screen as well, with docs/GALLERY.md (which lists
+every picture with the preview address that draws it, so each can be opened
+live) and the comparisons in docs/img: for looking at, not for committing.
+Run it again after changing how anything looks; nothing here is edited by hand.
 
 Two kinds of picture:
 
@@ -28,7 +30,7 @@ mph, fourth, 5,500 rpm; t=0: parked), so the pictures come out the same
 every time. The map and the camera picture in the middle are the preview's
 stand-ins, and so is BMW's strip: there is no phone, camera or car here.
 
-It also refreshes the comparison pictures in docs/img that the measurement
+With --gallery it also refreshes the comparison pictures in docs/img that the measurement
 notes use (the M styles against their reference pictures), by running
 tools/m-compare.py, tools/m-plus-compare.py and tools/mt-compare.py; those
 need scipy as well, and are skipped with a note if it is missing.
@@ -647,13 +649,26 @@ def sheet_md(name, title, what, tiles):
 
 
 # ------------------------------------------------------------------ main
+def shown_in_docs():
+    """the pictures the README and docs/*.md show (docs/screenshots/<name>.png or .gif): what the repository keeps"""
+    import re
+    names = set()
+    for md in [ROOT / "README.md"] + sorted((ROOT / "docs").glob("*.md")):
+        names |= set(re.findall(r"screenshots/([\w-]+)\.(?:png|gif)", md.read_text(encoding="utf-8")))
+    return names
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--only", default="")
+    ap.add_argument("--gallery", action="store_true",
+                    help="every picture, with docs/GALLERY.md and docs/img: not only the ones the docs show")
     ap.add_argument("--no-comparisons", action="store_true", help="leave docs/img (the M styles against their references) alone")
     args = ap.parse_args()
     only = set(filter(None, args.only.split(",")))
+    if not only and not args.gallery:
+        only = shown_in_docs()
     want = (lambda n: not only or n in only)
     OUT.mkdir(parents=True, exist_ok=True)
     TMP.mkdir(parents=True, exist_ok=True)
@@ -704,9 +719,9 @@ def main():
         designs.append((shots["app-page"], "The app on iDrive", ""))
         written.append(save(sheet(designs, 2, 936), "overview"))
 
-    if not only and not args.no_comparisons:
+    if args.gallery and not args.only and not args.no_comparisons:
         written += comparisons()
-    if not only:
+    if args.gallery and not args.only:
         gallery()
         print("wrote docs/GALLERY.md")
         # a picture this no longer makes is not left behind to be mistaken for a current one

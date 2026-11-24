@@ -640,7 +640,7 @@
             });
             /*
              * The Huracan's second left gauge is oil pressure. Nothing on
-             * this car's bus carries it: BeeM-Flash can (docs/BEEM-FLASH-FEED.md),
+             * this car's bus carries it: the engine unit can (src/car/engine.js),
              * and until it does the slot shows turbo pressure, labelled as
              * what it is rather than left reading dashes.
              */
