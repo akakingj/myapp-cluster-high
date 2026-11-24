@@ -229,7 +229,7 @@ function start(host, deps) {
     }
 
     /* Read the settings and build a theme and driver for them. */
-    function configure() {
+    function configure(prev) {
         try {
             settings = host.settings() || {};
             applyFeedMode();
@@ -243,7 +243,7 @@ function start(host, deps) {
             theme = Theme.build(atlas, profile.id, settings);
             driver = Driver.create({
                 cr: cr, theme: theme, shaders: SHADERS,
-                atlas: atlas, atlasPixels: atlasPixels, log: log
+                atlas: atlas, atlasPixels: atlasPixels, log: log, adopt: prev || null
             });
         } catch (e) {
             log.warn('configure: ' + (e && e.stack || e));
@@ -257,14 +257,16 @@ function start(host, deps) {
         if (settleTimer) clearTimeout(settleTimer);
         settleTimer = setTimeout(guard('settings', function () {
             settleTimer = null;
-            var wasRunning = running;
-            try { if (driver) driver.stop(); } catch (e) { log.warn('stop: ' + e); }
+            var wasRunning = running, prev = driver;
             running = false;
-            configure();
+            configure(prev);
             log.info('settings applied');
             if (wasRunning && connected && driver && theme.settings.enabled) {
+                /* the new driver takes the layers over where they stay the same, else builds its own (cluster.js adopt) */
                 driver.ready();
                 running = true;
+            } else if (prev) {
+                try { prev.stop(); } catch (e) { log.warn('stop: ' + e); }
             }
         }), SETTLE_MS);
     }

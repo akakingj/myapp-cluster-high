@@ -13,6 +13,15 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.12.1
+
+- **A changed setting no longer makes the whole cluster again.** Where the layers stay as they were (their
+  shader, place and order: a colour, a background, a scale, a reading), the next driver takes them over as
+  they are and sends their uniforms again (`src/car/cluster.js` adopt / handOver); nothing is dropped, made or
+  uploaded, so the change shows at once instead of after the renderer has built some 40 layers again. A
+  uniform the new settings no longer send goes back to 0 on the first frame, as on a layer made new. Another
+  style (other layers) is still built new, after the old layers are handed back.
+
 ## AK 0.12.0
 
 - **Korean.** The Store builds the app in Korean (`mgu-repo.json`: `--language ko`): the iDrive

@@ -179,7 +179,7 @@ test('nothing is drawn until cluster-render is there', { timeout: 10000 }, async
     assert.ok(h.calls.effect > 30);
 });
 
-test('a changed setting rebuilds the cluster, old layers down first', { timeout: 10000 }, async (t) => {
+test('a changed setting that keeps the layers: taken over, nothing dropped or made again', { timeout: 10000 }, async (t) => {
     const h = harness(t);
     h.on.ready();
     h.condition('FAHREN');
@@ -187,11 +187,26 @@ test('a changed setting rebuilds the cluster, old layers down first', { timeout:
     await wait(320);
     const made = h.calls.effect, drops = h.calls.drop;
     h.change({ background: 'modern', scaleMaxRpm: 7000 });
+    await wait(600);                           /* settle, then the new settings */
+    assert.strictEqual(h.calls.drop, drops, 'nothing dropped');
+    assert.strictEqual(h.calls.effect, made, 'nothing made again');
+    assert.strictEqual(h.calls.asset, 1, 'the one atlas kept');
+    assert.strictEqual(h.svc.theme().settings.background, 'modern');
+    assert.strictEqual(h.svc.theme().settings.scaleMaxRpm, 7000);
+    assert.ok(h.svc.isRunning());
+});
+
+test('another style rebuilds the cluster, old layers down first', { timeout: 10000 }, async (t) => {
+    const h = harness(t);
+    h.on.ready();
+    h.condition('FAHREN');
+    h.rpm(2000);
+    await wait(320);
+    const made = h.calls.effect, drops = h.calls.drop;
+    h.change({ style: 'mplus' });
     await wait(600);                           /* settle, then rebuild */
     assert.ok(h.calls.drop >= drops + made, 'every old layer and the atlas dropped');
     assert.ok(h.calls.effect > made, 'and rebuilt');
-    assert.strictEqual(h.svc.theme().settings.background, 'modern');
-    assert.strictEqual(h.svc.theme().settings.scaleMaxRpm, 7000);
     assert.strictEqual(h.calls.asset, 2, 'one atlas at a time');
 });
 

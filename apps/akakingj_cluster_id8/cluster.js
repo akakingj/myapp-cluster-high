@@ -39,6 +39,9 @@ function copy(v) { return typeof v === 'number' ? v : v.slice(); }
  *   atlas,       assets/fonts/atlas.json
  *   atlasPixels, Buffer of w*h bytes, r8
  *   log          { info, warn }
+ *   adopt        optional: the driver this one follows (a change of settings). Where every layer is as it had it
+ *                (its id, shader, place, class and order), its layers and atlas are taken over as they are and only
+ *                the uniforms are sent again; else it hands the cluster back first and this one builds its own.
  * }
  */
 function create(opts) {
@@ -52,6 +55,9 @@ function create(opts) {
     var visible = {};     /* layer id -> bool */
     var built = false;
     var stopped = false;
+    /* layer id -> { uniform: last value } the driver before this one sent: those the new settings leave out go
+       back to 0 on the first frame (as a layer made new has them), not kept from the old settings */
+    var stale = {};
     var CUT = theme.foot > Panel.BOTTOM_CUT ? theme.foot : Panel.BOTTOM_CUT;
 
     /* Sorted bottom to top; cluster-render draws by class then z. */
@@ -69,8 +75,44 @@ function create(opts) {
         return 1;
     }
 
+    /* What makes a layer the same layer on the renderer: everything build() sends for it but the uniforms. */
+    function pixelRect(T) {
+        var x0 = Math.floor(T.x), y0 = Math.floor(T.y);
+        return Object.assign({}, T, { x: x0, y: y0,
+            w: Math.ceil(T.x + T.w) - x0, h: Math.ceil(T.y + T.h) - y0 });
+    }
+    function keepOf(L) { return (L.belowCut || CUT >= L.y + L.h) ? 0 : Math.max(0, (CUT - L.y) / L.h); }
+    var shape = ordered.map(function (T) {
+        var L = pixelRect(T);
+        return [L.id, L.shader, L.klass || 'content', L.z || 0, L.x, L.y, L.w, L.h, keepOf(L)].join('|');
+    }).join('\n');
+
+    /* Taken over from the driver this one follows: its layers stay on the cluster, nothing is dropped or made. */
+    function takeOver(prev) {
+        var got = prev && prev.handOver ? prev.handOver(shape) : null;
+        if (!got) return false;
+        atlasRef = got.atlasRef; refs = got.refs; visible = got.visible;
+        for (var i = 0; i < ordered.length; i++) {
+            var L = pixelRect(ordered[i]);
+            if (!refs[L.id]) continue;
+            sent[L.id] = {};                 /* every uniform goes again: the settings changed them */
+            base[L.id] = { x: L.x, y: L.y };
+            if (got.sent[L.id]) stale[L.id] = got.sent[L.id];
+        }
+        built = true;
+        log.info('cluster: settings changed, ' + Object.keys(refs).length + ' layers kept');
+        return true;
+    }
+
+    /* true: the layers were taken over (their atlas is on the renderer already) */
     function build() {
-        if (built) return;
+        if (built) return false;
+        var prev = opts.adopt;
+        opts.adopt = null;
+        if (prev) {
+            if (takeOver(prev)) return true;
+            try { prev.stop(); } catch (e) { log.warn('cluster: stop: ' + e); }
+        }
         /*
          * The atlas first: binds are refused until the asset exists, and the
          * service allows only 16 assets per client - over that it hands out a
@@ -82,13 +124,8 @@ function create(opts) {
             w: opts.atlas.size, h: opts.atlas.size,
             sampling: 'bilinear', wrap: 'clamp'
         });
-        if (!atlasRef) { log.warn('cluster: the glyph atlas was refused'); return; }
+        if (!atlasRef) { log.warn('cluster: the glyph atlas was refused'); return false; }
 
-        function pixelRect(T) {
-            var x0 = Math.floor(T.x), y0 = Math.floor(T.y);
-            return Object.assign({}, T, { x: x0, y: y0,
-                w: Math.ceil(T.x + T.w) - x0, h: Math.ceil(T.y + T.h) - y0 });
-        }
         for (var i = 0; i < ordered.length; i++) {
             /* whole pixels on the wire: the renderer's rectangles are integers */
             var L = pixelRect(ordered[i]);
@@ -125,9 +162,7 @@ function create(opts) {
              * top, or lower for a style the owner has had lowered into a
              * hidden strip's rows, theme.foot.)
              */
-            var keep = (L.belowCut || CUT >= L.y + L.h) ? 0 :
-                Math.max(0, (CUT - L.y) / L.h);
-            cr.uniform(ref, 'u_keep', [keep]);
+            cr.uniform(ref, 'u_keep', [keepOf(L)]);
             if (body.indexOf('u_atlas') >= 0) {
                 cr.bind(ref, 'u_atlas', atlasRef);
                 cr.uniform(ref, 'u_atlasSize', [opts.atlas.size, opts.atlas.size]);
@@ -135,13 +170,14 @@ function create(opts) {
         }
         built = true;
         log.info('cluster: ' + Object.keys(refs).length + ' layers, 1 asset');
+        return false;
     }
 
     /* Called on every (re)connect: the client replays layers and uniforms
        itself, but the asset's bytes are ours to send. */
     function ready() {
-        build();
-        if (atlasRef) cr.pixels(atlasRef, null, opts.atlasPixels);
+        var took = build();
+        if (atlasRef && !took) cr.pixels(atlasRef, null, opts.atlasPixels);
     }
 
     /*
@@ -226,12 +262,33 @@ function create(opts) {
                     writes += send(L.id, ref, k, u[k]);
                 }
             }
+            if (stale[L.id]) {
+                var old = stale[L.id];
+                delete stale[L.id];
+                for (var n in old) {
+                    if (!Object.prototype.hasOwnProperty.call(old, n) || n === 'u_time' ||
+                        Object.prototype.hasOwnProperty.call(u, n)) continue;
+                    writes += send(L.id, ref, n, typeof old[n] === 'number' ? 0 : old[n].map(function () { return 0; }));
+                }
+            }
             /* the clock, only to a layer that is animating now: a parked,
                quiet cluster still sends nothing */
             var t = Clock.timeFor(L.shader, u, state ? state.now : 0);
             if (t !== null) writes += send(L.id, ref, 'u_time', t);
         }
         return writes;
+    }
+
+    /* The next driver takes these layers over when they are the same (its shape): this one lets go of them without
+       dropping them. null: not the same, or nothing built - the next one builds its own. */
+    function handOver(next) {
+        if (!built || stopped || next !== shape) return null;
+        if (shaking) moveAll({ x: 0, y: 0 });       /* every layer back where it belongs */
+        var got = { atlasRef: atlasRef, refs: refs, visible: visible, sent: sent };
+        stopped = true;
+        refs = {}; sent = {}; visible = {}; base = {}; stale = {}; atlasRef = 0; built = false;
+        shaking = false; shakeAt = null; calmFrames = 0;
+        return got;
     }
 
     /* Hand the cluster back to BMW. */
@@ -246,7 +303,7 @@ function create(opts) {
     }
 
     return {
-        ready: ready, tick: tick, stop: stop,
+        ready: ready, tick: tick, stop: stop, handOver: handOver,
         refs: function () { return refs; },
         isBuilt: function () { return built; },
         isShaking: function () { return shaking; }
