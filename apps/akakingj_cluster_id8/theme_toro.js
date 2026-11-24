@@ -142,6 +142,10 @@
         /* Where the red detailing starts, as a scale value. */
         var redV = S.redFromScale !== null && S.redFromScale !== undefined
             ? S.redFromScale : S.rpmRedline / 1000;
+        /* ... and now: lower while the engine is cold (s.redRpm, src/engine/state.js shiftPoint) */
+        function redNow(s) {
+            return S.redFromScale !== null && S.redFromScale !== undefined || !(s && s.redRpm) ? redV : s.redRpm / 1000;
+        }
 
         /* ------------------------------------------------------ helpers */
 
@@ -216,12 +220,12 @@
                 u.u_rev = [vOf(s.rpm || 0, S.scaleMaxRpm), S.dialFill];
                 u.u_litCol = C.lit;
                 u.u_needle = GC.corsaRed;
-                u.u_redV = redV;
+                u.u_redV = redNow(s);
                 u.u_ring = [G.gs(T.stippleInner), G.gs(T.stippleOuter)];
                 u.u_dot = [G.gs(G.STIPPLE.spacing), G.gs(G.STIPPLE.dotRadius),
                            G.STIPPLE.opacity * S.stipple];
                 /* the wash is the stipple ring's own outline: always draw it */
-                u.u_redFrom = redV;
+                u.u_redFrom = redNow(s);
                 u.u_col = GC.stipple;
                 u.u_red = GC.dimRed;
                 u.u_smoke = S.background === 'modern'
@@ -241,7 +245,7 @@
                 u.u_tick = [G.gs(T.tickMinor), G.gs(T.tickMajor), G.gs(T.tickWidth)];
                 u.u_step = T.tickStep;
                 u.u_frac = vOf(s.rpm, S.scaleMaxRpm);
-                u.u_redFrom = redV;
+                u.u_redFrom = redNow(s);
                 u.u_warn = bandFlash ? (s.limiter || 0) : 0;
                 u.u_lit = C.lit;
                 u.u_base = GC.fineContour;
@@ -257,7 +261,7 @@
                 var u = dialBase();
                 u.u_radii = [G.gs(T.rRecess), G.gs(T.rPlateau)];
                 u.u_width = G.gs(T.contourWidth);
-                u.u_redFrom = redV;
+                u.u_redFrom = redNow(s);
                 u.u_frac = vOf(s.rpm, S.scaleMaxRpm);
                 u.u_col = GC.fineContour;
                 u.u_red = GC.corsaRed;
@@ -361,9 +365,12 @@
             Panel.TURN_ARROWS.forEach(function (a) {
                 if (a.y < 50) { GAP_L = Math.min(GAP_L, a.x); GAP_R = Math.max(GAP_R, a.x + a.w); }
             });
+            /* lit from Shift lights from up to the limiter, flashing there; with Shift now at set, up to the
+               shift point, flashing from there */
+            var shiftEnd = function (s) { return S.shiftWarn && s.shiftRpm ? s.shiftRpm : S.rpmLimiter; };
             var shiftFrac = function (s) {
-                var start = S.shiftFromRpm;      /* 1,800 below the redline; a diesel's, in proportion */
-                return clamp01((s.rpm - start) / Math.max(1, S.rpmLimiter - start));
+                var start = Math.min(S.shiftFromRpm, shiftEnd(s) - 100);
+                return clamp01((s.rpm - start) / Math.max(1, shiftEnd(s) - start));
             };
             var shiftLayer = function (id, SB, frac, c) {
                 layers.push({
@@ -374,7 +381,7 @@
                             u_frac: frac(shiftFrac(s)),
                             u_leds: SB.leds, u_style: S.shiftStyleIndex, u_burst: toroShift ? 1 : 0,
                             u_gap: SB.gap || 0,
-                            u_strobe: s.rpm >= S.rpmLimiter - 60 ? 1 : 0,
+                            u_strobe: (S.shiftWarn ? s.shiftNow : s.rpm >= S.rpmLimiter - 60) ? 1 : 0,
                             u_c1: c[0], u_c2: c[1], u_c3: c[2]
                         };
                     }
@@ -461,9 +468,10 @@
             { face: 'gear', size: gearSize, align: 'centre', baseline: 'middle',
               x: gearAt.x, y: gearAt.y,
               outline: S.gearFill === 'filled' ? 0 : gearLine, glow: 0.0,
-              color: function (s) { return S.gearFill === 'filled' && s.limiter > 0.5 ? [1, 1, 1] : keyCol(); },
+              /* (white at the limiter, and blinking white at the shift point) */
+              color: function (s) { return S.gearFill === 'filled' && (s.limiter > 0.5 || Palette.blinkOn(s)) ? [1, 1, 1] : keyCol(); },
               outCol: function (s) {
-                  return s.limiter > 0.5 ? [1, 1, 1] : keyCol();
+                  return s.limiter > 0.5 || Palette.blinkOn(s) ? [1, 1, 1] : keyCol();
               } },
             function (s) { return s.gear; });
 
@@ -716,7 +724,7 @@
         txt('speed', 30, spBox,
             { face: 'gear', size: G.gs(79) / 0.70, align: 'right',
               x: sp.x + sp.w - G.gs(175) - spDx, y: sp.y + G.gs(92),
-              color: GC.primaryWhite },
+              color: function (s) { return Palette.blinkOn(s) ? GC.corsaRed : GC.primaryWhite; } },
             function (s) { return s.speedText !== undefined ? s.speedText : String(Math.max(0, Math.round(s.speed))); });
         statics('speedUnit', 30, unitBox,
             { face: 'label', size: unitSize, align: 'left',

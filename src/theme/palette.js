@@ -278,9 +278,13 @@
         /* (a figure at or past the top of a diesel's dial was chosen for a
            petrol engine: it is no diesel's limit, so the diesel's own is used) */
         function chosen(v) { return diesel && Number(v) >= scale ? null : v; }
-        var redline = clampNum(chosen(settings.rpmRedline), 2000, scale, own.rpmRedline);
+        /* (Redline "At the limiter": the Car profile's Red light at Auto, the red zone from its redline, which is
+           the Limiter here) */
+        var atLimiter = settings.rpmRedline === 'limiter';
+        var redline = atLimiter ? 2000 : clampNum(chosen(settings.rpmRedline), 2000, scale, own.rpmRedline);
         var limiter = clampNum(chosen(settings.rpmLimiter), redline, scale, own.rpmLimiter);
         if (limiter < redline) limiter = redline;
+        if (atLimiter) redline = limiter;
 
         s.scaleMaxRpm = scale;
         s.rpmMax = scale;                 /* the dial's top, in rpm */
@@ -291,6 +295,15 @@
         /* ... or where "Shift lights from" (the Car profile's yellow light) says, below the limiter */
         var from = Number(settings.shiftFrom);
         if (from > 0 && from < s.rpmLimiter) s.shiftFromRpm = from;
+        /* Shift now (the Car profile's Shift now warning at): off as it comes (the shift lights flash at the
+           limiter), Auto 300 under the red zone, or an rpm (src/engine/state.js shiftPoint); the cold-engine
+           guard lowers it and the red zone while the oil is cold */
+        s.shiftWarn = settings.shiftAt !== undefined && settings.shiftAt !== null && settings.shiftAt !== 'off';
+        s.shiftAtRpm = clampNum(settings.shiftAt === 'auto' || !s.shiftWarn ? null : settings.shiftAt, 2500, s.rpmLimiter,
+                                s.rpmRedline - 300);
+        s.coldGuard = settings.coldGuard === 'on' ? 'on' : 'off';
+        s.coldLimit = clampNum(settings.coldLimit, 2000, s.rpmLimiter, 4500);
+        s.warmOil = clampNum(settings.warmOil, 40, 120, 80);
         s.redFromScale = settings.redFromScale === undefined ? null
             : settings.redFromScale;
         /* Where the warning starts. Default: a breath before the limiter. */
@@ -420,8 +433,12 @@
         return changed;
     }
 
+    /* At the shift point (state.js shiftNow) the speed and the gear blink: on four times a second, by the
+       frame's time (s.now) */
+    function blinkOn(s) { return !!(s && s.shiftNow) && Math.floor((Number(s.now) || 0) / 125) % 2 === 0; }
+
     return {
-        BASE: BASE, SCHEMES: SCHEMES, LIT: LIT, DEFAULTS: DEFAULTS, resolve: resolve,
+        BASE: BASE, SCHEMES: SCHEMES, LIT: LIT, DEFAULTS: DEFAULTS, resolve: resolve, blinkOn: blinkOn,
         setAccent: setAccent, AMBIENT_FALLBACK: AMBIENT_FALLBACK, INTRO_WORDS: INTRO_WORDS,
         HOLES: HOLES, CENTRE_SIZES: CENTRE_SIZES, DIESEL: DIESEL
     };

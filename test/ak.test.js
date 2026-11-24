@@ -28,11 +28,11 @@ test('the Car profile sets the units, clock, engine, rev limits and shift lights
     process.env.MGU_CAR_PROFILE = file;
     try {
         profileOf(file, { speedUnit: 'mph', tempUnit: 'f', pressUnit: 'kpa', fuelUnit: 'mpgus', clock: '12', engine: 'phev',
-            lightRed: 6500, redline: 7000, rpmScale: 8000, lightStart: 4500 });
+            lightRed: 6500, redline: 7000, rpmScale: 8000, lightStart: 4500, shiftAt: 6200, coldGuard: 'on', coldLimit: 4000, warmOil: 70 });
         const Settings = settingsClass(dir);
         const s = new Settings(appSpec.settings);
         const want = { speedUnit: 'mph', tempUnit: 'f', pressUnit: 'kpa', econUnit: 'mpg', clock12: '12', engine: 'petrol', electric: 'hybrid', rpmRedline: '6500',
-            rpmLimiter: '7000', scaleMaxRpm: '8000', shiftFrom: '4500' };
+            rpmLimiter: '7000', scaleMaxRpm: '8000', shiftFrom: '4500', shiftAt: '6200', coldGuard: 'on', coldLimit: '4000', warmOil: '70' };
         for (const k of Object.keys(want)) {
             assert.strictEqual(s.get(k), want[k], k);
             assert.ok(s.held(k), k + ' held');
@@ -44,12 +44,18 @@ test('the Car profile sets the units, clock, engine, rev limits and shift lights
         assert.ok(!s.held('style'), 'a setting the profile does not name is the page\'s');
 
         /* a value the setting can't take, or left to each app: the one set here */
-        profileOf(file, { speedUnit: 'mph', fuelUnit: 'app', lightRed: 0, redline: 6123 });
+        profileOf(file, { speedUnit: 'mph', fuelUnit: 'app', lightRed: 6123, redline: 6123, coldGuard: 'app' });
         const t = new (settingsClass(dir))(appSpec.settings);
         assert.strictEqual(t.get('speedUnit'), 'mph');
         assert.ok(!t.held('econUnit'));
-        assert.ok(!t.held('rpmRedline') && !t.held('rpmLimiter') && !t.held('clock12'));
+        assert.ok(!t.held('rpmRedline') && !t.held('rpmLimiter') && !t.held('clock12') && !t.held('coldGuard'));
         assert.strictEqual(t.get('rpmRedline'), 'auto');
+
+        /* the profile's Auto (0): the red zone at its redline (the Limiter here), the Limiter and Shift now at Auto */
+        profileOf(file, { lightRed: 0, redline: 0, shiftAt: 0 });
+        const u = new (settingsClass(dir))(appSpec.settings);
+        assert.deepStrictEqual(['rpmRedline', 'rpmLimiter', 'shiftAt'].map((k) => [u.get(k), u.held(k)]),
+            [['limiter', true], ['auto', true], ['auto', true]]);
     } finally {
         delete process.env.MGU_CAR_PROFILE;
         fs.rmSync(dir, { recursive: true, force: true });

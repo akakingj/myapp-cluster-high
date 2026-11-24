@@ -56,6 +56,22 @@
         return held.rpm;
     }
 
+    /*
+     * The shift point and the red zone now, as Cluster Layouts and the Redline app work them (the Car
+     * profile's Shift now warning at, Cold-engine rev guard, Cold rev limit, Oil is warm at): the shift point
+     * opts.shiftAtRpm (palette.js: Auto, 300 under the red zone); with the cold-engine guard on, pulled down
+     * to opts.coldLimit with the oil at 30 °C and climbing back as the oil reaches opts.warmOil, the red zone
+     * keeping its distance to it. { rpm, red, cold }
+     */
+    function shiftPoint(opts, profile, oilC) {
+        var red = opts.rpmRedline || profile.rpmRedline || 7000;
+        var n = opts.shiftAtRpm || red - 300, before = red - n;
+        var warm = opts.warmOil || 80;
+        if (opts.coldGuard !== 'on' || !has(oilC) || oilC >= warm) return { rpm: n, red: red, cold: false };
+        var cold = Math.min(opts.coldLimit || 4500, n), f = clamp01((oilC - 30) / Math.max(1, warm - 30));
+        var at = Math.round((cold + (n - cold) * f) / 50) * 50;
+        return { rpm: at, red: Math.max(2000, Math.min(red, at + Math.max(0, before))), cold: true };
+    }
     /* A reading that has gone stale shows dashes rather than a stale number. */
     function has(v) { return typeof v === 'number' && isFinite(v); }
 
@@ -92,6 +108,8 @@
         var limAt = opts.rpmLimiter || profile.rpmLimiter;
         var limFrom = opts.flashFromRpm || (limAt - 150);
         var limiter = clamp01((rpm - limFrom) / Math.max(1, limAt - limFrom));
+        /* the shift point and the red zone now (shiftPoint, below) */
+        var shift = shiftPoint(opts, profile, raw.oilTempC);
 
         /* boost in the pressure unit shown */
         var boostBar = has(raw.boostBar) ? raw.boostBar : 0;
@@ -211,6 +229,10 @@
             modeLabel: modeLabelOf(raw.driveMode, opts.modeLabel,
                                    opts.mode === undefined || opts.mode === null ? 'CORSA' : opts.mode),
             limiter: limiter,
+            shiftRpm: shift.rpm,
+            redRpm: shift.red,
+            /* Shift now: the shift lights flash, the speed and the gear blink red (palette.js blinkOn) */
+            shiftNow: !!opts.shiftWarn && rpm > 0 && rpm >= shift.rpm,
             boostPsi: boost,
             boostPeakPsi: boostPeak,
             gOk: has(raw.gLat) || has(raw.gLon),
@@ -248,6 +270,6 @@
         };
     }
 
-    return { present: present, modeLabelOf: modeLabelOf,
+    return { shiftPoint: shiftPoint, present: present, modeLabelOf: modeLabelOf,
              MI_PER_KM: MI_PER_KM, PSI_PER_BAR: PSI_PER_BAR };
 }));

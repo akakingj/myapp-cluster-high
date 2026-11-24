@@ -13,6 +13,18 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.14.0
+
+- **The shift lights with the Car profile.** Every rev setting the Car profile sets is followed, at every value
+  it has: Red light at (Auto: the red zone at its redline, *At the limiter* here), Engine's top rpm (the Limiter;
+  Auto: the car's), Yellow light at (Shift lights from, 2,000 and 2,500 too), Gauge goes up to.
+- **Shift now at** (GENERAL; the Car profile's Shift now warning at): off as it comes, Auto (300 under the
+  redline) or an rpm. From there the shift lights flash (Toro; full at the shift point), and the speed and the
+  gear blink red four times a second in every style (`src/engine/state.js` shiftPoint, `palette.js` blinkOn).
+- **Cold engine** (GENERAL; the Car profile's Cold-engine rev guard, Cold rev limit, Oil is warm at): off as it
+  comes. On, the shift point comes down to the cold rev limit with the oil at 30 °C and climbs back as the oil
+  warms, the red zone keeping its distance to it, on every style's rev dial. Costs: docs/PERFORMANCE.md.
+
 ## AK 0.13.0
 
 - **The readings the bus does not carry come from the engine unit.** Intake air, battery voltage, oil pressure

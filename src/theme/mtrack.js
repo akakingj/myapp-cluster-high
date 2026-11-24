@@ -86,7 +86,8 @@
         segLit: c(236, 239, 244), segDim: c(123, 131, 154), segLow: c(161, 168, 190), stripInk: c(222, 231, 245),
         stripHot: c(206, 82, 96), stripCold: c(62, 142, 232),
         pane: c(24, 46, 102), paneFoot: c(47, 76, 146), footBlue: c(56, 112, 228), footRed: c(222, 62, 72),
-        limitDisc: c(250, 250, 250), limitRing: c(218, 52, 72), limitInk: c(24, 24, 28)
+        limitDisc: c(250, 250, 250), limitRing: c(218, 52, 72), limitInk: c(24, 24, 28),
+        shiftRed: c(240, 62, 70)          /* the speed and the gear blinking at the shift point */
     };
 
     function centreOf(s) { return s.centre || { mode: 'neutral', open: 0, maneuver: null }; }
@@ -412,10 +413,11 @@
         var MARKS = T.revMarks(S.engine, S.scaleMaxRpm);
         var topMark = MARKS[MARKS.length - 1];
         function revY(s) { return T.revY(s.rpm, MARKS); }
-        /* the red field: from the top of the scale down to the redline */
-        var redY = Math.max(topMark, T.revY(S.rpmRedline, MARKS));
+        /* the red field: from the top of the scale down to the redline (lower while the engine is cold:
+           s.redRpm, src/engine/state.js shiftPoint) */
+        function redY(s) { return Math.max(topMark, T.revY(s.redRpm || S.rpmRedline, MARKS)); }
         shape('revDial', 10, MARKS.length === 9 ? 'mtgauge' : 'mtgauge' + (MARKS.length - 1), box(742, 74, 1296, 484), function (s) {
-            return { u_ym: revY(s), u_red: redY, u_warn: flashRail ? (s.limiter || 0) : 0,
+            return { u_ym: revY(s), u_red: redY(s), u_warn: flashRail ? (s.limiter || 0) : 0,
                      u_line: K.R.line, u_topCol: K.R.top, u_chan: K.R.chan, u_chanMid: K.R.chanMid,
                      u_rail: K.R.rail, u_tick: K.R.tick, u_zone: K.R.zone, u_fill: K.R.fill, u_fillEdge: K.R.fillEdge };
         });
@@ -485,6 +487,8 @@
         /* the gear, its ink ending where the frame's D does: a letter in the
            frame's own hand, a number in the dials' */
         /* (two characters - a stage and its gear - are set smaller, so the pair stays on the band) */
+        /* (the gear and the speed blinking red at the shift point: Palette.blinkOn) */
+        function shiftCol(s) { return Palette.blinkOn(s) ? K.shiftRed : K.white; }
         var GEAR = { h: 80.0, pair: 0.84, right: 854.6, base: 286.9 };
         layers.push((function () {
             var b = box(630, 200, 866, 294);
@@ -505,16 +509,17 @@
                     items.forEach(function (it) { it.x += shift; });
                     var L = Text.place(atlas, items, { face: 'mg', size: size, align: 'left' });
                     if (!L) return null;
+                    var col = shiftCol(s);
                     return { u_g: L.g, u_quad: L.p, u_count: L.count, u_sharp: L.sharp,
-                             u_color: [K.white[0], K.white[1], K.white[2], 1], u_glowCol: K.white, u_glow: 0,
-                             u_outline: 0, u_outCol: K.white };
+                             u_color: [col[0], col[1], col[2], 1], u_glowCol: col, u_glow: 0,
+                             u_outline: 0, u_outCol: col };
                 } };
         }()));
         /* the speed: flush right, its unit after it */
         var SPD = { h: 37.0, right: 831.8, base: 365.2 };
         dyn('speed', 30, box(644, 322, 840, 372), function (s) {
             return { str: s.speedText !== undefined ? s.speedText : String(Math.round(Math.max(0, s.speed || 0))), face: 'mw', size: fig(SPD.h),
-                     x: X(SPD.right), y: Y(SPD.base), ink: 'r', color: K.white };
+                     x: X(SPD.right), y: Y(SPD.base), ink: 'r', color: shiftCol(s) };
         });
         fixed('speedUnit', 30, box(834, 340, 896, 374), { face: 'ms', size: words(22.2), align: 'left', color: K.speedUnit },
             [{ str: kmh ? 'km/h' : 'mph', x: 840.2, y: 364.6 }]);

@@ -93,7 +93,9 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 
 - **GENERAL**: on / off, start with the car, the style, units, your car,
   **petrol or diesel**, the tach scale (0 - 6,000 to 0 - 10,000, every style), redline and limiter, the limiter
-  flash, BMW's bottom strip (show, trim or hide it), **electric range** for
+  flash, **Shift now at** (off as it comes; from there the shift lights flash and the speed and the gear blink
+  red, in every style), the **cold engine** guard (the shift point and the red zone lower while the oil is cold),
+  BMW's bottom strip (show, trim or hide it), **electric range** for
   plug-in hybrids and fully electric cars (off until you turn it on: a
   hybrid gets its electric range beside the fuel's; a fully electric car
   gets range, charge and battery temperature in place of fuel and oil),
@@ -232,6 +234,21 @@ standard readings, and there is no standard one for oil pressure.
 rev counter does not move **at all** with *Engine* on *Diesel* (the needle
 stays at 0 while the engine runs), that is something else: report it with
 your car and model year, and whether the speed and the gear show.
+
+## With the Car profile app
+
+The Car profile app (akakingj/myapp-id7) sets these for every app that follows it, AK Cluster ID8 too. What
+it sets is shown here with "Car profile" beside it and changed there:
+
+| Car profile | Here (GENERAL) |
+|---|---|
+| Yellow light at | Shift lights from |
+| Red light at (Auto: the redline) | Redline (*At the limiter*) |
+| Shift now warning at (Auto: redline - 300) | Shift now at (*Auto*) |
+| Gauge goes up to | Tach scale |
+| Engine's top rpm (redline) | Limiter |
+| Cold-engine rev guard, Cold rev limit, Oil is warm at | Cold engine, Cold rev limit, Oil is warm at |
+| Engine, the units, the clock, the skin | the same |
 
 ## Trimming or hiding BMW's bottom strip
 

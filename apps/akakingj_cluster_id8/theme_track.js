@@ -96,6 +96,7 @@
         railBlue: c(98, 180, 234), railRed: c(210, 52, 60),
         glowBlue: c(64, 136, 212), glowRed: c(200, 48, 52),
         diagCyan: c(176, 212, 244), diagRed: c(228, 72, 82),
+        shiftRed: c(240, 62, 68),        /* the speed and the gear blinking at the shift point */
         segLit: c(250, 249, 253), segDim: c(95, 94, 105), segLow: c(172, 138, 152),
         hot: c(196, 90, 104), cold: c(150, 200, 244), oilIcon: c(122, 170, 234),
         lampRed: c(238, 84, 70), lampBelt: c(236, 118, 100), lampLights: c(228, 236, 196),
@@ -391,16 +392,18 @@
                     u_rimHi: look.rimHi, u_rimLo: look.rimLo, u_line: look.line, u_lineLo: look.lineLo,
                     u_chan: look.chan,
                     u_fill: look.fill, u_fillHot: look.fillHot, u_tick: look.tick, u_hot: look.hot,
-                    u_zone: zone, u_warn: warn ? warn(s) : 0
+                    u_zone: typeof zone === 'function' ? zone(s) : zone, u_warn: warn ? warn(s) : 0
                 };
             });
         }
         dial('speedDial', box(186, 64, 634, 523), 0, K.L, speedTicks, [0, 0, 0, 0]);
         /* the red field from the redline to the top of the scale, and the
-           amber one just before it */
-        var red = Math.min(M.SCALE.n - 0.3, M.rpmTicks(S.rpmRedline, REV.top));
-        dial('revDial', box(M.mirror(634), 64, M.mirror(186), 523), 1, K.R, revTicks,
-            [red + 0.09, M.SCALE.n - 0.04, red - 0.33, red - 0.05],
+           amber one just before it (lower while the engine is cold: s.redRpm, src/engine/state.js shiftPoint) */
+        function redZone(s) {
+            var red = Math.min(M.SCALE.n - 0.3, M.rpmTicks(s.redRpm || S.rpmRedline, REV.top));
+            return [red + 0.09, M.SCALE.n - 0.04, red - 0.33, red - 0.05];
+        }
+        dial('revDial', box(M.mirror(634), 64, M.mirror(186), 523), 1, K.R, revTicks, redZone,
             function (s) { return flashRail ? (s.limiter || 0) : 0; },
             sixMarks ? 'mgauge' + REV.marks : 'mgauge');
 
@@ -527,9 +530,11 @@
         /* --------------------------------------------------- speed and gear */
         /* the figures stand on the black band between the plates, the speed
            flush right over its unit, both units always shown */
+        /* (blinking red at the shift point: Palette.blinkOn) */
+        function shiftCol(s) { return Palette.blinkOn(s) ? K.shiftRed : K.white; }
         var BIG = 51.6;
         txt('speed', 30, box(372, 234, 616, 304),
-            { face: 'mw', size: fig(BIG), align: 'right', x: X(603.0 + 0.1025 * BIG), y: Y(295.0), color: K.white },
+            { face: 'mw', size: fig(BIG), align: 'right', x: X(603.0 + 0.1025 * BIG), y: Y(295.0), color: shiftCol },
             function (s) { return s.speedText !== undefined ? s.speedText : String(Math.round(Math.max(0, s.speed || 0))); });
         statics('speedUnit', 30, box(520, 296, 616, 330),
             { face: 'ms', size: words(25.5), align: 'right', color: K.unit },
@@ -548,7 +553,7 @@
 
         if (S.mGear === 'gear') {
             txt('gear', 30, box(1228, 234, 1390, 304),
-                { face: 'mw', size: fig(50.8), align: 'centre', x: X(1308.8), y: Y(294.4), color: K.white },
+                { face: 'mw', size: fig(50.8), align: 'centre', x: X(1308.8), y: Y(294.4), color: shiftCol },
                 function (s) { return s.gear || 'P'; });
         } else if (S.mGear === 'rpm') {
             /* the revs, to the nearest ten, on the same black bar: four of
