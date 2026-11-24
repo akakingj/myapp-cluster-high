@@ -88,7 +88,9 @@ function create(opts) {
                 kwIn: first(function (e) { return e.power.inMax; })
             };
         },
-        release: release
+        release: release,
+        /* whether an app shares the battery's power here now, without asking for it (a plug-in hybrid found) */
+        sharing: function () { scan(nowFn()); return Object.keys(entries).length > 0; }
     };
 }
 

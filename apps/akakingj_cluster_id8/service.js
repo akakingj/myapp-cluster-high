@@ -167,6 +167,26 @@ function start(host, deps) {
     });
     /* a plug-in hybrid's battery power, as eDrive Live shares it: for the Power % gauge */
     var providers = deps.providers || Providers.create({ log: log, now: now });
+    /*
+     * General: Electric range on Automatic, as Cluster Layouts finds a plug-in hybrid: the car's own
+     * plug-in hybrid drive modes (PHEV_..., src/car/vehicle.js phevModeOf), or eDrive Live sharing its
+     * battery's power. Found once, kept (vehicle.json): the next start is a plug-in hybrid's at once.
+     * (A Car profile set to a plug-in hybrid says so itself: app.json's profileMap.)
+     */
+    var vehicleFile = host.dataDir ? path.join(host.dataDir, 'vehicle.json') : null;
+    var phevFound = false, autoElectric = false, phevLookedAt = -Infinity;
+    try { phevFound = JSON.parse(fs.readFileSync(vehicleFile, 'utf8')).phev === true; } catch (e) { /* not yet */ }
+    function lookForPhev(raw) {
+        if (!autoElectric || phevFound || now() - phevLookedAt < 2000) return;
+        phevLookedAt = now();
+        var why = raw.phevMode ? 'its drive modes are a plug-in hybrid\'s'
+            : providers.sharing() ? 'eDrive Live shares its battery\'s power' : null;
+        if (!why) return;
+        phevFound = true;
+        log.info('vehicle: a plug-in hybrid (' + why + ')');
+        try { if (vehicleFile) fs.writeFileSync(vehicleFile, JSON.stringify({ phev: true, why: why })); } catch (e) { log.warn('vehicle: cannot save ' + vehicleFile); }
+        reconfigure();
+    }
     var needs = {};              /* what the style on the cluster shows of those readings */
     var feedSaid = null;
     var engineRanAt = -Infinity; /* when the engine was last seen running */
@@ -236,6 +256,9 @@ function start(host, deps) {
     function configure(prev) {
         try {
             settings = host.settings() || {};
+            /* (Electric range on Automatic: a plug-in hybrid's once found, else none) */
+            autoElectric = settings.electric === 'auto';
+            if (autoElectric) settings = Object.assign({}, settings, { electric: phevFound ? 'hybrid' : 'off' });
             applyFeedMode();
             /* your own start-up words come from a file (src/car/message.js) */
             if (settings.intro && settings.introMessage === 'custom') {
@@ -363,6 +386,7 @@ function start(host, deps) {
             } catch (e) { log.warn('providers: ' + e); }
 
             var raw = reader.raw(now(), profileTank(profile));
+            try { lookForPhev(raw); } catch (e) { log.warn('vehicle: ' + e); }
             if (theme) raw = smoother.apply(raw, now(), Smooth.TAU[theme.settings.smoothing] || 0, theme.glide);
             var car = carState(raw);
             var enabled = theme && theme.settings.enabled;

@@ -1146,8 +1146,12 @@
       "key": "electric",
       "label": "Electric range",
       "type": "choice",
-      "default": "off",
+      "default": "auto",
       "options": [
+        [
+          "auto",
+          "Automatic: a plug-in hybrid once the car shows it is one"
+        ],
         [
           "off",
           "Off"
@@ -1167,7 +1171,8 @@
         "phev": "hybrid",
         "petrol": "off",
         "diesel": "off"
-      }
+      },
+      "reset": 1
     },
     {
       "key": "refreshHz",
@@ -1916,6 +1921,7 @@
       "when": {
         "style": "toro",
         "electric": [
+          "auto",
           "hybrid",
           "bev"
         ]

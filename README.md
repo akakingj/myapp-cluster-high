@@ -97,7 +97,11 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
   (past the shift point the shift lights flash and the speed and the gear blink red, in every style), the
   **cold engine** guard (the shift point and the red zone lower while the oil is cold),
   BMW's bottom strip (show, trim or hide it), **electric range** for
-  plug-in hybrids and fully electric cars (off until you turn it on: a
+  plug-in hybrids and fully electric cars (*Automatic* as it comes: on once
+  the car shows it is a plug-in hybrid - its drive modes, or eDrive Live
+  sharing its battery's power - as Cluster Layouts finds one; a Car profile
+  set to a plug-in hybrid turns it on too; a fully electric car is chosen by
+  hand. A
   hybrid gets its electric range beside the fuel's; a fully electric car
   gets range, charge and battery temperature in place of fuel and oil; in
   a plug-in hybrid's electric and hybrid modes, and always on an electric

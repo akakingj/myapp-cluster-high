@@ -346,12 +346,14 @@ test('holiday: the snow keeps off the side gauges', () => {
 
 /* ------------------------------------------------------------ electric range */
 
-test('electric range: off as it comes, and then nothing of a battery is shown or changed', () => {
+test('electric range: none until a plug-in hybrid is found (Automatic, test/power.test.js) or chosen, and then nothing of a battery is shown or changed', () => {
     const Vehicle = require('../src/car/vehicle.js');
     const spec = require('../app/app.base.json');
     const item = spec.settings.find((x) => x.key === 'electric');
-    assert.deepStrictEqual(item.options.map((o) => o[0]), ['off', 'hybrid', 'bev']);
-    assert.strictEqual(item.default, 'off');
+    assert.deepStrictEqual(item.options.map((o) => o[0]), ['auto', 'off', 'hybrid', 'bev']);
+    assert.strictEqual(item.default, 'auto');
+    /* (Automatic reaches the styles as off until found: src/car/main.js) */
+    assert.strictEqual(Palette.resolve({ electric: 'auto' }, P).electric, 'off');
     assert.strictEqual(Palette.resolve({}, P).electric, 'off');
     assert.strictEqual(Palette.resolve({ electric: 'yes' }, P).electric, 'off');
     const raw = { rangeKm: 400, fuelPct: 50, evRangeKm: 43, socPct: 78 };

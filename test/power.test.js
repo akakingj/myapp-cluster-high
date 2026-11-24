@@ -147,3 +147,37 @@ test('each style\'s rev counter: Power % on its marks, the 0 a quarter up, CHARG
         Object.keys(charge).forEach((k) => assert.ok(new RegExp('uniform \\w+ ' + k + '\\b').test(src), style + ': ' + k));
     }
 });
+
+test('Electric range on Automatic: a plug-in hybrid found by its drive modes, kept; a petrol car stays one', { timeout: 15000 }, async (t) => {
+    const Main = require('../src/car/main.js');
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const spec = require('../app/app.base.json'), item = spec.settings.find((s) => s.key === 'electric');
+    assert.strictEqual(item.default, 'auto');
+    assert.strictEqual(item.options[0][0], 'auto');
+    assert.deepStrictEqual(item.profileMap, { phev: 'hybrid', petrol: 'off', diesel: 'off' }, 'a Car profile set to a plug-in hybrid says so itself');
+    function run(dir, modes) {
+        const logs = [], cr = { on() {}, asset: () => 1, effect: () => 1, uniform() {}, bind() {}, set() {}, drop() {}, pixels() {}, close() {} };
+        let onValue = null, clock = 1000000;
+        const host = { dataDir: dir, log: { info: (m) => logs.push(m), warn: (m) => logs.push('WARN ' + m) },
+                       settings: () => ({ profile: 'carprofile', enabled: true, electric: 'auto' }), onSettingsChanged() {},
+                       subscribe(sig, cb) { onValue = cb; } };
+        const providers = { tick: () => ({}), sharing: () => false, release() {} };
+        const svc = Main.start(host, { cr, now: () => clock, providers, presence: { othersShowing: () => false, mark() {} } });
+        t.after(() => svc.stop());
+        onValue('de.bmw.infrastructure.VehicleCondition', 'VehicleCondition', { statusConditionVehicle: 'FAHREN' });
+        if (modes) onValue('de.bmw.infotainment.drivingexcitement.FES', 'statusFESVehicleDynamicSwitchHMI', { actualValueModeDrivingExperience: modes });
+        return { logs, tick: (ms) => { clock += ms; } };
+    }
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'phev-'));
+    const a = run(dir, 'PHEV_HYBRID_STANDARD');
+    for (let i = 0; i < 6; i++) { a.tick(1000); await wait(120); }
+    assert.ok(a.logs.some((l) => /vehicle: a plug-in hybrid \(its drive modes/.test(l)), a.logs.join(' | '));
+    assert.strictEqual(JSON.parse(fs.readFileSync(path.join(dir, 'vehicle.json'), 'utf8')).phev, true);
+    /* a petrol car's modes: nothing found, nothing saved */
+    const dir2 = fs.mkdtempSync(path.join(os.tmpdir(), 'phev-'));
+    const b = run(dir2, 'COMFORT');
+    for (let i = 0; i < 6; i++) { b.tick(1000); await wait(120); }
+    assert.ok(!b.logs.some((l) => /plug-in hybrid/.test(l)));
+    assert.ok(!fs.existsSync(path.join(dir2, 'vehicle.json')));
+    fs.rmSync(dir, { recursive: true, force: true }); fs.rmSync(dir2, { recursive: true, force: true });
+});

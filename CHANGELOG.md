@@ -26,6 +26,10 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   (`src/car/providers.js`: a `wanted-akakingj_cluster_id8.json` of its own while Power % can show, gone when not);
   the plug-in hybrid's own mode names (PHEV_ELECTRIC_…, PHEV_HYBRID_…, XTRABOOST) from FES; the pedal from the
   engine unit all the while such a car is in drive readiness (docs/ENGINE-READINGS.md).
+- **GENERAL → Electric range: Automatic** as it comes (once, for a saved Off too): a plug-in hybrid once the car
+  shows it is one - its own plug-in hybrid drive modes, or eDrive Live sharing its battery's power - as Cluster
+  Layouts finds one; kept from then on (vehicle.json). A petrol or diesel car stays as it was. A Car profile set to a
+  plug-in hybrid turns it on as before; a fully electric car is chosen by hand.
 - `test/power.test.js`; the preview's `phev=electric|hybrid|sport&kw=&pedal=`.
 
 ## AK 0.15.0
