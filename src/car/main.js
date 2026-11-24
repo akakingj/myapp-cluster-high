@@ -341,6 +341,9 @@ function start(host, deps) {
                     if (typeof ev.oilBar === 'number') reader.setOilPressureBar(ev.oilBar, now());
                     reader.setFeed('iatC', ev.iatC, now());
                     reader.setFeed('batteryV', ev.batteryV, now());
+                    reader.setFeed('pedalPct', ev.pedalPct, now());
+                    reader.setFeed('throttlePct', ev.throttlePct, now());
+                    reader.setFeed('timingDeg', ev.timingDeg, now());
                 }
                 /* (the reader uses it only while the Sport Display sends no boost of its own) */
                 reader.setBoostBar(ev.boostBar, now());
@@ -383,6 +386,7 @@ function start(host, deps) {
              */
             var shows = (theme && theme.shows) || {};
             needs = { oil: !!shows.oil, iat: !!shows.iat, volts: !!shows.volts,
+                      pedal: !!shows.pedal, throttle: !!shows.throttle, timing: !!shows.timing,
                       boost: !!shows.boost && !reader.hasBusBoost(now(), BUS_BOOST_MS) };
             var runs = typeof raw.rpm === 'number' && raw.rpm >= ENGINE_RUNS_RPM;
             if (runs) engineRanAt = now();

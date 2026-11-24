@@ -475,9 +475,9 @@ test('each row can be given any reading, or left out: its figures, unit, symbol 
     assert.ok(Math.abs(u.u_val[0] - 0.42) < 1e-9 && Math.abs(u.u_val[1] - (14.1 - 10) / 6) < 1e-9 && u.u_val[2] === -1 &&
         Math.abs(u.u_val[3] - 0.78) < 1e-9);
     /* the engine unit is asked only for what a row or the footer shows */
-    assert.deepStrictEqual(t.shows, { oil: true, boost: false, iat: false, volts: true });
-    assert.deepStrictEqual(build().shows, { oil: false, boost: true, iat: true, volts: false });
-    assert.deepStrictEqual(build({ kRow1: 'off', kRow4: 'off', kFootR: 'iat' }).shows, { oil: false, boost: false, iat: true, volts: false });
+    assert.deepStrictEqual(t.shows, { oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false });
+    assert.deepStrictEqual(build().shows, { oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false });
+    assert.deepStrictEqual(build({ kRow1: 'off', kRow4: 'off', kFootR: 'iat' }).shows, { oil: false, boost: false, iat: true, volts: false, pedal: false, throttle: false, timing: false });
     /* all four left out: no rows at all */
     const none = build({ kRow1: 'off', kRow2: 'off', kRow3: 'off', kRow4: 'off' });
     assert.ok(!none.layers.some((L) => /^row/.test(L.id)));
@@ -507,9 +507,11 @@ test('the reference fixture: the frame\'s own state - a mark in the boost row al
 test('the state carries each reading as a number, in the car\'s own units - for the style that asks, and no other', () => {
     const N = { numbers: true };
     const st = State.present(RAW, PROFILE, N);
-    assert.deepStrictEqual(st.num, { boostBar: 0.8, coolantC: 92, oilC: 100, iatC: 30, oilBar: 4.2, volts: 14.1, socPct: null, hvC: null, gearboxC: null });
+    assert.deepStrictEqual(st.num, { boostBar: 0.8, coolantC: 92, oilC: 100, iatC: 30, oilBar: 4.2, volts: 14.1, socPct: null, hvC: null, gearboxC: null,
+        pedalPct: null, throttlePct: null, timingDeg: null });
     assert.deepStrictEqual(State.present({}, PROFILE, N).num,
-        { boostBar: null, coolantC: null, oilC: null, iatC: null, oilBar: null, volts: null, socPct: null, hvC: null, gearboxC: null });
+        { boostBar: null, coolantC: null, oilC: null, iatC: null, oilBar: null, volts: null, socPct: null, hvC: null, gearboxC: null,
+          pedalPct: null, throttlePct: null, timingDeg: null });
     const ev = State.present({ socPct: 64, hvTempC: 26 }, PROFILE, { electric: 'bev', numbers: true }).num;
     assert.deepStrictEqual([ev.socPct, ev.hvC], [64, 26]);
     assert.deepStrictEqual(State.present({ socPct: 64, hvTempC: 26 }, PROFILE, N).num.socPct, null, 'not unless electric range is on');
@@ -837,11 +839,13 @@ test('the footer: the time, the range and the outside temperature as the frame h
 
 test('the footer\'s three places: each can hold any reading the M styles\' footers can, or nothing', () => {
     assert.deepStrictEqual(spec.settings.find((s) => s.key === 'kFootL').options.map((o) => o[0]), Readings.KINDS);
-    const raw = Object.assign({}, RAW, { avgL100: 9.6, evRangeKm: 43, socPct: 78, hvTempC: 26, gearboxC: 70, torqueNm: 300, tripKm: 123.4, tripMin: 95, odoKm: 12345 });
+    const raw = Object.assign({}, RAW, { avgL100: 9.6, evRangeKm: 43, socPct: 78, hvTempC: 26, gearboxC: 70, torqueNm: 300, tripKm: 123.4, tripMin: 95, odoKm: 12345,
+                                      pedalPct: 42, throttlePct: 37.4, timingDeg: 12.5 });
     const want = { time: '19:02', range: 'r402km', economy: '9.6l/100km', outside: '+21.0°C', iat: 'IAT30°C', rpm: '3000rpm',
                    oil: 'OIL100°C', coolant: 'WATER92°C', boost: 'BOOST0.80bar', volts: 'BATT14.1v',
                    erange: 'EV43km', charge: 'CHARGE78', hvtemp: 'BATT26°C',
-                   gearbox: 'TRANS70°C', torque: 'TQ31kgm', power: 'PWR126hp', trip: 'TRIP123.4km', tripTime: 'TIME1:35h', odo: 'ODO12345km' };
+                   gearbox: 'TRANS70°C', torque: 'TQ31kgm', power: 'PWR126hp', trip: 'TRIP123.4km', tripTime: 'TIME1:35h', odo: 'ODO12345km',
+                   pedal: 'PEDAL42', throttle: 'THROTTLE37', timing: 'IGN12.5°' };
     for (const place of ['L', 'M', 'R']) for (const kind of Readings.KINDS) {
         const t = build({ units: 'metric', electric: 'hybrid', ['kFoot' + place]: kind });
         const st = state(t, raw), n = 'foot' + place;

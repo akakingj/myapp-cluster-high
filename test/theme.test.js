@@ -723,9 +723,9 @@ test('each of the four side gauges can be given a reading or nothing; auto keeps
     const set = { units: 'metric', gaugeL1: 'gearbox', gaugeL2: 'iat', gaugeR1: 'volts', gaugeR2: 'off' };
     const t = Theme.build(atlas, 'carprofile', set);
     assert.deepStrictEqual(ids(t), ['bar_gL1', 'bar_gL2', 'bar_gR1']);
-    assert.deepStrictEqual(t.shows, { oil: false, boost: true, iat: true, volts: true });
+    assert.deepStrictEqual(t.shows, { oil: false, boost: true, iat: true, volts: true, pedal: false, throttle: false, timing: false });
     assert.deepStrictEqual(Theme.build(atlas, 'carprofile', { gaugeR1: 'oilp', gaugeR2: 'volts', showAuxLeft: false, showBoost: false }).shows,
-        { oil: true, boost: false, iat: false, volts: true });
+        { oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false });
     const st = State.present({ gearboxC: 85, iatC: 20, batteryV: 11.5 }, profile, t.settings);
     const u = (id) => t.layers.find((L) => L.id === id).uniforms(st, 0);
     assert.ok(Math.abs(u('bar_gL1').u_frac - 0.5) < 1e-9, 'the gearbox oil: 85 on 40 - 130');

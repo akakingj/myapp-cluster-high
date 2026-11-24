@@ -374,12 +374,14 @@ function createReader(opts) {
         put('gLat', lat, now || Date.now());
         put('gLon', lon, now || Date.now());
     }
-    /* Readings the bus does not carry: the intake air's temperature (C) and
-       the battery's voltage, from the engine unit (src/car/engine.js; or a
+    /* Readings the bus does not carry: the intake air's temperature (C), the
+       battery's voltage, the accelerator pedal and the throttle (%) and the
+       ignition angle (degrees), from the engine unit (src/car/engine.js; or a
        feed, src/car/feed.js, where a host turns one on). They age out like any
        other, so a source that stops leaves dashes, not a number. */
+    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg'];
     function setFeed(key, value, now) {
-        if ((key === 'iatC' || key === 'batteryV') && typeof value === 'number' && isFinite(value)) {
+        if (FED.indexOf(key) >= 0 && typeof value === 'number' && isFinite(value)) {
             put(key, value, now || Date.now());
         }
     }
@@ -438,6 +440,7 @@ function createReader(opts) {
             /* from BeeM-Flash's feed or the engine unit, whichever is in use (setFeed) */
             iatC: get('iatC', now),
             batteryV: get('batteryV', now),
+            pedalPct: get('pedalPct', now), throttlePct: get('throttlePct', now), timingDeg: get('timingDeg', now),
             clock: d ? { h: d.getUTCHours(), m: d.getUTCMinutes() } : undefined,
             /* undefined, not zero, when the car is not sending it: the
                meter then shows dashes instead of a convincing 0.00 */

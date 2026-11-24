@@ -2,7 +2,8 @@
 'use strict';
 /*
  * Readings the car's bus does not carry, asked of the engine unit itself:
- * oil pressure, the intake air's temperature, the battery's voltage - and
+ * oil pressure, the intake air's temperature, the battery's voltage, the
+ * accelerator pedal, the throttle's opening and the ignition angle - and
  * boost, for a car whose Sport Display sends none. For a head unit without
  * BeeM-Flash, whose feed (src/car/feed.js) supplies the same readings.
  *
@@ -76,6 +77,23 @@ var CANDIDATES = {
     baro: [
         c({ did: 'F433', bytes: 1, factor: 1, min: 50, max: 115 }),
         c({ obd: '33', bytes: 1, factor: 1, min: 50, max: 115 })
+    ],
+    /* the accelerator pedal, normalised, % */
+    pedal: [
+        c({ did: '5814', bytes: 2, signed: true, factor: 0.01220703, min: -2, max: 102 }),
+        c({ did: '480B', bytes: 2, signed: true, factor: 0.01220703, min: -2, max: 102 }),
+        c({ obd: '49', bytes: 1, factor: 100 / 255, min: 0, max: 101 })
+    ],
+    /* the throttle valve's opening from its lower stop, % */
+    throttle: [
+        c({ did: '4600', bytes: 2, signed: true, factor: 0.0078125, min: -2, max: 102 }),
+        c({ did: '5858', bytes: 2, signed: true, factor: 0.0078125, min: -2, max: 102 }),
+        c({ obd: '11', bytes: 1, factor: 100 / 255, min: 0, max: 101 })
+    ],
+    /* the ignition angle, degrees before top dead centre */
+    timing: [
+        c({ did: '59FA', bytes: 1, signed: true, factor: 0.75, min: -40, max: 70 }),
+        c({ obd: '0E', bytes: 1, factor: 0.5, offset: -64, min: -40, max: 63.5 })
     ]
 };
 
@@ -91,7 +109,7 @@ function isStandard(x) { return !!x.obd || /^F4/i.test(String(x.did)); }
 var STANDARD = {};
 Object.keys(CANDIDATES).forEach(function (name) { STANDARD[name] = CANDIDATES[name].filter(isStandard); });
 /* the candidates each reading is read through, first to last (boost and oil are taken over a second one) */
-var LISTS = { boost: 'boostAbs', oil: 'oilAbs', iat: 'iat', volts: 'volts' };
+var LISTS = { boost: 'boostAbs', oil: 'oilAbs', iat: 'iat', volts: 'volts', pedal: 'pedal', throttle: 'throttle', timing: 'timing' };
 
 /*
  * The readings: how often each is asked while it is shown, and how long a
@@ -102,15 +120,20 @@ var READINGS = {
     boost: { everyMs: 250, keepMs: 1500, words: 'boost' },
     oil: { everyMs: 500, keepMs: 2500, words: 'oil pressure' },
     iat: { everyMs: 2000, keepMs: 9000, words: 'intake air' },
-    volts: { everyMs: 5000, keepMs: 21000, words: 'battery' }
+    volts: { everyMs: 5000, keepMs: 21000, words: 'battery' },
+    pedal: { everyMs: 250, keepMs: 1500, words: 'accelerator pedal' },
+    throttle: { everyMs: 250, keepMs: 1500, words: 'throttle' },
+    timing: { everyMs: 500, keepMs: 2500, words: 'ignition timing' }
 };
-var ORDER = ['boost', 'oil', 'iat', 'volts'];
+var ORDER = ['boost', 'oil', 'iat', 'volts', 'pedal', 'throttle', 'timing'];
 var SLOW_MS = 60000;          /* ambient pressure and the barometer: once a minute */
 var MISS_LIMIT = 3;           /* answers missed in a row before a reading goes quiet */
 var RETRY_MS = 60000;         /* ... and is then asked this often */
 var STANDARD_BARO = 101.3;    /* kPa, until the engine unit has told us its own */
 
 function known(v) { return typeof v === 'number' && isFinite(v); }
+/* a per cent read a little past its stops (-2 %, 102 %) is at them */
+function pct(v) { return known(v) ? Math.max(0, Math.min(100, v)) : v; }
 
 /*
  * opts: {
@@ -210,6 +233,9 @@ function create(opts) {
         },
         iat: function (rd) { return rd.value(nameOf('iat'), list('iat')); },
         volts: function (rd) { return rd.value(nameOf('volts'), list('volts')); },
+        pedal: function (rd) { return rd.value(nameOf('pedal'), list('pedal')).then(pct); },
+        throttle: function (rd) { return rd.value(nameOf('throttle'), list('throttle')).then(pct); },
+        timing: function (rd) { return rd.value(nameOf('timing'), list('timing')); },
         boost: function (rd, now) {
             var first = now - baro.at > SLOW_MS ? rd.value(nameOf('baro'), list('baro')) : Promise.resolve(null);
             return Promise.resolve(first).then(function (b) {
@@ -270,7 +296,7 @@ function create(opts) {
 
     return {
         /*
-         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost }, diesel }.
+         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost, pedal, throttle, timing }, diesel }.
          * allowed is the service's whole say-so (see the top of this file);
          * needs is what the style on the cluster is showing; diesel is the
          * owner's "Engine" setting (only the standard identifiers are asked).
@@ -305,7 +331,8 @@ function create(opts) {
         /* what has been read and is still fresh; undefined where there is nothing to show */
         values: function (now) {
             function fresh(k) { var j = jobs[k]; return known(j.value) && now - j.at <= READINGS[k].keepMs ? j.value : undefined; }
-            return { oilBar: fresh('oil'), iatC: fresh('iat'), batteryV: fresh('volts'), boostBar: fresh('boost') };
+            return { oilBar: fresh('oil'), iatC: fresh('iat'), batteryV: fresh('volts'), boostBar: fresh('boost'),
+                     pedalPct: fresh('pedal'), throttlePct: fresh('throttle'), timingDeg: fresh('timing') };
         },
         /* for the app's page: { state, have: [words], missing: [words] } */
         info: function (needs, now) {

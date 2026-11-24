@@ -19,7 +19,7 @@
      * nothing.
      */
     var KINDS = ['time', 'range', 'economy', 'outside', 'iat', 'rpm', 'oil', 'coolant', 'boost', 'volts',
-                 'gearbox', 'torque', 'power', 'trip', 'tripTime', 'odo', 'erange', 'charge', 'hvtemp', 'off'];
+                 'gearbox', 'torque', 'power', 'pedal', 'throttle', 'timing', 'trip', 'tripTime', 'odo', 'erange', 'charge', 'hvtemp', 'off'];
     function kind(v, home) { return KINDS.indexOf(v) >= 0 ? v : home; }
 
     function known(v) { return v !== null && v !== undefined && v !== '' && v !== '--'; }
@@ -65,7 +65,11 @@
             power: { tag: 'PWR', value: infoOf('power'), unit: L.power },
             trip: { tag: 'TRIP', value: infoOf('trip'), unit: L.dist },
             tripTime: { tag: 'TIME', value: infoOf('tripTime'), unit: 'h' },
-            odo: { tag: 'ODO', value: infoOf('odo'), unit: L.dist }
+            odo: { tag: 'ODO', value: infoOf('odo'), unit: L.dist },
+            /* the engine unit's: the accelerator pedal and the throttle (per cent: the face has no %), the ignition angle */
+            pedal: { tag: 'PEDAL', value: infoOf('pedal'), unit: '' },
+            throttle: { tag: 'THROTTLE', value: infoOf('throttle'), unit: '' },
+            timing: { tag: 'IGN', value: infoOf('timing'), unit: '°' }
         };
     }
 

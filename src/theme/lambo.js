@@ -599,6 +599,10 @@
                 return { frac: (x - lo) / (hi - lo), text: text(x, v), alarm: alarm(v, s) ? 1 : 0 };
             };
         }
+        /* a figure as it is, with this many decimals, never in alarm */
+        function plain(key, lo, hi, digits) {
+            return numPod(key, lo, hi, function (v) { return v; }, function (v) { return v.toFixed(digits); }, function () { return false; });
+        }
         function tempPod(key, lo, hi, hot) {
             return numPod(key, lo, hi, function (c) { return c; },
                 function (c) { return String(Math.round(UN.tempIn(c))); }, function (c) { return hot !== null && c >= hot; });
@@ -625,6 +629,9 @@
                                    pod: numPod('volts', 10, 16, function (v) { return v; }, function (v) { return v.toFixed(1); },
                                                function (v) { return v < 11.8; }),
                                    marks: ['10', '13', '16'], red: [0, 0.3] };
+            case 'pedal': return { icon: null, label: 'PEDALE %', pod: plain('pedalPct', 0, 100, 0), marks: ['0', '50', '100'], red: [0.9, 1] };
+            case 'throttle': return { icon: null, label: 'FARFALLA %', pod: plain('throttlePct', 0, 100, 0), marks: ['0', '50', '100'], red: [0.9, 1] };
+            case 'timing': return { icon: null, label: 'ANTICIPO °', pod: plain('timingDeg', -10, 50, 1), marks: ['-10', '20', '50'], red: [0, 0.17] };
             case 'charge': return { icon: null, label: 'CARICA %',
                                     pod: numPod('socPct', 0, 100, function (v) { return v; }, function (v) { return String(Math.round(v)); },
                                                 function (v) { return v <= 10; }),
@@ -651,7 +658,8 @@
          * hidden) and the fuel gauge on an electric car, which has no fuel.
          */
         /* what each side gauge shows (left upper, left lower, right upper, right lower) */
-        var GAUGE_KINDS = ['auto', 'fuel', 'coolant', 'oil', 'oilp', 'boost', 'gearbox', 'iat', 'volts', 'charge', 'erange', 'hvtemp', 'off'];
+        var GAUGE_KINDS = ['auto', 'fuel', 'coolant', 'oil', 'oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing',
+                           'charge', 'erange', 'hvtemp', 'off'];
         S.gauges = {};
         ['L1', 'L2', 'R1', 'R2'].forEach(function (n) {
             var v = S['gauge' + n];
@@ -661,7 +669,7 @@
             return ['L1', 'L2', 'R1', 'R2'].some(function (n) { return kinds.indexOf(S.gauges[n]) >= 0; });
         }
         /* those set on a scale here are read as numbers */
-        if (anyGauge(['oilp', 'boost', 'gearbox', 'iat', 'volts', 'charge'])) S.numbers = true;
+        if (anyGauge(['oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'charge'])) S.numbers = true;
         var evSlot = S.electric === 'off' ? null
             : S.electricGauge !== 'auto' ? S.electricGauge
             : S.electric === 'bev' ? 'fuel' : S.showAuxLeft ? 'oilP' : 'coolant';
@@ -890,7 +898,8 @@
                     one and turbo pressure when there is not, so it wants both. */
                  shows: { oil: auxLeft || anyGauge(['oilp']),
                           boost: !!(P.boost && (S.showBoost || auxLeft)) || anyGauge(['boost']),
-                          iat: anyGauge(['iat']), volts: anyGauge(['volts']) },
+                          iat: anyGauge(['iat']), volts: anyGauge(['volts']),
+                          pedal: anyGauge(['pedal']), throttle: anyGauge(['throttle']), timing: anyGauge(['timing']) },
                  settings: S, palette: C, guide: G, imperial: imperial,
                  dial: { centre: DC, rOuter: rOuter, ang: ANG, redV: redV } };
     }

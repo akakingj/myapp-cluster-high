@@ -100,7 +100,7 @@ test('every identifier asked is in the table of where it is published, and the t
     const ids = Engine.identifiers();
     Object.keys(ids).forEach((name) => ids[name].forEach((id) => { asked[id] = true; }));
     assert.deepStrictEqual(Object.keys(asked).sort(), Object.keys(listed).sort());
-    assert.strictEqual(Object.keys(asked).length, 15);
+    assert.strictEqual(Object.keys(asked).length, 23);
     /* and the kit's own guard takes every one of them for a read, of the engine unit and nothing else */
     Object.keys(Engine.CANDIDATES).forEach((name) => Engine.CANDIDATES[name].forEach((cand) => {
         assert.strictEqual(cand.ecu, 0x12, name);
@@ -113,7 +113,8 @@ test('every identifier asked is in the table of where it is published, and the t
 test('the readings, decoded: oil pressure over ambient, intake air, battery, boost over the barometer', async () => {
     const c = car(B58), logs = [], o = opener(c, logs), clock = { t: 1000000 };
     const e = Engine.create({ open: o.open, log: o.log, now: () => clock.t });
-    assert.deepStrictEqual(e.values(clock.t), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined });
+    assert.deepStrictEqual(e.values(clock.t), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined });
     assert.ok(await run(e, clock, { allowed: true, needs: ALL }, () => {
         const v = e.values(clock.t);
         return v.oilBar !== undefined && v.iatC !== undefined && v.batteryV !== undefined && v.boostBar !== undefined;
@@ -279,7 +280,8 @@ test('no diagnostic link on the head unit: said once, tried again a minute later
     /* and with no way to open one at all */
     const none = Engine.create({ now: () => 0 });
     none.tick(0, { allowed: true, needs: ALL });
-    assert.deepStrictEqual(none.values(0), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined });
+    assert.deepStrictEqual(none.values(0), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined });
     e.stop(); none.stop();
 });
 
@@ -299,4 +301,39 @@ test('the manifest asks for the diagnostic transport the way every app that read
     assert.deepStrictEqual({ i: t._instances, m: t._methods, b: t._broadcasts }, { i: 'SystemFunctionsInternalTasuInst1', m: ['sendTasuRequest'], b: ['sendTasuResponse'] });
     assert.ok(typeof t._optional === 'string' && /read only/.test(t._optional), 'a head unit without it still installs the app');
     assert.deepStrictEqual(Object.keys(t).filter((k) => k[0] !== '_'), [], 'no fields are subscribed: it is asked, not listened to');
+});
+
+test('the accelerator pedal, the throttle and the ignition angle: BMW\'s identifiers, then the standard ones; only while shown', async () => {
+    /* 5814: 4096 x 0.01220703 = 50 %; 4600: 101 % is just past the stop, read as 100; 59FA: -4 x 0.75 = -3 degrees */
+    const answers = { '22 5814': be(4096, 2), '22 4600': be(Math.round(101 / 0.0078125), 2), '22 59FA': [0xFC] };
+    const c = car(answers), o = opener(c, []), clock = { t: 50000 };
+    const e = Engine.create({ open: o.open, log: o.log, now: () => clock.t });
+    const needs = { pedal: true, throttle: true, timing: true };
+    assert.ok(await run(e, clock, { allowed: true, needs }, () => {
+        const v = e.values(clock.t);
+        return v.pedalPct !== undefined && v.throttlePct !== undefined && v.timingDeg !== undefined;
+    }), JSON.stringify(e.values(clock.t)));
+    const v = e.values(clock.t);
+    assert.ok(Math.abs(v.pedalPct - 50) < 0.01, 'pedal ' + v.pedalPct);
+    assert.strictEqual(v.throttlePct, 100);
+    assert.strictEqual(v.timingDeg, -3);
+    assert.deepStrictEqual(e.info(needs, clock.t).have.sort(), ['accelerator pedal', 'ignition timing', 'throttle']);
+    e.stop();
+    /* only the standard ones answering: OBD 49 and 11 (x 100 / 255), OBD 0E (x 0.5 - 64) */
+    const std = (key) => ({ '01 49': [51], '01 11': [255], '01 0E': [148] }[key] || (/^22 /.test(key) ? 'nrc31' : null));
+    const c2 = car(std), o2 = opener(c2, []), clock2 = { t: 50000 };
+    const e2 = Engine.create({ open: o2.open, log: o2.log, now: () => clock2.t });
+    assert.ok(await run(e2, clock2, { allowed: true, needs }, () => {
+        const w = e2.values(clock2.t);
+        return w.pedalPct !== undefined && w.throttlePct !== undefined && w.timingDeg !== undefined;
+    }));
+    const w = e2.values(clock2.t);
+    assert.ok(Math.abs(w.pedalPct - 20) < 1e-9 && Math.abs(w.throttlePct - 100) < 1e-9 && w.timingDeg === 10, JSON.stringify(w));
+    e2.stop();
+    /* not shown: never asked */
+    const c3 = car(answers), o3 = opener(c3, []), clock3 = { t: 0 };
+    const e3 = Engine.create({ open: o3.open, log: o3.log, now: () => clock3.t });
+    await run(e3, clock3, { allowed: true, needs: { volts: true } }, null, 200);
+    assert.ok(!c3.sent.some((r) => /5814|4600|59FA|01 49|01 11|01 0E/.test(r.key)));
+    e3.stop();
 });

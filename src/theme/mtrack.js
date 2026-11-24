@@ -100,7 +100,7 @@
     var PSI_PER_BAR = 14.503774;
 
     /* a row's reading -> the car reading to glide for it (the others glide for every style already) */
-    var ROW_GLIDE = { iat: 'iatC', volts: 'batteryV', charge: 'socPct', hvtemp: 'hvTempC' };
+    var ROW_GLIDE = { iat: 'iatC', volts: 'batteryV', charge: 'socPct', hvtemp: 'hvTempC', timing: 'timingDeg' };
 
     /*
      * What a gauge row can show. Each reading has its symbol, the three
@@ -109,7 +109,7 @@
      * (in the car's own units, as the reading is). The first four are the
      * frame's, with the frame's own scales; the rest are in the same hand.
      */
-    var ROW_KINDS = ['boost', 'coolant', 'oil', 'gearbox', 'iat', 'oilp', 'volts', 'charge', 'hvtemp', 'off'];
+    var ROW_KINDS = ['boost', 'coolant', 'oil', 'gearbox', 'iat', 'oilp', 'volts', 'pedal', 'throttle', 'timing', 'charge', 'hvtemp', 'off'];
     /* the four as they come: the frame's - or, in an electric car, what it has instead */
     var ROW_HOME = { frame: ['boost', 'coolant', 'oil', 'iat'], bev: ['charge', 'hvtemp', 'off', 'off'] };
     /* u: the units shown (units.js) */
@@ -141,6 +141,13 @@
             oilp: press('oilBar', 'p', 10, ['0', '5', '10'], 140, ['0', '70', '140']),
             volts: { key: 'volts', icon: 'v', unit: 'v', marks: ['10', '13', '16'], lo: 10, hi: 16,
                      show: function (v) { return v; }, cold: 11.8, hot: 15.2 },
+            /* the engine unit's: the accelerator pedal, the throttle's opening and the ignition angle, each by its word */
+            pedal: { key: 'pedalPct', icon: null, tag: 'PEDAL', unit: '%', unitFace: 'mx', marks: ['0', '50', '100'], lo: 0, hi: 100,
+                     show: function (v) { return v; }, cold: null, hot: null },
+            throttle: { key: 'throttlePct', icon: null, tag: 'THR', unit: '%', unitFace: 'mx', marks: ['0', '50', '100'], lo: 0, hi: 100,
+                        show: function (v) { return v; }, cold: null, hot: null },
+            timing: { key: 'timingDeg', icon: null, tag: 'IGN', unit: '°', marks: ['-10', '20', '50'], lo: -10, hi: 50,
+                      show: function (v) { return v; }, cold: null, hot: null },
             charge: { key: 'socPct', icon: 'c', unit: '%', unitFace: 'mx', marks: ['0', '50', '100'], lo: 0, hi: 100,
                       show: function (v) { return v; }, cold: 10, hot: null },
             hvtemp: temp('hvC', 'h', -10, 60, ['-10', '25', '60'], ['14', '77', '140'], 14, 140, 5, 50)
@@ -239,7 +246,7 @@
         S.footM = Readings.kind(settings && settings.footM, 'range');
         S.footR = Readings.kind(settings && settings.footR, 'outside');
         function footShows(kind) { return S.footL === kind || S.footM === kind || S.footR === kind; }
-        function rowShows(kind) { return S.rows.indexOf(kind) >= 0; }
+        function rowShows(kind) { return S.rows.indexOf(kind) >= 0 || S.strips.indexOf(kind) >= 0; }
 
         var layers = [];
         var TL = TextLayers.create(atlas, layers, { text: K.white, muted: K.soft });
@@ -716,7 +723,9 @@
                      .filter(function (k, i, a) { return !!k && a.indexOf(k) === i; }),
                  /* readings shown that the car's bus may not carry: what the rows and the footer hold */
                  shows: { oil: rowShows('oilp'), boost: rowShows('boost') || footShows('boost'),
-                          iat: rowShows('iat') || footShows('iat'), volts: rowShows('volts') || footShows('volts') },
+                          iat: rowShows('iat') || footShows('iat'), volts: rowShows('volts') || footShows('volts'),
+                          pedal: rowShows('pedal') || footShows('pedal'), throttle: rowShows('throttle') || footShows('throttle'),
+                          timing: rowShows('timing') || footShows('timing') },
                  window: { x: win.x, y: win.y, w: win.w, h: win.h } };
     }
 

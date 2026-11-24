@@ -1,7 +1,9 @@
 # Readings from the engine unit
 
-Three readings a style can show are not on the head unit's bus: **oil
-pressure**, the **intake air's temperature** and the **battery's voltage**.
+Six readings a style can show are not on the head unit's bus: **oil
+pressure**, the **intake air's temperature**, the **battery's voltage**, the
+**accelerator pedal**, the **throttle's opening** and the **ignition
+angle**.
 AK Cluster ID8 asks the engine unit for them itself, on every head unit —
 and for **boost**, on a car whose Sport Display sends none. There is no
 setting for it, and nothing is taken from BeeM-Flash: its feed is not looked
@@ -24,11 +26,12 @@ at, whether it is on the head unit or not (AK 0.13.0).
   asked, for up to three minutes: the car is in drive readiness then, and a
   gauge that went blank at every traffic light would be no gauge.)
 - **Only what is shown.** Toro's left gauges want oil pressure; an M
-  style's footer wants whatever its three places hold. A reading no style
-  is showing is never asked.
+  style's footer, M Track Mode's rows and strips and Toro's side gauges
+  want whatever they hold. A reading no style is showing is never asked.
 - **Lightly:** oil pressure twice a second, intake air every 2 s, battery
   every 5 s, boost four times a second (and only while the Sport Display
-  gives none), ambient pressure once a minute. A reading that gets no
+  gives none), the accelerator pedal and the throttle four times a second,
+  the ignition angle twice, ambient pressure once a minute. A reading that gets no
   answer three times is asked once a minute from then on. In the simulated
   car that is 2 requests a second for Toro, under 1 for an M style with
   intake air and the battery in its footer, and 6 with boost as well.
@@ -66,6 +69,14 @@ OBD identifiers are OBD-II service 01 PIDs (SAE J1979), a public standard;
 | | `DID F470` | 2 bytes from the 4th × 0.03125, kPa | ALMSTRA/idv7lol `apps/idv7lol/vehicle.js` |
 | | `OBD 70` | 2 bytes from the 4th × 0.03125, kPa | SAE J1979; ALMSTRA/idv7lol `apps/idv7lol/vehicle.js` |
 | | `OBD 0B` | 1 byte, kPa | SAE J1979; ALMSTRA/idv7lol `apps/idv7lol/vehicle.js`; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js` |
+| Accelerator pedal, normalised | `DID 5814` | 2 bytes, signed × 0.01220703, % | cauliflowermossgrape/idrive7-apps `apps/live_data/useful.js`, `apps/live_data/builtin/DME8FF_R.json` |
+| | `DID 480B` | 2 bytes, signed × 0.01220703, % | cauliflowermossgrape/idrive7-apps `apps/live_data/useful.js`, `apps/live_data/builtin/DME8FF_R.json` |
+| | `OBD 49` | 1 byte × 100 / 255, % | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`, `apps/live_data/useful.js` |
+| Throttle opening, from its lower stop | `DID 4600` | 2 bytes, signed × 0.0078125, % | cauliflowermossgrape/idrive7-apps `apps/live_data/useful.js`, `apps/live_data/builtin/DME8FF_R.json` |
+| | `DID 5858` | 2 bytes, signed × 0.0078125, % | cauliflowermossgrape/idrive7-apps `apps/live_data/useful.js`, `apps/live_data/builtin/DME8FF_R.json` |
+| | `OBD 11` | 1 byte × 100 / 255, % | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`, `apps/live_data/useful.js` |
+| Ignition angle | `DID 59FA` | 1 byte, signed × 0.75, degrees before top dead centre | cauliflowermossgrape/idrive7-apps `apps/live_data/useful.js`, `apps/live_data/builtin/DME8FF_R.json` |
+| | `OBD 0E` | 1 byte × 0.5 − 64, degrees before top dead centre | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`, `apps/live_data/useful.js` |
 
 (Read at ALMSTRA/idv7lol `58e2418`, cauliflowermossgrape/idrive7-apps
 `a948390`, ZEKAI-Design/ID7-Cluster-Themes `8a4f72f`, November 2026. The
@@ -75,7 +86,8 @@ BMW's diagnostic tables for the DME 8 engine units — B58, B48, B38.)
 Each reading has its identifiers tried in that order; the first that
 answers with a plausible number is kept and asked first from then on. A
 number outside the plausible range is not shown: oil pressure 0 – 20 bar
-over ambient, intake air −45 – 150 °C, battery 5 – 18 V.
+over ambient, intake air −45 – 150 °C, battery 5 – 18 V, the pedal and the
+throttle −2 – 102 % (shown 0 – 100 %), the ignition angle −40 – 70 °.
 
 **Oil pressure** is the absolute reading less the engine unit's own
 ambient pressure — what the pump makes — as both upstream projects compute
@@ -89,8 +101,8 @@ used only while the car's Sport Display sends no boost of its own.
 With *GENERAL → Engine → Diesel* the engine unit is asked **only the
 standard identifiers** in the table: the OBD ones and their `F4xx` forms.
 A diesel's engine unit is a DDE, not the DME 8 the BMW identifiers belong
-to, and what a DDE answers to `4436`, `586F`, `4201`, `580F`, `5853` or
-`580B` is published in none of the projects above: a number in the right
+to, and what a DDE answers to `4436`, `586F`, `4201`, `580F`, `5853`,
+`580B`, `5814`, `480B`, `4600`, `5858` or `59FA` is published in none of the projects above: a number in the right
 range would be shown as a reading whatever it really was. The standard
 PIDs mean the same on every engine.
 
@@ -102,6 +114,8 @@ What a diesel is asked, each from the table above:
 - **Intake air temperature**: `DID F40F`, then `OBD 0F`.
 - **Battery voltage**: `DID F442`, then `OBD 42`.
 - **Boost, absolute**: `DID F470`, then `OBD 70`, then `OBD 0B`.
+- **Accelerator pedal**: `OBD 49`. **Throttle**: `OBD 11`. **Ignition
+  angle**: `OBD 0E` (a diesel has none to give).
 
 Everything else is as for a petrol car: only while the engine runs, only
 what a style shows, one request at a time. Changing *Engine* drops what was read and starts

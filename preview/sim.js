@@ -77,6 +77,7 @@
                 ambientC: 14.5, clock: { h: 9, m: 39 },
                 /* the trip computer's average; and what BeeM-Flash's feed adds */
                 avgL100: 9.6, iatC: 31 + s.boostBar * 9, batteryV: 14.1, gearboxC: s.oilTempC - 8,
+                pedalPct: s.throttle * 100, throttlePct: 3 + s.throttle * 90, timingDeg: 18 - s.rpm / 800,
                 gLat: s.gLat, gLon: s.gLon,
                 gPeakLat: s.gPeakLat, gPeakLon: s.gPeakLon
             };
