@@ -56,7 +56,7 @@ test('no layer of any style, for any value, reaches into the gear\'s window', ()
     for (const style of STYLES) {
         for (const v of VALUES) {
             for (const extras of [{}, { holiday: true, intro: true }]) {
-                const theme = Themes.build(atlas, 'b48', Object.assign({ style, bottomExtra: v }, extras));
+                const theme = Themes.build(atlas, 'carprofile', Object.assign({ style, bottomExtra: v }, extras));
                 for (const L of theme.layers) {
                     const x0 = Math.floor(L.x), y0 = Math.floor(L.y), x1 = Math.ceil(L.x + L.w), y1 = Math.ceil(L.y + L.h);
                     assert.ok(!Strip.overGear({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 }),
@@ -75,7 +75,7 @@ test('hide: the strip is covered each side of the gear, in black, by layers that
         /* the columns kept open hold the whole window, and are never over it */
         assert.ok(k.x < g.x && k.x + k.w >= g.x + g.w + 24, `${value}: the gear's window is inside what is kept open`);
         for (const style of STYLES) {
-            const theme = Themes.build(atlas, 'b48', { style, bottomExtra: value });
+            const theme = Themes.build(atlas, 'carprofile', { style, bottomExtra: value });
             const covers = theme.layers.filter((L) => /^strip[LR]$/.test(L.id));
             assert.strictEqual(covers.length, 2, style);
             const [left, right] = covers;
@@ -131,7 +131,7 @@ test('hide covers the driving mode\'s name to its last letter; the wider gap is 
     assert.strictEqual(Strip.keep(null), Panel.GEAR_KEEP);
     /* no cover is over the window, and none touches it by a fraction of a pixel */
     for (const [value] of HIDES) {
-        for (const L of Strip.layers(Palette.resolve({ bottomExtra: value }, Panel.profile('b48')), [0, 0, 0])) {
+        for (const L of Strip.layers(Palette.resolve({ bottomExtra: value }, Panel.profile('carprofile')), [0, 0, 0])) {
             assert.ok(!Strip.overGear(L), `${value}: ${L.id}`);
             assert.ok(L.x + L.w <= g.x || L.x >= g.x + g.w, `${value}: ${L.id} beside the window, not over it`);
         }
@@ -143,7 +143,7 @@ test('hide covers the driving mode\'s name to its last letter; the wider gap is 
 test('show and trim: no covers, the background alone, as far as asked', () => {
     for (const style of STYLES) {
         for (const v of ['0', '6', '12', '18']) {
-            const theme = Themes.build(atlas, 'b48', { style, bottomExtra: v });
+            const theme = Themes.build(atlas, 'carprofile', { style, bottomExtra: v });
             assert.strictEqual(theme.layers.filter((L) => /^strip/.test(L.id)).length, 0);
             const back = theme.layers.find((L) => L.id === 'bg' || L.id === 'back');
             assert.strictEqual(back.h, Panel.BOTTOM_CUT + Number(v), `${style} ${v}`);
@@ -151,10 +151,10 @@ test('show and trim: no covers, the background alone, as far as asked', () => {
             assert.strictEqual(theme.settings.stripHide, false);
         }
     }
-    assert.strictEqual(Palette.resolve({ bottomExtra: 'hide' }, Panel.profile('b48')).stripHide, true);
-    assert.strictEqual(Palette.resolve({ bottomExtra: 'hide' }, Panel.profile('b48')).stripWide, false);
-    assert.strictEqual(Palette.resolve({ bottomExtra: 'hideWide' }, Panel.profile('b48')).stripWide, true);
-    assert.strictEqual(Palette.resolve({ bottomExtra: '18' }, Panel.profile('b48')).stripWide, false);
+    assert.strictEqual(Palette.resolve({ bottomExtra: 'hide' }, Panel.profile('carprofile')).stripHide, true);
+    assert.strictEqual(Palette.resolve({ bottomExtra: 'hide' }, Panel.profile('carprofile')).stripWide, false);
+    assert.strictEqual(Palette.resolve({ bottomExtra: 'hideWide' }, Panel.profile('carprofile')).stripWide, true);
+    assert.strictEqual(Palette.resolve({ bottomExtra: '18' }, Panel.profile('carprofile')).stripWide, false);
 });
 
 test('the fallback box this car draws is on record, and is what the old setting covered', () => {
@@ -162,7 +162,7 @@ test('the fallback box this car draws is on record, and is what the old setting 
     const b = Panel.FALLBACK_GEAR_BOX;
     assert.deepStrictEqual([b.x, b.y, b.w, b.h], [1407, 337, 188, 82]);
     /* it is not a keep-clear zone: with the gear left alone it is not there */
-    assert.ok(Panel.keepClear('b48').every((z) => z.id !== b.id));
+    assert.ok(Panel.keepClear('carprofile').every((z) => z.id !== b.id));
     /* the old "a little" ran across the gear's window; nothing offered now does */
     assert.ok(Strip.overGear({ x: 0, y: 0, w: Panel.PANEL_WIDTH, h: Panel.BOTTOM_CUT + 24 }));
     assert.ok(!Strip.overGear({ x: 0, y: 0, w: Panel.PANEL_WIDTH, h: Panel.BOTTOM_CUT + Panel.STRIP_TRIM_MAX }));

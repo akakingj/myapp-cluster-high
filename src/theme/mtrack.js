@@ -109,7 +109,7 @@
      * (in the car's own units, as the reading is). The first four are the
      * frame's, with the frame's own scales; the rest are in the same hand.
      */
-    var ROW_KINDS = ['boost', 'coolant', 'oil', 'iat', 'oilp', 'volts', 'charge', 'hvtemp', 'off'];
+    var ROW_KINDS = ['boost', 'coolant', 'oil', 'gearbox', 'iat', 'oilp', 'volts', 'charge', 'hvtemp', 'off'];
     /* the four as they come: the frame's - or, in an electric car, what it has instead */
     var ROW_HOME = { frame: ['boost', 'coolant', 'oil', 'iat'], bev: ['charge', 'hvtemp', 'off', 'off'] };
     /* u: the units shown (units.js) */
@@ -134,6 +134,9 @@
             coolant: temp('coolantC', 'w', 70, 130, ['70', '100', '130'], ['160', '210', '260'], 160, 260, null, 122),
             /* ... and the oil's is blue up to about 66 C and red from about 134 C */
             oil: temp('oilC', 'o', 50, 150, ['50', '100', '150'], ['120', '210', '300'], 120, 300, 66, 134.5),
+            /* the gearbox oil: no symbol of the frame's for it, so its word (tag) stands in the symbol's place */
+            gearbox: Object.assign(temp('gearboxC', null, 40, 130, ['40', '85', '130'], ['100', '185', '270'], 100, 270, null, 120),
+                                   { tag: 'TRANS' }),
             iat: temp('iatC', 'a', -20, 50, ['-20', '15', '50'], ['0', '60', '120'], 0, 120, null, null),
             oilp: press('oilBar', 'p', 10, ['0', '5', '10'], 140, ['0', '70', '140']),
             volts: { key: 'volts', icon: 'v', unit: 'v', marks: ['10', '13', '16'], lo: 10, hi: 16,
@@ -377,7 +380,7 @@
                          u_fill: S.rowMark === 'fill' ? 1 : 0,
                          u_lit: K.rail, u_dim: K.railDim, u_ink: K.line, u_coldCol: K.cold, u_hotCol: K.hot };
             });
-            var units = [], unitsX = [], icons = [], shown = 0;
+            var units = [], unitsX = [], icons = [], tags = [], shown = 0;
             var fading = { color: K.label, alpha: rowsShown };
             rowOf.forEach(function (sc, i) {
                 if (!sc) return;
@@ -393,14 +396,17 @@
                 /* (the degree sign's units are set a little smaller than the words, as the frame's are) */
                 (sc.unitFace ? unitsX : units).push({ str: sc.unit, x: R.unitX, y: top + R.unitDy, ink: 'r',
                     size: sc.unit.charAt(0) === '°' ? words(R.degEm) : undefined });
-                icons.push({ ch: sc.icon, cx: R.iconX, cy: top + R.iconDy });
+                if (sc.icon) icons.push({ ch: sc.icon, cx: R.iconX, cy: top + R.iconDy });
+                else tags.push({ str: sc.tag, x: R.iconX, y: top + R.unitDy, ink: 'c' });
             });
             /* the units stand in a column: one narrow layer */
             if (units.length) snug('rowUnits', 30, { face: 'ms', size: words(R.unitEm), align: 'left', color: K.unit, alpha: rowsShown }, units);
             if (unitsX.length) snug('rowUnitsX', 30, { face: 'mx', size: words(R.unitEm), align: 'left', color: K.unit, alpha: rowsShown }, unitsX);
+            /* a row with a word for its symbol: the word, centred where the symbol would be */
+            if (tags.length) snug('rowTags', 30, { face: 'mb', size: words(R.unitEm), align: 'left', color: K.icon, alpha: rowsShown }, tags);
             /* the symbols: one layer, each centred before its row */
             var isize = ICON_EM * SC;
-            statics('rowIcons', 30, box(204, R.y0 - 24, 262, T.rowTop(R.n - 1) + 16),
+            if (icons.length) statics('rowIcons', 30, box(204, R.y0 - 24, 262, T.rowTop(R.n - 1) + 16),
                 { face: 'mt', size: isize, align: 'left', color: K.icon, alpha: fading.alpha },
                 icons.map(function (it) {
                     var p = iconPen(atlas, 'mt', it.ch, isize, X(it.cx), Y(it.cy));

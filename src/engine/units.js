@@ -29,6 +29,11 @@
         kpa: { label: 'kpa', per: 100, digits: 0, oilDigits: 0, step: 10 }
     };
     var ECON = { kml: 'km/L', l100: 'L/100km', mpg: 'mpg' };
+    /* torque (from Nm) and power (from kW), as Cluster Layouts and the Car profile name them; the M styles' word
+       face has small letters only for some, so each label is as the faces have it */
+    /* (in small letters, and lb ft without its hyphen: the M styles' word face has neither; Toro writes them in capitals) */
+    var TORQUE = { nm: { label: 'nm', per: 1 }, lbft: { label: 'lb ft', per: 0.737562 }, kgm: { label: 'kgm', per: 0.101972 } };
+    var POWER = { hp: { label: 'hp', per: 1.341022 }, ps: { label: 'ps', per: 1.359622 }, kw: { label: 'kw', per: 1 } };
 
     function of(o) {
         o = o || {};
@@ -43,12 +48,16 @@
             : o.econUnit === undefined && word ? (metricWord ? 'l100' : 'mpg')
             : speed === 'mph' ? 'mpg' : 'kml';
         var P = PRESS[press];
+        var tq = TORQUE[o.torqueUnit] ? o.torqueUnit : 'kgm', pw = POWER[o.powerUnit] ? o.powerUnit : 'hp';
         return {
-            speed: speed, temp: temp, press: press, econ: econ,
+            speed: speed, temp: temp, press: press, econ: econ, torque: tq, power: pw,
             /* the speed and the distances are miles where the speed is mph */
             miles: speed === 'mph',
             labels: { speed: speed === 'mph' ? 'mph' : 'km/h', dist: speed === 'mph' ? 'mi' : 'km',
-                      temp: temp === 'f' ? '°F' : '°C', press: P.label, econ: ECON[econ] },
+                      temp: temp === 'f' ? '°F' : '°C', press: P.label, econ: ECON[econ],
+                      torque: TORQUE[tq].label, power: POWER[pw].label },
+            torqueIn: function (nm) { return nm * TORQUE[tq].per; },
+            powerIn: function (kw) { return kw * POWER[pw].per; },
             speedIn: function (kmh) { return speed === 'mph' ? kmh * MI_PER_KM : kmh; },
             distIn: function (km) { return speed === 'mph' ? km * MI_PER_KM : km; },
             tempIn: function (c) { return temp === 'f' ? c * 9 / 5 + 32 : c; },

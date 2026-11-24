@@ -29,7 +29,7 @@ function harness(t, initial, centre, more) {
     };
     let onValue = null, changed = null;
     let clock = 1000000;
-    let values = Object.assign({ profile: 'b48', enabled: true }, initial);
+    let values = Object.assign({ profile: 'carprofile', enabled: true }, initial);
     const logs = [];
     const host = {
         dataDir: more && more.dataDir,

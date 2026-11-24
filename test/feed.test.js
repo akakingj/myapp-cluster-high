@@ -66,7 +66,7 @@ test('a reading that stops being written goes stale and is dropped', async (t) =
 });
 
 test('the second left dial follows whichever pressure it has', () => {
-    const p = Panel.profile('b48');
+    const p = Panel.profile('carprofile');
     const turbo = State.present({ boostBar: 1.2 }, p, {});
     assert.strictEqual(turbo.auxIsOil, false);
     assert.strictEqual(turbo.pods.auxPress.text, (1.2 * 14.503774).toFixed(1));
@@ -80,11 +80,11 @@ test('the second left dial follows whichever pressure it has', () => {
 test('the dial label switches with it, and only one is ever shown', () => {
     const Themes = require('../src/theme/index.js');
     const atlas = require('../assets/fonts/atlas.json');
-    const th = Themes.build(atlas, 'b48', {});
+    const th = Themes.build(atlas, 'carprofile', {});
     const main = th.layers.find((L) => L.id === 'lbl_auxPress');
     const alt = th.layers.find((L) => L.id === 'lbl_auxPress_alt');
     assert.ok(main && alt, 'both labels exist');
-    const p = Panel.profile('b48');
+    const p = Panel.profile('carprofile');
     const turbo = State.present({ boostBar: 1 }, p, th.settings);
     const oil = State.present({ boostBar: 1, oilPressBar: 4 }, p, th.settings);
     assert.ok(main.uniforms(turbo) !== null && alt.uniforms(turbo) === null, 'turbo');
@@ -106,7 +106,7 @@ test('the interior light becomes an accent, hue only', () => {
 test('the accent can be repainted live, without rebuilding the cluster', () => {
     const Themes = require('../src/theme/index.js');
     const atlas = require('../assets/fonts/atlas.json');
-    const th = Themes.build(atlas, 'b48', { accent: 'ambient' });
+    const th = Themes.build(atlas, 'carprofile', { accent: 'ambient' });
     assert.strictEqual(th.settings.accentFollowsAmbient, true);
     const before = th.layers.length;
     const bgU = th.layers.find((L) => L.id === 'bg').uniforms;
@@ -120,7 +120,7 @@ test('the accent can be repainted live, without rebuilding the cluster', () => {
     assert.strictEqual(th.layers.length, before, 'no layer was added or dropped');
 
     /* a fixed scheme is never dragged around by the light */
-    const fixed = Themes.build(atlas, 'b48', { accent: 'magenta' });
+    const fixed = Themes.build(atlas, 'carprofile', { accent: 'magenta' });
     assert.strictEqual(fixed.settings.accentFollowsAmbient, false);
     assert.deepStrictEqual(fixed.palette.accent.map((v) => +v.toFixed(2)), [1, 0.18, 0.62]);
 });

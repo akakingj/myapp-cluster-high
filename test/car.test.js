@@ -1,6 +1,6 @@
 'use strict';
 /*
- * GENERAL > Car: B48, B58, an M car, a plug-in hybrid, or My car (its own figures under GENERAL > My car), and
+ * GENERAL > Car: B48, B58, S58, a plug-in hybrid (each with its own figures), or the Car profile's values, and
  * TORO > Gear: the gear with its programme (D1, S1, M1) or the figure alone.
  *   node --test test/car.test.js
  */
@@ -22,37 +22,43 @@ function settingsClass(dir) {
     return new Function('fs', 'path', 'DATA_DIR', 'log', src.slice(from, to) + '\nreturn Settings;')(fs, path, dir, { info() {}, warn() {}, error() {} });
 }
 
-test('the cars offered, each a profile, a B48 as it comes; a saved X3 M40i reads as the B48', () => {
+test('the five cars: B48, B58, S58, a plug-in hybrid, the Car profile\'s values; a B48 as it comes', () => {
     const car = item('profile');
-    assert.deepStrictEqual(car.options.map((o) => o[0]), ['b48', 'b58', 'mCarS58', 'hybrid', 'custom']);
-    assert.deepStrictEqual(car.options.slice(0, 2).map((o) => o[1]), ['B48', 'B58']);
+    assert.deepStrictEqual(car.options.map((o) => o[0]), ['b48', 'b58', 'mCarS58', 'hybrid', 'carprofile']);
     assert.strictEqual(car.default, 'b48');
     car.options.forEach((o) => assert.strictEqual(Panel.profile(o[0]).id, o[0]));
-    assert.strictEqual(Panel.DEFAULT_PROFILE, 'b48');
+    /* a saved X3 M40i reads as the B48, a saved My car as the Car profile's values */
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'car-'));
     try {
-        fs.writeFileSync(path.join(dir, 'settings.json'), JSON.stringify({ profile: 'x3m40i' }));
-        const s = new (settingsClass(dir))(spec.settings);
-        assert.strictEqual(s.get('profile'), 'b48');
+        for (const [saved, now] of [['x3m40i', 'b48'], ['custom', 'carprofile']]) {
+            fs.writeFileSync(path.join(dir, 'settings.json'), JSON.stringify({ profile: saved }));
+            assert.strictEqual(new (settingsClass(dir))(spec.settings).get('profile'), now);
+        }
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
-    /* a B48: red from 6,500, the limit at 7,000, a 59 L tank (a G20's) */
-    const b48 = Panel.profile('b48');
-    assert.deepStrictEqual([b48.rpmRedline, b48.rpmLimiter, b48.tankLitres], [6500, 7000, 59]);
 });
 
-test('My car: its own red zone, limiter, boost gauge and tank, the rows shown only for it', () => {
-    ['myRedline', 'myLimiter', 'myBoostPsi', 'myTankLitres'].forEach((k) => {
-        assert.deepStrictEqual(item(k).when, { profile: 'custom' }, k);
-        assert.ok(item(k).options.some((o) => o[0] === item(k).default), k + ': its default is one of its values');
-    });
-    const p = Panel.profileFor('custom', { myRedline: '6200', myLimiter: '6600', myBoostPsi: '28', myTankLitres: '52' });
-    assert.deepStrictEqual([p.rpmRedline, p.rpmLimiter, p.boostMaxPsi, p.tankLitres], [6200, 6600, 28, 52]);
-    /* (a limiter under the red zone is taken up to it; another car ignores them) */
-    assert.strictEqual(Panel.profileFor('custom', { myRedline: '7000', myLimiter: '6500' }).rpmLimiter, 7000);
-    assert.strictEqual(Panel.profileFor('b58', { myRedline: '6200' }).rpmRedline, Panel.profile('b58').rpmRedline);
-    /* Redline and Limiter on "From the car" are My car's */
-    const S = Palette.resolve({ rpmRedline: 'auto', rpmLimiter: 'auto' }, p);
-    assert.deepStrictEqual([S.rpmRedline, S.rpmLimiter], [6200, 6600]);
+test('each car\'s own figures: the most it revs, the red zone, the shift point, the yellow, the speedometer', () => {
+    const fig = (id, cfg) => {
+        const S = Palette.resolve(cfg || {}, Panel.profile(id));
+        return [S.rpmLimiter, S.scaleMaxRpm, S.rpmRedline, S.shiftWarn ? S.shiftAtRpm : null, S.yellowRpm, S.speedMax];
+    };
+    /* (the tach to the thousand at or over the limiter: a B58's 7,500 on a dial to 8) */
+    assert.deepStrictEqual(fig('b48'), [7000, 7000, 6000, 6500, null, 260]);
+    assert.deepStrictEqual(fig('b58'), [7500, 8000, 6500, 7000, null, 260]);
+    assert.deepStrictEqual(fig('mCarS58'), [8000, 8000, 7000, 7500, 6500, 330]);
+    /* GENERAL's are not used for them, and are shown only for the Car profile's values */
+    assert.deepStrictEqual(fig('b48', { rpmRedline: '5000', scaleMaxRpm: '10000', shiftAt: 'off' }), fig('b48'));
+    for (const k of ['rpmRedline', 'rpmLimiter', 'shiftFrom', 'shiftAt', 'scaleMaxRpm', 'speedMax', 'boostMax', 'tankLitres']) {
+        assert.strictEqual(item(k).when.profile, 'carprofile', k);
+    }
+    /* the Car profile's values: GENERAL's, as set there or by the Car profile app */
+    assert.deepStrictEqual(fig('carprofile', { rpmRedline: '6200', rpmLimiter: '6800', shiftAt: '6500', scaleMaxRpm: '7000', speedMax: '330' }),
+        [6800, 7000, 6200, 6500, null, 330]);
+    const p = Panel.profileFor('carprofile', { tankLitres: '52', boostMax: '28' });
+    assert.deepStrictEqual([p.tankLitres, p.boostMaxPsi], [52, 28]);
+    assert.strictEqual(item('tankLitres').profile, 'tankLitres');
+    /* the tanks: a B48's 59 L, a B58's 60 */
+    assert.deepStrictEqual(['b48', 'b58', 'mCarS58'].map((id) => Panel.profile(id).tankLitres), [59, 60, 59]);
 });
 
 test('the gear with its programme: D1, S1, M1 from MDrive.dataDisplayGearbox; P, R, N as they are', () => {

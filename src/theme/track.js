@@ -216,7 +216,8 @@
         var fixture = !!(settings && settings.mFixture);
         /* the units shown (S.u, units.js): the speed's, and the temperatures' */
         var kmh = S.u.speed === 'kmh', celsius = S.u.temp === 'c';
-        var units = kmh ? 'metric' : 'imperial';          /* the speed scale (M.SPEED_SCALE) */
+        /* the speed scale (M.SPEED_SCALE): the units', to 260 km/h or (S.speedMax) 330 */
+        var units = (kmh ? 'metric' : 'imperial') + (S.speedMax === 330 ? '330' : '');
         var layers = [];
         var TL = TextLayers.create(atlas, layers, { text: K.white, muted: K.soft });
         var txt = TL.txt, statics = TL.statics;
@@ -400,7 +401,9 @@
            amber one just before it (lower while the engine is cold: s.redRpm, src/engine/state.js shiftPoint) */
         function redZone(s) {
             var red = Math.min(M.SCALE.n - 0.3, M.rpmTicks(s.redRpm || S.rpmRedline, REV.top));
-            return [red + 0.09, M.SCALE.n - 0.04, red - 0.33, red - 0.05];
+            /* (the amber from the yellow where a car or Shift lights from gives one, else just before the red) */
+            var amber = S.yellowRpm ? Math.min(red - 0.33, M.rpmTicks(S.yellowRpm, REV.top)) : red - 0.33;
+            return [red + 0.09, M.SCALE.n - 0.04, amber, red - 0.05];
         }
         dial('revDial', box(M.mirror(634), 64, M.mirror(186), 523), 1, K.R, revTicks, redZone,
             function (s) { return flashRail ? (s.limiter || 0) : 0; },

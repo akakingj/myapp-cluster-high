@@ -23,8 +23,8 @@ const allShaders = Object.assign({}, require('../src/shaders/core.js'), require(
 const M = require('../src/theme/mgeom.js');
 const Vehicle = require('../src/car/vehicle.js');
 
-const PROFILE = Panel.profile('b48');
-const build = (cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'b48', Object.assign({ style: 'track' }, cfg));
+const PROFILE = Panel.profile('carprofile');
+const build = (cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'carprofile', Object.assign({ style: 'track' }, cfg));
 const layer = (t, id) => t.layers.find((L) => L.id === id);
 /* a presented state, with anything in `over` laid on top */
 /* (a speed given here is the one shown: its held digits, speedText, come from the raw reading) */
@@ -97,8 +97,8 @@ const inkOf = (L, u) => (isNum(L) ? quads(L, u).concat(grownQuads(L, u)) : quads
 /* ------------------------------------------------------------ the registry */
 
 test('the registry picks the style, Toro by default', () => {
-    assert.strictEqual(Themes.build(atlas, 'b48', {}).id, 'toro');
-    assert.strictEqual(Themes.build(atlas, 'b48', { style: 'nonsense' }).id, 'toro');
+    assert.strictEqual(Themes.build(atlas, 'carprofile', {}).id, 'toro');
+    assert.strictEqual(Themes.build(atlas, 'carprofile', { style: 'nonsense' }).id, 'toro');
     assert.strictEqual(build().id, 'track');
     assert.strictEqual(build().name, 'M Sport', 'the M View keeps the id saved settings already hold');
     assert.ok(build().hasCentre);
@@ -533,7 +533,7 @@ test('every uniform is sent in the shape its shader declares (floats, vectors, a
     const want = { float: 1, vec2: 2, vec3: 3, vec4: 4 };
     for (const cfg of [{ style: 'toro' }, { style: 'toro', holiday: true, intro: true, background: 'modern' },
                        { mFixture: true, revFlash: 'both', clock12: true }, { style: 'mplus', revFlash: 'both', clock12: true }]) {
-        const t = Themes.build(atlas, 'b48', Object.assign({ style: 'track' }, cfg));
+        const t = Themes.build(atlas, 'carprofile', Object.assign({ style: 'track' }, cfg));
         const st = state(t, { rpm: 7100, speedKmh: 120, gear: 'D', driveMode: 'SPORT', fuelPct: 40, oilTempC: 100, oilPressBar: 4,
                               rangeKm: 207, ambientC: 12.5, clock: { h: 12, m: 4 }, gLat: 0.2, gLon: 0.1 },
                          { centre: CENTRES[3], sinceOn: 3, now: 5000 });
@@ -699,8 +699,8 @@ test('the scale\'s numerals hug the rail: speed outside on the left, revs outsid
 test('the red field follows the redline; the speed dial has none', () => {
     const zone = (cfg, id) => { const t = build(cfg); return layer(t, id).uniforms(state(t, {})).u_zone; };
     assert.deepStrictEqual(zone({}, 'speedDial'), [0, 0, 0, 0]);
-    const z = zone({}, 'revDial');                       /* this car: 6500 */
-    assert.ok(Math.abs(z[0] - 6.59) < 1e-9 && z[1] > 7.9 && z[1] <= 8, 'red from just past the redline to the top');
+    const z = zone({}, 'revDial');                       /* this car: 6750 */
+    assert.ok(Math.abs(z[0] - 6.84) < 1e-9 && z[1] > 7.9 && z[1] <= 8, 'red from just past the redline to the top');
     assert.ok(z[2] < z[3] && z[3] < z[0], 'the amber field ends before the red starts');
     assert.ok(Math.abs(zone({ rpmRedline: 7000 }, 'revDial')[0] - 7.09) < 1e-9, 'it moves with the setting');
     const high = zone({ rpmRedline: 8000 }, 'revDial');
@@ -1015,9 +1015,10 @@ test('the footer: clock, range and outside temperature, each only when the car h
 
 test('the footer\'s three places: each can hold any reading, with its unit and its name, or nothing', () => {
     assert.deepStrictEqual(Track.FOOT_KINDS, ['time', 'range', 'economy', 'outside', 'iat', 'rpm', 'oil', 'coolant', 'boost', 'volts',
-        'erange', 'charge', 'hvtemp', 'off']);
+        'gearbox', 'torque', 'power', 'trip', 'tripTime', 'odo', 'erange', 'charge', 'hvtemp', 'off']);
     const RAW = { evRangeKm: 43, socPct: 78, rpm: 2456, speedKmh: 80, gear: '4', oilTempC: 104, coolantC: 91, boostBar: 0.86, rangeKm: 259, ambientC: 3,
-                  clock: { h: 15, m: 7 }, avgL100: 9.6, iatC: 38, batteryV: 14.13 };
+                  clock: { h: 15, m: 7 }, avgL100: 9.6, iatC: 38, batteryV: 14.13,
+                  gearboxC: 70, torqueNm: 300, tripKm: 1234.5, tripMin: 125, odoKm: 23456 };
     /* what each reading says: [figures, unit, the word before it] - imperial, then metric */
     const WANT = {
         time: [['3:07', 'pm', null], ['3:07', 'pm', null]],
@@ -1031,7 +1032,14 @@ test('the footer\'s three places: each can hold any reading, with its unit and i
         boost: [['12.5', 'psi', 'BOOST'], ['0.86', 'bar', 'BOOST']],
         volts: [['14.1', 'v', 'BATT'], ['14.1', 'v', 'BATT']],
         /* a plug-in hybrid's (General: Electric range) */
-        erange: [['27', 'mi', 'EV'], ['43', 'km', 'EV']]
+        erange: [['27', 'mi', 'EV'], ['43', 'km', 'EV']],
+        /* the gearbox oil, the torque and power (kgm and hp as they come: 300 Nm at 2,456 rpm), the trip computer, the odometer */
+        gearbox: [['158', '°F', 'TRANS'], ['70', '°C', 'TRANS']],
+        torque: [['31', 'kgm', 'TQ'], ['31', 'kgm', 'TQ']],
+        power: [['103', 'hp', 'PWR'], ['103', 'hp', 'PWR']],
+        trip: [['767.1', 'mi', 'TRIP'], ['1235', 'km', 'TRIP']],
+        tripTime: [['2:05', 'h', 'TIME'], ['2:05', 'h', 'TIME']],
+        odo: [['14575', 'mi', 'ODO'], ['23456', 'km', 'ODO']]
     };
     const HOME = { L: 'time', M: 'range', R: 'outside' };
     for (const style of M_STYLES) for (const [ui, units] of [[0, 'imperial'], [1, 'metric']]) {
@@ -1146,9 +1154,10 @@ test('the footer\'s places keep to themselves: inside their boxes, the panel and
 test('the readings a footer can show: figures only, in the units chosen, dashes when the car is not saying', () => {
     const P = PROFILE;
     const imp = State.present({ rpm: 2456.4, oilTempC: 104, coolantC: 91, boostBar: 0.86, avgL100: 9.6, iatC: 38, batteryV: 14.13 }, P, { units: 'imperial' }).info;
-    assert.deepStrictEqual(imp, { rpm: '2460', economy: '24.5', iat: '100', oil: '219', coolant: '196', boost: '12.5', volts: '14.1', erange: '--', charge: '--', hvtemp: '--' });
+    const NONE = { gearbox: '--', torque: '--', power: '--', trip: '--', tripTime: '--', odo: '--' };
+    assert.deepStrictEqual(imp, Object.assign({ rpm: '2460', economy: '24.5', iat: '100', oil: '219', coolant: '196', boost: '12.5', volts: '14.1', erange: '--', charge: '--', hvtemp: '--' }, NONE));
     const met = State.present({ rpm: 2456.4, oilTempC: 104, coolantC: 91, boostBar: 0.86, avgL100: 9.6, iatC: 38, batteryV: 14.13 }, P, { units: 'metric' }).info;
-    assert.deepStrictEqual(met, { rpm: '2460', economy: '9.6', iat: '38', oil: '104', coolant: '91', boost: '0.86', volts: '14.1', erange: '--', charge: '--', hvtemp: '--' });
+    assert.deepStrictEqual(met, Object.assign({ rpm: '2460', economy: '9.6', iat: '38', oil: '104', coolant: '91', boost: '0.86', volts: '14.1', erange: '--', charge: '--', hvtemp: '--' }, NONE));
     const none = State.present({}, P, {}).info;
     Object.keys(none).forEach((k) => assert.strictEqual(none[k], '--', k));
     /* the trip computer's average, whatever unit the car shows it in, as l/100 km */
@@ -1249,7 +1258,7 @@ test('the holiday dressing keeps off the M style\'s instruments', () => {
         const ink = isText(L) ? (L.uniforms(st, 0) ? quads(L, L.uniforms(st, 0)) : []) : [L];
         assert.ok(!ink.some((r) => hits(r, tree)), L.id + ' behind the tree');
     }
-    for (const z of Panel.keepClear('b48')) assert.ok(!hits(tree, z), 'the tree under ' + z.name);
+    for (const z of Panel.keepClear('carprofile')) assert.ok(!hits(tree, z), 'the tree under ' + z.name);
     /* the snow falls down the sides, outside the plates and the strips, and
        keeps off whatever is read there: each such layer is inside a box
        the snow leaves clear */
@@ -1576,7 +1585,7 @@ test('the larger window is a setting of each style\'s own, and the standard one 
     assert.strictEqual(build({ centreSize: 'huge' }).settings.centreSize, 'standard');
     assert.strictEqual(build({}).settings.centreSize, 'standard');
     /* each style keeps its own, under its own name */
-    const own = (cfg) => Themes.build(atlas, 'b48', cfg).settings.centreSize;
+    const own = (cfg) => Themes.build(atlas, 'carprofile', cfg).settings.centreSize;
     const all = { tCentreSize: 'most', mCentreSize: 'more', pCentreSize: 'standard' };
     assert.strictEqual(own(Object.assign({ style: 'toro' }, all)), 'most');
     assert.strictEqual(own(Object.assign({ style: 'track' }, all)), 'more');
@@ -2281,7 +2290,7 @@ test('the gear\'s place: the gear, the revs as a figure, or nothing - a setting 
         assert.deepStrictEqual(rest(o), rest(g));
     }
     /* each style keeps its own, as the app's tabs save them */
-    const own = (cfg) => Themes.build(atlas, 'b48', cfg).settings.mGear;
+    const own = (cfg) => Themes.build(atlas, 'carprofile', cfg).settings.mGear;
     assert.strictEqual(own({ style: 'track', mGear: 'rpm', pGear: 'off' }), 'rpm');
     assert.strictEqual(own({ style: 'mplus', mGear: 'rpm', pGear: 'off' }), 'off');
     assert.strictEqual(Themes.keyFor('track', 'mGear'), 'mGear');

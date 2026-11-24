@@ -110,92 +110,46 @@ var M_BOX_A = { id: 'mBoxA', x: 793, y: 289, w: 246, h: 92, name: 'M box (left)'
 var M_BOX_B = { id: 'mBoxB', x: 1223, y: 328, w: 171, h: 78, name: 'M box (right)' };
 
 /*
- * Vehicle profiles (GENERAL > Car): the engine's own red zone and limiter (Redline and Limiter on "From the
- * car"), the top of Toro's boost gauge, the fuel tank (the fuel's litres as a level, unless the Car profile
- * gives the tank), and the boxes some KOMBIs draw over a panel layer. "custom" is the owner's own: its figures
- * come from GENERAL > My car (profileFor).
+ * Vehicle profiles (GENERAL > Car). B48, B58, S58 and the plug-in hybrid are the owner's figures for those
+ * engines (`rev`): the most the engine revs (the limiter; the tach goes to the thousand at or above it), where
+ * the red zone starts, where to shift (Shift now: the shift lights flash, the speed and the gear blink), where
+ * the yellow starts (the shift lights and the M dial's amber), and the speedometer's top (km/h). With one of
+ * them chosen, GENERAL's Redline, Limiter, Shift lights from, Shift now at and Tach scale are not used.
+ * "carprofile" takes all of those from GENERAL as set there or by the Car profile app (its own figures below
+ * only where neither says). Also each car's: the top of Toro's boost gauge, the fuel tank (the fuel's litres as
+ * a level), and the boxes some KOMBIs draw over a panel layer.
  */
 var PROFILES = {
     b48: {
-        id: 'b48',
-        name: 'B48 (320i, 330i, 520i, X3 30i)',
-        engine: 'B48',
-        cylinders: 4,
-        aspiration: 'turbo',
-        rpmMax: 8000,          /* the dial's full scale */
-        rpmRedline: 6500,      /* where the red segments start */
-        rpmLimiter: 7000,      /* fuel cut: the full-screen flash */
-        gearCount: 8,
-        gearbox: 'ZF 8HP',
-        boost: true,
-        boostMaxPsi: 20,
-        tankLitres: 59,
-        extraZones: []
+        id: 'b48', name: 'B48', engine: 'B48', cylinders: 4, aspiration: 'turbo',
+        rpmMax: 7000, rpmRedline: 6000, rpmLimiter: 7000,
+        rev: { limiter: 7000, red: 6000, shift: 6500, yellow: null, speedMax: 260 },
+        gearCount: 8, gearbox: 'ZF 8HP', boost: true, boostMaxPsi: 20, tankLitres: 59, extraZones: []
     },
     b58: {
-        id: 'b58',
-        name: 'B58 (340i, 540i, X5 40i)',
-        engine: 'B58',
-        cylinders: 6,
-        aspiration: 'turbo',
-        rpmMax: 8000,
-        rpmRedline: 6500,
-        rpmLimiter: 7000,
-        gearCount: 8,
-        gearbox: 'ZF 8HP',
-        boost: true,
-        boostMaxPsi: 20,
-        tankLitres: 60,
-        extraZones: []
+        id: 'b58', name: 'B58', engine: 'B58', cylinders: 6, aspiration: 'turbo',
+        rpmMax: 8000, rpmRedline: 6500, rpmLimiter: 7500,
+        rev: { limiter: 7500, red: 6500, shift: 7000, yellow: null, speedMax: 260 },
+        gearCount: 8, gearbox: 'ZF 8HP', boost: true, boostMaxPsi: 22, tankLitres: 60, extraZones: []
     },
     mCarS58: {
-        id: 'mCarS58',
-        name: 'M car (S58)',
-        engine: 'S58',
-        cylinders: 6,
-        aspiration: 'turbo',
-        rpmMax: 8000,
-        rpmRedline: 7200,
-        rpmLimiter: 7300,
-        gearCount: 8,
-        gearbox: 'ZF 8HP / DCT',
-        boost: true,
-        boostMaxPsi: 26,
-        tankLitres: 59,
+        id: 'mCarS58', name: 'S58 (M car)', engine: 'S58', cylinders: 6, aspiration: 'turbo',
+        rpmMax: 8000, rpmRedline: 7000, rpmLimiter: 8000,
+        rev: { limiter: 8000, red: 7000, shift: 7500, yellow: 6500, speedMax: 330 },
+        gearCount: 8, gearbox: 'ZF 8HP / DCT', boost: true, boostMaxPsi: 26, tankLitres: 59,
         extraZones: [M_BOX_A, M_BOX_B]
     },
     hybrid: {
-        id: 'hybrid',
-        name: 'Plug-in hybrid (eDrive)',
-        engine: 'B46/B58 PHEV',
-        cylinders: 4,
-        aspiration: 'turbo',
-        rpmMax: 7000,
-        rpmRedline: 6000,
-        rpmLimiter: 6500,
-        gearCount: 8,
-        gearbox: 'ZF 8HP',
-        boost: false,
-        boostMaxPsi: 18,
-        tankLitres: 60,
-        extraZones: [EDRIVE_BOX]
+        id: 'hybrid', name: 'Plug-in hybrid (eDrive)', engine: 'B46/B58 PHEV', cylinders: 4, aspiration: 'turbo',
+        rpmMax: 7000, rpmRedline: 6000, rpmLimiter: 6500,
+        rev: { limiter: 6500, red: 6000, shift: null, yellow: null, speedMax: 260 },
+        gearCount: 8, gearbox: 'ZF 8HP', boost: false, boostMaxPsi: 18, tankLitres: 60, extraZones: [EDRIVE_BOX]
     },
-    /* the owner's own (its figures as they come: the B48's) */
-    custom: {
-        id: 'custom',
-        name: 'My car',
-        engine: '',
-        cylinders: 4,
-        aspiration: 'turbo',
-        rpmMax: 8000,
-        rpmRedline: 6500,
-        rpmLimiter: 7000,
-        gearCount: 8,
-        gearbox: 'ZF 8HP',
-        boost: true,
-        boostMaxPsi: 20,
-        tankLitres: 59,
-        extraZones: []
+    /* GENERAL's own figures, or the Car profile's (Redline and Limiter on "From the car": these) */
+    carprofile: {
+        id: 'carprofile', name: 'Car profile', engine: '', cylinders: 6, aspiration: 'turbo',
+        rpmMax: 8000, rpmRedline: 6750, rpmLimiter: 7000, rev: null,
+        gearCount: 8, gearbox: 'ZF 8HP', boost: true, boostMaxPsi: 22, tankLitres: 60, extraZones: []
     }
 };
 
@@ -205,18 +159,16 @@ function profile(id) {
     return PROFILES[id] || PROFILES[DEFAULT_PROFILE];
 }
 
-/* The profile with the owner's own figures where it is "custom": GENERAL > My car (myRedline, myLimiter,
-   myBoostPsi, myTankLitres; each as the profile has it where not set). */
+/* The profile for a car, with GENERAL's tank and boost gauge where it is "carprofile" (tankLitres: the Car
+   profile's where it gives one; boostMax) */
 function profileFor(id, settings) {
     var p = profile(id);
-    if (p.id !== 'custom' || !settings) return p;
+    if (p.id !== 'carprofile' || !settings) return p;
     var num = function (v, lo, hi, d) { v = Number(v); return v >= lo && v <= hi ? v : d; };
     var out = {}, k;
     for (k in p) if (Object.prototype.hasOwnProperty.call(p, k)) out[k] = p[k];
-    out.rpmRedline = num(settings.myRedline, 3000, 9000, p.rpmRedline);
-    out.rpmLimiter = Math.max(out.rpmRedline, num(settings.myLimiter, 3000, 9500, p.rpmLimiter));
-    out.boostMaxPsi = num(settings.myBoostPsi, 5, 60, p.boostMaxPsi);
-    out.tankLitres = num(settings.myTankLitres, 20, 120, p.tankLitres);
+    out.boostMaxPsi = num(settings.boostMax, 5, 60, p.boostMaxPsi);
+    out.tankLitres = num(settings.tankLitres, 20, 120, p.tankLitres);
     return out;
 }
 

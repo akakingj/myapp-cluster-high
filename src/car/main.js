@@ -346,7 +346,7 @@ function start(host, deps) {
                 reader.setBoostBar(ev.boostBar, now());
             } catch (e) { log.warn('engine: ' + e); }
 
-            var raw = reader.raw(now(), settings.tankLitres || profileTank(profile));
+            var raw = reader.raw(now(), profileTank(profile));
             if (theme) raw = smoother.apply(raw, now(), Smooth.TAU[theme.settings.smoothing] || 0, theme.glide);
             var car = carState(raw);
             var enabled = theme && theme.settings.enabled;

@@ -19,7 +19,7 @@
      * nothing.
      */
     var KINDS = ['time', 'range', 'economy', 'outside', 'iat', 'rpm', 'oil', 'coolant', 'boost', 'volts',
-                 'erange', 'charge', 'hvtemp', 'off'];
+                 'gearbox', 'torque', 'power', 'trip', 'tripTime', 'odo', 'erange', 'charge', 'hvtemp', 'off'];
     function kind(v, home) { return KINDS.indexOf(v) >= 0 ? v : home; }
 
     function known(v) { return v !== null && v !== undefined && v !== '' && v !== '--'; }
@@ -57,7 +57,15 @@
             /* a plug-in hybrid's or an electric car's own (General: Electric range) */
             erange: { tag: 'EV', value: infoOf('erange'), unit: L.dist },
             hvtemp: { tag: 'BATT', value: infoOf('hvtemp'), unit: DEG },
-            charge: { tag: 'CHARGE', value: infoOf('charge'), unit: '' }   /* per cent: the face has no % */
+            charge: { tag: 'CHARGE', value: infoOf('charge'), unit: '' },  /* per cent: the face has no % */
+            /* as Cluster Layouts names them: the gearbox oil, the engine's torque and power, the trip computer's
+               distance and driving time, the odometer */
+            gearbox: { tag: 'TRANS', value: infoOf('gearbox'), unit: DEG },
+            torque: { tag: 'TQ', value: infoOf('torque'), unit: L.torque },
+            power: { tag: 'PWR', value: infoOf('power'), unit: L.power },
+            trip: { tag: 'TRIP', value: infoOf('trip'), unit: L.dist },
+            tripTime: { tag: 'TIME', value: infoOf('tripTime'), unit: 'h' },
+            odo: { tag: 'ODO', value: infoOf('odo'), unit: L.dist }
         };
     }
 

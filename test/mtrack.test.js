@@ -28,8 +28,8 @@ const allShaders = Object.assign({}, require('../src/shaders/core.js'), require(
 const T = require('../src/theme/tgeom.js');
 const spec = require('../app/app.base.json');
 
-const PROFILE = Panel.profile('b48');
-const build = (cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'b48', Object.assign({ style: 'mtrack' }, cfg));
+const PROFILE = Panel.profile('carprofile');
+const build = (cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'carprofile', Object.assign({ style: 'mtrack' }, cfg));
 const layer = (t, id) => t.layers.find((L) => L.id === id);
 const state = (t, raw, over) => Object.assign(State.present(raw || {}, t.profile, t.settings), over);
 const RAW = { rpm: 3000, speedKmh: 120, gear: '4', driveMode: 'SPORT', fuelPct: 40, oilTempC: 100, coolantC: 92,
@@ -330,7 +330,7 @@ test('the marker and the lit band follow the revs; the red field runs from the t
         assert.ok(Math.abs(L.uniforms(state(t, { rpm }), 0).u_ym - T.revY(rpm, m)) < 1e-9, 'at ' + rpm);
     }
     assert.ok(Math.abs(L.uniforms(state(t, {}), 0).u_red - m[7]) < 1e-9);
-    /* as the car's: a B48's field starts at 6,500 */
+    /* as the car's: Car profile values' own field starts at 6,750 */
     const own = build(), red = layer(own, 'revDial').uniforms(state(own, {}), 0).u_red;
     assert.ok(Math.abs(red - T.revY(PROFILE.rpmRedline, m)) < 1e-9 && red > m[7] && red < m[6]);
     /* the frame's own: about 7,600, a short stroke under its 8 */
@@ -454,7 +454,8 @@ test('each row can be given any reading, or left out: its figures, unit, symbol 
     assert.deepStrictEqual(Object.keys(scales).concat(['off']), MTrack.ROW_KINDS);
     for (const [kind, sc] of Object.entries(scales)) {
         assert.strictEqual(sc.marks.length, 3, kind);
-        assert.ok(atlas.faces.mt.glyphs[sc.icon], kind + ': its symbol is in the atlas');
+        /* a symbol, or (the gearbox oil) a word in the footer's capitals in its place */
+        assert.ok(sc.icon ? atlas.faces.mt.glyphs[sc.icon] : sc.tag.split('').every((ch) => atlas.faces.mb.glyphs[ch]), kind + ': its symbol is in the atlas');
         const face = atlas.faces[sc.unitFace || 'ms'];
         assert.ok(sc.unit.split('').every((ch) => face.glyphs[ch]), kind + ': its unit can be written');
         assert.ok(sc.marks.join('').split('').every((ch) => atlas.faces.mn.glyphs[ch]), kind + ': its figures can be written');
@@ -506,9 +507,9 @@ test('the reference fixture: the frame\'s own state - a mark in the boost row al
 test('the state carries each reading as a number, in the car\'s own units - for the style that asks, and no other', () => {
     const N = { numbers: true };
     const st = State.present(RAW, PROFILE, N);
-    assert.deepStrictEqual(st.num, { boostBar: 0.8, coolantC: 92, oilC: 100, iatC: 30, oilBar: 4.2, volts: 14.1, socPct: null, hvC: null });
+    assert.deepStrictEqual(st.num, { boostBar: 0.8, coolantC: 92, oilC: 100, iatC: 30, oilBar: 4.2, volts: 14.1, socPct: null, hvC: null, gearboxC: null });
     assert.deepStrictEqual(State.present({}, PROFILE, N).num,
-        { boostBar: null, coolantC: null, oilC: null, iatC: null, oilBar: null, volts: null, socPct: null, hvC: null });
+        { boostBar: null, coolantC: null, oilC: null, iatC: null, oilBar: null, volts: null, socPct: null, hvC: null, gearboxC: null });
     const ev = State.present({ socPct: 64, hvTempC: 26 }, PROFILE, { electric: 'bev', numbers: true }).num;
     assert.deepStrictEqual([ev.socPct, ev.hvC], [64, 26]);
     assert.deepStrictEqual(State.present({ socPct: 64, hvTempC: 26 }, PROFILE, N).num.socPct, null, 'not unless electric range is on');
@@ -516,7 +517,7 @@ test('the state carries each reading as a number, in the car\'s own units - for 
     assert.strictEqual(build().settings.numbers, true);
     assert.ok(state(build(), RAW).num);
     for (const style of ['toro', 'track', 'mplus']) {
-        const t = Themes.build(atlas, 'b48', { style });
+        const t = Themes.build(atlas, 'carprofile', { style });
         assert.strictEqual(State.present(RAW, t.profile, t.settings).num, null, style);
     }
     /* and a car that is not electric shares one empty gauge for its battery's two, frame after frame */
@@ -660,7 +661,7 @@ test('the whole wing: with a picture chosen the style stands inside the car\'s p
     assert.strictEqual(T.ART.ox, T.PANEL_FIT.ox);
     assert.strictEqual(build({ kCentre: 'waze', lower: 40 }).wingWhole, false);
     assert.strictEqual(build({ kCentre: 'waze', profile: 'mCarS58' }).wingWhole, false);
-    for (const id of ['b48', 'b58', 'hybrid']) {
+    for (const id of ['carprofile', 'b58', 'hybrid']) {
         const zones = Panel.keepClear(id).filter((z) => z.id !== 'bottomStrip');
         const w = build({ kCentre: 'map', profile: id, kFootL: 'boost', kFootR: 'iat' });
         assert.strictEqual(w.wingWhole, true, id);
@@ -836,10 +837,11 @@ test('the footer: the time, the range and the outside temperature as the frame h
 
 test('the footer\'s three places: each can hold any reading the M styles\' footers can, or nothing', () => {
     assert.deepStrictEqual(spec.settings.find((s) => s.key === 'kFootL').options.map((o) => o[0]), Readings.KINDS);
-    const raw = Object.assign({}, RAW, { avgL100: 9.6, evRangeKm: 43, socPct: 78, hvTempC: 26 });
+    const raw = Object.assign({}, RAW, { avgL100: 9.6, evRangeKm: 43, socPct: 78, hvTempC: 26, gearboxC: 70, torqueNm: 300, tripKm: 123.4, tripMin: 95, odoKm: 12345 });
     const want = { time: '19:02', range: 'r402km', economy: '9.6l/100km', outside: '+21.0°C', iat: 'IAT30°C', rpm: '3000rpm',
                    oil: 'OIL100°C', coolant: 'WATER92°C', boost: 'BOOST0.80bar', volts: 'BATT14.1v',
-                   erange: 'EV43km', charge: 'CHARGE78', hvtemp: 'BATT26°C' };
+                   erange: 'EV43km', charge: 'CHARGE78', hvtemp: 'BATT26°C',
+                   gearbox: 'TRANS70°C', torque: 'TQ31kgm', power: 'PWR126hp', trip: 'TRIP123.4km', tripTime: 'TIME1:35h', odo: 'ODO12345km' };
     for (const place of ['L', 'M', 'R']) for (const kind of Readings.KINDS) {
         const t = build({ units: 'metric', electric: 'hybrid', ['kFoot' + place]: kind });
         const st = state(t, raw), n = 'foot' + place;
@@ -899,7 +901,7 @@ test('the atlas: the track style\'s symbols, gear letters and signs are in it, a
     }
     assert.ok(highestNew >= lowestOld, `the new faces start at row ${highestNew}, the old end at ${lowestOld}`);
     /* the symbols a row or a strip draws are all there */
-    for (const sc of Object.values(MTrack.rowScales(Units.of({ units: 'metric' })))) assert.ok(atlas.faces.mt.glyphs[sc.icon].tw > 0);
+    for (const sc of Object.values(MTrack.rowScales(Units.of({ units: 'metric' })))) assert.ok(sc.icon ? atlas.faces.mt.glyphs[sc.icon].tw > 0 : !!sc.tag);
 });
 
 /* ------------------------------------------------- a mark that slides */
@@ -921,7 +923,7 @@ test('a row\'s slow readings glide for this style alone: a mark on a rail slides
         build(cfg).glide.forEach((k) => assert.ok(k in Smooth.MORE, k));
     }
     /* the other styles ask for nothing: their figures are passed on exactly as they arrive */
-    for (const style of ['toro', 'track', 'mplus']) assert.strictEqual(Themes.build(atlas, 'b48', { style }).glide, undefined, style);
+    for (const style of ['toro', 'track', 'mplus']) assert.strictEqual(Themes.build(atlas, 'carprofile', { style }).glide, undefined, style);
     const plain = Smooth.create();
     plain.apply({ iatC: 20, batteryV: 13.8 }, 0, 90);
     assert.deepStrictEqual(plain.apply({ iatC: 30, batteryV: 14.4 }, 16, 90), { iatC: 30, batteryV: 14.4 });

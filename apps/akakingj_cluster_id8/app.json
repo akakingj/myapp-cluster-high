@@ -63,8 +63,9 @@
       "statusRangeTankStatus": "rs",
       "statusShowTimeDate": "rs",
       "statusBordcomputerAverage": "rs",
+      "statusBordcomputerTravelData": "rs",
       "displayRangeElectricVehicle": "rs",
-      "_optional": "Fuel range, tank level and odometer; the time of day the cluster shows; the trip computer's average consumption; electric range"
+      "_optional": "Fuel range, tank level and odometer; the time of day the cluster shows; the trip computer's average consumption, distance and driving time; electric range"
     },
     "de.bmw.infotainment.drivingexcitement.Efficiencytainment2": {
       "statusChargeOfBatteryHybrid": "rs",
@@ -78,7 +79,12 @@
     "de.bmw.infotainment.drivingexcitement.FES": {
       "statusSwitchDriveDynamicSport2": "rs",
       "statusFESVehicleDynamicSwitchHMI": "rs",
-      "_optional": "Boost pressure from the Sport Display, and the driving mode"
+      "statusActualValueTorque2": "rs",
+      "_optional": "Boost pressure from the Sport Display, the driving mode, the engine's torque"
+    },
+    "de.bmw.infrastructure.analytics.BasicDataSet": {
+      "basicDataSet": "s",
+      "_optional": "The gearbox oil's temperature"
     },
     "de.bmw.infotainment.misc.MDrive": {
       "controlDisplayMSystems": "s",
@@ -253,6 +259,50 @@
       "tab": "general"
     },
     {
+      "key": "torqueUnit",
+      "label": "Torque unit",
+      "type": "choice",
+      "default": "kgm",
+      "options": [
+        [
+          "nm",
+          "Nm"
+        ],
+        [
+          "kgm",
+          "kgm"
+        ],
+        [
+          "lbft",
+          "lb-ft"
+        ]
+      ],
+      "tab": "general",
+      "profile": "torqueUnit"
+    },
+    {
+      "key": "powerUnit",
+      "label": "Power unit",
+      "type": "choice",
+      "default": "hp",
+      "options": [
+        [
+          "hp",
+          "hp"
+        ],
+        [
+          "ps",
+          "PS"
+        ],
+        [
+          "kw",
+          "kW"
+        ]
+      ],
+      "tab": "general",
+      "profile": "powerUnit"
+    },
+    {
       "key": "clock12",
       "label": "Clock (M styles)",
       "type": "choice",
@@ -286,20 +336,21 @@
         ],
         [
           "mCarS58",
-          "M car (S58)"
+          "S58 (M car)"
         ],
         [
           "hybrid",
           "Plug-in hybrid"
         ],
         [
-          "custom",
-          "My car (set below)"
+          "carprofile",
+          "Car profile values"
         ]
       ],
       "tab": "general",
       "aliases": {
-        "x3m40i": "b48"
+        "x3m40i": "b48",
+        "custom": "carprofile"
       }
     },
     {
@@ -324,226 +375,30 @@
       }
     },
     {
-      "key": "myRedline",
-      "label": "My car: red zone from",
+      "key": "speedMax",
+      "label": "Speedometer up to (M Sport)",
       "type": "choice",
-      "default": "6500",
+      "default": "260",
       "options": [
         [
-          "4000",
-          "4,000"
+          "260",
+          "260 km/h (160 mph)"
         ],
         [
-          "4250",
-          "4,250"
-        ],
-        [
-          "4500",
-          "4,500"
-        ],
-        [
-          "4750",
-          "4,750"
-        ],
-        [
-          "5000",
-          "5,000"
-        ],
-        [
-          "5250",
-          "5,250"
-        ],
-        [
-          "5500",
-          "5,500"
-        ],
-        [
-          "5750",
-          "5,750"
-        ],
-        [
-          "5800",
-          "5,800"
-        ],
-        [
-          "6000",
-          "6,000"
-        ],
-        [
-          "6200",
-          "6,200"
-        ],
-        [
-          "6250",
-          "6,250"
-        ],
-        [
-          "6500",
-          "6,500"
-        ],
-        [
-          "6750",
-          "6,750"
-        ],
-        [
-          "6800",
-          "6,800"
-        ],
-        [
-          "7000",
-          "7,000"
-        ],
-        [
-          "7200",
-          "7,200"
-        ],
-        [
-          "7250",
-          "7,250"
-        ],
-        [
-          "7500",
-          "7,500"
-        ],
-        [
-          "7750",
-          "7,750"
-        ],
-        [
-          "7800",
-          "7,800"
-        ],
-        [
-          "8000",
-          "8,000"
-        ],
-        [
-          "8250",
-          "8,250"
-        ],
-        [
-          "8500",
-          "8,500"
+          "330",
+          "330 km/h (200 mph)"
         ]
       ],
       "when": {
-        "profile": "custom"
+        "profile": "carprofile"
       },
       "tab": "general"
     },
     {
-      "key": "myLimiter",
-      "label": "My car: limiter",
+      "key": "boostMax",
+      "label": "Boost gauge up to (Toro)",
       "type": "choice",
-      "default": "7000",
-      "options": [
-        [
-          "4500",
-          "4,500"
-        ],
-        [
-          "4750",
-          "4,750"
-        ],
-        [
-          "5000",
-          "5,000"
-        ],
-        [
-          "5250",
-          "5,250"
-        ],
-        [
-          "5500",
-          "5,500"
-        ],
-        [
-          "5750",
-          "5,750"
-        ],
-        [
-          "5800",
-          "5,800"
-        ],
-        [
-          "6000",
-          "6,000"
-        ],
-        [
-          "6200",
-          "6,200"
-        ],
-        [
-          "6250",
-          "6,250"
-        ],
-        [
-          "6500",
-          "6,500"
-        ],
-        [
-          "6750",
-          "6,750"
-        ],
-        [
-          "6800",
-          "6,800"
-        ],
-        [
-          "7000",
-          "7,000"
-        ],
-        [
-          "7200",
-          "7,200"
-        ],
-        [
-          "7250",
-          "7,250"
-        ],
-        [
-          "7500",
-          "7,500"
-        ],
-        [
-          "7750",
-          "7,750"
-        ],
-        [
-          "7800",
-          "7,800"
-        ],
-        [
-          "8000",
-          "8,000"
-        ],
-        [
-          "8250",
-          "8,250"
-        ],
-        [
-          "8500",
-          "8,500"
-        ],
-        [
-          "8750",
-          "8,750"
-        ],
-        [
-          "9000",
-          "9,000"
-        ]
-      ],
-      "when": {
-        "profile": "custom"
-      },
-      "tab": "general"
-    },
-    {
-      "key": "myBoostPsi",
-      "label": "My car: boost gauge up to",
-      "type": "choice",
-      "default": "20",
+      "default": "22",
       "options": [
         [
           "15",
@@ -587,15 +442,15 @@
         ]
       ],
       "when": {
-        "profile": "custom"
+        "profile": "carprofile"
       },
       "tab": "general"
     },
     {
-      "key": "myTankLitres",
-      "label": "My car: fuel tank",
+      "key": "tankLitres",
+      "label": "Fuel tank size",
       "type": "choice",
-      "default": "59",
+      "default": "60",
       "options": [
         [
           "40",
@@ -655,9 +510,10 @@
         ]
       ],
       "when": {
-        "profile": "custom"
+        "profile": "carprofile"
       },
-      "tab": "general"
+      "tab": "general",
+      "profile": "tankLitres"
     },
     {
       "key": "rpmRedline",
@@ -778,6 +634,9 @@
       "profile": "lightRed",
       "profileMap": {
         "0": "limiter"
+      },
+      "when": {
+        "profile": "carprofile"
       }
     },
     {
@@ -895,6 +754,9 @@
       "profile": "redline",
       "profileMap": {
         "0": "auto"
+      },
+      "when": {
+        "profile": "carprofile"
       }
     },
     {
@@ -957,7 +819,10 @@
         ]
       ],
       "tab": "general",
-      "profile": "lightStart"
+      "profile": "lightStart",
+      "when": {
+        "profile": "carprofile"
+      }
     },
     {
       "key": "shiftAt",
@@ -1038,6 +903,9 @@
       "profile": "shiftAt",
       "profileMap": {
         "0": "auto"
+      },
+      "when": {
+        "profile": "carprofile"
       }
     },
     {
@@ -1820,7 +1688,8 @@
         ]
       ],
       "when": {
-        "engine": "petrol"
+        "engine": "petrol",
+        "profile": "carprofile"
       },
       "tab": "general",
       "profile": "rpmScale"
@@ -2230,6 +2099,30 @@
           "Battery voltage"
         ],
         [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "trip",
+          "Trip distance"
+        ],
+        [
+          "tripTime",
+          "Trip driving time"
+        ],
+        [
+          "odo",
+          "Odometer"
+        ],
+        [
           "erange",
           "Electric range"
         ],
@@ -2298,6 +2191,30 @@
           "Battery voltage"
         ],
         [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "trip",
+          "Trip distance"
+        ],
+        [
+          "tripTime",
+          "Trip driving time"
+        ],
+        [
+          "odo",
+          "Odometer"
+        ],
+        [
           "erange",
           "Electric range"
         ],
@@ -2364,6 +2281,30 @@
         [
           "volts",
           "Battery voltage"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "trip",
+          "Trip distance"
+        ],
+        [
+          "tripTime",
+          "Trip driving time"
+        ],
+        [
+          "odo",
+          "Odometer"
         ],
         [
           "erange",
@@ -2595,6 +2536,30 @@
           "Battery voltage"
         ],
         [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "trip",
+          "Trip distance"
+        ],
+        [
+          "tripTime",
+          "Trip driving time"
+        ],
+        [
+          "odo",
+          "Odometer"
+        ],
+        [
           "erange",
           "Electric range"
         ],
@@ -2663,6 +2628,30 @@
           "Battery voltage"
         ],
         [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "trip",
+          "Trip distance"
+        ],
+        [
+          "tripTime",
+          "Trip driving time"
+        ],
+        [
+          "odo",
+          "Odometer"
+        ],
+        [
           "erange",
           "Electric range"
         ],
@@ -2729,6 +2718,30 @@
         [
           "volts",
           "Battery voltage"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "trip",
+          "Trip distance"
+        ],
+        [
+          "tripTime",
+          "Trip driving time"
+        ],
+        [
+          "odo",
+          "Odometer"
         ],
         [
           "erange",
@@ -2875,6 +2888,10 @@
           "Oil temperature"
         ],
         [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
           "iat",
           "Intake air temperature"
         ],
@@ -2925,6 +2942,10 @@
         [
           "oil",
           "Oil temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
         ],
         [
           "iat",
@@ -2979,6 +3000,10 @@
           "Oil temperature"
         ],
         [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
           "iat",
           "Intake air temperature"
         ],
@@ -3029,6 +3054,10 @@
         [
           "oil",
           "Oil temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
         ],
         [
           "iat",
@@ -3127,6 +3156,30 @@
           "Battery voltage"
         ],
         [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "trip",
+          "Trip distance"
+        ],
+        [
+          "tripTime",
+          "Trip driving time"
+        ],
+        [
+          "odo",
+          "Odometer"
+        ],
+        [
           "erange",
           "Electric range"
         ],
@@ -3195,6 +3248,30 @@
           "Battery voltage"
         ],
         [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "trip",
+          "Trip distance"
+        ],
+        [
+          "tripTime",
+          "Trip driving time"
+        ],
+        [
+          "odo",
+          "Odometer"
+        ],
+        [
           "erange",
           "Electric range"
         ],
@@ -3261,6 +3338,30 @@
         [
           "volts",
           "Battery voltage"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "trip",
+          "Trip distance"
+        ],
+        [
+          "tripTime",
+          "Trip driving time"
+        ],
+        [
+          "odo",
+          "Odometer"
         ],
         [
           "erange",

@@ -264,6 +264,18 @@
      */
     function resolve(settings, profile) {
         settings = settings || {};
+        /* A car's own figures (src/geometry/panel.js rev) in place of GENERAL's Redline, Limiter, Shift lights
+           from, Shift now at and Tach scale (the tach to the thousand at or over its limiter) */
+        var rev = profile && profile.rev;
+        if (rev) {
+            settings = Object.assign({}, settings, {
+                rpmRedline: String(rev.red), rpmLimiter: String(rev.limiter),
+                scaleMaxRpm: String(Math.ceil(rev.limiter / 1000) * 1000),
+                shiftAt: rev.shift ? String(rev.shift) : 'off',
+                shiftFrom: rev.yellow ? String(rev.yellow) : 'auto',
+                speedMax: String(rev.speedMax)
+            });
+        }
         var s = {}, k;
         for (k in DEFAULTS) {
             if (Object.prototype.hasOwnProperty.call(DEFAULTS, k)) {
@@ -302,6 +314,10 @@
         /* Shift now (the Car profile's Shift now warning at): off as it comes (the shift lights flash at the
            limiter), Auto 300 under the red zone, or an rpm (src/engine/state.js shiftPoint); the cold-engine
            guard lowers it and the red zone while the oil is cold */
+        /* the speedometer's top (M Sport, M Sport Plus): 260 or 330 km/h */
+        s.speedMax = String(settings.speedMax) === '330' ? 330 : 260;
+        /* the yellow (Shift lights from, set): the M dial's amber starts there */
+        s.yellowRpm = Number(settings.shiftFrom) > 0 && Number(settings.shiftFrom) < s.rpmRedline ? Number(settings.shiftFrom) : null;
         s.shiftWarn = settings.shiftAt !== undefined && settings.shiftAt !== null && settings.shiftAt !== 'off';
         s.shiftAtRpm = clampNum(settings.shiftAt === 'auto' || !s.shiftWarn ? null : settings.shiftAt, 2500, s.rpmLimiter,
                                 s.rpmRedline - 300);

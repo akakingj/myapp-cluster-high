@@ -34,9 +34,10 @@ var SIGNALS = {
         statusRangeTankStatus: 'rs',
         statusShowTimeDate: 'rs',
         statusBordcomputerAverage: 'rs',
+        statusBordcomputerTravelData: 'rs',
         /* a plug-in hybrid's or an electric car's range on its battery (used only with "Electric range" on) */
         displayRangeElectricVehicle: 'rs',
-        _optional: 'Fuel range, tank level and odometer; the time of day the cluster shows; the trip computer\'s average consumption; electric range'
+        _optional: 'Fuel range, tank level and odometer; the time of day the cluster shows; the trip computer\'s average consumption, distance and driving time; electric range'
     },
     'de.bmw.infotainment.drivingexcitement.Efficiencytainment2': {
         statusChargeOfBatteryHybrid: 'rs',
@@ -50,7 +51,12 @@ var SIGNALS = {
     'de.bmw.infotainment.drivingexcitement.FES': {
         statusSwitchDriveDynamicSport2: 'rs',
         statusFESVehicleDynamicSwitchHMI: 'rs',
-        _optional: 'Boost pressure from the Sport Display, and the driving mode'
+        statusActualValueTorque2: 'rs',
+        _optional: 'Boost pressure from the Sport Display, the driving mode, the engine\'s torque'
+    },
+    'de.bmw.infrastructure.analytics.BasicDataSet': {
+        basicDataSet: 's',
+        _optional: 'The gearbox oil\'s temperature'
     },
     'de.bmw.infotainment.misc.MDrive': {
         controlDisplayMSystems: 's',
@@ -289,6 +295,19 @@ function createReader(opts) {
             var avg = averageL100(value);
             /* held: the trip computer moves slowly and is polled every 5 s */
             if (avg !== undefined && avg > 0.5 && avg < 99) put('avgL100', avg, now);
+        } else if (service === 'de.bmw.infotainment.KombiIF' && field === 'statusBordcomputerTravelData') {
+            /* the trip computer's distance (km) and driving time, as Cluster Layouts reads them */
+            var km = value && value.wayPassed, hr = value && value.rideDurationHours, mn = value && value.rideDurationMinutes;
+            if (typeof km === 'number' && km >= 0 && km < 0xFFFE) put('tripKm', km, now);
+            if (typeof hr === 'number' && hr >= 0 && hr < 0xFFFE && typeof mn === 'number' && mn >= 0 && mn < 60) put('tripMin', hr * 60 + mn, now);
+        } else if (service === 'de.bmw.infrastructure.analytics.BasicDataSet' && field === 'basicDataSet') {
+            /* the gearbox oil (Cluster Layouts' gearboxTemp: raw - 48, 255 no value) */
+            var gb = value && value.valueTemperatureTransmissionOil;
+            if (typeof gb === 'number' && gb !== 255 && gb - 48 > -40 && gb - 48 < 160) put('gearboxC', gb - 48, now);
+        } else if (service === 'de.bmw.infotainment.drivingexcitement.FES' && field === 'statusActualValueTorque2') {
+            /* the crankshaft's torque: 0.5 Nm a step, 0 at 2047, 4095 and up no value; engine braking counts as 0 */
+            var tqr = value && value.actualValueTorqueCrankshaft;
+            if (typeof tqr === 'number' && tqr < 4095) put('torqueNm', Math.max(0, tqr * 0.5 - 1023.5), now);
         } else if (service === 'de.bmw.infotainment.KombiIF' && field === 'statusRangeTankStatus') {
             put('rangeKm', scaled(value && value.range, 4095, 1), now);
             put('fuelLitres', scaled(value && value.fluidLevelFuelTank, 255, 1), now);
@@ -403,6 +422,11 @@ function createReader(opts) {
             fuelPct: typeof litres === 'number' && tankLitres
                 ? Math.max(0, Math.min(100, litres / tankLitres * 100)) : undefined,
             odoKm: held('odoKm'),
+            /* the trip computer's distance and time, the gearbox oil, the torque */
+            tripKm: held('tripKm'),
+            tripMin: held('tripMin'),
+            gearboxC: held('gearboxC'),
+            torqueNm: get('torqueNm', now),
             rangeKm: held('rangeKm'),
             /* held: both move slowly and are polled every 5 s */
             evRangeKm: held('evRangeKm'),

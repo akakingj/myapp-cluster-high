@@ -77,11 +77,14 @@
     function tickY(k) { return SCALE.y0 - k * SCALE.dy; }
     var SPEED_SCALE = {
         metric: [0, 30, 60, 90, 120, 150, 180, 220, 260],
-        imperial: [0, 20, 40, 60, 80, 100, 120, 140, 160]
+        imperial: [0, 20, 40, 60, 80, 100, 120, 140, 160],
+        /* a car to 330 km/h (GENERAL > Car: S58): the top marks spread out, as an M car's own */
+        metric330: [0, 30, 60, 90, 120, 150, 210, 270, 330],
+        imperial330: [0, 20, 40, 60, 80, 100, 120, 160, 200]
     };
     /* a speed as a position on the scale, in ticks (0..8) */
     function speedTicks(v, units) {
-        var s = SPEED_SCALE[units === 'metric' ? 'metric' : 'imperial'], n = s.length - 1, i;
+        var s = SPEED_SCALE[units] || SPEED_SCALE.imperial, n = s.length - 1, i;
         if (!(v > 0)) return 0;
         for (i = 1; i <= n; i++) {
             if (v <= s[i]) return i - 1 + (v - s[i - 1]) / (s[i] - s[i - 1]);

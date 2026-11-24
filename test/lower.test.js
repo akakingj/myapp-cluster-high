@@ -38,8 +38,8 @@ const STYLES = ['toro', 'track', 'mplus', 'mtrack'];
 const MOST = { toro: 58, track: 74, mplus: 74, mtrack: 74 };
 const AMOUNTS = [1, 7, 20, 33, 40, 58, 66, 74];
 const SLOT = { x: 416, y: 120, w: 1088, h: 480 };
-const P = Panel.profile('b48');
-const build = (style, cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'b48', Object.assign({ style }, cfg));
+const P = Panel.profile('carprofile');
+const build = (style, cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'carprofile', Object.assign({ style }, cfg));
 const rect = (L) => {
     const x = Math.floor(L.x), y = Math.floor(L.y);
     return { x, y, w: Math.ceil(L.x + L.w) - x, h: Math.ceil(L.y + L.h) - y };

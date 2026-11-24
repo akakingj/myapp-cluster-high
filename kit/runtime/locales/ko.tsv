@@ -1188,6 +1188,9 @@ Fuel in the tank	탱크 연료량
 Fuel tank, left half	연료탱크 왼쪽
 Fuel tank, right half	연료탱크 오른쪽
 Odometer	누적 주행거리
+Engine power	엔진 출력
+Trip distance	트립 주행거리
+Trip driving time	트립 주행시간
 Fuel consumption per 100 km	100 km당 연료 소비
 Fuel injection signal (raw)	연료 분사 신호 (원시값)
 Average consumption, trip 1	평균 연료 소비, 트립 1
@@ -1262,7 +1265,7 @@ Engine unit	엔진 제어기
 Exhaust after catalyst (model)	촉매 후단 배기 (계산값)
 Particulate filter	미립자 필터
 Catalyst, bank 1 sensor 1	촉매, 뱅크 1 센서 1
-Oil pressure	유압
+Oil pressure	오일 압력
 Oil pressure (absolute)	유압 (절대압)
 Oil level above minimum	최저 기준 대비 오일 레벨
 Oil level	오일 레벨
@@ -1647,7 +1650,7 @@ Oil operating hours	오일 작동 시간
 Oil pressure PWM duty cycle	유압 PWM 듀티비
 Oil pressure actual (absolute)	실제 유압 (절대압)
 Oil remaining distance (dipstick)	오일 잔여 거리 (레벨 측정)
-Oil temperature	유온
+Oil temperature	엔진오일 온도
 Oil temperature (unfiltered)	유온 (미필터링)
 Oil temperature after filter	필터 후단 유온
 Oil temperature in the sump	오일 팬 유온
@@ -2419,11 +2422,11 @@ M Track Mode (BMW M's track view)	M Track Mode (BMW M 트랙 화면)
 With the speed unit (mpg / km/L)	속도 단위에 맞춤 (mpg / km/L)
 Clock (M styles)	시계 (M 스타일)
 M car (S58)	M 차량 (S58)
-My car (set below)	내 설정값 (아래에서 설정)
-My car: red zone from	내 설정값: 레드존 시작
-My car: limiter	내 설정값: 리미터
-My car: boost gauge up to	내 설정값: 부스트 게이지 최대
-My car: fuel tank	내 설정값: 연료 탱크
+S58 (M car)	S58 (M 차량)
+Fuel tank size	연료 탱크 용량
+Car profile values	차량 프로필 설정값
+Speedometer up to (M Sport)	속도계 최대 (M Sport)
+Boost gauge up to (Toro)	부스트 게이지 최대 (Toro)
 With D / S / M (D1, S1, M1)	D / S / M 함께 (D1, S1, M1)
 The figure alone, as a Lamborghini	숫자만 (람보르기니처럼)
 Diesel: the rev counter reads 0 - 6,000, red from 4,500	디젤: 회전계 0 - 6,000, 4,500부터 빨강

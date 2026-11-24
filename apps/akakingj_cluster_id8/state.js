@@ -204,7 +204,15 @@
             /* electric range, and the drive battery's charge in per cent */
             erange: evText,
             charge: soc === null ? dash : String(Math.round(soc)),
-            hvtemp: hvC === null ? dash : deg(hvC)
+            hvtemp: hvC === null ? dash : deg(hvC),
+            /* the gearbox oil; the engine's torque and power (power from the torque and the revs) */
+            gearbox: has(raw.gearboxC) ? deg(raw.gearboxC) : dash,
+            torque: has(raw.torqueNm) ? String(Math.round(U.torqueIn(raw.torqueNm))) : dash,
+            power: has(raw.torqueNm) && has(raw.rpm) ? String(Math.round(U.powerIn(raw.torqueNm * raw.rpm / 9549))) : dash,
+            /* the trip computer's distance and driving time (h:mm), the odometer */
+            trip: has(raw.tripKm) ? U.distIn(raw.tripKm).toFixed(U.distIn(raw.tripKm) < 1000 ? 1 : 0) : dash,
+            tripTime: has(raw.tripMin) ? Math.floor(raw.tripMin / 60) + ':' + pad(raw.tripMin % 60, 2) : dash,
+            odo: has(raw.odoKm) ? String(Math.round(U.distIn(raw.odoKm))) : dash
         };
 
         var clockText = dash, clockHalf = '';
@@ -267,7 +275,8 @@
             num: opts.numbers ? { boostBar: has(raw.boostBar) ? raw.boostBar : null,
                    coolantC: has(watC) ? watC : null, oilC: has(oilC) ? oilC : null,
                    iatC: has(raw.iatC) ? raw.iatC : null, oilBar: has(oilP) ? oilP : null,
-                   volts: has(raw.batteryV) ? raw.batteryV : null, socPct: soc, hvC: hvC } : null,
+                   volts: has(raw.batteryV) ? raw.batteryV : null, socPct: soc, hvC: hvC,
+                   gearboxC: has(raw.gearboxC) ? raw.gearboxC : null } : null,
             info: info
         };
     }

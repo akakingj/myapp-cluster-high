@@ -33,7 +33,7 @@ const KIT = path.join(__dirname, '..', 'kit', 'runtime');
 const { ReadOnlyDiag } = require(path.join(KIT, 'readonly-diag.js'));
 const { DidReader } = require(path.join(KIT, 'dids.js'));
 
-const P = Panel.profile('b48');
+const P = Panel.profile('carprofile');
 const STYLES = ['toro', 'track', 'mplus'];
 const item = (key) => spec.settings.find((x) => x.key === key);
 /* the app's settings as a new install has them: every default, as the kit hands them over */
@@ -63,14 +63,14 @@ test('Engine is a setting on GENERAL: petrol as it comes, diesel only when the o
         assert.strictEqual(fresh.engine, 'petrol');
         const before = Object.assign({}, fresh);
         delete before.engine;
-        const a = Themes.build(atlas, 'b48', fresh), b = Themes.build(atlas, 'b48', before);
+        const a = Themes.build(atlas, 'carprofile', fresh), b = Themes.build(atlas, 'carprofile', before);
         assert.strictEqual(a.settings.engine, 'petrol');
         assert.deepStrictEqual(a.layers.map((L) => [L.id, L.shader, L.x, L.y, L.w, L.h]), b.layers.map((L) => [L.id, L.shader, L.x, L.y, L.w, L.h]));
         const raw = { rpm: 6900, speedKmh: 120, gear: '4', fuelPct: 50, oilTempC: 100, coolantC: 90 };
         const sa = State.present(raw, P, a.settings), sb = State.present(raw, P, b.settings);
         assert.deepStrictEqual(sa, sb);
         a.layers.forEach((L, i) => assert.deepStrictEqual(L.uniforms(sa, 0), b.layers[i].uniforms(sb, 0), style + '/' + L.id));
-        assert.deepStrictEqual([a.settings.scaleMaxRpm, a.settings.rpmRedline, a.settings.rpmLimiter], [8000, 6500, 7000]);
+        assert.deepStrictEqual([a.settings.scaleMaxRpm, a.settings.rpmRedline, a.settings.rpmLimiter], [8000, 6750, 7000]);
     }
     /* anything but "diesel" is petrol */
     for (const v of [undefined, null, '', 'petrol', 'auto', 'DIESEL', true, 1]) {
@@ -106,7 +106,7 @@ test('Redline and Limiter can be set for a diesel, and the tach scale is a petro
         assert.strictEqual(s.rpmLimiter, Math.max(l, s.rpmRedline));
     }
     /* a diesel's dial reads 0 - 6: the scale's own choice (every style's, General) is offered to a petrol only */
-    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: 'petrol' });
+    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: 'petrol', profile: 'carprofile' });
     assert.strictEqual(item('scaleMaxRpm').tab, 'general');
     assert.strictEqual(item('scaleMaxRpm').default, '8000');
 });
@@ -116,7 +116,7 @@ test('Redline and Limiter can be set for a diesel, and the tach scale is a petro
 test('a diesel\'s limits: the dial to 6,000, red from 4,500, the limit at 5,000 - for every car, unless set', () => {
     assert.deepStrictEqual(Palette.DIESEL, { scaleMaxRpm: 6000, rpmRedline: 4500, rpmLimiter: 5000, shiftSpan: 1300 });
     const r = (cfg, profile) => {
-        const s = Palette.resolve(Object.assign({ engine: 'diesel' }, cfg), Panel.profile(profile || 'b48'));
+        const s = Palette.resolve(Object.assign({ engine: 'diesel' }, cfg), Panel.profile(profile || 'carprofile'));
         return [s.scaleMaxRpm, s.rpmMax, s.rpmRedline, s.rpmLimiter, s.flashFromRpm, s.shiftFromRpm];
     };
     const OWN = [6000, 6000, 4500, 5000, 4850, 3200];
@@ -138,12 +138,14 @@ test('a diesel\'s limits: the dial to 6,000, red from 4,500, the limit at 5,000 
 
     /* and a petrol is what it was: its car's limits, the scale it chose, the shift lights from 1,800 below the redline */
     const p = (cfg, profile) => {
-        const s = Palette.resolve(cfg, Panel.profile(profile || 'b48'));
+        const s = Palette.resolve(cfg, Panel.profile(profile || 'carprofile'));
         return [s.scaleMaxRpm, s.rpmRedline, s.rpmLimiter, s.flashFromRpm, s.shiftFromRpm];
     };
-    assert.deepStrictEqual(p({}), [8000, 6500, 7000, 6850, 4700]);
+    assert.deepStrictEqual(p({}), [8000, 6750, 7000, 6850, 4950]);
     assert.deepStrictEqual(p({ engine: 'petrol', scaleMaxRpm: '10000', rpmRedline: '7250', rpmLimiter: '7500' }), [10000, 7250, 7500, 7350, 5450]);
-    assert.deepStrictEqual(p({}, 'mCarS58'), [8000, 7200, 7300, 7150, 5400]);
+    /* a car of GENERAL > Car: its own figures (an S58: red from 7,000, the limit 8,000, the yellow from 6,500) */
+    assert.deepStrictEqual(p({}, 'mCarS58'), [8000, 7000, 8000, 7850, 6500]);
+    assert.deepStrictEqual(p({ rpmRedline: '5000' }, 'b48'), [7000, 6000, 7000, 6850, 4200], 'GENERAL\'s are not used for it');
     /* the new, lower choices work for a petrol too (they are only numbers) */
     assert.deepStrictEqual(p({ rpmRedline: '4500', rpmLimiter: '5000' }), [8000, 4500, 5000, 4850, 2700]);
 });
@@ -151,15 +153,15 @@ test('a diesel\'s limits: the dial to 6,000, red from 4,500, the limit at 5,000 
 /* ------------------------------------------------------------------- Toro */
 
 test('Toro on a diesel: the dial marked 1 to 6, red from 4.5, and shift lights a diesel can reach', () => {
-    const d = Toro.build(atlas, 'b48', { engine: 'diesel' }), p = Toro.build(atlas, 'b48', {});
+    const d = Toro.build(atlas, 'carprofile', { engine: 'diesel' }), p = Toro.build(atlas, 'carprofile', {});
     const state = (t, rpm) => State.present({ rpm }, P, t.settings);
     const vals = (t) => { const u = layer(t, 'arcNums').uniforms(state(t, 0), 0); return Array.from({ length: u.u_cfg[0] }, (_, i) => u.u_gt[i * 4]); };
     assert.deepStrictEqual(vals(d), [1, 2, 3, 4, 5, 6]);
     assert.deepStrictEqual(vals(p), [1, 2, 3, 4, 5, 6, 7, 8]);
     assert.strictEqual(d.dial.redV, 4.5);
-    assert.strictEqual(p.dial.redV, 6.5);
+    assert.strictEqual(p.dial.redV, 6.75);
     /* it is the dial a petrol has with "0 - 6,000" chosen: the same layers, in the same places */
-    const six = Toro.build(atlas, 'b48', { scaleMaxRpm: 6000 });
+    const six = Toro.build(atlas, 'carprofile', { scaleMaxRpm: 6000 });
     assert.deepStrictEqual(d.layers.map((L) => [L.id, L.shader, L.x, L.y, L.w, L.h, L.z]), six.layers.map((L) => [L.id, L.shader, L.x, L.y, L.w, L.h, L.z]));
     /* the needle travels the whole dial: 3,000 is half-way round, 6,000 the end */
     const rev = (t, rpm) => layer(t, 'dial').uniforms(state(t, rpm), 0).u_frac;
@@ -174,12 +176,12 @@ test('Toro on a diesel: the dial marked 1 to 6, red from 4.5, and shift lights a
     assert.strictEqual(shift(d, 5000).u_frac, 1);
     assert.deepStrictEqual([shift(d, 4900).u_strobe, shift(d, 4940).u_strobe, shift(d, 5000).u_strobe], [0, 1, 1]);
     /* a petrol's begin where they always did: 1,800 below its redline, full at its limiter */
-    assert.strictEqual(shift(p, 4700).u_frac, 0);
-    assert.ok(Math.abs(shift(p, 5850).u_frac - 0.5) < 1e-9);
+    assert.strictEqual(shift(p, 4950).u_frac, 0);
+    assert.ok(Math.abs(shift(p, 5975).u_frac - 0.5) < 1e-9);
     assert.strictEqual(shift(p, 7000).u_frac, 1);
     assert.strictEqual(shift(p, 5000).u_strobe, 0);
-    /* ... which a diesel never came near: at a diesel's limit a petrol's lights have barely begun */
-    assert.ok(shift(p, 5000).u_frac < 0.15);
+    /* ... which a diesel never came near: at a diesel's limit a petrol's lights are barely on */
+    assert.ok(shift(p, 5000).u_frac < 0.03);
 
     /* the limiter: the flash and the dial's warning at a diesel's limit, not a petrol's */
     assert.strictEqual(state(d, 5000).limiter, 1);
@@ -204,7 +206,7 @@ test('the engine speed is read the same way for either engine: the car\'s own si
     assert.strictEqual(Vehicle.SIGNALS[CDS].statusEngineSpeed2, 'rs');
     /* and each style shows it on a diesel's dial */
     for (const style of STYLES) {
-        const t = Themes.build(atlas, 'b48', { style, engine: 'diesel' });
+        const t = Themes.build(atlas, 'carprofile', { style, engine: 'diesel' });
         const st = State.present(r.raw(1100), P, t.settings);
         assert.strictEqual(st.rpm, 4500);
         if (style === 'toro') assert.strictEqual(layer(t, 'dial').uniforms(st, 0).u_frac, 4.5);
@@ -232,7 +234,7 @@ test('on the cluster: a diesel\'s M dial goes up as its own shader, is driven, a
     assert.deepStrictEqual(Clock.GATES.mgauge6, Clock.GATES.mgauge, 'on the clock\'s list, as the petrol dial is');
     for (const style of ['track', 'mplus']) {
         const cr = fakeCR();
-        const theme = Themes.build(atlas, 'b48', { style, engine: 'diesel' });
+        const theme = Themes.build(atlas, 'carprofile', { style, engine: 'diesel' });
         const d = Driver.create({ cr, theme, shaders: SHADERS, atlas, atlasPixels: Buffer.alloc(atlas.size * atlas.size) });
         d.ready();
         const refs = d.refs(), byRef = {};
@@ -427,7 +429,7 @@ function harness(t, initial, more) {
         uniform() {}, bind() {}, set() {}, drop() {}, pixels() {}, close() {}
     };
     let onValue = null, changed = null, clock = 1000000;
-    let values = Object.assign({ profile: 'b48', enabled: true }, initial);
+    let values = Object.assign({ profile: 'carprofile', enabled: true }, initial);
     const logs = [];
     const host = {
         log: { info: (m) => logs.push(m), warn: (m) => logs.push('WARN ' + m) },

@@ -15,7 +15,7 @@ const atlas = require('../assets/fonts/atlas.json');
 const State = require('../src/engine/state.js');
 const Panel = require('../src/geometry/panel.js');
 const Sim = require('../preview/sim.js');
-const profile = Panel.profile('b48');
+const profile = Panel.profile('carprofile');
 const frame = () => State.present(Sim.create(profile).raw(), profile, {});
 const core = require('../src/shaders/core.js');
 const parts = require('../src/shaders/parts.js');
@@ -43,12 +43,12 @@ const drive = (cr, theme, adopt) => Driver.create({ cr, theme, shaders: SHADERS,
 
 test('the same layers with other colours: taken over, nothing dropped, made or uploaded again', () => {
     const cr = fakeCR();
-    const a = drive(cr, Theme.build(atlas, 'b48', { style: 'toro', accent: 'arancio' }));
+    const a = drive(cr, Theme.build(atlas, 'carprofile', { style: 'toro', accent: 'arancio' }));
     a.ready();
     a.tick(frame());
     const layers = cr.calls.effect.length;
     cr.reset();
-    const t2 = Theme.build(atlas, 'b48', { style: 'toro', accent: 'verde' });
+    const t2 = Theme.build(atlas, 'carprofile', { style: 'toro', accent: 'verde' });
     assert.strictEqual(t2.layers.length, layers);
     const b = drive(cr, t2, a);
     b.ready();
@@ -63,11 +63,11 @@ test('the same layers with other colours: taken over, nothing dropped, made or u
 
 test('another style: the old layers dropped first, the new ones built with their atlas', () => {
     const cr = fakeCR();
-    const a = drive(cr, Theme.build(atlas, 'b48', { style: 'toro' }));
+    const a = drive(cr, Theme.build(atlas, 'carprofile', { style: 'toro' }));
     a.ready();
     const old = cr.calls.effect.length + 1;            /* its layers and its atlas */
     cr.reset();
-    const t2 = Theme.build(atlas, 'b48', { style: 'mplus' });
+    const t2 = Theme.build(atlas, 'carprofile', { style: 'mplus' });
     const b = drive(cr, t2, a);
     b.ready();
     assert.strictEqual(cr.calls.drop.length, old);
@@ -98,8 +98,8 @@ test('a uniform the new settings leave out goes back to 0, as on a layer made ne
 
 test('not built yet (the cluster off): nothing to take over, the next one builds its own', () => {
     const cr = fakeCR();
-    const a = drive(cr, Theme.build(atlas, 'b48', { style: 'toro' }));
-    const b = drive(cr, Theme.build(atlas, 'b48', { style: 'toro' }), a);
+    const a = drive(cr, Theme.build(atlas, 'carprofile', { style: 'toro' }));
+    const b = drive(cr, Theme.build(atlas, 'carprofile', { style: 'toro' }), a);
     b.ready();
     assert.strictEqual(cr.calls.asset.length, 1);
     assert.strictEqual(cr.calls.pixels.length, 1);

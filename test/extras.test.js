@@ -21,7 +21,7 @@ const Message = require('../src/car/message.js');
 const Main = require('../src/car/main.js');
 const atlas = require('../assets/fonts/atlas.json');
 
-const P = Panel.profile('b48');
+const P = Panel.profile('carprofile');
 const find = (th, id) => th.layers.find((L) => L.id === id);
 
 function stateAt(rpm, extra) {
@@ -32,7 +32,7 @@ function stateAt(rpm, extra) {
 /* ------------------------------------------------------------ gauges */
 
 test('the side gauges are slanted bars, inside the screen and above the strip', () => {
-    const th = Toro.build(atlas, 'b48', {});
+    const th = Toro.build(atlas, 'carprofile', {});
     for (const id of ['fuel', 'coolant', 'oilT', 'auxPress']) {
         const L = find(th, 'bar_' + id);
         assert.ok(L, id);
@@ -49,15 +49,15 @@ test('the side gauges are slanted bars, inside the screen and above the strip', 
 });
 
 test('a gauge with no reading shows no needle', () => {
-    const th = Toro.build(atlas, 'b48', {});
+    const th = Toro.build(atlas, 'carprofile', {});
     const st = State.present({ rpm: 900 }, P, {});
     assert.strictEqual(find(th, 'bar_oilT').uniforms(st).u_on, 0);
 });
 
 test('the scale numbers follow the units', () => {
     const glyphs = (th, id) => th.layers.filter((L) => L.id.indexOf(id) === 0).length;
-    const imp = Toro.build(atlas, 'b48', { units: 'imperial' });
-    const met = Toro.build(atlas, 'b48', { units: 'metric' });
+    const imp = Toro.build(atlas, 'carprofile', { units: 'imperial' });
+    const met = Toro.build(atlas, 'carprofile', { units: 'metric' });
     assert.ok(glyphs(imp, 'scale_oilT') >= 1 && glyphs(met, 'scale_oilT') >= 1);
     /* oil temperature 50..170 C is 122..338 F */
     const Text = require('../src/engine/text.js');
@@ -70,14 +70,14 @@ test('shift light kinds: Toro by default, the old switch still turns them off', 
     assert.strictEqual(Palette.resolve({}, P).shiftStyle, 'toro');
     assert.strictEqual(Palette.resolve({ shiftLights: false }, P).shiftStyle, 'off');
     assert.strictEqual(Palette.resolve({ shiftStyle: 'nonsense' }, P).shiftStyle, 'toro');
-    const th = Toro.build(atlas, 'b48', {});
+    const th = Toro.build(atlas, 'carprofile', {});
     const u = find(th, 'shift').uniforms(stateAt(7000));
     assert.strictEqual(u.u_style, 1);
     assert.strictEqual(u.u_burst, 1);
     assert.strictEqual(u.u_strobe, 1, 'at the limiter');
-    const gt3 = Toro.build(atlas, 'b48', { shiftStyle: 'gt3' });
+    const gt3 = Toro.build(atlas, 'carprofile', { shiftStyle: 'gt3' });
     assert.strictEqual(find(gt3, 'shift').uniforms(stateAt(7000)).u_style, 0);
-    assert.ok(!find(Toro.build(atlas, 'b48', { shiftStyle: 'off' }), 'shift'));
+    assert.ok(!find(Toro.build(atlas, 'carprofile', { shiftStyle: 'off' }), 'shift'));
 });
 
 test('shake keys: a jolt that dies away, resting between bursts', () => {
@@ -86,7 +86,7 @@ test('shake keys: a jolt that dies away, resting between bursts', () => {
     assert.strictEqual(k[k.length - 1], '900:0,0,0');
     for (const key of k) assert.strictEqual(key.split(':')[1].split(',').length, 3, 'translate: x, y, z');
     assert.ok(k.length <= 256);
-    assert.strictEqual(Toro.build(atlas, 'b48', { shake: 'off' }).shakeKeys, null);
+    assert.strictEqual(Toro.build(atlas, 'carprofile', { shake: 'off' }).shakeKeys, null);
 });
 
 function fakeCR() {
@@ -106,7 +106,7 @@ function fakeCR() {
 test('the cluster shakes at the limiter, moved from here on our own clock, and settles after', () => {
     /* (it used to be an animation the renderer played: on the car that never ran) */
     const cr = fakeCR();
-    const theme = Toro.build(atlas, 'b48', { bottomExtra: 'hide' });
+    const theme = Toro.build(atlas, 'carprofile', { bottomExtra: 'hide' });
     const d = Driver.create({ cr, theme, shaders: Main.shaders(), atlas,
         atlasPixels: Buffer.alloc(atlas.size * atlas.size) });
     d.ready();
@@ -158,19 +158,19 @@ test('the cluster shakes at the limiter, moved from here on our own clock, and s
 
 test('holiday: snow down both sides and a tree, behind the instruments', () => {
     for (const style of ['toro', 'track', 'mplus']) {
-        const th = Themes.build(atlas, 'b48', { style, holiday: true });
+        const th = Themes.build(atlas, 'carprofile', { style, holiday: true });
         const ids = th.layers.map((L) => L.id);
         assert.ok(ids.includes('snow0') && ids.includes('snow1') && ids.includes('tree'), style);
         for (const L of th.layers.filter((L) => /^snow|^tree/.test(L.id))) {
             assert.ok(L.z < 10, 'behind the readouts');
             assert.ok(L.x >= 0 && L.x + L.w <= Panel.PANEL_WIDTH && L.y + L.h <= Panel.BOTTOM_CUT);
         }
-        assert.ok(!Themes.build(atlas, 'b48', { style }).layers.some((L) => L.id === 'tree'));
+        assert.ok(!Themes.build(atlas, 'carprofile', { style }).layers.some((L) => L.id === 'tree'));
     }
 });
 
 test('the start-up message: held, then faded into the cluster, then gone', () => {
-    const th = Themes.build(atlas, 'b48', { intro: true, introSeconds: '10' });
+    const th = Themes.build(atlas, 'carprofile', { intro: true, introSeconds: '10' });
     const veil = find(th, 'introVeil');
     const text = th.layers.filter((L) => /^introText/.test(L.id));
     assert.ok(veil && text.length >= 3, 'the words take several 12-glyph layers');
@@ -183,13 +183,13 @@ test('the start-up message: held, then faded into the cluster, then gone', () =>
     assert.strictEqual(text[0].uniforms(at(14)), null, 'gone');
     assert.strictEqual(veil.uniforms(at(14)), null, 'gone');
     assert.strictEqual(veil.uniforms(at(-1)), null, 'not before the cluster is up');
-    assert.ok(!Themes.build(atlas, 'b48', {}).layers.some((L) => L.id === 'introVeil'));
+    assert.ok(!Themes.build(atlas, 'carprofile', {}).layers.some((L) => L.id === 'introVeil'));
 });
 
 test('the start-up message comes up on the dark, never over the cluster: the veil is whole until the words have begun to go', () => {
     for (const hold of [3, 10, 30]) {
         for (const style of ['toro', 'track', 'mplus', 'mtrack']) {
-            const th = Themes.build(atlas, 'b48', { style, intro: true, introSeconds: String(hold) });
+            const th = Themes.build(atlas, 'carprofile', { style, intro: true, introSeconds: String(hold) });
             const veil = find(th, 'introVeil'), text = th.layers.filter((L) => /^introText/.test(L.id))[0];
             const va = (t) => { const u = veil.uniforms({ sinceOn: t }); return u ? u.u_a : 0; };
             const ta = (t) => { const u = text.uniforms({ sinceOn: t }); return u ? u.u_color[3] : 0; };
@@ -287,14 +287,14 @@ test('the G meter: a right-hand turn reads to the right, braking down', () => {
     /* the bus is ISO: lateral positive to the left */
     const right = State.present({ rpm: 2000, gLat: -0.5, gLon: -0.3 }, P, {});
     assert.ok(right.gX > 0.49 && right.gY < -0.29);
-    const th = Toro.build(atlas, 'b48', {});
+    const th = Toro.build(atlas, 'carprofile', {});
     const L = (id) => find(th, id).uniforms(Object.assign(right, { now: 0 }));
     assert.strictEqual(L('gR').u_count > 0, true);
     assert.deepStrictEqual(find(th, 'gforce').uniforms(Object.assign({}, right, { now: 0 })).u_g, [right.gX, right.gY]);
 });
 
 test('the G peak is held a few seconds as a line, then fades away', () => {
-    const th = Toro.build(atlas, 'b48', {});
+    const th = Toro.build(atlas, 'carprofile', {});
     const g = find(th, 'gforce');
     const st = (lat, now) => Object.assign(State.present({ rpm: 2000, gLat: lat, gLon: 0 }, P, {}), { now });
     let u = g.uniforms(st(-0.9, 1000));
@@ -310,7 +310,7 @@ test('the G peak is held a few seconds as a line, then fades away', () => {
 });
 
 test('boost: level with the speed, a step bigger each psi, its gauge sweeping right to left', () => {
-    const th = Toro.build(atlas, 'b48', {});
+    const th = Toro.build(atlas, 'carprofile', {});
     const num = find(th, 'boostNum'), gauge = find(th, 'boostGauge'), speed = find(th, 'speed');
     const at = (psi) => Object.assign(stateAt(4000), { boostPsi: psi });
     const height = (psi) => num.uniforms(at(psi)).u_quad[3];
@@ -327,7 +327,7 @@ test('boost: level with the speed, a step bigger each psi, its gauge sweeping ri
 });
 
 test('holiday: the snow keeps off the side gauges', () => {
-    const th = Themes.build(atlas, 'b48', { holiday: true });
+    const th = Themes.build(atlas, 'carprofile', { holiday: true });
     for (const id of ['snow0', 'snow1']) {
         const L = find(th, id);
         const clear = L.uniforms().u_clear;
@@ -360,7 +360,7 @@ test('electric range: off as it comes, and then nothing of a battery is shown or
     assert.strictEqual(off.info.erange, '--');
     assert.strictEqual(off.pods.battery.text, '--');
     assert.strictEqual(off.pods.fuel.text, '50');
-    const t = Themes.build(atlas, 'b48', { style: 'toro' });
+    const t = Themes.build(atlas, 'carprofile', { style: 'toro' });
     assert.strictEqual(t.electricGauge, null);
     assert.ok(!t.layers.some((L) => /battery/.test(L.id)));
     /* the signals are optional: a head unit without them installs and runs */
@@ -404,7 +404,7 @@ test('electric range: a plug-in hybrid has it beside the fuel\'s, an electric ca
 });
 
 test('electric range in Toro takes one gauge\'s place, and only that one', () => {
-    const ids = (cfg) => Themes.build(atlas, 'b48', Object.assign({ style: 'toro' }, cfg)).layers.map((L) => L.id);
+    const ids = (cfg) => Themes.build(atlas, 'carprofile', Object.assign({ style: 'toro' }, cfg)).layers.map((L) => L.id);
     const bars = (cfg) => ids(cfg).filter((id) => /^bar_/.test(id)).sort();
     assert.deepStrictEqual(bars({}), ['bar_auxPress', 'bar_coolant', 'bar_fuel', 'bar_oilT']);
     assert.deepStrictEqual(bars({ electric: 'hybrid' }), ['bar_battery', 'bar_coolant', 'bar_fuel', 'bar_oilT'], 'hybrid: oil pressure makes way');
@@ -417,7 +417,7 @@ test('electric range in Toro takes one gauge\'s place, and only that one', () =>
     }
     assert.strictEqual(new Set(ids({ electric: 'bev' })).size, ids({ electric: 'bev' }).length, 'no two layers share a name');
     /* it stands exactly where the gauge it replaced stood, and shows the range and the charge */
-    const a = Themes.build(atlas, 'b48', { style: 'toro' }), b = Themes.build(atlas, 'b48', { style: 'toro', electric: 'bev' });
+    const a = Themes.build(atlas, 'carprofile', { style: 'toro' }), b = Themes.build(atlas, 'carprofile', { style: 'toro', electric: 'bev' });
     const A = a.layers.find((L) => L.id === 'bar_fuel'), B = b.layers.find((L) => L.id === 'bar_battery');
     assert.deepStrictEqual([B.x, B.y, B.w, B.h], [A.x, A.y, A.w, A.h]);
     const st = State.present({ evRangeKm: 310, socPct: 64 }, P, b.settings);
@@ -426,7 +426,7 @@ test('electric range in Toro takes one gauge\'s place, and only that one', () =>
     assert.strictEqual(B.uniforms(State.present({}, P, b.settings)).u_on, 0, 'dark with nothing reported');
     assert.ok(b.layers.length <= 64);
     /* with oil pressure's gauge gone, nobody is asked for oil pressure */
-    assert.strictEqual(Themes.build(atlas, 'b48', { style: 'toro', electric: 'hybrid' }).shows.oil, false);
+    assert.strictEqual(Themes.build(atlas, 'carprofile', { style: 'toro', electric: 'hybrid' }).shows.oil, false);
     assert.strictEqual(a.shows.oil, true);
 });
 
@@ -448,15 +448,15 @@ test('a fully electric car: battery temperature where oil temperature was, in To
     assert.strictEqual(State.present(raw, P, { electric: 'bev', units: 'metric' }).info.hvtemp, '26');
     assert.ok(State.present({ hvTempC: 52 }, P, { electric: 'bev' }).pods.batteryTemp.alarm, 'hot: it warns');
     /* Toro: the gauge stands where the oil temperature's stood */
-    const a = Themes.build(atlas, 'b48', { style: 'toro' }), b = Themes.build(atlas, 'b48', { style: 'toro', electric: 'bev' });
+    const a = Themes.build(atlas, 'carprofile', { style: 'toro' }), b = Themes.build(atlas, 'carprofile', { style: 'toro', electric: 'bev' });
     const A = a.layers.find((L) => L.id === 'bar_oilT'), B = b.layers.find((L) => L.id === 'bar_batteryT');
     assert.deepStrictEqual([B.x, B.y, B.w, B.h], [A.x, A.y, A.w, A.h]);
     assert.ok(Math.abs(B.uniforms(State.present(raw, P, b.settings)).u_frac - 36 / 70) < 1e-9);
-    assert.ok(!Themes.build(atlas, 'b48', { style: 'toro', electric: 'hybrid' }).layers.some((L) => L.id === 'bar_batteryT'), 'a hybrid keeps its oil temperature');
-    assert.ok(Themes.build(atlas, 'b48', { style: 'toro', electric: 'bev', electricGauge: 'oilT' }).layers.some((L) => L.id === 'bar_battery'), 'asked to, the range takes that gauge instead');
+    assert.ok(!Themes.build(atlas, 'carprofile', { style: 'toro', electric: 'hybrid' }).layers.some((L) => L.id === 'bar_batteryT'), 'a hybrid keeps its oil temperature');
+    assert.ok(Themes.build(atlas, 'carprofile', { style: 'toro', electric: 'bev', electricGauge: 'oilT' }).layers.some((L) => L.id === 'bar_battery'), 'asked to, the range takes that gauge instead');
     /* M styles: the oil strip is the battery's temperature, the fuel strip its charge; neither keeps an engine's symbol */
     for (const style of ['track', 'mplus']) {
-        const off = Themes.build(atlas, 'b48', { style }), m = Themes.build(atlas, 'b48', { style, electric: 'bev' });
+        const off = Themes.build(atlas, 'carprofile', { style }), m = Themes.build(atlas, 'carprofile', { style, electric: 'bev' });
         const lay = (t, id) => t.layers.find((L) => L.id === id);
         assert.ok(lay(off, 'fuelIcon') && lay(off, 'oilIcon'));
         assert.ok(!lay(m, 'fuelIcon') && !lay(m, 'oilIcon'), style);
@@ -477,7 +477,7 @@ test('the speed limit sign\'s edge in BMW\'s strip can be covered: a small patch
     assert.ok(p.x <= 461 && p.x + p.w >= 509 && p.y === Panel.BOTTOM_CUT && p.y + p.h >= 676 && p.y + p.h <= 677);
     assert.ok(p.x + p.w < g.x - 800);
     for (const style of ['toro', 'track', 'mplus']) {
-        const ids = (cfg) => Themes.build(atlas, 'b48', Object.assign({ style }, cfg)).layers.filter((L) => /^strip/.test(L.id));
+        const ids = (cfg) => Themes.build(atlas, 'carprofile', Object.assign({ style }, cfg)).layers.filter((L) => /^strip/.test(L.id));
         assert.deepStrictEqual(ids({}), [], 'off: nothing');
         for (const bottomExtra of ['0', '6', '18']) {
             const c = ids({ signCover: true, bottomExtra });
@@ -489,7 +489,7 @@ test('the speed limit sign\'s edge in BMW\'s strip can be covered: a small patch
         }
         /* with the strip hidden it is covered already: the two covers, and no third */
         assert.deepStrictEqual(ids({ signCover: true, bottomExtra: 'hide' }).map((L) => L.id), ['stripL', 'stripR']);
-        const t = Themes.build(atlas, 'b48', { style, signCover: true, holiday: true, intro: true, electric: 'bev' });
+        const t = Themes.build(atlas, 'carprofile', { style, signCover: true, holiday: true, intro: true, electric: 'bev' });
         assert.ok(t.layers.length <= 64, style + ': ' + t.layers.length + ' layers');
     }
 });
@@ -500,7 +500,7 @@ test('one speed or two in the M styles, each style its own; a new install trims 
         const item = spec.settings.find((x) => x.key === key);
         assert.deepStrictEqual([item.default, item.options.map((o) => o[0])], ['on', ['on', 'off']]);
         assert.strictEqual(Themes.keyFor(style, 'speed2'), key);
-        const has = (cfg, id) => Themes.build(atlas, 'b48', Object.assign({ style }, cfg)).layers.some((L) => L.id === id);
+        const has = (cfg, id) => Themes.build(atlas, 'carprofile', Object.assign({ style }, cfg)).layers.some((L) => L.id === id);
         assert.ok(has({}, 'speed2') && has({}, 'speed2Unit'), 'both, as the M View has them');
         assert.ok(has({ [key]: 'on' }, 'speed2'));
         for (const units of ['imperial', 'metric']) {

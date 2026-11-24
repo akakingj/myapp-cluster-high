@@ -15,13 +15,22 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
 
 ## AK 0.15.0
 
-- **GENERAL > Car: B48, B58, M car (S58), Plug-in hybrid, My car.** The X3 M40i is gone (a saved one reads as the
-  B48, as it comes now: red from 6,500, the limit at 7,000, a 59 L tank, boost to 20 psi); "Other B58" is the B58.
-  *My car* takes its red zone, limiter, Toro's boost gauge top and the fuel tank from GENERAL > *My car: ...*
-  (`Panel.profileFor`). The car's tank turns the fuel's litres into the gauge's level (the X3 M40i's 65 L was
-  taken for any car left as it came).
+- **GENERAL > Car: B48, B58, S58 (M car), Plug-in hybrid, Car profile values.** Each engine has its own figures
+  (`src/geometry/panel.js` rev): the most it revs (the limiter; the tach to the thousand at or over it), the red
+  zone, where to shift (Shift now: the shift lights flash, the speed and the gear blink), the yellow, the
+  speedometer's top - B48 7,000 / red 6,000 / shift 6,500, 260 km/h; B58 7,500 / 6,500 / 7,000, 260 km/h; S58
+  8,000 / 7,000 / 7,500, yellow 6,500, 330 km/h (the M dial's amber from there, the speedometer to 330). With
+  one chosen, GENERAL's Redline, Limiter, Shift lights from, Shift now at and Tach scale are not used: they show,
+  with the speedometer's top, Toro's boost gauge top and the fuel tank, for *Car profile values* only (set there
+  or by the Car profile app). The X3 M40i is gone (a saved one reads as the B48, as it comes now). Each car's
+  tank turns the fuel's litres into the gauge's level (the X3 M40i's 65 L was taken for any car left as it came).
 - **TORO > Gear: D1, S1, M1** as it comes - the gear with the gearbox's programme (MDrive.dataDisplayGearbox, as
   Cluster Layouts reads it), the pair smaller than a single figure; or the figure alone, as a Lamborghini.
+- **More readings, as Cluster Layouts has them**: the gearbox oil (BasicDataSet), the engine's torque and power
+  (FES statusActualValueTorque2; GENERAL > Torque unit, Power unit, the Car profile's), the trip computer's
+  distance and driving time (KombiIF statusBordcomputerTravelData), the odometer - in every M style's footer
+  places, and the gearbox oil in M Track Mode's gauge rows (its word, TRANS, where a symbol would be). In Korean
+  "Oil temperature" and "Oil pressure" read 엔진오일 온도 and 오일 압력.
 
 ## AK 0.14.1
 

@@ -14,7 +14,7 @@ const ROOT = path.join(__dirname, '..');
 const spec = require('../app/app.base.json');
 const ko = require('../kit/runtime/locales/ko.json');
 /* (figures with their units, and engine codes: the same in Korean) */
-const plain = (t) => !t || /^[A-Z]\d{2}$/.test(t) || /^[0-9 ,.\-–°CFkmh/%x()]+$/.test(t.replace(/\b(psi|bar|L)\b/g, ''));
+const plain = (t) => !t || /^[A-Z]\d{2}$/.test(t) || /^(Nm|kgm|lb-ft|hp|PS|kW)$/.test(t) || /^[0-9 ,.\-–°CFkmh/%x()]+$/.test(t.replace(/\b(psi|bar|L|mph)\b|km\/h/g, ''));
 
 test('every setting\'s name and choice is in Korean', () => {
     const missing = [];
