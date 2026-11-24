@@ -91,10 +91,11 @@ Central display area* to *Map view*.
 
 Everything is set on the app's page on iDrive — nothing on the cluster.
 
-- **GENERAL**: on / off, start with the car, the style, units, your car,
-  **petrol or diesel**, the tach scale (0 - 6,000 to 0 - 10,000, every style), redline and limiter, the limiter
-  flash, **Shift now at** (off as it comes; from there the shift lights flash and the speed and the gear blink
-  red, in every style), the **cold engine** guard (the shift point and the red zone lower while the oil is cold),
+- **GENERAL**: on / off, start with the car, the style, units, **your car** (B48, B58, S58 or a plug-in hybrid,
+  each with its own red zone, limiter, shift point and speedometer; or *Car profile values*, which brings the
+  tach scale, redline, limiter and **Shift now at** to set yourself), **petrol or diesel**, the limiter flash
+  (past the shift point the shift lights flash and the speed and the gear blink red, in every style), the
+  **cold engine** guard (the shift point and the red zone lower while the oil is cold),
   BMW's bottom strip (show, trim or hide it), **electric range** for
   plug-in hybrids and fully electric cars (off until you turn it on: a
   hybrid gets its electric range beside the fuel's; a fully electric car
@@ -102,7 +103,8 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
   the holiday theme, the start-up message.
 - **TORO / M SPORT / M SPORT PLUS / M TRACK**: each style's own — what
   its middle (or M Track Mode's left wing) shows and how much of it,
-  colours, the gear, the gauge rows, the footer's readings.
+  colours, the gear (Toro: D1, S1, M1), the gauge rows and strips, Toro's four side gauges, the footer's
+  readings.
   **km/h only** in an M style: *GENERAL → Units → km/h*, then on the
   style's tab *Second speed underneath → One speed only* (the M View
   otherwise shows mph and km/h together).
@@ -158,8 +160,9 @@ Everything on it is your car's live figures, in the units you chose.
 - **Four gauge rows** in the left wing. As they come they are BMW's own
   four: turbo boost, coolant, oil temperature and intake air. On the
   **M TRACK** tab, *Gauge row 1 (top)* … *Gauge row 4 (bottom)* give each
-  row another reading — oil pressure, battery voltage, a drive battery's
-  charge or temperature — or leave it out.
+  row another reading — oil pressure, the gearbox oil, battery voltage,
+  the accelerator pedal, the throttle, the ignition angle, a drive
+  battery's charge or temperature — or leave it out.
 - **A row shows its reading as a small mark on its rail.** That is as much
   as the photograph gives away (it was taken with the car idling). If the
   marks are too small to read at a glance: *Gauge rows: the reading shows
@@ -167,8 +170,9 @@ Everything on it is your car's live figures, in the units you chose.
 - **The gear**, large, with the speed under it; **the rev counter** on the
   right, red under its white marker, with the red zone, the limiter flash
   and a diesel's range as in the other styles; **oil temperature and
-  fuel** beside it; and three places along the foot that take any reading
-  (*Footer, left / middle / right*).
+  fuel** beside it, two strips that take any reading a row can, or the
+  fuel (*Strip right of the rev counter, left / right*); and three places
+  along the foot that take any reading (*Footer, left / middle / right*).
 
 ![The gauge rows: as marks, as bars, in other units, with other readings](docs/screenshots/m-track-rows.png)
 
@@ -202,9 +206,9 @@ gear.
 
 ## If your car is a diesel
 
-As it comes the app is set for a petrol engine: a rev counter to 8,000
-with its red zone, shift lights and limiter flash near 7,000 — which a
-diesel never reaches, so its revs stay in the bottom half and nothing
+As it comes the app is set for a petrol engine (the B48): a rev counter
+to 7,000, its red zone from 6,000, shift lights and the limiter flash near
+it — which a diesel never reaches, so its revs stay in the bottom half and nothing
 lights up. Tell the app it is a diesel:
 
 1. Open the app from iDrive's menu.
@@ -215,14 +219,14 @@ That gives every style a diesel's rev counter:
 
 | | Petrol (as it comes) | Diesel |
 |---|---|---|
-| The rev counter reads | 0 – 8,000 | **0 – 6,000** |
-| Red zone from | the car's (6,750 on the X3 M40i) | **4,500** |
+| The rev counter reads | 0 – 7,000 | **0 – 6,000** |
+| Red zone from | the car's (6,000 on the B48) | **4,500** |
 | Limiter flash, last shift light | the car's (7,000) | **5,000** |
 | Toro's shift lights begin at | 1,800 below the redline | **3,200** |
 
-If your engine revs higher or lower than that, set **Redline** and
-**Limiter** on the same tab (from 3,000 and 4,000 upwards); *From the car*
-is the diesel's own figures above.
+If your engine revs higher or lower than that, choose **Car → Car profile
+values** and set **Redline** and **Limiter** on the same tab (from 3,000
+and 4,000 upwards); *From the car* is the diesel's own figures above.
 
 On a diesel, Toro's lower left gauge shows turbo
 pressure, not oil pressure: the app only asks a diesel's engine unit the

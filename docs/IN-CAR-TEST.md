@@ -29,7 +29,21 @@ still stand, except where a newer check says otherwise.
 - For anything in the middle (a map, the camera): the car's **Instrument
   cluster > Central display area** on **Map view**.
 
+## Cars, the gear, more readings, the strips and gauges (AK 0.15.0)
+
+| # | Do | Look for |
+|---|---|---|
+| C1 | GENERAL → *Car*: B48, then B58, then S58 (M car) | The tach ends at 7 / 8 / 8 (thousand), red from 6,000 / 6,500 / 7,000; revved past 6,500 / 7,000 / 7,500 the speed and the gear blink and Toro's shift lights flash. S58: the M dials amber from 6,500 and the speedometer to 330 km/h. Redline, Limiter, Shift lights from, Shift now at and Tach scale are not on GENERAL |
+| C2 | *Car → Car profile values* | Those rows come back, with the speedometer's top, the boost gauge's top and the fuel tank |
+| C3 | Toro, in D, then S, then M (manual) | D1 … / S1 … / M1 … beside the gear's figure, the pair a little smaller; *TORO → Gear → The figure alone, as a Lamborghini* shows 1 … as before |
+| C4 | M Track: rows and footer places set to *Gearbox oil temperature*, *Torque*, *Odometer*, *Trip* | TRANS (row), TQ, ODO, TRIP with sensible figures; the gearbox oil climbs slower than the engine oil after a cold start |
+| C5 | M TRACK → *Strip right of the rev counter, left* / *… right*: e.g. gearbox oil and coolant, then *Nothing* | Each strip, its three figures, unit and symbol follow; *Nothing* leaves the place empty. As they come: the oil and the fuel, the fuel strip lit from the bottom up to the level, its lowest piece orange only when nearly empty |
+| C6 | TORO → *Left upper gauge* … *Right lower gauge*: e.g. gearbox oil, intake air, battery voltage, oil pressure | Each gauge relabels (TEMP. CAMBIO, TEMP. ARIA, BATTERIA V, PRESS. OLIO) with its own scale and red end; *Nothing* leaves it empty; *As the style has it* puts the original back. No ESC block right of the gear |
+| C7 | M Track rows or strips / Toro gauges set to *Accelerator pedal*, *Throttle*, *Ignition timing*, engine running | PEDAL and THR follow your foot (0 – 100 %), IGN moves with load (a few degrees to about 40). The CLUSTER tab's *Readings* row names them. **If any stays at dashes, say which** |
+
 ## Shift now, the cold engine and the Car profile (AK 0.14.0)
+
+With GENERAL → *Car → Car profile values* (the other cars bring their own figures: C1).
 
 | # | Do | Look for |
 |---|---|---|

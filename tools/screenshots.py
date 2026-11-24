@@ -71,7 +71,7 @@ BG, INK, DIM = (7, 11, 17), (232, 240, 246), (141, 154, 166)
 # single pictures: name, title, what it shows, preview query
 SINGLES = [
     ("designs", "The six designs", [
-        ("toro-genuine", "Toro — genuine Huracán",
+        ("toro-genuine", "Toro — genuine Huracan",
          "The Lamborghini dial with its hollow gear numeral, wedge gauges either side, boost level with the speed "
          "and the G meter between.", DRIVE),
         ("toro-modern", "Toro — modern hex lattice",

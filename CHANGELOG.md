@@ -31,6 +31,16 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   distance and driving time (KombiIF statusBordcomputerTravelData), the odometer - in every M style's footer
   places, and the gearbox oil in M Track Mode's gauge rows (its word, TRANS, where a symbol would be). In Korean
   "Oil temperature" and "Oil pressure" read 엔진오일 온도 and 오일 압력.
+- **The accelerator pedal, the throttle's opening and the ignition angle**, from the engine unit as Cluster
+  Layouts reads them (5814 / 480B / OBD 49, 4600 / 5858 / OBD 11, 59FA / OBD 0E: Live Data's, listed in
+  docs/ENGINE-READINGS.md), in M Track Mode's rows and strips and Toro's side gauges; asked only while one shows.
+- **M TRACK > Strip right of the rev counter, left / right**: the two strips right of the tach show any reading a row can, the fuel, or
+  nothing - the oil and the fuel as they come. The fuel strip fills from the bottom (its lowest piece in the
+  warning colour only once it is all that is left).
+- **TORO > Left upper / Left lower / Right upper / Right lower gauge**: each side gauge any reading or nothing;
+  *As the style has it* keeps its own (the oil, oil or turbo pressure, the fuel, the coolant, and an electric
+  car's as before). The ESC block under the gear's right is gone: the drive mode's name stands once, on the left.
+- The page's words stay within the head unit's 1,024 strings (`test/page.test.js` runs the kit's builder).
 
 ## AK 0.14.1
 
