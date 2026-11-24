@@ -225,12 +225,12 @@
 
         function speedTicks(s) { return M.speedTicks(Math.max(0, s.speed || 0), units); }
         /*
-         * The rev scale: the frame's 0 - 8, or a diesel's 0 - 6 on the same
-         * dial (General: Engine; M.revScale). The marker's height is in
+         * The rev scale: the frame's 0 - 8, or General > Tach scale's 0 - 6 to
+         * 0 - 10 (a diesel's 0 - 6) on the same dial (M.revScale). The marker's height is in
          * ticks either way; a diesel's marks stand REV.step ticks apart,
          * which the dial and its numerals have a shader each for.
          */
-        var REV = M.revScale(S.engine);
+        var REV = M.revScale(S.engine, S.scaleMaxRpm);
         var sixMarks = REV.marks !== M.SCALE.n;
         function revTicks(s) { return M.rpmTicks(s.rpm, REV.top); }
         /* ... and in marks, for the numerals of a scale with fewer than a mark a tick */
@@ -402,7 +402,7 @@
         dial('revDial', box(M.mirror(634), 64, M.mirror(186), 523), 1, K.R, revTicks,
             [red + 0.09, M.SCALE.n - 0.04, red - 0.33, red - 0.05],
             function (s) { return flashRail ? (s.limiter || 0) : 0; },
-            sixMarks ? 'mgauge6' : 'mgauge');
+            sixMarks ? 'mgauge' + REV.marks : 'mgauge');
 
         /* --------------------------------------------------- fuel and oil */
         function strip(id, b, side, fn) {
@@ -511,7 +511,7 @@
             var marks = [];
             for (var j = REV.marks; j >= 0; j--) marks.push(revItemAt(j));
             scale('revScale', roomy ? box(1454, 74, 1676, 528) : box(1462, 78, 1668, 524), 'mw', NUM_H.rev,
-                marks, revMarks, K.redNum, 'mnum6');
+                marks, revMarks, K.redNum, 'mnum' + REV.marks);
         } else {
             scale('revScale', roomy ? box(1454, 74, 1676, 528) : box(1462, 78, 1668, 524), 'mw', NUM_H.rev,
                 [8, 7, 6, 5, 4, 3, 2, 1, 0].map(revItem), revTicks, K.redNum);

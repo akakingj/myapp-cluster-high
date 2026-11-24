@@ -39,7 +39,8 @@ var FRAME_MS = 16;            /* 60 Hz by default; settings.refreshHz picks 15-6
 var IDLE_MS = 250;            /* while nothing is drawn */
 var SETTLE_MS = 400;          /* settings changes, while someone scrolls through them */
 /*
- * "BeeM-Flash readings": where the readings the bus does not carry come from.
+ * Where the readings the bus does not carry come from. The app has no setting for it: the engine unit only ("off").
+ * The other modes stay for a host that names one (settings.beemFlash):
  *   auto  BeeM-Flash, on a head unit that has it; the engine unit on one
  *         that does not. A head unit "has it" while BeeM-Flash is feeding,
  *         while its folder is there (it has run since the head unit
@@ -67,7 +68,7 @@ function feedModeOf(settings) {
     var m = settings ? settings.beemFlash : undefined;
     if (m === true) return 'on';
     if (m === false) return 'off';
-    return FEED_MODES.indexOf(m) >= 0 ? m : 'auto';
+    return FEED_MODES.indexOf(m) >= 0 ? m : 'off';
 }
 
 function shaders() {
@@ -156,7 +157,7 @@ function start(host, deps) {
     var centre = deps.centre || Centre.create({ log: log, dataDir: host.dataDir });
     try { centre.start(); } catch (e) { log.warn('centre: ' + e); }
     /* readings another app on the head unit can supply (docs/BEEM-FLASH-FEED.md): started in
-       configure(), and only where "BeeM-Flash readings" is not off */
+       configure(), and only in a mode other than "off" (feedModeOf: none, for this app) */
     var feed = deps.feed || Feed.create({ log: log, now: now });
     /* the same readings from the engine unit itself, for a head unit without BeeM-Flash */
     var engine = deps.engine || Engine.create({

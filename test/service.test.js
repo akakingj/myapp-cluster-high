@@ -449,8 +449,8 @@ test('automatic: a head unit that has BeeM-Flash is never asked - feeding, pause
     const DAY = 24 * 3600 * 1000;
     const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mgu-readings-'));
     const feed = fakeFeed(FEED), engine = fakeEngine(ENGINE);
-    const h = harness(t, { style: 'toro' }, null, { feed, engine, dataDir });      /* the setting as it comes */
-    assert.strictEqual(Main.feedModeOf({}), 'auto');
+    const h = harness(t, { style: 'toro', beemFlash: 'auto' }, null, { feed, engine, dataDir });      /* a host naming auto */
+    assert.strictEqual(Main.feedModeOf({}), 'off');                    /* the app names none: the engine unit only */
     h.on.ready(); h.condition('FAHREN'); h.rpm(1500);
     feed.setLive(true);
     await wait(300);
@@ -468,7 +468,7 @@ test('automatic: a head unit that has BeeM-Flash is never asked - feeding, pause
     const memo = JSON.parse(fs.readFileSync(path.join(dataDir, 'readings.json'), 'utf8'));
     assert.strictEqual(typeof memo.beemFedAt, 'number');
     const feedB = fakeFeed({}), engineB = fakeEngine(ENGINE);
-    const hb = harness(t, { style: 'toro' }, null, { feed: feedB, engine: engineB, dataDir });
+    const hb = harness(t, { style: 'toro', beemFlash: 'auto' }, null, { feed: feedB, engine: engineB, dataDir });
     hb.on.ready(); hb.condition('FAHREN'); hb.rpm(1500);
     await wait(300);
     assert.strictEqual(lastTick(engineB).allowed, false, 'a new start, BeeM-Flash not up yet: remembered');
@@ -536,6 +536,6 @@ test('the car\'s own boost comes first; an M style asks for what its footer hold
     assert.strictEqual(feed.stops, 1);
     /* an older switch-like value still means what it says */
     assert.deepStrictEqual([true, false, 'on', 'off', 'auto', 'sometimes', undefined].map((v) => Main.feedModeOf({ beemFlash: v })),
-        ['on', 'off', 'on', 'off', 'auto', 'auto', 'auto']);
+        ['on', 'off', 'on', 'off', 'auto', 'off', 'off']);
 });
 

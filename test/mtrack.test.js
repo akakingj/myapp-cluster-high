@@ -221,7 +221,7 @@ test('the car\'s own lamps are never imitated; the speed limit sign is the refer
 
 test('the track shaders fit the budget and avoid what the head unit refuses', () => {
     assert.deepStrictEqual(Object.keys(tShaders).sort(),
-        ['mtback', 'mtfoot', 'mtgauge', 'mtgauge6', 'mtplates', 'mtrows', 'mtstrip', 'mtwing']);
+        ['mtback', 'mtfoot', 'mtgauge', 'mtgauge10', 'mtgauge6', 'mtgauge7', 'mtgauge9', 'mtplates', 'mtrows', 'mtstrip', 'mtwing']);
     for (const [id, src] of Object.entries(tShaders)) {
         let vectors = 3;                      /* u_size, u_time, u_keep from the prelude */
         for (const m of src.matchAll(/uniform\s+(float|vec2|vec3|vec4)\s+(\w+)(\[(\d+)\])?/g)) vectors += m[4] ? Number(m[4]) : 1;

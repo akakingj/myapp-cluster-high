@@ -215,13 +215,13 @@
         /* the marks of a thousand, top of the frame's scale first measured: y at 0..8 */
         y5: 233.61, low: 45.95, high: 43.04
     };
-    /* the height of each mark of a thousand: the frame's nine (0 - 8), or a
-       diesel's seven (0 - 6) spread evenly over the same height */
-    function revMarks(engine) {
-        var out = [], k;
-        if (engine === 'diesel') {
+    /* the height of each mark of a thousand: the frame's nine (0 - 8), or another scale's (General > Tach scale; a
+       diesel's 0 - 6) spread evenly over the same height */
+    function revMarks(engine, top) {
+        var out = [], k, n = engine === 'diesel' ? 6 : top >= 6000 && top <= 10000 ? Math.round(top / 1000) : 8;
+        if (n !== 8) {
             var y0 = TACH.y5 + 5 * TACH.low, y8 = TACH.y5 - 3 * TACH.high;
-            for (k = 0; k <= 6; k++) out.push(y0 + (y8 - y0) * k / 6);
+            for (k = 0; k <= n; k++) out.push(y0 + (y8 - y0) * k / n);
             return out;
         }
         for (k = 0; k <= 8; k++) out.push(k <= 5 ? TACH.y5 + (5 - k) * TACH.low : TACH.y5 - (k - 5) * TACH.high);

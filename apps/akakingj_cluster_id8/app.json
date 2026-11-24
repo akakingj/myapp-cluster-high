@@ -2,7 +2,7 @@
   "id": "akakingj_cluster_id8",
   "title": "AK Cluster ID8",
   "vendor": "MGU-Styles",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "loggingId": "AKC8",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
@@ -716,27 +716,6 @@
       "tab": "general"
     },
     {
-      "key": "beemFlash",
-      "type": "choice",
-      "default": "auto",
-      "label": "BeeM-Flash readings",
-      "options": [
-        [
-          "auto",
-          "Automatic: BeeM-Flash if this head unit has it, else the engine unit"
-        ],
-        [
-          "on",
-          "On: BeeM-Flash only (the engine unit is never asked)"
-        ],
-        [
-          "off",
-          "Off: the engine unit only (no BeeM-Flash)"
-        ]
-      ],
-      "tab": "general"
-    },
-    {
       "key": "electric",
       "label": "Electric range",
       "type": "choice",
@@ -1237,7 +1216,7 @@
     },
     {
       "key": "scaleMaxRpm",
-      "label": "Dial scale",
+      "label": "Tach scale",
       "type": "choice",
       "default": "8000",
       "options": [
@@ -1263,10 +1242,9 @@
         ]
       ],
       "when": {
-        "style": "toro",
         "engine": "petrol"
       },
-      "tab": "toro",
+      "tab": "general",
       "profile": "rpmScale"
     },
     {
@@ -1651,7 +1629,7 @@
         ],
         [
           "iat",
-          "Intake air temperature (needs BeeM-Flash)"
+          "Intake air temperature"
         ],
         [
           "rpm",
@@ -1671,7 +1649,7 @@
         ],
         [
           "volts",
-          "Battery voltage (needs BeeM-Flash)"
+          "Battery voltage"
         ],
         [
           "erange",
@@ -1719,7 +1697,7 @@
         ],
         [
           "iat",
-          "Intake air temperature (needs BeeM-Flash)"
+          "Intake air temperature"
         ],
         [
           "rpm",
@@ -1739,7 +1717,7 @@
         ],
         [
           "volts",
-          "Battery voltage (needs BeeM-Flash)"
+          "Battery voltage"
         ],
         [
           "erange",
@@ -1787,7 +1765,7 @@
         ],
         [
           "iat",
-          "Intake air temperature (needs BeeM-Flash)"
+          "Intake air temperature"
         ],
         [
           "rpm",
@@ -1807,7 +1785,7 @@
         ],
         [
           "volts",
-          "Battery voltage (needs BeeM-Flash)"
+          "Battery voltage"
         ],
         [
           "erange",
@@ -2016,7 +1994,7 @@
         ],
         [
           "iat",
-          "Intake air temperature (needs BeeM-Flash)"
+          "Intake air temperature"
         ],
         [
           "rpm",
@@ -2036,7 +2014,7 @@
         ],
         [
           "volts",
-          "Battery voltage (needs BeeM-Flash)"
+          "Battery voltage"
         ],
         [
           "erange",
@@ -2084,7 +2062,7 @@
         ],
         [
           "iat",
-          "Intake air temperature (needs BeeM-Flash)"
+          "Intake air temperature"
         ],
         [
           "rpm",
@@ -2104,7 +2082,7 @@
         ],
         [
           "volts",
-          "Battery voltage (needs BeeM-Flash)"
+          "Battery voltage"
         ],
         [
           "erange",
@@ -2152,7 +2130,7 @@
         ],
         [
           "iat",
-          "Intake air temperature (needs BeeM-Flash)"
+          "Intake air temperature"
         ],
         [
           "rpm",
@@ -2172,7 +2150,7 @@
         ],
         [
           "volts",
-          "Battery voltage (needs BeeM-Flash)"
+          "Battery voltage"
         ],
         [
           "erange",
@@ -2548,7 +2526,7 @@
         ],
         [
           "iat",
-          "Intake air temperature (needs BeeM-Flash)"
+          "Intake air temperature"
         ],
         [
           "rpm",
@@ -2568,7 +2546,7 @@
         ],
         [
           "volts",
-          "Battery voltage (needs BeeM-Flash)"
+          "Battery voltage"
         ],
         [
           "erange",
@@ -2616,7 +2594,7 @@
         ],
         [
           "iat",
-          "Intake air temperature (needs BeeM-Flash)"
+          "Intake air temperature"
         ],
         [
           "rpm",
@@ -2636,7 +2614,7 @@
         ],
         [
           "volts",
-          "Battery voltage (needs BeeM-Flash)"
+          "Battery voltage"
         ],
         [
           "erange",
@@ -2684,7 +2662,7 @@
         ],
         [
           "iat",
-          "Intake air temperature (needs BeeM-Flash)"
+          "Intake air temperature"
         ],
         [
           "rpm",
@@ -2704,7 +2682,7 @@
         ],
         [
           "volts",
-          "Battery voltage (needs BeeM-Flash)"
+          "Battery voltage"
         ],
         [
           "erange",

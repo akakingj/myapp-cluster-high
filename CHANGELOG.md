@@ -13,6 +13,16 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.13.0
+
+- **The readings the bus does not carry come from the engine unit.** Intake air, battery voltage, oil pressure
+  and the rest are asked of the engine unit (read only) on every head unit; the "BeeM-Flash readings" setting is
+  gone, and an earlier install is no longer kept to BeeM-Flash only (it was, and asked the engine unit nothing).
+  Their names no longer say "needs BeeM-Flash".
+- **The M styles' scales.** M Sport and M Sport Plus's speedometer reads to 260 km/h (160 mph), as Cluster
+  Layouts' dials; the tach of every style follows GENERAL > Tach scale (0 - 6,000 to 0 - 10,000; a diesel's
+  0 - 6,000), which was Toro's alone (its own shader for each scale: `mgauge7` ... `mtgauge10`).
+
 ## AK 0.12.1
 
 - **A changed setting no longer makes the whole cluster again.** Where the layers stay as they were (their

@@ -410,12 +410,12 @@
 
         /* ------------------------------------------------------ the rev counter */
         var G = T.TACH;
-        var MARKS = T.revMarks(S.engine);
+        var MARKS = T.revMarks(S.engine, S.scaleMaxRpm);
         var topMark = MARKS[MARKS.length - 1];
         function revY(s) { return T.revY(s.rpm, MARKS); }
         /* the red field: from the top of the scale down to the redline */
         var redY = Math.max(topMark, T.revY(S.rpmRedline, MARKS));
-        shape('revDial', 10, S.engine === 'diesel' ? 'mtgauge6' : 'mtgauge', box(742, 74, 1296, 484), function (s) {
+        shape('revDial', 10, MARKS.length === 9 ? 'mtgauge' : 'mtgauge' + (MARKS.length - 1), box(742, 74, 1296, 484), function (s) {
             return { u_ym: revY(s), u_red: redY, u_warn: flashRail ? (s.limiter || 0) : 0,
                      u_line: K.R.line, u_topCol: K.R.top, u_chan: K.R.chan, u_chanMid: K.R.chanMid,
                      u_rail: K.R.rail, u_tick: K.R.tick, u_zone: K.R.zone, u_fill: K.R.fill, u_fillEdge: K.R.fillEdge };

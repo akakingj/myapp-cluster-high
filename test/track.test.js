@@ -472,8 +472,8 @@ test('no glyph is hidden behind the cut corners of the glass', () => {
 
 test('M shaders fit the budget and avoid what the head unit refuses', () => {
     assert.deepStrictEqual(Object.keys(mShaders).sort(),
-        ['mback', 'mbackFull', 'mbackWide', 'mbadge', 'mdiag', 'mdiagFade', 'mdiagFadeFull', 'mdiagFadeWide', 'mfoot', 'mgauge', 'mgauge6',
-         'mnum', 'mnum6', 'mpback', 'mpbackMost',
+        ['mback', 'mbackFull', 'mbackWide', 'mbadge', 'mdiag', 'mdiagFade', 'mdiagFadeFull', 'mdiagFadeWide', 'mfoot', 'mgauge', 'mgauge10', 'mgauge6', 'mgauge7', 'mgauge9',
+         'mnum', 'mnum10', 'mnum6', 'mnum7', 'mnum9', 'mpback', 'mpbackMost',
          'mpbackWide', 'mpcentre', 'mpcentreFull',
          'mpcentreMost', 'mpcentreWide', 'mplatesL', 'mplatesLFull', 'mplatesLWide', 'mplatesR', 'mplatesRFull', 'mplatesRWide', 'mprails', 'mpsideL',
          'mpsideLFull', 'mpsideLMost', 'mpsideLWide', 'mpsideR', 'mpsideRFull', 'mpsideRMost', 'mpsideRWide', 'mrails', 'mstrip', 'tturn'],
@@ -614,8 +614,9 @@ test('one value mapping: the scale is linear in height, and uneven where the car
             assert.ok(b >= a && b <= 8 && a >= 0, 'never falls back, never leaves the scale');
         }
     }
-    assert.strictEqual(M.speedTicks(140, 'imperial'), 6.5, 'half-way between 120 and 160');
-    assert.strictEqual(M.speedTicks(180, 'metric'), 5.5, 'half-way between 150 and 210');
+    assert.strictEqual(M.speedTicks(130, 'imperial'), 6.5, 'half-way between 120 and 140');
+    assert.strictEqual(M.speedTicks(200, 'metric'), 6.5, 'half-way between 180 and 220');
+    assert.deepStrictEqual([M.SPEED_SCALE.metric[8], M.SPEED_SCALE.imperial[8]], [260, 160], 'to 260 km/h, 160 mph: as Cluster Layouts');
     assert.strictEqual(M.speedTicks(-3, 'metric'), 0);
     assert.strictEqual(M.speedTicks(undefined, 'metric'), 0);
     assert.strictEqual(M.rpmTicks(4000), 4);
@@ -626,10 +627,10 @@ test('one value mapping: the scale is linear in height, and uneven where the car
     const val = (D, o) => D.uniforms(state(t, {}, o)).u_val;
     assert.strictEqual(val(L, { speed: 0 }), 0);
     assert.strictEqual(val(L, { speed: 80 }), 4, '80 mph is the fifth of nine numerals');
-    assert.strictEqual(val(L, { speed: 200 }), 8);
+    assert.strictEqual(val(L, { speed: 160 }), 8);
     assert.strictEqual(val(L, { speed: 400 }), 8, 'held at the top, never wraps');
     assert.strictEqual(val(R, { rpm: 4000 }), 4);
-    assert.strictEqual(val(layer(build({ units: 'metric' }), 'speedDial'), { speed: 180 }), 5.5);
+    assert.strictEqual(val(layer(build({ units: 'metric' }), 'speedDial'), { speed: 200 }), 6.5);
     /* the rev dial is the speed dial through a mirror */
     assert.strictEqual(L.uniforms(state(t, {})).u_side, 0);
     assert.strictEqual(R.uniforms(state(t, {})).u_side, 1);

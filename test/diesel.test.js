@@ -79,7 +79,7 @@ test('Engine is a setting on GENERAL: petrol as it comes, diesel only when the o
     assert.strictEqual(Palette.resolve({ engine: 'diesel' }, P).engine, 'diesel');
 });
 
-test('Redline and Limiter can be set for a diesel, and Toro\'s dial scale is a petrol\'s choice', () => {
+test('Redline and Limiter can be set for a diesel, and the tach scale is a petrol\'s choice', () => {
     const red = item('rpmRedline').options.map((o) => o[0]), lim = item('rpmLimiter').options.map((o) => o[0]);
     assert.deepStrictEqual([red[0], lim[0]], ['auto', 'auto']);
     const nums = (a) => a.slice(1).map(Number);
@@ -105,8 +105,9 @@ test('Redline and Limiter can be set for a diesel, and Toro\'s dial scale is a p
         const s = Palette.resolve({ engine: 'diesel', rpmRedline: 'auto', rpmLimiter: String(l) }, P);
         assert.strictEqual(s.rpmLimiter, Math.max(l, s.rpmRedline));
     }
-    /* a diesel's dial reads 0 - 6: the scale's own choice is offered to a petrol only */
-    assert.deepStrictEqual(item('scaleMaxRpm').when, { style: 'toro', engine: 'petrol' });
+    /* a diesel's dial reads 0 - 6: the scale's own choice (every style's, General) is offered to a petrol only */
+    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: 'petrol' });
+    assert.strictEqual(item('scaleMaxRpm').tab, 'general');
     assert.strictEqual(item('scaleMaxRpm').default, '8000');
 });
 

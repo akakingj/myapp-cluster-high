@@ -69,14 +69,14 @@
     /*
      * Both scales are linear in height, not along the rail: tick k (0..8)
      * sits at Y0 - k * DY and the marker is a level bar at the value's own
-     * height. The speed scale's numbers are uneven above the fifth tick, as
-     * on the car.
+     * height. The speed scale's numbers are wider apart above the fifth tick, as
+     * on the car; it ends at 260 km/h (160 mph), as Cluster Layouts' dials.
      */
     var SCALE = { y0: 503.4, dy: 50.7, n: 8 };
     function tickY(k) { return SCALE.y0 - k * SCALE.dy; }
     var SPEED_SCALE = {
-        metric: [0, 30, 60, 90, 120, 150, 210, 270, 330],
-        imperial: [0, 20, 40, 60, 80, 100, 120, 160, 200]
+        metric: [0, 30, 60, 90, 120, 150, 180, 220, 260],
+        imperial: [0, 20, 40, 60, 80, 100, 120, 140, 160]
     };
     /* a speed as a position on the scale, in ticks (0..8) */
     function speedTicks(v, units) {
@@ -95,10 +95,14 @@
      * and its marks stand a third further apart (`step`, in ticks).
      */
     var REV_SCALES = { petrol: { top: 8000, marks: 8 }, diesel: { top: 6000, marks: 6 } };
-    function revScale(engine) {
+    /* top: General > Tach scale (6000 - 10000; a diesel's is 6000, src/theme/palette.js), else the engine's */
+    function revScale(engine, top) {
         var r = REV_SCALES[engine === 'diesel' ? 'diesel' : 'petrol'];
-        return { top: r.top, marks: r.marks, step: SCALE.n / r.marks };
+        var marks = top >= 6000 && top <= 10000 ? Math.round(top / 1000) : r.marks;
+        return { top: marks * 1000, marks: marks, step: SCALE.n / marks };
     }
+    /* the scales a rev dial can have: a shader each (src/shaders/mcluster.js, tcluster.js) */
+    var REV_MARKS = [6, 7, 8, 9, 10];
     /* engine speed as a height on the dial, in ticks (0..8); top: the rpm at the top of the scale */
     function rpmTicks(rpm, top) { return Math.max(0, Math.min(SCALE.n, (rpm || 0) / ((top || 8000) / SCALE.n))); }
 
@@ -677,7 +681,7 @@
         ART: ART, PANEL_FIT: PANEL_FIT, setFit: setFit, useFit: useFit, baseFit: baseFit, SLOT_SOFT: SLOT_SOFT,
         AX: AX, px: px, py: py, pd: pd, box: box, mirror: mirror,
         SCALE: SCALE, tickY: tickY, SPEED_SCALE: SPEED_SCALE, speedTicks: speedTicks, rpmTicks: rpmTicks,
-        REV_SCALES: REV_SCALES, revScale: revScale,
+        REV_SCALES: REV_SCALES, revScale: revScale, REV_MARKS: REV_MARKS,
         DIAL: DIAL, at: at, cross: cross, shift: shift, rimOuterX: rimOuterX, contourX: contourX,
         DIAG: DIAG, PLATES: PLATES, HAIRLINES: HAIRLINES, STRIP: STRIP, FOOT: FOOT, WINDOW: WINDOW,
         convexDist: convexDist, windowDist: windowDist, revealAt: revealAt, windowBox: windowBox,

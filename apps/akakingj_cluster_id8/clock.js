@@ -38,8 +38,14 @@
         dial: { gate: 'u_warn' },           /* Toro's dial at the limiter */
         mgauge: { gate: 'u_warn' },         /* the M rev rail at the limiter */
         mgauge6: { gate: 'u_warn' },        /* ... and a diesel's (the same dial, 0 - 6) */
+        mgauge7: { gate: 'u_warn' },        /* ... and General > Tach scale's 0 - 7, 0 - 9, 0 - 10 */
+        mgauge9: { gate: 'u_warn' },
+        mgauge10: { gate: 'u_warn' },
         mtgauge: { gate: 'u_warn' },        /* M Track Mode's rev counter at the limiter */
         mtgauge6: { gate: 'u_warn' },       /* ... and a diesel's */
+        mtgauge7: { gate: 'u_warn' },       /* ... and General > Tach scale's others */
+        mtgauge9: { gate: 'u_warn' },
+        mtgauge10: { gate: 'u_warn' },
         vbar: { gate: 'u_alarm' },
         gauge: { gate: 'u_alarm' },
         hgauge: { gate: 'u_alarm' },

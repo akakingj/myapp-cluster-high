@@ -348,6 +348,7 @@
     }
     var mtgauge = gaugeSrc(T.revMarks());
     var mtgauge6 = gaugeSrc(T.revMarks('diesel'));
+    var mtgauge7 = gaugeSrc(T.revMarks('petrol', 7000)), mtgauge9 = gaugeSrc(T.revMarks('petrol', 9000)), mtgauge10 = gaugeSrc(T.revMarks('petrol', 10000));
 
     /* ------------------------------------------------------------ the strips */
     var ST = T.STRIP;
@@ -456,5 +457,5 @@
     ].join('\n');
 
     return { mtback: mtback, mtwing: mtwing, mtplates: mtplates, mtrows: mtrows,
-             mtgauge: mtgauge, mtgauge6: mtgauge6, mtstrip: mtstrip, mtfoot: mtfoot };
+             mtgauge: mtgauge, mtgauge6: mtgauge6, mtgauge7: mtgauge7, mtgauge9: mtgauge9, mtgauge10: mtgauge10, mtstrip: mtstrip, mtfoot: mtfoot };
 }));

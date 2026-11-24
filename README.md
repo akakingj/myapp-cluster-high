@@ -92,9 +92,8 @@ Central display area* to *Map view*.
 Everything is set on the app's page on iDrive — nothing on the cluster.
 
 - **GENERAL**: on / off, start with the car, the style, units, your car,
-  **petrol or diesel**, redline and limiter, the limiter flash, BMW's
-  bottom strip (show, trim or hide it), readings with or without
-  BeeM-Flash, **electric range** for
+  **petrol or diesel**, the tach scale (0 - 6,000 to 0 - 10,000, every style), redline and limiter, the limiter
+  flash, BMW's bottom strip (show, trim or hide it), **electric range** for
   plug-in hybrids and fully electric cars (off until you turn it on: a
   hybrid gets its electric range beside the fuel's; a fully electric car
   gets range, charge and battery temperature in place of fuel and oil),
@@ -223,7 +222,7 @@ If your engine revs higher or lower than that, set **Redline** and
 **Limiter** on the same tab (from 4,000 and 4,500 upwards); *From the car*
 is the diesel's own figures above.
 
-On a diesel **without BeeM-Flash**, Toro's lower left gauge shows turbo
+On a diesel, Toro's lower left gauge shows turbo
 pressure, not oil pressure: the app only asks a diesel's engine unit the
 standard readings, and there is no standard one for oil pressure.
 

@@ -219,6 +219,7 @@
     /* a diesel's rev dial: 0 - 6 (the speed dial beside it is the one above) */
     var DIESEL_MARKS = M.revScale('diesel').marks;
     var mgauge6 = gaugeSrc(DIESEL_MARKS);
+    var mgauge7 = gaugeSrc(7), mgauge9 = gaugeSrc(9), mgauge10 = gaugeSrc(10);
 
     /* ------------------------------------------------- rails and centre lines */
     var G = M.FOOT.glow, DG = M.DIAG;
@@ -582,6 +583,7 @@
     }
     var mnum = numSrc(M.SCALE.n);
     var mnum6 = numSrc(DIESEL_MARKS);
+    var mnum7 = numSrc(7), mnum9 = numSrc(9), mnum10 = numSrc(10);
 
     /* --------------------------------------------------------- a round badge */
     /* the LIMIT sign's disc and ring (its letters are a text layer) */
@@ -905,7 +907,8 @@
                 mbackFull: mbackFull, mplatesLFull: mplatesLFull, mplatesRFull: mplatesRFull, mdiagFadeFull: mdiagFadeFull,
                 mpsideLFull: mpsideLFull, mpcentreFull: mpcentreFull, mpsideRFull: mpsideRFull,
                 /* a diesel's rev dial and its numerals: 0 - 6 over the same height */
-                mgauge6: mgauge6, mnum6: mnum6 };
+                mgauge6: mgauge6, mnum6: mnum6, mgauge7: mgauge7, mnum7: mnum7, mgauge9: mgauge9, mnum9: mnum9,
+                mgauge10: mgauge10, mnum10: mnum10 };
     /* the outline compiler, for the tests: not a shader, so not listed with them */
     Object.defineProperty(out, 'chain', { value: chain, enumerable: false });
     return out;

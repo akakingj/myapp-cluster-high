@@ -78,7 +78,7 @@ function hostFor(bg) {
         onSettingsChanged: (fn) => bg.settings.onChange(fn),
         /*
          * The car's diagnostic link, for the readings the bus does not carry
-         * where BeeM-Flash is not supplying them (src/car/engine.js). It is
+         * (src/car/engine.js). It is
          * the kit's read-only one: anything but a read is refused before it
          * leaves the head unit. Made only when the service first needs it.
          */
@@ -295,28 +295,8 @@ const WING_WORDS = Object.assign({}, CENTRE_WORDS, { off: 'Gauges' });
 const W = 1600;
 const ROW_H = 60, ROW_GAP = 8;
 
-/*
- * An install from before "BeeM-Flash readings" existed took its extra
- * readings from BeeM-Flash and asked the car nothing. It still does: its
- * saved settings have no such choice, so it is given "On: BeeM-Flash only"
- * rather than the choice a new install comes with (automatic, which asks
- * the engine unit on a head unit without BeeM-Flash). Nothing of the car's
- * is asked after an update unless its owner says so. A new install has no
- * saved settings yet, or - once anything was changed - all of them.
- */
-function keepEarlierReadings(bg) {
-    try {
-        const saved = JSON.parse(require('fs').readFileSync(require('path').join(bg.dataDir, 'settings.json'), 'utf8'));
-        if (saved && typeof saved === 'object' && Object.keys(saved).length && !('beemFlash' in saved)) {
-            bg.settings.set('beemFlash', 'on');
-            bg.log.info('readings: this install is from before the choice existed - kept to BeeM-Flash only (GENERAL > BeeM-Flash readings changes it)');
-        }
-    } catch (e) { /* no saved settings: a new install, as it comes */ }
-}
-
 mgu.run({
     background(bg) {
-        keepEarlierReadings(bg);
         /*
          * "Start at every startup" off: each start of the head unit begins
          * with BMW's own cluster, and Show on cluster brings ours up for
