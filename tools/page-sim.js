@@ -238,8 +238,11 @@ async function child(mode) {
             await tap('set:holiday');
             check(s.get('holiday') === !hol, 'a tap on a switch did not turn it');
         }
-        /* ---- Shift now at: off as it comes, a list of values, Auto chosen with the controller */
-        if (check(has('set:shiftAt'), 'GENERAL has no row for Shift now at')) {
+        /* ---- Shift now at: the car's own as it comes (B48), a row of its own with Car profile values:
+           off as it comes, a list of values, Auto chosen with the controller */
+        check(s.get('profile') === 'b48' && !has('set:shiftAt'), 'a new install is not a B48 with its own shift point: ' + s.get('profile'));
+        s.set('profile', 'carprofile');
+        if (check(await until(() => has('set:shiftAt'), 2000), 'GENERAL has no row for Shift now at with Car profile values')) {
             check(s.get('shiftAt') === 'off', 'Shift now at does not come off: ' + s.get('shiftAt'));
             d.focusPage('set:shiftAt'); await push();
             check(await until(() => !!d.sheet, 1500), 'Shift now at opened no list');

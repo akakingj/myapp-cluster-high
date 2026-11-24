@@ -1015,10 +1015,10 @@ test('the footer: clock, range and outside temperature, each only when the car h
 
 test('the footer\'s three places: each can hold any reading, with its unit and its name, or nothing', () => {
     assert.deepStrictEqual(Track.FOOT_KINDS, ['time', 'range', 'economy', 'outside', 'iat', 'rpm', 'oil', 'coolant', 'boost', 'volts',
-        'gearbox', 'torque', 'power', 'pedal', 'throttle', 'timing', 'trip', 'tripTime', 'odo', 'erange', 'charge', 'hvtemp', 'off']);
+        'gearbox', 'torque', 'power', 'trip', 'tripTime', 'odo', 'erange', 'charge', 'hvtemp', 'off']);
     const RAW = { evRangeKm: 43, socPct: 78, rpm: 2456, speedKmh: 80, gear: '4', oilTempC: 104, coolantC: 91, boostBar: 0.86, rangeKm: 259, ambientC: 3,
                   clock: { h: 15, m: 7 }, avgL100: 9.6, iatC: 38, batteryV: 14.13,
-                  gearboxC: 70, torqueNm: 300, tripKm: 1234.5, tripMin: 125, odoKm: 23456, pedalPct: 42, throttlePct: 37.4, timingDeg: 12.5 };
+                  gearboxC: 70, torqueNm: 300, tripKm: 1234.5, tripMin: 125, odoKm: 23456 };
     /* what each reading says: [figures, unit, the word before it] - imperial, then metric */
     const WANT = {
         time: [['3:07', 'pm', null], ['3:07', 'pm', null]],
@@ -1039,11 +1039,7 @@ test('the footer\'s three places: each can hold any reading, with its unit and i
         power: [['103', 'hp', 'PWR'], ['103', 'hp', 'PWR']],
         trip: [['767.1', 'mi', 'TRIP'], ['1235', 'km', 'TRIP']],
         tripTime: [['2:05', 'h', 'TIME'], ['2:05', 'h', 'TIME']],
-        odo: [['14575', 'mi', 'ODO'], ['23456', 'km', 'ODO']],
-        /* the engine unit's: the pedal and the throttle in per cent (no sign: the face has none), the ignition angle */
-        pedal: [['42', null, 'PEDAL'], ['42', null, 'PEDAL']],
-        throttle: [['37', null, 'THROTTLE'], ['37', null, 'THROTTLE']],
-        timing: [['12.5', '°', 'IGN'], ['12.5', '°', 'IGN']]
+        odo: [['14575', 'mi', 'ODO'], ['23456', 'km', 'ODO']]
     };
     const HOME = { L: 'time', M: 'range', R: 'outside' };
     for (const style of M_STYLES) for (const [ui, units] of [[0, 'imperial'], [1, 'metric']]) {
@@ -1062,7 +1058,7 @@ test('the footer\'s three places: each can hold any reading, with its unit and i
             own[place].forEach((x) => assert.strictEqual(layer(t, x), undefined, x));
             Object.keys(own).filter((p) => p !== place).forEach((p) => own[p].forEach((x) => assert.ok(layer(t, x), x)));
             /* set in order with room between: [word] figures unit, none on another */
-            const parts = [id + 'Icon', id + 'Tag', id, id + 'Unit'].map((x) => layer(t, x)).filter((L) => L && L.uniforms(st, 0))
+            const parts = [id + 'Icon', id + 'Tag', id, id + 'Unit'].map((x) => layer(t, x)).filter(Boolean)
                 .map((L) => { const u = L.uniforms(st, 0), q = quads(L, u); return [q[0].x, q[q.length - 1].x + q[q.length - 1].w, L.id]; })
                 .sort((a, b) => a[0] - b[0]);
             for (let i = 1; i < parts.length; i++) {
@@ -1071,7 +1067,7 @@ test('the footer\'s three places: each can hold any reading, with its unit and i
                 assert.ok(parts[i][0] - parts[i - 1][1] < 26, `${parts[i - 1][2]} and ${parts[i][2]} have drifted apart`);
             }
             if (tag) assert.strictEqual(parts[0][2], id + 'Tag', 'the word comes first');
-            assert.strictEqual(parts[parts.length - 1][2], unit ? id + 'Unit' : id, 'the unit last');
+            assert.strictEqual(parts[parts.length - 1][2], id + 'Unit', 'the unit last');
         }
     }
     /* the drive battery's charge: a figure under its name, in per cent, with no unit after it */
@@ -1158,7 +1154,7 @@ test('the footer\'s places keep to themselves: inside their boxes, the panel and
 test('the readings a footer can show: figures only, in the units chosen, dashes when the car is not saying', () => {
     const P = PROFILE;
     const imp = State.present({ rpm: 2456.4, oilTempC: 104, coolantC: 91, boostBar: 0.86, avgL100: 9.6, iatC: 38, batteryV: 14.13 }, P, { units: 'imperial' }).info;
-    const NONE = { gearbox: '--', torque: '--', power: '--', trip: '--', tripTime: '--', odo: '--', pedal: '--', throttle: '--', timing: '--' };
+    const NONE = { gearbox: '--', torque: '--', power: '--', trip: '--', tripTime: '--', odo: '--' };
     assert.deepStrictEqual(imp, Object.assign({ rpm: '2460', economy: '24.5', iat: '100', oil: '219', coolant: '196', boost: '12.5', volts: '14.1', erange: '--', charge: '--', hvtemp: '--' }, NONE));
     const met = State.present({ rpm: 2456.4, oilTempC: 104, coolantC: 91, boostBar: 0.86, avgL100: 9.6, iatC: 38, batteryV: 14.13 }, P, { units: 'metric' }).info;
     assert.deepStrictEqual(met, Object.assign({ rpm: '2460', economy: '9.6', iat: '38', oil: '104', coolant: '91', boost: '0.86', volts: '14.1', erange: '--', charge: '--', hvtemp: '--' }, NONE));

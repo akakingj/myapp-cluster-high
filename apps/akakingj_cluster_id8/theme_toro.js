@@ -633,12 +633,6 @@
             case 'pedal': return { icon: null, label: 'PEDALE %', pod: plain('pedalPct', 0, 100, 0), marks: ['0', '50', '100'], red: [0.9, 1] };
             case 'throttle': return { icon: null, label: 'FARFALLA %', pod: plain('throttlePct', 0, 100, 0), marks: ['0', '50', '100'], red: [0.9, 1] };
             case 'timing': return { icon: null, label: 'ANTICIPO °', pod: plain('timingDeg', -10, 50, 1), marks: ['-10', '20', '50'], red: [0, 0.17] };
-            case 'charge': return { icon: null, label: 'CARICA %',
-                                    pod: numPod('socPct', 0, 100, function (v) { return v; }, function (v) { return String(Math.round(v)); },
-                                                function (v) { return v <= 10; }),
-                                    marks: ['0', '50', '100'], red: [0, 0.1] };
-            case 'erange': return { icon: null, label: 'ELETTRICO ' + U.dist, key: 'battery', marks: ['0', '50', '100'], red: [0, 0.12] };
-            case 'hvtemp': return { icon: null, label: 'TEMP. BATT.', key: 'batteryTemp', marks: tLabels([-10, 25, 60]), red: [0.86, 1] };
             default: return null;
             }
         }
@@ -659,8 +653,7 @@
          * hidden) and the fuel gauge on an electric car, which has no fuel.
          */
         /* what each side gauge shows (left upper, left lower, right upper, right lower) */
-        var GAUGE_KINDS = ['auto', 'fuel', 'coolant', 'oil', 'oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing',
-                           'charge', 'erange', 'hvtemp', 'off'];
+        var GAUGE_KINDS = ['auto', 'fuel', 'coolant', 'oil', 'oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'off'];
         S.gauges = {};
         ['L1', 'L2', 'R1', 'R2'].forEach(function (n) {
             var v = S['gauge' + n];
@@ -670,7 +663,7 @@
             return ['L1', 'L2', 'R1', 'R2'].some(function (n) { return kinds.indexOf(S.gauges[n]) >= 0; });
         }
         /* those set on a scale here are read as numbers */
-        if (anyGauge(['oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'charge'])) S.numbers = true;
+        if (anyGauge(['oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing'])) S.numbers = true;
         var evSlot = S.electric === 'off' ? null
             : S.electricGauge !== 'auto' ? S.electricGauge
             : S.electric === 'bev' ? 'fuel' : S.showAuxLeft ? 'oilP' : 'coolant';

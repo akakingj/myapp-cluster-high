@@ -212,11 +212,7 @@
             /* the trip computer's distance and driving time (h:mm), the odometer */
             trip: has(raw.tripKm) ? U.distIn(raw.tripKm).toFixed(U.distIn(raw.tripKm) < 1000 ? 1 : 0) : dash,
             tripTime: has(raw.tripMin) ? Math.floor(raw.tripMin / 60) + ':' + pad(raw.tripMin % 60, 2) : dash,
-            odo: has(raw.odoKm) ? String(Math.round(U.distIn(raw.odoKm))) : dash,
-            /* the engine unit's: the accelerator pedal and the throttle's opening (%), the ignition angle */
-            pedal: has(raw.pedalPct) ? String(Math.round(raw.pedalPct)) : dash,
-            throttle: has(raw.throttlePct) ? String(Math.round(raw.throttlePct)) : dash,
-            timing: has(raw.timingDeg) ? raw.timingDeg.toFixed(1) : dash
+            odo: has(raw.odoKm) ? String(Math.round(U.distIn(raw.odoKm))) : dash
         };
 
         var clockText = dash, clockHalf = '';

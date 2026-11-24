@@ -1914,18 +1914,6 @@
           "Ignition timing"
         ],
         [
-          "charge",
-          "Battery charge"
-        ],
-        [
-          "erange",
-          "Electric range"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
-        ],
-        [
           "off",
           "Nothing"
         ]
@@ -1988,18 +1976,6 @@
         [
           "timing",
           "Ignition timing"
-        ],
-        [
-          "charge",
-          "Battery charge"
-        ],
-        [
-          "erange",
-          "Electric range"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
         ],
         [
           "off",
@@ -2066,18 +2042,6 @@
           "Ignition timing"
         ],
         [
-          "charge",
-          "Battery charge"
-        ],
-        [
-          "erange",
-          "Electric range"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
-        ],
-        [
           "off",
           "Nothing"
         ]
@@ -2140,18 +2104,6 @@
         [
           "timing",
           "Ignition timing"
-        ],
-        [
-          "charge",
-          "Battery charge"
-        ],
-        [
-          "erange",
-          "Electric range"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
         ],
         [
           "off",
@@ -2352,18 +2304,6 @@
           "Engine power"
         ],
         [
-          "pedal",
-          "Accelerator pedal"
-        ],
-        [
-          "throttle",
-          "Throttle"
-        ],
-        [
-          "timing",
-          "Ignition timing"
-        ],
-        [
           "trip",
           "Trip distance"
         ],
@@ -2456,18 +2396,6 @@
           "Engine power"
         ],
         [
-          "pedal",
-          "Accelerator pedal"
-        ],
-        [
-          "throttle",
-          "Throttle"
-        ],
-        [
-          "timing",
-          "Ignition timing"
-        ],
-        [
           "trip",
           "Trip distance"
         ],
@@ -2558,18 +2486,6 @@
         [
           "power",
           "Engine power"
-        ],
-        [
-          "pedal",
-          "Accelerator pedal"
-        ],
-        [
-          "throttle",
-          "Throttle"
-        ],
-        [
-          "timing",
-          "Ignition timing"
         ],
         [
           "trip",
@@ -2825,18 +2741,6 @@
           "Engine power"
         ],
         [
-          "pedal",
-          "Accelerator pedal"
-        ],
-        [
-          "throttle",
-          "Throttle"
-        ],
-        [
-          "timing",
-          "Ignition timing"
-        ],
-        [
           "trip",
           "Trip distance"
         ],
@@ -2929,18 +2833,6 @@
           "Engine power"
         ],
         [
-          "pedal",
-          "Accelerator pedal"
-        ],
-        [
-          "throttle",
-          "Throttle"
-        ],
-        [
-          "timing",
-          "Ignition timing"
-        ],
-        [
           "trip",
           "Trip distance"
         ],
@@ -3031,18 +2923,6 @@
         [
           "power",
           "Engine power"
-        ],
-        [
-          "pedal",
-          "Accelerator pedal"
-        ],
-        [
-          "throttle",
-          "Throttle"
-        ],
-        [
-          "timing",
-          "Ignition timing"
         ],
         [
           "trip",
@@ -3673,18 +3553,6 @@
           "Engine power"
         ],
         [
-          "pedal",
-          "Accelerator pedal"
-        ],
-        [
-          "throttle",
-          "Throttle"
-        ],
-        [
-          "timing",
-          "Ignition timing"
-        ],
-        [
           "trip",
           "Trip distance"
         ],
@@ -3777,18 +3645,6 @@
           "Engine power"
         ],
         [
-          "pedal",
-          "Accelerator pedal"
-        ],
-        [
-          "throttle",
-          "Throttle"
-        ],
-        [
-          "timing",
-          "Ignition timing"
-        ],
-        [
           "trip",
           "Trip distance"
         ],
@@ -3879,18 +3735,6 @@
         [
           "power",
           "Engine power"
-        ],
-        [
-          "pedal",
-          "Accelerator pedal"
-        ],
-        [
-          "throttle",
-          "Throttle"
-        ],
-        [
-          "timing",
-          "Ignition timing"
         ],
         [
           "trip",

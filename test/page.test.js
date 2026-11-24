@@ -301,3 +301,25 @@ test('with no cluster service the page still draws, and says so', () => {
     const page = Harness.open({ values: { style: 'toro' }, service: null });
     assert.ok(page.target('show'));
 });
+
+test('the page\'s words fit the head unit\'s string budget (the kit\'s builder checks it: kit/tools/localize.py)', () => {
+    /* every drop-down row is a string of its own; past 1024 with the kit's 256 dynamic ones the build stops */
+    const out = require('child_process').execFileSync('python3', ['-I', '-c', [
+        'import sys, json',
+        'sys.path.insert(0, "kit/tools")',
+        'import localize',
+        'seen = []',
+        'orig = localize.unicode_resources',
+        'def wrap(ui, strings, language="en"):',
+        '    r = orig(ui, strings, language); seen.append(len(strings)); return r',
+        'localize.unicode_resources = wrap',
+        'import runpy',
+        'for lang in (["--language", "en"], ["--language", "ko"]):',
+        '    sys.argv = ["build.py", "--preview-only"] + lang + ["akakingj_cluster_id8"]',
+        '    runpy.run_path("kit/tools/build.py", run_name="__main__")',
+        'print(json.dumps(seen))'].join('\n')], { cwd: path.join(__dirname, '..'), encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    const seen = JSON.parse(out.trim().split('\n').pop());
+    assert.strictEqual(seen.length, 2);
+    seen.forEach((n) => assert.ok(n <= 1024, n + ' strings'));
+    require('fs').rmSync(path.join(__dirname, '..', 'dist'), { recursive: true, force: true });
+});

@@ -725,8 +725,7 @@
                  /* readings shown that the car's bus may not carry: what the rows and the footer hold */
                  shows: { oil: rowShows('oilp'), boost: rowShows('boost') || footShows('boost'),
                           iat: rowShows('iat') || footShows('iat'), volts: rowShows('volts') || footShows('volts'),
-                          pedal: rowShows('pedal') || footShows('pedal'), throttle: rowShows('throttle') || footShows('throttle'),
-                          timing: rowShows('timing') || footShows('timing') },
+                          pedal: rowShows('pedal'), throttle: rowShows('throttle'), timing: rowShows('timing') },
                  window: { x: win.x, y: win.y, w: win.w, h: win.h } };
     }
 

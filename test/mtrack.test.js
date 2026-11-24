@@ -839,13 +839,11 @@ test('the footer: the time, the range and the outside temperature as the frame h
 
 test('the footer\'s three places: each can hold any reading the M styles\' footers can, or nothing', () => {
     assert.deepStrictEqual(spec.settings.find((s) => s.key === 'kFootL').options.map((o) => o[0]), Readings.KINDS);
-    const raw = Object.assign({}, RAW, { avgL100: 9.6, evRangeKm: 43, socPct: 78, hvTempC: 26, gearboxC: 70, torqueNm: 300, tripKm: 123.4, tripMin: 95, odoKm: 12345,
-                                      pedalPct: 42, throttlePct: 37.4, timingDeg: 12.5 });
+    const raw = Object.assign({}, RAW, { avgL100: 9.6, evRangeKm: 43, socPct: 78, hvTempC: 26, gearboxC: 70, torqueNm: 300, tripKm: 123.4, tripMin: 95, odoKm: 12345 });
     const want = { time: '19:02', range: 'r402km', economy: '9.6l/100km', outside: '+21.0°C', iat: 'IAT30°C', rpm: '3000rpm',
                    oil: 'OIL100°C', coolant: 'WATER92°C', boost: 'BOOST0.80bar', volts: 'BATT14.1v',
                    erange: 'EV43km', charge: 'CHARGE78', hvtemp: 'BATT26°C',
-                   gearbox: 'TRANS70°C', torque: 'TQ31kgm', power: 'PWR126hp', trip: 'TRIP123.4km', tripTime: 'TIME1:35h', odo: 'ODO12345km',
-                   pedal: 'PEDAL42', throttle: 'THROTTLE37', timing: 'IGN12.5°' };
+                   gearbox: 'TRANS70°C', torque: 'TQ31kgm', power: 'PWR126hp', trip: 'TRIP123.4km', tripTime: 'TIME1:35h', odo: 'ODO12345km' };
     for (const place of ['L', 'M', 'R']) for (const kind of Readings.KINDS) {
         const t = build({ units: 'metric', electric: 'hybrid', ['kFoot' + place]: kind });
         const st = state(t, raw), n = 'foot' + place;
