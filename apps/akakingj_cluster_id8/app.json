@@ -1923,6 +1923,262 @@
       "tab": "toro"
     },
     {
+      "key": "gaugeL1",
+      "label": "Left upper gauge",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "As the style has it"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Battery charge"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "gaugeL2",
+      "label": "Left lower gauge",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "As the style has it"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Battery charge"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "gaugeR1",
+      "label": "Right upper gauge",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "As the style has it"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Battery charge"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
+      "key": "gaugeR2",
+      "label": "Right lower gauge",
+      "type": "choice",
+      "default": "auto",
+      "options": [
+        [
+          "auto",
+          "As the style has it"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "boost",
+          "Boost"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Battery charge"
+        ],
+        [
+          "erange",
+          "Electric range"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "when": {
+        "style": "toro"
+      },
+      "tab": "toro"
+    },
+    {
       "key": "mCentre",
       "type": "choice",
       "default": "off",

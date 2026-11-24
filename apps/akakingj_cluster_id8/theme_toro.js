@@ -496,17 +496,6 @@
                 [{ str: S.secondaryGlyph, x: G.gx(B.secondaryR.cx), y: G.gy(B.secondaryR.cy) + G.gs(15) }]);
         }
 
-        /* ESC state, stacked, small and red. */
-        statics('esc', 24, { x: G.gx(B.escBlock.cx) - 60, y: G.gy(B.escBlock.cy) - 34, w: 120, h: 40 },
-            { face: 'label', size: G.gs(21) / 0.70, align: 'centre',
-              color: keyCol, tracking: 1 },
-            [{ str: 'ESC', x: G.gx(B.escBlock.cx), y: G.gy(B.escBlock.cy) - G.gs(3) }]);
-        txt('escMode', 24, { x: G.gx(B.escBlock.cx) - 90, y: G.gy(B.escBlock.cy) - 4, w: 180, h: 40 },
-            { face: 'label', size: G.gs(21) / 0.70, align: 'centre',
-              x: G.gx(B.escBlock.cx), y: G.gy(B.escBlock.cy) + G.gs(23),
-              color: keyCol, tracking: 1 },
-            function (s) { return s.modeLabel || S.mode; });
-
         /* ---------------------------------------- side instruments */
         /*
          * The Huracan's side instruments: two slanted horizontal gauges a
@@ -597,6 +586,56 @@
                 function (s) { return podOf(s).text; });
         }
 
+        /*
+         * What a side gauge can be given: its label, symbol, scale and
+         * red end, and where its reading comes from - the state's own pods
+         * for the four the style has, or the readings as numbers (s.num)
+         * set on a scale here.
+         */
+        function numPod(key, lo, hi, show, text, alarm) {
+            return function (s) {
+                var v = s.num ? s.num[key] : null;
+                if (v === null || v === undefined) return { frac: 0, text: '--', alarm: 0 };
+                var x = show(v);
+                return { frac: (x - lo) / (hi - lo), text: text(x, v), alarm: alarm(v, s) ? 1 : 0 };
+            };
+        }
+        function tempPod(key, lo, hi, hot) {
+            return numPod(key, lo, hi, function (c) { return c; },
+                function (c) { return String(Math.round(UN.tempIn(c))); }, function (c) { return hot !== null && c >= hot; });
+        }
+        function pressPod(key, hiBar, oil) {
+            var hi = { psi: oil ? 140 : 25, bar: hiBar, kpa: hiBar * 100 }[UN.press];
+            return numPod(key, 0, hi, UN.pressIn, function (x, bar) { return UN.pressText(bar, oil); },
+                function (bar, s) { return oil && s.rpm > 1200 && bar < 1.0; });
+        }
+        function gaugeKind(kind) {
+            var P3 = { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press];
+            var O3 = { psi: ['0', '70', '140'], bar: ['0', '5', '10'], kpa: ['0', '500', '1000'] }[UN.press];
+            switch (kind) {
+            case 'fuel': return { icon: 0, label: 'BENZINA', key: 'fuel', marks: ['0', '50', '100'], red: [0, 0.12] };
+            case 'coolant': return { icon: 1, label: 'TEMP. ACQUA', key: 'coolant', marks: tLabels([50, 90, 130]), red: [0.81, 1] };
+            case 'oil': return { icon: 2, label: 'TEMP. OLIO', key: 'oilTemp', marks: tLabels([50, 110, 170]), red: [0.83, 1] };
+            case 'oilp': return { icon: 2, label: 'PRESS. OLIO', pod: pressPod('oilBar', 10, true), marks: O3, red: [0, 0.08] };
+            case 'boost': return { icon: null, label: 'PRESS. TURBO', pod: pressPod('boostBar', 1.7, false), marks: P3, red: [0.86, 1] };
+            case 'gearbox': return { icon: null, label: 'TEMP. CAMBIO', pod: tempPod('gearboxC', 40, 130, 120),
+                                     marks: tLabels([40, 85, 130]), red: [0.89, 1] };
+            case 'iat': return { icon: null, label: 'TEMP. ARIA', pod: tempPod('iatC', -20, 60, null),
+                                 marks: tLabels([-20, 20, 60]), red: [0.88, 1] };
+            case 'volts': return { icon: null, label: 'BATTERIA V',
+                                   pod: numPod('volts', 10, 16, function (v) { return v; }, function (v) { return v.toFixed(1); },
+                                               function (v) { return v < 11.8; }),
+                                   marks: ['10', '13', '16'], red: [0, 0.3] };
+            case 'charge': return { icon: null, label: 'CARICA %',
+                                    pod: numPod('socPct', 0, 100, function (v) { return v; }, function (v) { return String(Math.round(v)); },
+                                                function (v) { return v <= 10; }),
+                                    marks: ['0', '50', '100'], red: [0, 0.1] };
+            case 'erange': return { icon: null, label: 'ELETTRICO ' + U.dist, key: 'battery', marks: ['0', '50', '100'], red: [0, 0.12] };
+            case 'hvtemp': return { icon: null, label: 'TEMP. BATT.', key: 'batteryTemp', marks: tLabels([-10, 25, 60]), red: [0.86, 1] };
+            default: return null;
+            }
+        }
+
         /* scale numbers in the units shown: the pods' fractions are fixed in C */
         function tLabels(cs) {
             return cs.map(function (c) { return String(Math.round(UN.tempIn(c))); });
@@ -612,10 +651,24 @@
          * oil pressure on a plug-in hybrid (coolant, with the left pair
          * hidden) and the fuel gauge on an electric car, which has no fuel.
          */
+        /* what each side gauge shows (left upper, left lower, right upper, right lower) */
+        var GAUGE_KINDS = ['auto', 'fuel', 'coolant', 'oil', 'oilp', 'boost', 'gearbox', 'iat', 'volts', 'charge', 'erange', 'hvtemp', 'off'];
+        S.gauges = {};
+        ['L1', 'L2', 'R1', 'R2'].forEach(function (n) {
+            var v = S['gauge' + n];
+            S.gauges[n] = GAUGE_KINDS.indexOf(v) >= 0 ? v : 'auto';
+        });
+        function anyGauge(kinds) {
+            return ['L1', 'L2', 'R1', 'R2'].some(function (n) { return kinds.indexOf(S.gauges[n]) >= 0; });
+        }
+        /* those set on a scale here are read as numbers */
+        if (anyGauge(['oilp', 'boost', 'gearbox', 'iat', 'volts', 'charge'])) S.numbers = true;
         var evSlot = S.electric === 'off' ? null
             : S.electricGauge !== 'auto' ? S.electricGauge
             : S.electric === 'bev' ? 'fuel' : S.showAuxLeft ? 'oilP' : 'coolant';
         if ((evSlot === 'oilP' || evSlot === 'oilT') && !S.showAuxLeft) evSlot = S.electric === 'bev' ? 'fuel' : 'coolant';
+        /* (a gauge given a reading of the owner's choosing keeps it) */
+        if (evSlot && S.gauges[{ fuel: 'R1', coolant: 'R2', oilT: 'L1', oilP: 'L2' }[evSlot]] !== 'auto') evSlot = null;
         function gaugeOr(slot, id, rect, o) {
             if (evSlot !== slot) return instrument(id, rect, o);
             instrument('battery', rect, {
@@ -623,42 +676,72 @@
                 marks: ['0', '50', '100'], red: o.dir < 0 ? [0, 0.12] : [0, 0.12]
             });
         }
-        gaugeOr('fuel', 'fuel', [1572, 422, 1882, 522], {
-            side: 'right', icon: 0, label: 'BENZINA', key: 'fuel', dir: -1,
-            marks: ['0', '50', '100'], red: [0, 0.12]
+        /*
+         * Each of the four can be given any reading (S.gauges: left upper,
+         * left lower, right upper, right lower); 'auto' keeps the style's
+         * own, as below, and 'off' leaves the place empty.
+         */
+        var RECTS = { L1: [14, 430, 304, 530], L2: [0, 540, 290, 640], R1: [1572, 422, 1882, 522], R2: [1600, 538, 1910, 638] };
+        function chosen(kind, side) {
+            var o = gaugeKind(kind);
+            if (!o) return null;
+            o.side = side;
+            o.dir = side === 'left' ? 1 : -1;
+            return o;
+        }
+        function slot(name, auto) {
+            var kind = S.gauges[name];
+            if (kind === 'auto') return auto();
+            var o = chosen(kind, name.charAt(0) === 'L' ? 'left' : 'right');
+            if (o) instrument('g' + name, RECTS[name], o);
+        }
+        slot('R1', function () {
+            gaugeOr('fuel', 'fuel', RECTS.R1, {
+                side: 'right', icon: 0, label: 'BENZINA', key: 'fuel', dir: -1,
+                marks: ['0', '50', '100'], red: [0, 0.12]
+            });
         });
-        gaugeOr('coolant', 'coolant', [1600, 538, 1910, 638], {
-            side: 'right', icon: 1, label: 'TEMP. ACQUA', key: 'coolant', dir: -1,
-            marks: tLabels([50, 90, 130]), red: [0.81, 1]
+        slot('R2', function () {
+            gaugeOr('coolant', 'coolant', RECTS.R2, {
+                side: 'right', icon: 1, label: 'TEMP. ACQUA', key: 'coolant', dir: -1,
+                marks: tLabels([50, 90, 130]), red: [0.81, 1]
+            });
         });
 
         /* The far-left region the brief cannot resolve: our own readings. */
-        if (S.showAuxLeft) {
-            /* Both read left to right, each wedge deepest at its high
-               numbers; both sit clear of the dial's low end. */
+        /* Both read left to right, each wedge deepest at its high
+           numbers; both sit clear of the dial's low end. */
+        slot('L1', function () {
+            if (!S.showAuxLeft) return;
             /* an electric car has no oil: the gauge is its drive battery's temperature */
             if (S.electric === 'bev' && evSlot !== 'oilT') {
-                instrument('batteryT', [14, 430, 304, 530], {
+                instrument('batteryT', RECTS.L1, {
                     side: 'left', icon: null, label: 'TEMP. BATT.', key: 'batteryTemp', dir: 1,
                     marks: tLabels([-10, 25, 60]), red: [0.86, 1]
                 });
-            } else gaugeOr('oilT', 'oilT', [14, 430, 304, 530], {
+            } else gaugeOr('oilT', 'oilT', RECTS.L1, {
                 side: 'left', icon: 2, label: 'TEMP. OLIO', key: 'oilTemp', dir: 1,
                 marks: tLabels([50, 110, 170]), red: [0.83, 1]
             });
-            /*
-             * The Huracan's second left gauge is oil pressure. Nothing on
-             * this car's bus carries it: the engine unit can (src/car/engine.js),
-             * and until it does the slot shows turbo pressure, labelled as
-             * what it is rather than left reading dashes.
-             */
-            gaugeOr('oilP', 'auxPress', [0, 540, 290, 640], {
+        });
+        /*
+         * The Huracan's second left gauge is oil pressure. Nothing on
+         * this car's bus carries it: the engine unit can (src/car/engine.js),
+         * and until it does the slot shows turbo pressure, labelled as
+         * what it is rather than left reading dashes.
+         */
+        slot('L2', function () {
+            if (!S.showAuxLeft) return;
+            gaugeOr('oilP', 'auxPress', RECTS.L2, {
                 side: 'left', icon: 2, label: 'PRESS. TURBO', key: 'auxPress', dir: 1,
                 marks: { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press], red: [0.86, 1],
                 alt: { label: 'PRESS. OLIO', marks: { psi: ['0', '70', '140'], bar: ['0', '5', '10'], kpa: ['0', '500', '1000'] }[UN.press],
                        red: [0, 0.08] }
             });
-        }
+        });
+
+        /* the style's own second left gauge, which wants oil pressure, and turbo pressure while there is none */
+        var auxLeft = !!S.showAuxLeft && S.gauges.L2 === 'auto' && evSlot !== 'oilP';
 
         /* ------------------------------------------- G-force widget */
         /*
@@ -806,9 +889,9 @@
                     (BeeM-Flash's feed, or the engine unit: src/car/engine.js) is asked for
                     these and no others. The second left gauge is oil pressure when there is
                     one and turbo pressure when there is not, so it wants both. */
-                 shows: { oil: !!S.showAuxLeft && evSlot !== 'oilP',
-                          boost: !!(P.boost && (S.showBoost || (S.showAuxLeft && evSlot !== 'oilP'))),
-                          iat: false, volts: false },
+                 shows: { oil: auxLeft || anyGauge(['oilp']),
+                          boost: !!(P.boost && (S.showBoost || auxLeft)) || anyGauge(['boost']),
+                          iat: anyGauge(['iat']), volts: anyGauge(['volts']) },
                  settings: S, palette: C, guide: G, imperial: imperial,
                  dial: { centre: DC, rOuter: rOuter, ang: ANG, redV: redV } };
     }

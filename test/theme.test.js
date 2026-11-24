@@ -72,8 +72,6 @@ const KNOWN_OVERLAPS = new Set([
     /* at 0.9 (clear of the driver camera) the mode name's box reaches 10 px into the M box; its words end
        well before (CORSA ends at about x 720, the box starts at 793) */
     'mCarS58/corsa/M box (left)',
-    /* ... and the ESC mode's 20 px into the right one; its words, centred at x 1463, start past it (x 1394) */
-    'mCarS58/escMode/M box (right)',
 ]);
 
 test('no layer overlaps a factory keep-clear zone', () => {
@@ -714,4 +712,27 @@ test('the boost gauge stays clear of the G widget and its readings', () => {
                       b.y + b.h + gap <= w.y || w.y + w.h + gap <= b.y;
         assert.ok(apart, `${b.id} is within ${gap}px of ${w.id}`);
     }
+});
+
+test('each of the four side gauges can be given a reading or nothing; auto keeps the style\'s own', () => {
+    const profile = Panel.profile('carprofile');
+    const ids = (t) => t.layers.filter((L) => /^bar_/.test(L.id)).map((L) => L.id).sort();
+    assert.deepStrictEqual(ids(Theme.build(atlas, 'carprofile', {})), ['bar_auxPress', 'bar_coolant', 'bar_fuel', 'bar_oilT']);
+    /* (no ESC block: the mode's name stands once, under the gear's left) */
+    assert.ok(!Theme.build(atlas, 'carprofile', {}).layers.some((L) => /^esc/.test(L.id)));
+    const set = { units: 'metric', gaugeL1: 'gearbox', gaugeL2: 'iat', gaugeR1: 'volts', gaugeR2: 'off' };
+    const t = Theme.build(atlas, 'carprofile', set);
+    assert.deepStrictEqual(ids(t), ['bar_gL1', 'bar_gL2', 'bar_gR1']);
+    assert.deepStrictEqual(t.shows, { oil: false, boost: true, iat: true, volts: true });
+    assert.deepStrictEqual(Theme.build(atlas, 'carprofile', { gaugeR1: 'oilp', gaugeR2: 'volts', showAuxLeft: false, showBoost: false }).shows,
+        { oil: true, boost: false, iat: false, volts: true });
+    const st = State.present({ gearboxC: 85, iatC: 20, batteryV: 11.5 }, profile, t.settings);
+    const u = (id) => t.layers.find((L) => L.id === id).uniforms(st, 0);
+    assert.ok(Math.abs(u('bar_gL1').u_frac - 0.5) < 1e-9, 'the gearbox oil: 85 on 40 - 130');
+    assert.ok(Math.abs(u('bar_gL2').u_frac - 0.5) < 1e-9, 'the intake air: 20 on -20 - 60');
+    assert.strictEqual(u('bar_gR1').u_alarm, 1, 'the battery low');
+    /* nothing known: the bar goes dark, as the style's own do */
+    assert.strictEqual(t.layers.find((L) => L.id === 'bar_gL1').uniforms(State.present({}, profile, t.settings), 0).u_on, 0);
+    /* the electric range leaves a place the owner gave something else */
+    assert.strictEqual(Theme.build(atlas, 'carprofile', { electric: 'hybrid', gaugeL2: 'boost' }).electricGauge, null);
 });

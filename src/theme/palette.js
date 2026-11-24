@@ -111,6 +111,9 @@
          */
         electric: 'off',
         electricGauge: 'auto',
+        /* Toro's side gauges, left upper and lower, right upper and lower: auto (the style's own),
+           a reading (lambo.js gaugeKind) or off */
+        gaugeL1: 'auto', gaugeL2: 'auto', gaugeR1: 'auto', gaugeR2: 'auto',
         revFlash: 'both',        /* off | band | edges | both */
         flashRate: 9,            /* Hz */
         flashStrength: 0.52,
