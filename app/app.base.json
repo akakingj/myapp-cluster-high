@@ -3047,6 +3047,126 @@
       }
     },
     {
+      "key": "kStripL",
+      "type": "choice",
+      "default": "auto",
+      "label": "Strip right of the rev counter, left",
+      "options": [
+        [
+          "auto",
+          "As BMW's: engine oil temperature"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
+      "key": "kStripR",
+      "type": "choice",
+      "default": "auto",
+      "label": "Strip right of the rev counter, right",
+      "options": [
+        [
+          "auto",
+          "As BMW's: fuel"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "tab": "mtrack",
+      "when": {
+        "style": "mtrack"
+      }
+    },
+    {
       "key": "kFootL",
       "type": "choice",
       "default": "time",

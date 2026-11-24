@@ -963,3 +963,23 @@ test('the comparison\'s control points: over a hundred, every one from the geome
     const tool = fs.readFileSync(path.join(__dirname, '..', 'tools', 'mt-compare.py'), 'utf8');
     assert.ok(/fixture=mt/.test(tool) && /art=native/.test(tool));
 });
+
+test('the two strips can show any reading a row can, the fuel, or nothing: its figures, unit and symbol follow', () => {
+    const t = build({ units: 'metric', stripL: 'gearbox', stripR: 'coolant' });
+    const st = state(t, Object.assign({}, RAW, { gearboxC: 85 }));
+    assert.deepStrictEqual(t.layers.filter((L) => /Strip$/.test(L.id)).map((L) => L.id), ['oilStrip', 'fuelStrip']);
+    assert.ok(Math.abs(layer(t, 'oilStrip').uniforms(st, 0).u_level - 0.5) < 1e-9, 'the gearbox oil: 85 on 40 - 130');
+    assert.strictEqual(layer(t, 'oilStrip').uniforms(st, 0).u_kind, 1, 'a temperature: red where hot, blue where cold');
+    assert.strictEqual(saysAll(t, 'stripLabels', st), '1308540' + '13010070');
+    assert.strictEqual(says(t, 'oilUnit', st) + says(t, 'fuelUnit', st), '°C°C');
+    assert.strictEqual(says(t, 'oilIcon', st), 'TRANS');
+    /* a reading that is not a temperature is plain, and the fuel moves to wherever it is asked for */
+    const b = build({ units: 'metric', stripL: 'fuel', stripR: 'boost' }), sb = state(b, RAW);
+    assert.deepStrictEqual([layer(b, 'oilStrip').uniforms(sb, 0).u_kind, layer(b, 'fuelStrip').uniforms(sb, 0).u_kind], [0, 2]);
+    /* nothing: the strip, its figures, unit and symbol all left out */
+    const n = build({ stripL: 'off', stripR: 'off' });
+    assert.ok(!n.layers.some((L) => /^(oil|fuel)(Strip|Unit|Icon)$|^stripLabels/.test(L.id)));
+    /* the fuel's last piece in the warning colour only once it is all that is left */
+    const src = require('../src/shaders/tcluster.js').mtstrip;
+    assert.ok(/u_kind < 0\.5 && u_level < 0\.26/.test(src));
+});

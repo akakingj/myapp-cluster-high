@@ -356,7 +356,7 @@
     var mtstrip = [
         HEAD,
         'uniform float u_at;',       /* the ladder\'s left edge, as u = x + K y */
-        'uniform float u_kind;',     /* 0: fuel; 1: oil - its line red where hot, blue where cold */
+        'uniform float u_kind;',     /* 0: fuel; 1: a temperature - its line red where hot, blue where cold; 2: plain */
         'uniform float u_level;',    /* 0..1 */
         'uniform float u_on;',       /* 0: no reading, nothing lit */
         'uniform vec3 u_lit;',
@@ -376,7 +376,8 @@
         /* the line: plain for fuel; for oil red where hot, blue where cold */
         '  vec3 ink = u_ink;',
         '  float brk = 1.0;',
-        '  if (u_kind > 0.5) {',
+        '  bool temp = u_kind > 0.5 && u_kind < 1.5;',
+        '  if (temp) {',
         '    ink = p.y < ' + n(ST.hot) + ' ? u_hotCol : (p.y > ' + n(ST.cold) + ' ? u_coldCol : u_ink);',
         '    brk = step(0.8, min(abs(p.y - ' + n(ST.hot) + '), abs(p.y - ' + n(ST.cold) + ')));',
         '  }',
@@ -384,8 +385,9 @@
         '  float yl = ' + n(ST.bottom) + ' - u_level * ' + n(ST.bottom - ST.top) + ';',
         '  float on = u_on * ac(yl - p.y);',
         '  vec3 lit = u_lit;',
-        '  if (u_kind > 0.5) lit = yl > ' + n(ST.cold + 1.0) + ' ? u_coldCol : (yl < ' + n(ST.hot) + ' ? u_hotCol : u_lit);',
-        '  else if (p.y > ' + n(ST.cuts[2]) + ') lit = u_lowCol;',
+        '  if (temp) lit = yl > ' + n(ST.cold + 1.0) + ' ? u_coldCol : (yl < ' + n(ST.hot) + ' ? u_hotCol : u_lit);',
+        /* fuel: lit as the others, its last piece in the warning colour only once it is all that is left */
+        '  else if (u_kind < 0.5 && u_level < 0.26 && p.y > ' + n(ST.cuts[2]) + ') lit = u_lowCol;',
         '  vec4 c = vec4(mix(u_dim, lit, on), ac(dS));',
         '  c = over(vec4(ink, ac(dL) * brk), c);',
         '  gl_FragColor = c;',

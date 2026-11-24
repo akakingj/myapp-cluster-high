@@ -57,7 +57,7 @@ test('the settings are in five groups, and each style keeps its own adjustments 
     Object.keys(Themes.OWN.track).forEach((n) => assert.notStrictEqual(Themes.OWN.track[n], Themes.OWN.mplus[n]));
     /* M Track Mode has its own: what its left wing holds, its four gauge rows, how a row marks its reading */
     assert.deepStrictEqual(Object.keys(Themes.OWN.mtrack),
-        ['centre', 'wing', 'row1', 'row2', 'row3', 'row4', 'rowMark', 'footL', 'footM', 'footR']);
+        ['centre', 'wing', 'row1', 'row2', 'row3', 'row4', 'rowMark', 'stripL', 'stripR', 'footL', 'footM', 'footR']);
     const MTrack = require('../src/theme/mtrack.js');
     for (const n of [1, 2, 3, 4]) {
         /* each row: as BMW's, any reading a row can show, or nothing */
@@ -172,7 +172,7 @@ test('a tab of settings holds its own style\'s adjustments and nothing of anothe
     /* M Track Mode's tab: its wing, its four rows, its footer - and no other style's */
     page.run('tab:mtrack');
     const k = keys(page, 'set:');
-    assert.deepStrictEqual(k, ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kRowMark', 'kFootL', 'kFootM', 'kFootR'].map((n) => 'set:' + n));
+    assert.deepStrictEqual(k, ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kRowMark', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR'].map((n) => 'set:' + n));
     /* "use this style" takes it, and the offer goes */
     page.run('tab:mplus');
     page.run('use:mplus');

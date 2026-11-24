@@ -39,6 +39,7 @@
                  footL: 'pFootL', footM: 'pFootM', footR: 'pFootR' },
         /* M Track Mode: what its left wing holds, its four gauge rows, how a row marks its reading, its footer */
         mtrack: { centre: 'kCentre', wing: 'kWing', row1: 'kRow1', row2: 'kRow2', row3: 'kRow3', row4: 'kRow4', rowMark: 'kRowMark',
+                  stripL: 'kStripL', stripR: 'kStripR',
                   footL: 'kFootL', footM: 'kFootM', footR: 'kFootR' }
     };
     function has(v) { return v !== undefined && v !== null && v !== ''; }

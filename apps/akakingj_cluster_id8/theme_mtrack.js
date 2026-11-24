@@ -84,7 +84,7 @@
         R: { line: c(226, 160, 170), top: c(224, 128, 146), chan: c(64, 29, 39), chanMid: c(74, 33, 47),
              rail: c(230, 68, 82), tick: c(214, 74, 88), zone: c(246, 204, 210),
              fill: c(232, 64, 72), fillEdge: c(242, 128, 134) },
-        segLit: c(236, 239, 244), segDim: c(123, 131, 154), segLow: c(161, 168, 190), stripInk: c(222, 231, 245),
+        segLit: c(236, 239, 244), segDim: c(123, 131, 154), segLow: c(245, 166, 35), stripInk: c(222, 231, 245),
         stripHot: c(206, 82, 96), stripCold: c(62, 142, 232),
         pane: c(24, 46, 102), paneFoot: c(47, 76, 146), footBlue: c(56, 112, 228), footRed: c(222, 62, 72),
         limitDisc: c(250, 250, 250), limitRing: c(218, 52, 72), limitInk: c(24, 24, 28),
@@ -224,6 +224,12 @@
         S.rows = [0, 1, 2, 3].map(function (i) {
             var v = settings && settings['row' + (i + 1)];
             return ROW_KINDS.indexOf(v) >= 0 ? v : home[i];
+        });
+        /* the two strips right of the rev counter: the frame's oil and fuel, or a row's reading, or nothing */
+        var STRIP_KINDS = ROW_KINDS.concat(['fuel']);
+        S.strips = [['stripL', bev ? 'hvtemp' : 'oil'], ['stripR', 'fuel']].map(function (p) {
+            var v = settings && settings[p[0]];
+            return STRIP_KINDS.indexOf(v) >= 0 ? v : p[1];
         });
         /* how a row shows its reading: a mark on the rail (the frame's), or the rail past it standing back as well */
         S.rowMark = settings && settings.rowMark === 'fill' ? 'fill' : 'mark';
@@ -449,46 +455,65 @@
         fixed('revTitle', 20, box(1100, 50, 1232, 80), { face: 'ms', size: words(21.8), align: 'left', color: K.title },
             [{ str: '1/min x 1000', x: 1108.0, y: 73.6 }]);
 
-        /* --------------------------------------------------- oil and fuel */
-        var ST = T.STRIP;
-        function strip(id, at, kind, fn) {
-            var x1 = T.slash(at, ST.top) + ST.ladderW + ST.gap + ST.lineW, x0 = T.slash(at, ST.bottom);
-            shape(id, 12, 'mtstrip', box(x0 - 3, ST.top - 3, x1 + 3, ST.bottom + 3), function (s) {
-                var v = fn(s);
-                return { u_at: at, u_kind: kind, u_level: v === null ? 0 : clamp01(v), u_on: v === null ? 0 : 1,
+        /* --------------------------------------------------- the two strips */
+        /*
+         * The two ladders right of the rev counter: as the frame has them, oil temperature (left) and fuel
+         * (right); M TRACK > Strip, left / right gives either any reading a gauge row can show, the fuel, or
+         * nothing (an electric car's left one is its drive battery's temperature as it comes). Each with its
+         * three figures, its unit (the fuel has none) and its symbol (the frame's oil can and pump; a row's
+         * symbol, or its word, for the others).
+         */
+        var ST = T.STRIP, LBL = 16.7;
+        var STRIP_AT = {
+            L: { at: ST.oil, labels: [1248.0, 1211.8, 1175.9], ys: [336.5, 398.9, 461.6], unit: [1202.5, 369.5], icon: [1178.2, 420.85] },
+            R: { at: ST.fuel, labels: [1362.4, 1329.0, 1292.8], ys: [336.9, 400.6, 462.2], unit: [1318.6, 369.5], icon: [1301.85, 423.8] }
+        };
+        function stripScale(kind) {
+            if (kind === 'fuel') {
+                return { fuel: true, marks: ['1', '1/2', '0'], unit: '', mi: 'f', iconScale: 1.065,
+                         frac: function (s) { var f = s.pods && s.pods.fuel; return f && f.text !== '--' ? f.frac : null; } };
+            }
+            if (kind === 'oil' && !bev) {
+                return { temp: true, marks: celsius ? ['150', '100', '50'] : ['300', '210', '120'], unit: celsius ? '°C' : '°F',
+                         mi: 'o', iconScale: 0.94,
+                         frac: function (s) {
+                             var t = typeof s.oilTempC === 'number' && isFinite(s.oilTempC) ? s.oilTempC : null;
+                             return t === null ? null : celsius ? (t - 50) / 100 : (c2f(t) - 120) / 180;
+                         } };
+            }
+            var sc = SCALES[kind];
+            if (!sc) return null;
+            return { temp: sc.unit === S.u.labels.temp, marks: sc.marks.slice().reverse(), unit: sc.unit, unitFace: sc.unitFace,
+                     mt: sc.icon, tag: sc.tag,
+                     frac: function (s) { var v = num(s, sc.key); return v === null ? null : (sc.show(v) - sc.lo) / (sc.hi - sc.lo); } };
+        }
+        ['L', 'R'].forEach(function (side, si) {
+            var P = STRIP_AT[side], sc = stripScale(S.strips[si]);
+            if (!sc) return;
+            var x1 = T.slash(P.at, ST.top) + ST.ladderW + ST.gap + ST.lineW, x0 = T.slash(P.at, ST.bottom);
+            shape(si ? 'fuelStrip' : 'oilStrip', 12, 'mtstrip', box(x0 - 3, ST.top - 3, x1 + 3, ST.bottom + 3), function (s) {
+                var v = sc.frac(s);
+                return { u_at: P.at, u_kind: sc.fuel ? 0 : sc.temp ? 1 : 2, u_level: v === null ? 0 : clamp01(v), u_on: v === null ? 0 : 1,
                          u_lit: K.segLit, u_dim: K.segDim, u_ink: K.stripInk,
                          u_hotCol: K.stripHot, u_coldCol: K.stripCold, u_lowCol: K.segLow };
             });
-        }
-        /* oil temperature between its end marks: 50 to 150 C, or 120 to 300 F
-           (an electric car has no oil: the strip is its drive battery's temperature) */
-        strip('oilStrip', ST.oil, 1, function (s) {
-            if (bev) return typeof s.hvTempFrac === 'number' ? s.hvTempFrac : null;
-            var t = typeof s.oilTempC === 'number' && isFinite(s.oilTempC) ? s.oilTempC : null;
-            if (t === null) return null;
-            return celsius ? (t - 50) / 100 : (c2f(t) - 120) / 180;
+            /* (each a layer the size of its own three figures) */
+            snug(si ? 'stripLabels_1' : 'stripLabels', 30, { face: 'mn', size: fig(LBL), align: 'left', color: K.label },
+                [0, 1, 2].map(function (k) { return { str: sc.marks[k], x: P.labels[k], y: P.ys[k], ink: 'r' }; }));
+            if (sc.unit) {
+                var deg = sc.unit.charAt(0) === '°';
+                fixed(si ? 'fuelUnit' : 'oilUnit', 30, box(P.unit[0] - 6, 344, P.unit[0] + 40, 376),
+                    { face: sc.unitFace || 'ms', size: words(deg ? 24.5 : 21.0), align: 'left', color: K.unit },
+                    [{ str: sc.unit, x: P.unit[0], y: P.unit[1] }]);
+            }
+            /* (an electric car's own two, as they come, go without a symbol: the oil can and the pump are an engine's) */
+            if (bev && S.strips[si] === (si ? 'fuel' : 'hvtemp')) return;
+            if (sc.mi) icon(si ? 'fuelIcon' : 'oilIcon', 30, 'mi', sc.mi, P.icon[0], P.icon[1], sc.iconScale, K.stripIcon);
+            else if (sc.mt) icon(si ? 'fuelIcon' : 'oilIcon', 30, 'mt', sc.mt, P.icon[0], P.icon[1], 0.8, K.stripIcon);
+            else if (sc.tag) fixed(si ? 'fuelIcon' : 'oilIcon', 30, box(P.icon[0] - 36, P.icon[1] - 16, P.icon[0] + 36, P.icon[1] + 16),
+                { face: 'mb', size: words(18.0), align: 'left', color: K.stripIcon },
+                [{ str: sc.tag, x: P.icon[0] - 26, y: P.icon[1] + 7 }]);
         });
-        strip('fuelStrip', ST.fuel, 0, function (s) {
-            var f = s.pods && s.pods.fuel;
-            return f && f.text !== '--' ? f.frac : null;
-        });
-        var LBL = 16.7;
-        var oilMarks = bev ? (celsius ? ['60', '25', '-10'] : ['140', '77', '14'])
-            : celsius ? ['150', '100', '50'] : ['300', '210', '120'];
-        /* (the oil's and the fuel's apart: each a layer the size of its own three figures) */
-        snug('stripLabels', 30, { face: 'mn', size: fig(LBL), align: 'left', color: K.label },
-            [{ str: oilMarks[0], x: 1248.0, y: 336.5, ink: 'r' }, { str: oilMarks[1], x: 1211.8, y: 398.9, ink: 'r' },
-             { str: oilMarks[2], x: 1175.9, y: 461.6, ink: 'r' }]);
-        snug('stripLabels_1', 30, { face: 'mn', size: fig(LBL), align: 'left', color: K.label },
-            [{ str: '1', x: 1362.4, y: 336.9, ink: 'r' }, { str: '1/2', x: 1329.0, y: 400.6, ink: 'r' },
-             { str: '0', x: 1292.8, y: 462.2, ink: 'r' }]);
-        fixed('oilUnit', 30, box(1196, 344, 1236, 376), { face: 'ms', size: words(24.5), align: 'left', color: K.unit },
-            [{ str: celsius ? '°C' : '°F', x: 1202.5, y: 369.5 }]);
-        /* (the oil can and the pump are an engine's: an electric car's strips go without them) */
-        if (!bev) {
-            icon('oilIcon', 30, 'mi', 'o', 1178.2, 420.85, 0.94, K.stripIcon);
-            icon('fuelIcon', 30, 'mi', 'f', 1301.85, 423.8, 1.065, K.stripIcon);
-        }
 
         /* --------------------------------------------------- gear and speed */
         /* the gear, its ink ending where the frame's D does: a letter in the
@@ -688,7 +713,8 @@
                  wingWhole: whole,
                  /* row readings the car side passes on as they arrive unless asked: a degree or a tenth of a
                     volt at a time, which on a rail is a mark that jumps. Named, they glide (src/car/smooth.js) */
-                 glide: S.rows.map(function (kind) { return ROW_GLIDE[kind]; }).filter(function (k) { return !!k; }),
+                 glide: S.rows.concat(S.strips).map(function (kind) { return ROW_GLIDE[kind]; })
+                     .filter(function (k, i, a) { return !!k && a.indexOf(k) === i; }),
                  /* readings shown that the car's bus may not carry: what the rows and the footer hold */
                  shows: { oil: rowShows('oilp'), boost: rowShows('boost') || footShows('boost'),
                           iat: rowShows('iat') || footShows('iat'), volts: rowShows('volts') || footShows('volts') },
