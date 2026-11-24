@@ -441,7 +441,7 @@ function harness(t, initial, more) {
         onSettingsChanged(fn) { changed = fn; },
         subscribe(sig, cb) { onValue = cb; }
     };
-    const svc = Main.start(host, Object.assign({ cr, now: () => clock }, more));
+    const svc = Main.start(host, Object.assign({ cr, now: () => clock, showSettleMs: 0 }, more));
     t.after(() => svc.stop());
     return {
         logs, svc, on, sent,

@@ -505,7 +505,7 @@ async function main() {
     app.on('exit', (code) => { exited = code; });
 
     const marks = [[2000, 'parked', 'parked, ignition off'], [3500, 'starting', 'drive readiness starting'],
-                   [4900, 'on', 'on, no map from the phone yet'], [6200, 'pull', 'pulling through ' + (DIESEL ? '3,900' : '5,000') + ' rpm'],
+                   /* (up 1.2 s after the car is on: SHOW_SETTLE_MS) */ [5700, 'on', 'on, no map from the phone yet'], [6200, 'pull', 'pulling through ' + (DIESEL ? '3,900' : '5,000') + ' rpm'],
                    [7300, 'limiter', 'on the limiter'], [9400, 'cruise', 'cruising, the phone\'s map on'],
                    [11700, 'gone', 'cruising, the phone unplugged'], [KEY_OFF + 2600, 'off', 'switched off']];
     const shots = [];

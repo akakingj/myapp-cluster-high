@@ -25,6 +25,10 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   and torque**, the **fuel pressures**, the **fuel** and the **drive battery** among them).
 - **The readings' places are set on the CLUSTER page alone**: the footers, Toro's side gauges, M Track Mode's rows and
   strips are no longer rows of the style tabs nor of the head unit's settings list.
+- **At start-up the style comes straight in after BMW's own cluster, with no black between**, as Cluster Layouts': it
+  goes up once the car has been on for 1.2 s without a break, its layers made hidden, and shows whole on its first
+  frame, once every layer has its values. Made visible one by one, the full-screen background stood alone (the
+  cluster black) while the rest had nothing to draw yet.
 - The engine unit is asked for the boost target (`4AB0`, `F470`, `OBD 70`), the fuel rail (`F423`, `F459`, `OBD 23`)
   and the supply (`F40A`, `F422`, `OBD 0A`, `OBD 22`) only while a place shows them, as Cluster Layouts reads them
   (docs/ENGINE-READINGS.md); a diesel the standard forms alone.

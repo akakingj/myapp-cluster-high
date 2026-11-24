@@ -40,7 +40,8 @@ function harness(t, initial, centre, more) {
     };
     /* taking turns with the AK Cluster apps (presence.js): no one else, unless a test says */
     const presence = { other: false, marks: 0, othersShowing() { return this.other; }, mark() { this.marks++; } };
-    const deps = Object.assign({ cr, now: () => clock, centre, presence }, more);
+    /* (shown at once here: the wait before the style goes up, SHOW_SETTLE_MS, has a test of its own) */
+    const deps = Object.assign({ cr, now: () => clock, centre, presence, showSettleMs: 0 }, more);
     delete deps.dataDir;
     const svc = Main.start(host, deps);
     t.after(() => svc.stop());   /* a failed assertion must not leave a timer running */
@@ -84,6 +85,28 @@ test('turned on with the car ready, it draws', { timeout: 10000 }, async (t) => 
     assert.strictEqual(h.calls.asset, 1, 'one atlas');
     assert.ok(h.calls.effect > 30, 'the layers go up');
     assert.ok(h.calls.uniform > 0, 'and are driven');
+    assert.strictEqual(h.svc.status(), 'On the cluster');
+});
+
+test('at the head unit\'s start it goes up once wanted for 1.2 s without a break, as Cluster Layouts', { timeout: 10000 }, async (t) => {
+    const h = harness(t, {}, undefined, { showSettleMs: undefined });
+    h.on.ready();
+    h.condition('FAHREN');
+    h.rpm(2000);
+    await wait(320);
+    assert.strictEqual(h.calls.effect, 0, 'not at once');
+    /* a break (the car's state not yet on) starts the wait again */
+    h.condition('WOHNEN');
+    await wait(320);
+    h.tick(1000);
+    h.condition('FAHREN');
+    await wait(320);
+    h.tick(1000);
+    await wait(320);
+    assert.strictEqual(h.calls.effect, 0, 'wanted only 1 s since the break');
+    h.tick(300);
+    await wait(320);
+    assert.ok(h.calls.effect > 30, 'then up, all of it');
     assert.strictEqual(h.svc.status(), 'On the cluster');
 });
 

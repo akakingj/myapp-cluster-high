@@ -55,6 +55,10 @@ function create(opts) {
     var visible = {};     /* layer id -> bool */
     var built = false;
     var stopped = false;
+    /* the layers go up hidden and show together on the first frame, once each has its values (as Cluster Layouts'
+       engine.js): made visible one by one, the full-screen background stood alone - the cluster black - while the
+       rest still had nothing to draw */
+    var revealed = true;
     /* layer id -> { uniform: last value } the driver before this one sent: those the new settings leave out go
        back to 0 on the first frame (as a layer made new has them), not kept from the old settings */
     var stale = {};
@@ -144,13 +148,15 @@ function create(opts) {
                 /* We never take the slot from the stock cluster by force and
                    we leave BMW's turn box alone. */
                 contend: false,
-                guide_hold: false
+                guide_hold: false,
+                /* hidden until the first frame has given every layer its values (tick: revealed) */
+                visible: false
             });
             if (!ref) { log.warn('cluster: layer "' + L.id + '" was refused'); continue; }
 
             refs[L.id] = ref;
             sent[L.id] = {};
-            visible[L.id] = true;
+            visible[L.id] = false;
             base[L.id] = { x: L.x, y: L.y };
 
             cr.uniform(ref, 'u_size', [L.w, L.h]);
@@ -169,6 +175,7 @@ function create(opts) {
             }
         }
         built = true;
+        revealed = false;
         log.info('cluster: ' + Object.keys(refs).length + ' layers, 1 asset');
         return false;
     }
@@ -243,6 +250,8 @@ function create(opts) {
     function tick(state) {
         if (!built || stopped) return 0;
         var writes = 0;
+        /* the first frame after the layers went up: every value sent first, then those with something to say shown together */
+        var reveal = !revealed, show = [];
         if (theme.shake) writes += shake(!!theme.shake(state), state && state.now ? state.now : Date.now());
         for (var i = 0; i < ordered.length; i++) {
             var L = ordered[i];
@@ -255,7 +264,10 @@ function create(opts) {
                 if (visible[L.id]) { cr.set(ref, { visible: false }); visible[L.id] = false; }
                 continue;
             }
-            if (!visible[L.id]) { cr.set(ref, { visible: true }); visible[L.id] = true; }
+            if (!visible[L.id]) {
+                if (reveal) show.push(L.id);
+                else { cr.set(ref, { visible: true }); visible[L.id] = true; }
+            }
 
             for (var k in u) {
                 if (Object.prototype.hasOwnProperty.call(u, k)) {
@@ -276,6 +288,10 @@ function create(opts) {
             var t = Clock.timeFor(L.shader, u, state ? state.now : 0);
             if (t !== null) writes += send(L.id, ref, 'u_time', t);
         }
+        if (reveal) {
+            show.forEach(function (id) { cr.set(refs[id], { visible: true }); visible[id] = true; });
+            revealed = true;
+        }
         return writes;
     }
 
@@ -286,7 +302,7 @@ function create(opts) {
         if (shaking) moveAll({ x: 0, y: 0 });       /* every layer back where it belongs */
         var got = { atlasRef: atlasRef, refs: refs, visible: visible, sent: sent };
         stopped = true;
-        refs = {}; sent = {}; visible = {}; base = {}; stale = {}; atlasRef = 0; built = false;
+        refs = {}; sent = {}; visible = {}; base = {}; stale = {}; atlasRef = 0; built = false; revealed = true;
         shaking = false; shakeAt = null; calmFrames = 0;
         return got;
     }
@@ -298,7 +314,7 @@ function create(opts) {
             if (Object.prototype.hasOwnProperty.call(refs, id)) cr.drop(refs[id]);
         }
         if (atlasRef) cr.drop(atlasRef);
-        refs = {}; sent = {}; visible = {}; base = {}; atlasRef = 0; built = false;
+        refs = {}; sent = {}; visible = {}; base = {}; atlasRef = 0; built = false; revealed = true;
         shaking = false; shakeAt = null; calmFrames = 0;
     }
 
@@ -306,6 +322,7 @@ function create(opts) {
         ready: ready, tick: tick, stop: stop, handOver: handOver,
         refs: function () { return refs; },
         isBuilt: function () { return built; },
+        isRevealed: function () { return built && revealed; },
         isShaking: function () { return shaking; }
     };
 }

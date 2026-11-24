@@ -150,13 +150,40 @@ test('stop hands the cluster back', () => {
 });
 
 test('a layer with nothing to show is hidden, not drawn blank', () => {
-    const { cr, d } = makeDriver();
+    const { cr, theme, d } = makeDriver();
     d.ready();
     const profile = Panel.profile('carprofile');
-    /* No gear: the big numeral and the strip marker have nothing to draw. */
+    /* No gear: the big numeral and the strip marker have nothing to draw: they stay hidden when the rest shows */
     const st = State.present({ rpm: 800, gear: '' }, profile, {});
     st.gear = '';
     d.tick(st);
-    assert.ok(cr.calls.set.some(s => s.opts.visible === false),
-        'at least one layer should hide itself');
+    const shown = new Set(cr.calls.set.filter((s) => s.opts.visible === true).map((s) => s.ref));
+    assert.ok(shown.size > 0 && shown.size < cr.calls.effect.length, 'at least one layer stays hidden: ' + shown.size);
+    /* a layer shown that then has nothing to say hides itself */
+    const refs = d.refs(), layer = theme.layers.find((x) => shown.has(refs[x.id]));
+    layer.uniforms = () => null;
+    cr.calls.set.length = 0;
+    d.tick(st);
+    assert.deepStrictEqual(cr.calls.set, [{ ref: refs[layer.id], opts: { visible: false } }]);
+});
+
+test('the layers go up hidden and show together on the first frame, after every value has gone', () => {
+    const { cr, d } = makeDriver();
+    d.ready();
+    assert.ok(cr.calls.effect.every((o) => o.visible === false), 'made hidden: the background alone would stand there black');
+    assert.strictEqual(cr.calls.set.length, 0);
+    assert.ok(!d.isRevealed());
+    const before = cr.calls.uniform.length;
+    const order = [];
+    const set0 = cr.set, uni0 = cr.uniform;
+    cr.set = (r, o) => { order.push('set'); set0.call(cr, r, o); };
+    cr.uniform = (r, n, v, o) => { order.push('u'); uni0.call(cr, r, n, v, o); };
+    d.tick(State.present({ rpm: 800, gear: '4', speedKmh: 30 }, Panel.profile('carprofile'), {}));
+    assert.ok(cr.calls.uniform.length > before);
+    assert.ok(order.indexOf('set') > order.lastIndexOf('u'), 'every value first, then the layers shown');
+    assert.ok(d.isRevealed());
+    /* and from then on a frame shows nothing again */
+    const n = cr.calls.set.length;
+    d.tick(State.present({ rpm: 900, gear: '4', speedKmh: 31 }, Panel.profile('carprofile'), {}));
+    assert.strictEqual(cr.calls.set.length, n);
 });

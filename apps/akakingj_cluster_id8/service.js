@@ -39,6 +39,9 @@ var tShaders = require('./shaders_t.js');
 var FRAME_MS = 16;            /* 60 Hz by default; settings.refreshHz picks 15-60 */
 var IDLE_MS = 250;            /* while nothing is drawn */
 var SETTLE_MS = 400;          /* settings changes, while someone scrolls through them */
+/* the style goes up once it has been wanted this long without a break, as Cluster Layouts' (engine.js SETTLE_MS): at the
+   head unit's start the car's state and the render service come up in steps */
+var SHOW_SETTLE_MS = 1200;
 /*
  * Where the readings the bus does not carry come from. The app has no setting for it: the engine unit only ("off").
  * The other modes stay for a host that names one (settings.beemFlash):
@@ -134,6 +137,7 @@ function start(host, deps) {
     deps = deps || {};
     var log = host.log || { info: function () {}, warn: function () {} };
     function now() { return deps.now ? deps.now() : Date.now(); }
+    var settleMs = deps.showSettleMs !== undefined ? deps.showSettleMs : SHOW_SETTLE_MS;
 
     var loaded = deps.atlas && deps.atlasPixels ? null : Atlas.load();
     var atlas = deps.atlas || loaded.meta;
@@ -216,6 +220,7 @@ function start(host, deps) {
     var onAt = 0;
     var connected = false;
     var running = false;        /* our layers are up */
+    var wantSince = 0;          /* since when the style has been wanted, not yet up (SHOW_SETTLE_MS) */
     var stopped = false;
     var timer = null, settleTimer = null;
     var status = 'Starting';
@@ -398,6 +403,8 @@ function start(host, deps) {
 
             var want = enabled && !yielded && connected && !!driver &&
                 (car === 'on' || (car === 'starting' && running));
+            if (!want) wantSince = 0; else if (!wantSince) wantSince = now();
+            if (want && !running && now() - wantSince < settleMs) want = false;
 
             if (car === 'off') onAt = 0;
             if (want && !running) {

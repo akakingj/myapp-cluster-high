@@ -278,6 +278,7 @@ useful thing to send back.
 
 | # | Check | Expect |
 |---|---|---|
+| S1 | AK 0.17.0: Show on the cluster on, key off, then start the car (and once more with only the ignition on, then start) | BMW's own cluster, then about a second after the car is on the whole style at once: **no black screen** between them. **If it still goes black, say for how long, and whether the style then comes in piece by piece** |
 | 1 | Open MGU Styles on iDrive | The CLUSTER tab: the style, its switch, a sketch of the design. Status: *Off – BMW original cluster* |
 | 2 | Press the switch with the ignition off | Status: *Waiting for the car to switch on*. Cluster unchanged |
 | 3 | Ignition on (engine off), then start | Toro appears within about a second of drive readiness |
