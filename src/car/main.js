@@ -113,7 +113,7 @@ function ambientAccent(r, g, b) {
 
 /* Tank sizes, litres, only to turn the fuel level into a percentage. */
 function profileTank(profile) {
-    return profile.id === 'x3m40i' ? 65 : profile.id === 'mCarS58' ? 59 : 60;
+    return profile.tankLitres || 60;
 }
 
 /*
@@ -239,7 +239,7 @@ function start(host, deps) {
                     : Message.load({ dataDir: host.dataDir, log: log });
                 settings = Object.assign({}, settings, { introText: words || null });
             }
-            profile = Panel.profile(settings.profile || Panel.DEFAULT_PROFILE);
+            profile = Panel.profileFor(settings.profile || Panel.DEFAULT_PROFILE, settings);
             theme = Theme.build(atlas, profile.id, settings);
             driver = Driver.create({
                 cr: cr, theme: theme, shaders: SHADERS,

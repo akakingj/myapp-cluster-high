@@ -79,7 +79,7 @@
     var LOWER_MOST = 58;
 
     function build(atlas, profileId, settings) {
-        var P = Panel.profile(profileId);
+        var P = Panel.profileFor(profileId, settings);
         var S = Palette.resolve(settings, P);
         /* (the M styles' widest window is not one of this dial's openings: its largest is "most") */
         if (S.centreSize === 'full') S.centreSize = 'most';
@@ -458,6 +458,10 @@
         /* the stroke, in the guide's units: fine | heavy, tall | in a corner */
         var gearLine = G.gs(S.gearFill === 'heavy' ? (gearCorner ? 5.0 : 7.0) : (gearCorner ? 3.0 : 3.6));
         var gearRoom = G.gs(3.0);
+        /* the gear as TORO > Gear has it: with its programme (D1, S1, M1) or the figure alone */
+        /* a pair's size against a figure's: the widest pair, M8, within the box a single M has (a corner's is tighter) */
+        var PAIR = gearCorner ? 0.58 : 0.68;
+        function gearShown(s) { return String((S.gearShows === 'staged' ? s.gearStaged : s.gear) || s.gear || 'P'); }
         txt('gearBig', 24,
             gearCorner
                 /* every figure the face has, the wide M included, and a little to spare
@@ -465,15 +469,18 @@
                 ? { x: Math.floor(gearAt.x - 0.44 * gearSize - gearRoom), y: Math.floor(gearAt.y - 0.41 * gearSize - gearRoom),
                     w: Math.ceil(1.09 * gearSize + 2 * gearRoom), h: Math.ceil(0.83 * gearSize + 2 * gearRoom) }
                 : { x: gearRect.x - 90, y: gearRect.y - 44, w: gearRect.w + 180, h: gearRect.h + 92 },
-            { face: 'gear', size: gearSize, align: 'centre', baseline: 'middle',
+            /* (two characters - the programme and the gear, TORO > Gear - set smaller: PAIR) */
+            { face: 'gear', size: function (s) { return gearShown(s).length > 1 ? gearSize * PAIR : gearSize; },
+              align: 'centre', baseline: 'middle',
               x: gearAt.x, y: gearAt.y,
-              outline: S.gearFill === 'filled' ? 0 : gearLine, glow: 0.0,
+              /* (the stroke smaller with the pair, as the figures are: it keeps inside each figure's cell) */
+              outline: S.gearFill === 'filled' ? 0 : function (s) { return gearShown(s).length > 1 ? gearLine * PAIR : gearLine; }, glow: 0.0,
               /* (white at the limiter, and blinking white at the shift point) */
               color: function (s) { return S.gearFill === 'filled' && (s.limiter > 0.5 || Palette.blinkOn(s)) ? [1, 1, 1] : keyCol(); },
               outCol: function (s) {
                   return s.limiter > 0.5 || Palette.blinkOn(s) ? [1, 1, 1] : keyCol();
               } },
-            function (s) { return s.gear; });
+            gearShown);
 
         txt('corsa', 24, { x: G.gx(B.corsa.cx) - 100, y: G.gy(B.corsa.cy) - 28, w: 200, h: 50 },
             { face: 'label', size: G.gs(26) / 0.70, align: 'centre',

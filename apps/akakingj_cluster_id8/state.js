@@ -225,6 +225,8 @@
             /* the speed's digits (speedShown); the needles and bars take speed */
             speedText: String(speedShown(Math.max(0, speed), U.speed)),
             gear: raw.gear || 'P',
+            /* the gear with its programme, D1 / S1 / M1 (src/car/vehicle.js gearStaged; a bare figure is D's) */
+            gearStaged: raw.gearStaged || (/^[1-9]$/.test(String(raw.gear)) ? 'D' + raw.gear : raw.gear || 'P'),
             driveMode: raw.driveMode || '',
             modeLabel: modeLabelOf(raw.driveMode, opts.modeLabel,
                                    opts.mode === undefined || opts.mode === null ? 'CORSA' : opts.mode),

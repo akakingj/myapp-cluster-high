@@ -40,7 +40,7 @@ function fakeCR() {
 
 function makeDriver() {
     const cr = fakeCR();
-    const theme = Theme.build(atlas, 'x3m40i', {});
+    const theme = Theme.build(atlas, 'b48', {});
     const d = Driver.create({
         cr, theme, shaders: SHADERS, atlas,
         atlasPixels: Buffer.alloc(atlas.size * atlas.size)
@@ -95,7 +95,7 @@ test('composed shaders carry no reserved uniform and no break', () => {
 test('glyph arrays are sent as typed vec4 arrays', () => {
     const { cr, d } = makeDriver();
     d.ready();
-    const profile = Panel.profile('x3m40i');
+    const profile = Panel.profile('b48');
     d.tick(State.present(Sim.create(profile).raw(), profile, {}));
     const arrays = cr.calls.uniform.filter(u => u.values.length > 4);
     assert.ok(arrays.length > 0);
@@ -109,7 +109,7 @@ test('glyph arrays are sent as typed vec4 arrays', () => {
 test('an unchanged frame sends nothing', () => {
     const { cr, d } = makeDriver();
     d.ready();
-    const profile = Panel.profile('x3m40i');
+    const profile = Panel.profile('b48');
     const st = State.present(Sim.create(profile).raw(), profile, {});
     d.tick(st);
     const after = cr.calls.uniform.length;
@@ -120,7 +120,7 @@ test('an unchanged frame sends nothing', () => {
 test('a driving frame stays far inside the upload budget', () => {
     const { cr, d } = makeDriver();
     d.ready();
-    const profile = Panel.profile('x3m40i');
+    const profile = Panel.profile('b48');
     const sim = Sim.create(profile);
     const before = cr.calls.uniform.length;
     let frames = 0;
@@ -152,7 +152,7 @@ test('stop hands the cluster back', () => {
 test('a layer with nothing to show is hidden, not drawn blank', () => {
     const { cr, d } = makeDriver();
     d.ready();
-    const profile = Panel.profile('x3m40i');
+    const profile = Panel.profile('b48');
     /* No gear: the big numeral and the strip marker have nothing to draw. */
     const st = State.present({ rpm: 800, gear: '' }, profile, {});
     st.gear = '';

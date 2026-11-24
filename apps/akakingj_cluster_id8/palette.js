@@ -93,6 +93,8 @@
          * above the boost gauge, or above the speed.
          */
         gearPlace: 'centre',
+        /* Toro's numeral: staged (D1, S1, M1, as BMW shows the gear) | gear (the figure alone, as a Lamborghini) */
+        gearShows: 'staged',
         holiday: false,          /* snow falling down the sides and a tree in a corner */
         /* a message over the cluster at every start, fading into it */
         intro: false,
@@ -330,6 +332,7 @@
         s.gearFill = s.gearFill === true || s.gearFill === 'filled' ? 'filled'
             : s.gearFill === 'heavy' ? 'heavy' : 'outline';
         if (['centre', 'left', 'right'].indexOf(s.gearPlace) < 0) s.gearPlace = DEFAULTS.gearPlace;
+        if (['staged', 'gear'].indexOf(s.gearShows) < 0) s.gearShows = DEFAULTS.gearShows;
         if (['hybrid', 'bev'].indexOf(s.electric) < 0) s.electric = 'off';
         if (['oilP', 'oilT', 'coolant', 'fuel'].indexOf(s.electricGauge) < 0) s.electricGauge = 'auto';
         s.holiday = s.holiday === true;

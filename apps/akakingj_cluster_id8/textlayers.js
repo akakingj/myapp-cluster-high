@@ -39,7 +39,7 @@
                     u_g: L.g, u_quad: L.p, u_count: L.count, u_sharp: L.sharp,
                     u_color: [col[0], col[1], col[2], style.alpha === undefined ? 1 : style.alpha],
                     u_glowCol: style.glowCol || oc, u_glow: style.glow || 0,
-                    u_outline: style.outline || 0, u_outCol: oc
+                    u_outline: (typeof style.outline === 'function' ? style.outline(state) : style.outline) || 0, u_outCol: oc
                 };
             }
         });

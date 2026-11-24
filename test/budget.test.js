@@ -28,7 +28,7 @@ const atlas = require('../assets/fonts/atlas.json');
 const shaders = Object.assign({}, require('../src/shaders/core.js'), require('../src/shaders/parts.js'),
     require('../src/shaders/dial.js'), require('../src/shaders/mcluster.js'), require('../src/shaders/tcluster.js'));
 
-const PROFILE = Panel.profile('x3m40i');
+const PROFILE = Panel.profile('b48');
 const FRAMES = 3120;                 /* two of the simulator's 26 s cycles, at 60 Hz */
 const NEUTRAL = { mode: 'neutral', open: 0, maneuver: null };
 const PANEL = Panel.PANEL_WIDTH * Panel.PANEL_HEIGHT;
@@ -47,7 +47,7 @@ const DRIVE = drive(false), PARKED = drive(true);
 
 /* one style through the car's own driver and the renderer's own client, the socket counted */
 function run(style, cfg, raws, centre) {
-    const theme = Themes.build(atlas, 'x3m40i', Object.assign({ style }, cfg));
+    const theme = Themes.build(atlas, 'b48', Object.assign({ style }, cfg));
     const cr = new ClusterRender('budget');
     const count = { bytes: 0, msgs: 0 };
     cr.sock = { write: (m) => { count.bytes += m.length; count.msgs++; return true; } };
@@ -128,7 +128,7 @@ test('the limiter\'s flash is drawn only while there is something to flash', () 
     const idle = { limiter: 0, rpm: 3000, speed: 60, gear: '3', pods: {}, info: {}, num: {} };
     for (const style of Object.keys(BUDGET)) {
         for (const lower of [0, 74]) {
-            const t = Themes.build(atlas, 'x3m40i', { style, revFlash: 'both', lower });
+            const t = Themes.build(atlas, 'b48', { style, revFlash: 'both', lower });
             const pieces = t.layers.filter((L) => /^flash[LR]?$/.test(L.id));
             assert.ok(pieces.length >= 1, style);
             pieces.forEach((L) => {

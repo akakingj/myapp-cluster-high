@@ -13,6 +13,16 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.15.0
+
+- **GENERAL > Car: B48, B58, M car (S58), Plug-in hybrid, My car.** The X3 M40i is gone (a saved one reads as the
+  B48, as it comes now: red from 6,500, the limit at 7,000, a 59 L tank, boost to 20 psi); "Other B58" is the B58.
+  *My car* takes its red zone, limiter, Toro's boost gauge top and the fuel tank from GENERAL > *My car: ...*
+  (`Panel.profileFor`). The car's tank turns the fuel's litres into the gauge's level (the X3 M40i's 65 L was
+  taken for any car left as it came).
+- **TORO > Gear: D1, S1, M1** as it comes - the gear with the gearbox's programme (MDrive.dataDisplayGearbox, as
+  Cluster Layouts reads it), the pair smaller than a single figure; or the figure alone, as a Lamborghini.
+
 ## AK 0.14.1
 
 - **Korean for 0.14.0's settings.** *Shift now at*, *Cold engine*, *Cold rev limit*, *At the limiter* and their

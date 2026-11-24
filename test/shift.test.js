@@ -12,8 +12,8 @@ const Themes = require('../src/theme/index.js');
 const State = require('../src/engine/state.js');
 const atlas = require('../assets/fonts/atlas.json');
 
-const P = Panel.profile('x3m40i');
-const build = (style, cfg) => Themes.build(atlas, 'x3m40i', Object.assign({ style }, cfg));
+const P = Panel.profile('b48');
+const build = (style, cfg) => Themes.build(atlas, 'b48', Object.assign({ style }, cfg));
 const layer = (t, id) => t.layers.find((L) => L.id === id);
 const at = (t, rpm, oil, now) => Object.assign(State.present({ rpm, oilTempC: oil }, P, t.settings), { now: now || 0 });
 
@@ -23,10 +23,10 @@ test('Shift now at: off as it comes (the shift lights flash at the limiter), Aut
     assert.strictEqual(at(off, 6900).shiftNow, false);
     const strobe = (t, rpm) => layer(t, 'shift').uniforms(at(t, rpm, 90), 0).u_strobe;
     assert.deepStrictEqual([strobe(off, 6900), strobe(off, 6950)], [0, 1]);
-    /* Auto: the redline (6,750 on this car) less 300 */
-    assert.strictEqual(at(auto, 6440, 90).shiftNow, false);
-    assert.strictEqual(at(auto, 6450, 90).shiftNow, true);
-    assert.deepStrictEqual([strobe(auto, 6440), strobe(auto, 6450)], [0, 1]);
+    /* Auto: the redline (6,500 on a B48) less 300 */
+    assert.strictEqual(at(auto, 6190, 90).shiftNow, false);
+    assert.strictEqual(at(auto, 6200, 90).shiftNow, true);
+    assert.deepStrictEqual([strobe(auto, 6190), strobe(auto, 6200)], [0, 1]);
     /* an rpm: the lights full there, flashing from there */
     assert.deepStrictEqual([strobe(set, 6150), strobe(set, 6200)], [0, 1]);
     assert.strictEqual(layer(set, 'shift').uniforms(at(set, 6200, 90), 0).u_frac, 1);

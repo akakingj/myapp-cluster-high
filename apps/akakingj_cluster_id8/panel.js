@@ -103,7 +103,7 @@ var TELLTALES = [
  * cluster next restarts. Tooling and the docs name it; no layout bends
  * round it.
  */
-var FALLBACK_GEAR_BOX = { id: 'gearFallback', x: 1407, y: 337, w: 188, h: 82, name: 'Fallback gear box (X3 M40i)' };
+var FALLBACK_GEAR_BOX = { id: 'gearFallback', x: 1407, y: 337, w: 188, h: 82, name: 'Fallback gear box (X3 M40i, where it was measured)' };
 
 /* Boxes some KOMBIs draw over a panel layer, by drivetrain. */
 var EDRIVE_BOX = { id: 'edrive', x: 1770, y: 170, w: 150, h: 95, name: 'eDrive status box' };
@@ -111,23 +111,42 @@ var M_BOX_A = { id: 'mBoxA', x: 793, y: 289, w: 246, h: 92, name: 'M box (left)'
 var M_BOX_B = { id: 'mBoxB', x: 1223, y: 328, w: 171, h: 78, name: 'M box (right)' };
 
 /*
- * Vehicle profiles. The first is the car this is developed against; the
- * others exist so the same theme adapts rather than being redrawn.
+ * Vehicle profiles (GENERAL > Car): the engine's own red zone and limiter (Redline and Limiter on "From the
+ * car"), the top of Toro's boost gauge, the fuel tank (the fuel's litres as a level, unless the Car profile
+ * gives the tank), and the boxes some KOMBIs draw over a panel layer. "custom" is the owner's own: its figures
+ * come from GENERAL > My car (profileFor).
  */
 var PROFILES = {
-    x3m40i: {
-        id: 'x3m40i',
-        name: 'X3 M40i (G01, B58)',
-        engine: 'B58B30O1',
-        cylinders: 6,
+    b48: {
+        id: 'b48',
+        name: 'B48 (320i, 330i, 520i, X3 30i)',
+        engine: 'B48',
+        cylinders: 4,
         aspiration: 'turbo',
         rpmMax: 8000,          /* the dial's full scale */
-        rpmRedline: 6750,      /* where the red segments start */
+        rpmRedline: 6500,      /* where the red segments start */
         rpmLimiter: 7000,      /* fuel cut: the full-screen flash */
         gearCount: 8,
         gearbox: 'ZF 8HP',
         boost: true,
-        boostMaxPsi: 22,
+        boostMaxPsi: 20,
+        tankLitres: 59,
+        extraZones: []
+    },
+    b58: {
+        id: 'b58',
+        name: 'B58 (340i, 540i, X5 40i)',
+        engine: 'B58',
+        cylinders: 6,
+        aspiration: 'turbo',
+        rpmMax: 8000,
+        rpmRedline: 6500,
+        rpmLimiter: 7000,
+        gearCount: 8,
+        gearbox: 'ZF 8HP',
+        boost: true,
+        boostMaxPsi: 20,
+        tankLitres: 60,
         extraZones: []
     },
     mCarS58: {
@@ -143,22 +162,8 @@ var PROFILES = {
         gearbox: 'ZF 8HP / DCT',
         boost: true,
         boostMaxPsi: 26,
+        tankLitres: 59,
         extraZones: [M_BOX_A, M_BOX_B]
-    },
-    b58: {
-        id: 'b58',
-        name: 'B58 (340i, 540i, X5 40i)',
-        engine: 'B58',
-        cylinders: 6,
-        aspiration: 'turbo',
-        rpmMax: 8000,
-        rpmRedline: 6500,
-        rpmLimiter: 7000,
-        gearCount: 8,
-        gearbox: 'ZF 8HP',
-        boost: true,
-        boostMaxPsi: 20,
-        extraZones: []
     },
     hybrid: {
         id: 'hybrid',
@@ -173,14 +178,47 @@ var PROFILES = {
         gearbox: 'ZF 8HP',
         boost: false,
         boostMaxPsi: 18,
+        tankLitres: 60,
         extraZones: [EDRIVE_BOX]
+    },
+    /* the owner's own (its figures as they come: the B48's) */
+    custom: {
+        id: 'custom',
+        name: 'My car',
+        engine: '',
+        cylinders: 4,
+        aspiration: 'turbo',
+        rpmMax: 8000,
+        rpmRedline: 6500,
+        rpmLimiter: 7000,
+        gearCount: 8,
+        gearbox: 'ZF 8HP',
+        boost: true,
+        boostMaxPsi: 20,
+        tankLitres: 59,
+        extraZones: []
     }
 };
 
-var DEFAULT_PROFILE = 'x3m40i';
+var DEFAULT_PROFILE = 'b48';
 
 function profile(id) {
     return PROFILES[id] || PROFILES[DEFAULT_PROFILE];
+}
+
+/* The profile with the owner's own figures where it is "custom": GENERAL > My car (myRedline, myLimiter,
+   myBoostPsi, myTankLitres; each as the profile has it where not set). */
+function profileFor(id, settings) {
+    var p = profile(id);
+    if (p.id !== 'custom' || !settings) return p;
+    var num = function (v, lo, hi, d) { v = Number(v); return v >= lo && v <= hi ? v : d; };
+    var out = {}, k;
+    for (k in p) if (Object.prototype.hasOwnProperty.call(p, k)) out[k] = p[k];
+    out.rpmRedline = num(settings.myRedline, 3000, 9000, p.rpmRedline);
+    out.rpmLimiter = Math.max(out.rpmRedline, num(settings.myLimiter, 3000, 9500, p.rpmLimiter));
+    out.boostMaxPsi = num(settings.myBoostPsi, 5, 60, p.boostMaxPsi);
+    out.tankLitres = num(settings.myTankLitres, 20, 120, p.tankLitres);
+    return out;
 }
 
 /* Every rectangular zone a layout must keep clear for the given profile. */
@@ -236,6 +274,7 @@ return {
     PROFILES: PROFILES,
     DEFAULT_PROFILE: DEFAULT_PROFILE,
     profile: profile,
+    profileFor: profileFor,
     keepClear: keepClear,
     inCutCorner: inCutCorner,
     violations: violations

@@ -41,7 +41,7 @@ const { ClusterRender } = R('src/car/cluster_render_client.js');
 const atlas = R('assets/fonts/atlas.json');
 const shaders = Object.assign({}, R('src/shaders/core.js'), R('src/shaders/parts.js'), R('src/shaders/dial.js'),
     R('src/shaders/mcluster.js'), has('src/shaders/tcluster.js') ? R('src/shaders/tcluster.js') : {});
-const PROFILE = Panel.profile('x3m40i');
+const PROFILE = Panel.profile('b48');
 const FRAMES = 3120;                    /* two of the simulator's 26 s cycles at 60 Hz */
 const RUNS = 9;
 
@@ -71,7 +71,7 @@ new PerformanceObserver((list) => { list.getEntries().forEach((e) => { gcMs += e
 function measure(style, cfg, raws, centre) {
     const settings = Object.assign({ style }, cfg);
     const t0 = performance.now();
-    const theme = Themes.build(atlas, 'x3m40i', settings);
+    const theme = Themes.build(atlas, 'b48', settings);
     const buildMs = performance.now() - t0;
     /* what the renderer is asked to draw */
     const layers = theme.layers.length;

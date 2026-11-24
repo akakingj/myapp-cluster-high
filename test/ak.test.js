@@ -114,7 +114,7 @@ test('the driver camera: Toro\'s rev numbers stand clear of its cowl as it comes
     const CAM = Panel.CAMERA;
     const meets = (r, z) => r.x < z.x + z.w && r.x + r.w > z.x && r.y < z.y + z.h && r.y + r.h > z.y;
     const under = (r) => meets(r, CAM);
-    const t = Theme.build(atlas, 'x3m40i', {});
+    const t = Theme.build(atlas, 'b48', {});
     const G = t.guide, T = G.TACH;
     /* each numeral's cap height about its place on the arc (the numerals are 1 - 9 there) */
     for (let v = T.vMin; v < T.vMax; v++) {
@@ -123,7 +123,7 @@ test('the driver camera: Toro\'s rev numbers stand clear of its cowl as it comes
         assert.ok(!under(box), 'the numeral ' + v + ' under the camera: ' + JSON.stringify(box));
     }
     for (const shiftStyle of ['toro', 'gt3', 'blade']) {
-        const th = Theme.build(atlas, 'x3m40i', { shiftStyle });
+        const th = Theme.build(atlas, 'b48', { shiftStyle });
         const bars = th.layers.filter((L) => L.shader === 'shiftbar');
         assert.ok(bars.length >= 1, shiftStyle);
         for (const L of bars) {

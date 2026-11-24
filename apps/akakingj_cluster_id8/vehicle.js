@@ -55,7 +55,8 @@ var SIGNALS = {
     },
     'de.bmw.infotainment.misc.MDrive': {
         controlDisplayMSystems: 's',
-        _optional: 'Driving mode on M cars'
+        dataDisplayGearbox: 's',
+        _optional: 'Driving mode on M cars; the gearbox\'s S / M programme'
     },
     'de.bmw.infotainment.vehicle.CDS2': {
         statusLateralAccelerationMassCenter: 'rs',
@@ -144,6 +145,25 @@ function stageOf(value) {
         return STAGE_CODES[value] || undefined;
     }
     return undefined;
+}
+
+/*
+ * The gearbox's programme (MDrive.dataDisplayGearbox, as Cluster Layouts reads it): S or M, else D's own.
+ */
+var PROGRAMS = { S_MINUS_PROGRAMM: 'S', M_MINUS_PROGRAMM: 'M', 1: 'S', 2: 'M' };
+function programOf(value) {
+    var raw = value && typeof value === 'object'
+        ? (value.dataDisplayGearbox !== undefined ? value.dataDisplayGearbox : value[Object.keys(value)[0]]) : value;
+    return PROGRAMS[raw] || '';
+}
+
+/*
+ * The gear with its programme: D1, S1, M1 (P, R and N as they are), for Toro's
+ * numeral when it shows them (TORO > Gear).
+ */
+function gearStaged(stage, gear, program) {
+    var t = gearText(stage, gear);
+    return typeof gear === 'number' && gear > 0 && /^[0-9]$/.test(t || '') ? (program || 'D') + t : t;
 }
 
 /*
@@ -305,6 +325,8 @@ function createReader(opts) {
             } else if (field === 'statusFESVehicleDynamicSwitchHMI') {
                 put('driveMode', driveModeOf(value), now);
             }
+        } else if (service === 'de.bmw.infotainment.misc.MDrive' && field === 'dataDisplayGearbox') {
+            put('program', programOf(value), now);
         } else if (service === 'de.bmw.infotainment.misc.MDrive' && field === 'controlDisplayMSystems') {
             var mm = mEngineModeOf(value);
             if (mm) { put('driveMode', mm, now); put('mDrive', true, now); }
@@ -371,6 +393,7 @@ function createReader(opts) {
             rpm: get('rpm', now),
             speedKmh: get('speedKmh', now),
             gear: gearText(held('stage') || held('stageBox'), held('gearNum')),
+            gearStaged: gearStaged(held('stage') || held('stageBox'), held('gearNum'), held('program')),
             condition: held('condition'),
             driveMode: held('driveMode'),
             boostBar: boost,
@@ -410,7 +433,7 @@ function createReader(opts) {
 module.exports = {
     SIGNALS: SIGNALS,
     createReader: createReader,
-    scaled: scaled, stageOf: stageOf, gearText: gearText,
+    scaled: scaled, stageOf: stageOf, gearText: gearText, gearStaged: gearStaged, programOf: programOf,
     selectionOf: selectionOf, conditionOf: conditionOf,
     driveModeOf: driveModeOf, mEngineModeOf: mEngineModeOf, clockOffset: clockOffset,
     averageL100: averageL100

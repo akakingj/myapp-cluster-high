@@ -28,8 +28,8 @@ const allShaders = Object.assign({}, require('../src/shaders/core.js'), require(
 const T = require('../src/theme/tgeom.js');
 const spec = require('../app/app.base.json');
 
-const PROFILE = Panel.profile('x3m40i');
-const build = (cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'x3m40i', Object.assign({ style: 'mtrack' }, cfg));
+const PROFILE = Panel.profile('b48');
+const build = (cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'b48', Object.assign({ style: 'mtrack' }, cfg));
 const layer = (t, id) => t.layers.find((L) => L.id === id);
 const state = (t, raw, over) => Object.assign(State.present(raw || {}, t.profile, t.settings), over);
 const RAW = { rpm: 3000, speedKmh: 120, gear: '4', driveMode: 'SPORT', fuelPct: 40, oilTempC: 100, coolantC: 92,
@@ -330,7 +330,7 @@ test('the marker and the lit band follow the revs; the red field runs from the t
         assert.ok(Math.abs(L.uniforms(state(t, { rpm }), 0).u_ym - T.revY(rpm, m)) < 1e-9, 'at ' + rpm);
     }
     assert.ok(Math.abs(L.uniforms(state(t, {}), 0).u_red - m[7]) < 1e-9);
-    /* as the car's: the X3 M40i's field starts at 6,750 */
+    /* as the car's: a B48's field starts at 6,500 */
     const own = build(), red = layer(own, 'revDial').uniforms(state(own, {}), 0).u_red;
     assert.ok(Math.abs(red - T.revY(PROFILE.rpmRedline, m)) < 1e-9 && red > m[7] && red < m[6]);
     /* the frame's own: about 7,600, a short stroke under its 8 */
@@ -516,7 +516,7 @@ test('the state carries each reading as a number, in the car\'s own units - for 
     assert.strictEqual(build().settings.numbers, true);
     assert.ok(state(build(), RAW).num);
     for (const style of ['toro', 'track', 'mplus']) {
-        const t = Themes.build(atlas, 'x3m40i', { style });
+        const t = Themes.build(atlas, 'b48', { style });
         assert.strictEqual(State.present(RAW, t.profile, t.settings).num, null, style);
     }
     /* and a car that is not electric shares one empty gauge for its battery's two, frame after frame */
@@ -660,7 +660,7 @@ test('the whole wing: with a picture chosen the style stands inside the car\'s p
     assert.strictEqual(T.ART.ox, T.PANEL_FIT.ox);
     assert.strictEqual(build({ kCentre: 'waze', lower: 40 }).wingWhole, false);
     assert.strictEqual(build({ kCentre: 'waze', profile: 'mCarS58' }).wingWhole, false);
-    for (const id of ['x3m40i', 'b58', 'hybrid']) {
+    for (const id of ['b48', 'b58', 'hybrid']) {
         const zones = Panel.keepClear(id).filter((z) => z.id !== 'bottomStrip');
         const w = build({ kCentre: 'map', profile: id, kFootL: 'boost', kFootR: 'iat' });
         assert.strictEqual(w.wingWhole, true, id);
@@ -921,7 +921,7 @@ test('a row\'s slow readings glide for this style alone: a mark on a rail slides
         build(cfg).glide.forEach((k) => assert.ok(k in Smooth.MORE, k));
     }
     /* the other styles ask for nothing: their figures are passed on exactly as they arrive */
-    for (const style of ['toro', 'track', 'mplus']) assert.strictEqual(Themes.build(atlas, 'x3m40i', { style }).glide, undefined, style);
+    for (const style of ['toro', 'track', 'mplus']) assert.strictEqual(Themes.build(atlas, 'b48', { style }).glide, undefined, style);
     const plain = Smooth.create();
     plain.apply({ iatC: 20, batteryV: 13.8 }, 0, 90);
     assert.deepStrictEqual(plain.apply({ iatC: 30, batteryV: 14.4 }, 16, 90), { iatC: 30, batteryV: 14.4 });

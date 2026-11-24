@@ -169,7 +169,7 @@
     /* variant: undefined, M Sport; 'plus', M Sport Plus */
     function build(atlas, profileId, settings, variant) {
         var plus = variant === 'plus';
-        var P = Panel.profile(profileId);
+        var P = Panel.profileFor(profileId, settings);
         var S = Palette.resolve(settings, P);
         /* BETA: the whole style lowered into the rows a hidden strip leaves, and larger by as much
            (src/theme/strip.js). Before anything is measured: every place below asks the fit. */

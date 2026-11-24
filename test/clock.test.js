@@ -23,7 +23,7 @@ const parts = require('../src/shaders/parts.js');
 const atlas = require('../assets/fonts/atlas.json');
 
 const SHADERS = Main.shaders();
-const P = Panel.profile('x3m40i');
+const P = Panel.profile('b48');
 const STYLES = ['toro', 'track', 'mplus'];
 
 function fakeCR() {
@@ -100,13 +100,13 @@ test('the clock runs 0 to 9 s and round again, and every cycle the shaders make 
         assert.ok(Math.abs(cycles - Math.round(cycles)) < 1e-9, `${u}: ${cycles} cycles in the period - its turn-over would show`);
     });
     /* the flash's rate is whole Hz whatever is set */
-    assert.ok(Number.isInteger(Themes.build(atlas, 'x3m40i', {}).settings.flashRate));
+    assert.ok(Number.isInteger(Themes.build(atlas, 'b48', {}).settings.flashRate));
 });
 
 test('the renderer is asked for no clock and no animation; the time goes as a uniform to what is animating', () => {
     for (const style of STYLES) {
         const cr = fakeCR();
-        const theme = Themes.build(atlas, 'x3m40i', { style, holiday: true });
+        const theme = Themes.build(atlas, 'b48', { style, holiday: true });
         const d = Driver.create({ cr, theme, shaders: SHADERS, atlas, atlasPixels: Buffer.alloc(atlas.size * atlas.size) });
         d.ready();
         cr.calls.effect.forEach((e) => {
@@ -139,7 +139,7 @@ test('the renderer is asked for no clock and no animation; the time goes as a un
 test('a parked, quiet cluster with no extras still sends nothing', () => {
     for (const style of STYLES) {
         const cr = fakeCR();
-        const theme = Themes.build(atlas, 'x3m40i', { style });
+        const theme = Themes.build(atlas, 'b48', { style });
         const d = Driver.create({ cr, theme, shaders: SHADERS, atlas, atlasPixels: Buffer.alloc(atlas.size * atlas.size) });
         d.ready();
         d.tick(stateAt(800, 5000000));
@@ -186,7 +186,7 @@ test('the snow falls: each depth further down as time passes, slowly, with no ju
 
 test('the snow layers send their fall with every frame it changes; the flakes are plain soft dots', () => {
     const cr = fakeCR();
-    const theme = Themes.build(atlas, 'x3m40i', { style: 'track', holiday: true });
+    const theme = Themes.build(atlas, 'b48', { style: 'track', holiday: true });
     const snow = theme.layers.filter((L) => L.shader === 'snow');
     assert.strictEqual(snow.length, 2);
     const u0 = snow[0].uniforms({ now: 1000000 }), u1 = snow[0].uniforms({ now: 1000500 });

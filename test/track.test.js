@@ -23,8 +23,8 @@ const allShaders = Object.assign({}, require('../src/shaders/core.js'), require(
 const M = require('../src/theme/mgeom.js');
 const Vehicle = require('../src/car/vehicle.js');
 
-const PROFILE = Panel.profile('x3m40i');
-const build = (cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'x3m40i', Object.assign({ style: 'track' }, cfg));
+const PROFILE = Panel.profile('b48');
+const build = (cfg) => Themes.build(atlas, (cfg && cfg.profile) || 'b48', Object.assign({ style: 'track' }, cfg));
 const layer = (t, id) => t.layers.find((L) => L.id === id);
 /* a presented state, with anything in `over` laid on top */
 /* (a speed given here is the one shown: its held digits, speedText, come from the raw reading) */
@@ -97,8 +97,8 @@ const inkOf = (L, u) => (isNum(L) ? quads(L, u).concat(grownQuads(L, u)) : quads
 /* ------------------------------------------------------------ the registry */
 
 test('the registry picks the style, Toro by default', () => {
-    assert.strictEqual(Themes.build(atlas, 'x3m40i', {}).id, 'toro');
-    assert.strictEqual(Themes.build(atlas, 'x3m40i', { style: 'nonsense' }).id, 'toro');
+    assert.strictEqual(Themes.build(atlas, 'b48', {}).id, 'toro');
+    assert.strictEqual(Themes.build(atlas, 'b48', { style: 'nonsense' }).id, 'toro');
     assert.strictEqual(build().id, 'track');
     assert.strictEqual(build().name, 'M Sport', 'the M View keeps the id saved settings already hold');
     assert.ok(build().hasCentre);
@@ -533,7 +533,7 @@ test('every uniform is sent in the shape its shader declares (floats, vectors, a
     const want = { float: 1, vec2: 2, vec3: 3, vec4: 4 };
     for (const cfg of [{ style: 'toro' }, { style: 'toro', holiday: true, intro: true, background: 'modern' },
                        { mFixture: true, revFlash: 'both', clock12: true }, { style: 'mplus', revFlash: 'both', clock12: true }]) {
-        const t = Themes.build(atlas, 'x3m40i', Object.assign({ style: 'track' }, cfg));
+        const t = Themes.build(atlas, 'b48', Object.assign({ style: 'track' }, cfg));
         const st = state(t, { rpm: 7100, speedKmh: 120, gear: 'D', driveMode: 'SPORT', fuelPct: 40, oilTempC: 100, oilPressBar: 4,
                               rangeKm: 207, ambientC: 12.5, clock: { h: 12, m: 4 }, gLat: 0.2, gLon: 0.1 },
                          { centre: CENTRES[3], sinceOn: 3, now: 5000 });
@@ -699,8 +699,8 @@ test('the scale\'s numerals hug the rail: speed outside on the left, revs outsid
 test('the red field follows the redline; the speed dial has none', () => {
     const zone = (cfg, id) => { const t = build(cfg); return layer(t, id).uniforms(state(t, {})).u_zone; };
     assert.deepStrictEqual(zone({}, 'speedDial'), [0, 0, 0, 0]);
-    const z = zone({}, 'revDial');                       /* this car: 6750 */
-    assert.ok(Math.abs(z[0] - 6.84) < 1e-9 && z[1] > 7.9 && z[1] <= 8, 'red from just past the redline to the top');
+    const z = zone({}, 'revDial');                       /* this car: 6500 */
+    assert.ok(Math.abs(z[0] - 6.59) < 1e-9 && z[1] > 7.9 && z[1] <= 8, 'red from just past the redline to the top');
     assert.ok(z[2] < z[3] && z[3] < z[0], 'the amber field ends before the red starts');
     assert.ok(Math.abs(zone({ rpmRedline: 7000 }, 'revDial')[0] - 7.09) < 1e-9, 'it moves with the setting');
     const high = zone({ rpmRedline: 8000 }, 'revDial');
@@ -1249,7 +1249,7 @@ test('the holiday dressing keeps off the M style\'s instruments', () => {
         const ink = isText(L) ? (L.uniforms(st, 0) ? quads(L, L.uniforms(st, 0)) : []) : [L];
         assert.ok(!ink.some((r) => hits(r, tree)), L.id + ' behind the tree');
     }
-    for (const z of Panel.keepClear('x3m40i')) assert.ok(!hits(tree, z), 'the tree under ' + z.name);
+    for (const z of Panel.keepClear('b48')) assert.ok(!hits(tree, z), 'the tree under ' + z.name);
     /* the snow falls down the sides, outside the plates and the strips, and
        keeps off whatever is read there: each such layer is inside a box
        the snow leaves clear */
@@ -1576,7 +1576,7 @@ test('the larger window is a setting of each style\'s own, and the standard one 
     assert.strictEqual(build({ centreSize: 'huge' }).settings.centreSize, 'standard');
     assert.strictEqual(build({}).settings.centreSize, 'standard');
     /* each style keeps its own, under its own name */
-    const own = (cfg) => Themes.build(atlas, 'x3m40i', cfg).settings.centreSize;
+    const own = (cfg) => Themes.build(atlas, 'b48', cfg).settings.centreSize;
     const all = { tCentreSize: 'most', mCentreSize: 'more', pCentreSize: 'standard' };
     assert.strictEqual(own(Object.assign({ style: 'toro' }, all)), 'most');
     assert.strictEqual(own(Object.assign({ style: 'track' }, all)), 'more');
@@ -2281,7 +2281,7 @@ test('the gear\'s place: the gear, the revs as a figure, or nothing - a setting 
         assert.deepStrictEqual(rest(o), rest(g));
     }
     /* each style keeps its own, as the app's tabs save them */
-    const own = (cfg) => Themes.build(atlas, 'x3m40i', cfg).settings.mGear;
+    const own = (cfg) => Themes.build(atlas, 'b48', cfg).settings.mGear;
     assert.strictEqual(own({ style: 'track', mGear: 'rpm', pGear: 'off' }), 'rpm');
     assert.strictEqual(own({ style: 'mplus', mGear: 'rpm', pGear: 'off' }), 'off');
     assert.strictEqual(Themes.keyFor('track', 'mGear'), 'mGear');
