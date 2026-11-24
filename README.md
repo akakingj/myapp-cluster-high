@@ -99,7 +99,12 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
   BMW's bottom strip (show, trim or hide it), **electric range** for
   plug-in hybrids and fully electric cars (off until you turn it on: a
   hybrid gets its electric range beside the fuel's; a fully electric car
-  gets range, charge and battery temperature in place of fuel and oil),
+  gets range, charge and battery temperature in place of fuel and oil; in
+  a plug-in hybrid's electric and hybrid modes, and always on an electric
+  car, every style's rev counter becomes a **Power %** gauge as BMW's own:
+  the pedal's demand 0 - 100, **CHARGE** in green below 0 while the battery
+  takes the regeneration, from eDrive Live's battery power; the rev counter
+  again in SPORT, XTRABOOST and with the lever in S or M),
   the holiday theme, the start-up message.
 - **TORO / M SPORT / M SPORT PLUS / M TRACK**: each style's own — what
   its middle (or M Track Mode's left wing) shows and how much of it,

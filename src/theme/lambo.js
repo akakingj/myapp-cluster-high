@@ -146,6 +146,16 @@
             return S.redFromScale !== null && S.redFromScale !== undefined || !(s && s.redRpm) ? redV : s.redRpm / 1000;
         }
 
+        /*
+         * A plug-in hybrid's Power % in its electric and hybrid modes (s.power, src/engine/state.js):
+         * on the same numerals' places, its 0 a quarter up, 100 at the top (Palette.powerAt), the
+         * regeneration below the 0 in green; the red detailing off.
+         */
+        function powerOn(s) { return !!s && s.power !== null && s.power !== undefined; }
+        function valueOf(s) { return powerOn(s) ? Palette.powerAt(s.power, N) : vOf(s.rpm || 0, S.scaleMaxRpm); }
+        function zeroOf(s) { return powerOn(s) ? Palette.powerZero(N) : 0; }
+        function redOf(s) { return powerOn(s) ? N + 1 : redNow(s); }
+
         /* ------------------------------------------------------ helpers */
 
         var TL = TextLayers.create(atlas, layers, { text: C.text, muted: C.muted });
@@ -216,15 +226,17 @@
             x: dialBox.x, y: dialBox.y, w: dialBox.w, h: dialBox.h,
             uniforms: function (s) {
                 var u = dialBase();
-                u.u_rev = [vOf(s.rpm || 0, S.scaleMaxRpm), S.dialFill];
+                u.u_rev = [valueOf(s), S.dialFill];
                 u.u_litCol = C.lit;
                 u.u_needle = GC.corsaRed;
-                u.u_redV = redNow(s);
+                u.u_redV = redOf(s);
+                u.u_zero = zeroOf(s);
+                u.u_regen = Palette.REGEN;
                 u.u_ring = [G.gs(T.stippleInner), G.gs(T.stippleOuter)];
                 u.u_dot = [G.gs(G.STIPPLE.spacing), G.gs(G.STIPPLE.dotRadius),
                            G.STIPPLE.opacity * S.stipple];
                 /* the wash is the stipple ring's own outline: always draw it */
-                u.u_redFrom = redNow(s);
+                u.u_redFrom = redOf(s);
                 u.u_col = GC.stipple;
                 u.u_red = GC.dimRed;
                 u.u_smoke = S.background === 'modern'
@@ -243,8 +255,10 @@
                 u.u_arcW = G.gs(1.6);
                 u.u_tick = [G.gs(T.tickMinor), G.gs(T.tickMajor), G.gs(T.tickWidth)];
                 u.u_step = T.tickStep;
-                u.u_frac = vOf(s.rpm, S.scaleMaxRpm);
-                u.u_redFrom = redNow(s);
+                u.u_frac = valueOf(s);
+                u.u_redFrom = redOf(s);
+                u.u_zero = zeroOf(s);
+                u.u_regen = Palette.REGEN;
                 u.u_warn = bandFlash ? (s.limiter || 0) : 0;
                 u.u_lit = C.lit;
                 u.u_base = GC.fineContour;
@@ -260,8 +274,10 @@
                 var u = dialBase();
                 u.u_radii = [G.gs(T.rRecess), G.gs(T.rPlateau)];
                 u.u_width = G.gs(T.contourWidth);
-                u.u_redFrom = redNow(s);
-                u.u_frac = vOf(s.rpm, S.scaleMaxRpm);
+                u.u_redFrom = redOf(s);
+                u.u_frac = valueOf(s);
+                u.u_zero = zeroOf(s);
+                u.u_regen = Palette.REGEN;
                 u.u_col = GC.fineContour;
                 u.u_red = GC.corsaRed;
                 u.u_lit = C.lit;
@@ -334,6 +350,7 @@
             id: 'arcNums', z: 16, shader: 'arcnum',
             x: numBox.x, y: numBox.y, w: numBox.w, h: numBox.h,
             uniforms: function (s) {
+                if (powerOn(s)) return null;
                 return {
                     u_g: numLayout.g, u_quad: numLayout.p, u_gt: gt,
                     u_cfg: [numLayout.count, numLayout.sharp,
@@ -347,6 +364,43 @@
                 };
             }
         });
+
+        /* ... and a Power %'s: 0, 50 and 100 on the numerals' places they stand at, set the same way */
+        (function powerNumerals() {
+            var items = [], vals = [], k;
+            for (k = 0; k <= N; k++) {
+                var f = Palette.powerFigure(k, N);
+                if (!f) continue;
+                var at = G.point(briefV(k, N), T.rNumeral);
+                items.push({ str: f, x: at.x - numBox.x, y: at.y - numBox.y });
+                vals.push(k);
+            }
+            var L = Text.place(atlas, items, { face: 'dial', size: numSize * 1.08, align: 'centre', baseline: 'middle' });
+            var pgt = [], i, c;
+            for (i = 0; i < vals.length; i++) for (c = 0; c < items[i].str.length; c++) pgt.push(vals[i], 0, 0, 0);
+            while (pgt.length < 12 * 4) pgt.push(0, 0, 0, 0);
+            layers.push({
+                id: 'pctNums', z: 16, shader: 'arcnum',
+                x: numBox.x, y: numBox.y, w: numBox.w, h: numBox.h,
+                uniforms: function (s) {
+                    if (!powerOn(s)) return null;
+                    return {
+                        u_g: L.g, u_quad: L.p, u_gt: pgt,
+                        u_cfg: [L.count, L.sharp, Math.max(0, valueOf(s)), G.gs(T.numeralStroke)],
+                        u_colOff: [GC.secondaryWhite[0] * 0.62, GC.secondaryWhite[1] * 0.62, GC.secondaryWhite[2] * 0.62],
+                        u_colOn: GC.primaryWhite,
+                        u_colRed: GC.corsaRed,
+                        u_colPop: [C.accent[0], C.accent[1], C.accent[2], S.numeralFill ? 1 : 0]
+                    };
+                }
+            });
+        }());
+        /* its name under the mode's: POWER %, or CHARGE in green while the battery takes the regeneration */
+        txt('pctWord', 24, { x: G.gx(B.corsa.cx) - 76, y: G.gy(B.corsa.cy) + G.gs(16), w: 152, h: 36 },
+            { face: 'label', size: G.gs(18) / 0.70, align: 'centre',
+              x: G.gx(B.corsa.cx), y: G.gy(B.corsa.cy) + G.gs(42), tracking: 1.2,
+              color: function (s) { return powerOn(s) && s.power < 0 ? Palette.REGEN : GC.secondaryWhite; } },
+            function (s) { return powerOn(s) ? (s.power < 0 ? 'CHARGE' : 'POWER %') : ''; });
 
         /* ------------------------------------------------ shift lights */
         /* Three kinds (src/shaders/core.js shiftbar). The Lamborghini one
@@ -369,7 +423,7 @@
             var shiftEnd = function (s) { return S.shiftWarn && s.shiftRpm ? s.shiftRpm : S.rpmLimiter; };
             var shiftFrac = function (s) {
                 var start = Math.min(S.shiftFromRpm, shiftEnd(s) - 100);
-                return clamp01((s.rpm - start) / Math.max(1, shiftEnd(s) - start));
+                return powerOn(s) ? 0 : clamp01((s.rpm - start) / Math.max(1, shiftEnd(s) - start));
             };
             var shiftLayer = function (id, SB, frac, c) {
                 layers.push({
@@ -380,7 +434,7 @@
                             u_frac: frac(shiftFrac(s)),
                             u_leds: SB.leds, u_style: S.shiftStyleIndex, u_burst: toroShift ? 1 : 0,
                             u_gap: SB.gap || 0,
-                            u_strobe: (S.shiftWarn ? s.shiftNow : s.rpm >= S.rpmLimiter - 60) ? 1 : 0,
+                            u_strobe: !powerOn(s) && (S.shiftWarn ? s.shiftNow : s.rpm >= S.rpmLimiter - 60) ? 1 : 0,
                             u_c1: c[0], u_c2: c[1], u_c3: c[2]
                         };
                     }

@@ -14,7 +14,8 @@
  *   - One request at a time, to one unit: the engine unit, 0x12.
  *   - Only while the service says so (tick's `allowed`, src/car/main.js):
  *     our layers up, the car on, THE ENGINE RUNNING (or stopped by auto
- *     start-stop with the car still in drive readiness) - never parked,
+ *     start-stop with the car still in drive readiness; a plug-in hybrid or an
+ *     electric car, all the while it is in drive readiness) - never parked,
  *     where requests would keep the car's networks awake, and never with
  *     the ignition on and the engine off, which is when a control unit is
  *     coded or flashed. And never while BeeM-Flash is feeding, nor - on the

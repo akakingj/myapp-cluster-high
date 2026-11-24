@@ -359,8 +359,9 @@ test('the numerals: one a mark, level with it, right of the rail; the frame\'s n
             const off = ax - T.railX(m[k]);
             assert.ok(off > 14 && off < 22, `${k} starts ${off} from the rail`);
         });
-        /* its box is its own glyphs' and no more */
-        const qs = quads(L, u), x0 = Math.min(...qs.map((q) => q.x)), x1 = Math.max(...qs.map((q) => q.x + q.w));
+        /* its box is its own glyphs' and no more (with a plug-in hybrid's Power % figures in the same layer, theirs too) */
+        const pu = L.uniforms(Object.assign({}, st, { power: 0 }), 0);
+        const qs = quads(L, u).concat(pu ? quads(L, pu) : []), x0 = Math.min(...qs.map((q) => q.x)), x1 = Math.max(...qs.map((q) => q.x + q.w));
         const y0 = Math.min(...qs.map((q) => q.y)), y1 = Math.max(...qs.map((q) => q.y + q.h));
         assert.ok(x0 - L.x >= 0 && x0 - L.x < 3 && L.x + L.w - x1 >= 0 && L.x + L.w - x1 < 3 && y0 - L.y < 3 && L.y + L.h - y1 < 3, L.id + ' is snug');
     });

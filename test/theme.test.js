@@ -81,7 +81,7 @@ test('no layer overlaps a factory keep-clear zone', () => {
         for (const L of Theme.build(atlas, id, {}).layers) {
             /* Full-field procedural layers span the dial by nature; what
                matters is that no readout hides under a factory box. */
-            if (['bg', 'flash', 'stipple', 'dial', 'contour', 'arcNums']
+            if (['bg', 'flash', 'stipple', 'dial', 'contour', 'arcNums', 'pctNums']
                 .indexOf(L.id) >= 0) continue;
             for (const z of zones) {
                 if (!(L.x < z.x + z.w && L.x + L.w > z.x &&

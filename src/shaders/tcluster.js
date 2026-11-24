@@ -284,6 +284,11 @@
             'uniform vec3 u_zone;',      /* the red field\'s strip */
             'uniform vec3 u_fill;',      /* the lit band */
             'uniform vec3 u_fillEdge;',  /* ... its lighter edge */
+            /* a plug-in hybrid's Power % (src/engine/state.js power): its 0's height (0: the rev counter, lit
+               from its foot); lit from it to the marker either way, below it - the regeneration - in u_regen,
+               its field a green strip from the foot up to it */
+            'uniform float u_yz;',
+            'uniform vec3 u_regen;',
             /* the contour\'s centre line and the top line\'s left end, one stroke: along the level
                line from the left, round and down the lean. Inside it (below the line, left of the
                contour) is the black outside the dial. */
@@ -293,7 +298,9 @@
             '  vec2 p = art();',
             '  float u = p.x + K * p.y;',
             '  float dK = conK(p);',
-            '  float under = p.y - (u_ym - ' + n(G.mark.h + G.mark.gap) + ');',          /* above 0: at the marker or under it */
+            '  float yz = u_yz > 0.0 ? u_yz : 10000.0, hi = min(u_ym, yz), lo = max(u_ym, yz);',
+            /* above 0: on the lit run (from the marker down, or between it and a Power %'s 0) */
+            '  float under = min(p.y - (hi - ' + n(G.mark.h + G.mark.gap) + '), lo + ' + n(G.mark.h + G.mark.gap) + ' - p.y);',
             '  vec4 c = vec4(0.0);',
             '',
             /* the dark face, from the contour to its own edge */
@@ -314,6 +321,10 @@
                 n(G.railL - G.zone.gap) + ') * COSK));',
             '  if (u_red < ' + n(top + 1.0) + ') dZ = 1000.0;',
             '  c = over(vec4(u_zone, ac(max(dZ, under))), c);',
+            '  float dG = max(max(' + n(G.railL - G.zone.gap - G.zone.w) + ' - u, u - ' + n(G.railL - G.zone.gap) + ') * COSK,',
+            '                 max(u_yz - p.y, p.y - ' + n(marks[0]) + '));',
+            '  if (u_yz <= 0.0) dG = 1000.0;',
+            '  c = over(vec4(u_regen, ac(max(dG, under))), c);',
             '',
             /* the rail, the contour, and the level line they hang from */
             '  float dRail = max(max(' + n(G.railL) + ' - u, u - ' + n(G.railR) + ') * COSK, max(' + n(G.top.y0) + ' - p.y, under));',
@@ -327,16 +338,17 @@
             '  c = over(vec4(u_topCol, ac(max(dTop, under))), c);',
             '',
             /* the lit band under the marker, its toe and the rail it runs into */
-            '  float dLit = max(lit(p), u_ym + ' + n(G.mark.h + G.mark.gap) + ' - p.y);',
+            '  float dLit = max(lit(p), max(hi + ' + n(G.mark.h + G.mark.gap) + ' - p.y, u_yz > 0.0 ? p.y - lo : -1000.0));',
             '  vec2 q = p - ' + v2(toe.c) + ';',
             /* (the toe runs a few units on under the band and the rail, so the three join without a seam) */
             '  float dToe = max(max(p.y - ' + n(toe.yT + 4.0) + ', (u - ' + n(toe.uL + 4.0) + ') * COSK), max(' + n(toe.r) + ' - length(q), max(-q.x, -(q.y - K * q.x) * COSK)));',
             '  float dBase = max(max(' + n(G.base.railTop) + ' - p.y, p.y - ' + n(G.base.railBottom) + '),',
             '                    max(' + n(G.base.railLeft) + ' + (p.y - ' + n(G.base.railTop) + ') * K - p.x, (u - ' + n(toe.uL + 2.0) + ') * COSK));',
-            '  float dFill = min(dLit, min(dToe, dBase));',
+            '  float dFill = u_yz > 0.0 ? dLit : min(dLit, min(dToe, dBase));',
             /* a lighter line just inside its edge */
             '  vec3 fill = mix(u_fillEdge, u_fill, smoothstep(0.4, 2.2, -dFill));',
             '  fill = mix(fill, vec3(1.0), u_warn * step(0.5, fract(u_time * 9.0)) * 0.6);',
+            '  if (u_yz > 0.0 && u_ym > u_yz) fill = u_regen;',
             '  c = over(vec4(fill, ac(dFill)), c);',
             '',
             /* the marker: a level white bar right across, its ends on the lean */

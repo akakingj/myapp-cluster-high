@@ -126,6 +126,7 @@
          * range", and the battery's charge is what a fuel level shows.
          */
         var electric = opts.electric === 'hybrid' || opts.electric === 'bev' ? opts.electric : 'off';
+        var power = powerPct(raw, electric);
         var evKm = electric !== 'off' && has(raw.evRangeKm) ? raw.evRangeKm : null;
         var soc = electric !== 'off' && has(raw.socPct) ? raw.socPct : null;
         var evText = evKm === null ? dash : String(Math.round(U.distIn(evKm)));
@@ -237,11 +238,13 @@
             driveMode: raw.driveMode || '',
             modeLabel: modeLabelOf(raw.driveMode, opts.modeLabel,
                                    opts.mode === undefined || opts.mode === null ? 'CORSA' : opts.mode),
-            limiter: limiter,
+            /* a plug-in hybrid's Power % in the rev counter's place (null: the rev counter): powerPct */
+            power: power,
+            limiter: power === null ? limiter : 0,
             shiftRpm: shift.rpm,
             redRpm: shift.red,
             /* Shift now: the shift lights flash, the speed and the gear blink red (palette.js blinkOn) */
-            shiftNow: !!opts.shiftWarn && rpm > 0 && rpm >= shift.rpm,
+            shiftNow: power === null && !!opts.shiftWarn && rpm > 0 && rpm >= shift.rpm,
             boostPsi: boost,
             boostPeakPsi: boostPeak,
             gOk: has(raw.gLat) || has(raw.gLon),
@@ -282,6 +285,28 @@
         };
     }
 
+    /*
+     * A plug-in hybrid's Power %, as Cluster Layouts and the car's own cluster show it in the
+     * rev counter's place (layout_common.js powerPct): in its electric and hybrid modes, not in
+     * SPORT, XTRABOOST or with the lever in S or M - nor, before the car has named its mode,
+     * while the engine runs. The accelerator's demand, 0 to 100 (the engine unit's pedal; the
+     * battery's power over its discharge limit where the pedal isn't read), or, off the pedal,
+     * the regeneration below 0 (CHARGE: the battery's charging over its charge limit, to -100).
+     * null: the rev counter. electric: off | hybrid | bev (General: Electric range).
+     */
+    var EBOOST_AT = 90;
+    function powerPct(raw, electric) {
+        if (electric === 'off') return null;
+        var sport = raw.phevMode === 'sport' || /SPORT/.test(raw.driveMode || '') || raw.program === 'S' || raw.program === 'M';
+        var named = !!(raw.phevMode || raw.driveMode);
+        if (sport || !(electric === 'bev' || named || (has(raw.rpm) && raw.rpm < 300))) return null;
+        var kwIn = has(raw.kwIn) && raw.kwIn >= 5 ? raw.kwIn : 35, kwOut = has(raw.kwOut) && raw.kwOut >= 20 ? raw.kwOut : 100;
+        if (has(raw.pedalPct) && raw.pedalPct > 2) return Math.min(100, raw.pedalPct);
+        if (has(raw.kw) && raw.kw < -0.3) return -Math.min(100, -raw.kw / kwIn * 100);
+        if (!has(raw.pedalPct) && has(raw.kw) && raw.kw > 0) return Math.min(100, raw.kw / kwOut * 100);
+        return 0;
+    }
     return { shiftPoint: shiftPoint, present: present, modeLabelOf: modeLabelOf,
+             powerPct: powerPct, EBOOST_AT: EBOOST_AT,
              MI_PER_KM: MI_PER_KM, PSI_PER_BAR: PSI_PER_BAR };
 }));

@@ -28,6 +28,7 @@ var Feed = require('./feed.js');
 var Message = require('./message.js');
 var Smooth = require('./smooth.js');
 var Presence = require('./presence.js');
+var Providers = require('./providers.js');
 var Panel = require('./panel.js');
 var core = require('./shaders_core.js');
 var parts = require('./shaders_parts.js');
@@ -164,6 +165,8 @@ function start(host, deps) {
         log: log, now: now,
         open: host.diag ? function () { return host.diag(); } : null
     });
+    /* a plug-in hybrid's battery power, as eDrive Live shares it: for the Power % gauge */
+    var providers = deps.providers || Providers.create({ log: log, now: now });
     var needs = {};              /* what the style on the cluster shows of those readings */
     var feedSaid = null;
     var engineRanAt = -Infinity; /* when the engine was last seen running */
@@ -349,6 +352,15 @@ function start(host, deps) {
                 /* (the reader uses it only while the Sport Display sends no boost of its own) */
                 reader.setBoostBar(ev.boostBar, now());
             } catch (e) { log.warn('engine: ' + e); }
+            /* a plug-in hybrid's or an electric car's (General: Electric range): the battery's power for the
+               Power % gauge in the rev counter's place, asked of eDrive Live while our layers are up */
+            var powerable = running && !!theme && (theme.settings.electric === 'hybrid' || theme.settings.electric === 'bev');
+            try {
+                var pw = providers.tick(powerable);
+                reader.setFeed('kw', pw.kw, now());
+                reader.setFeed('kwOut', pw.kwOut, now());
+                reader.setFeed('kwIn', pw.kwIn, now());
+            } catch (e) { log.warn('providers: ' + e); }
 
             var raw = reader.raw(now(), profileTank(profile));
             if (theme) raw = smoother.apply(raw, now(), Smooth.TAU[theme.settings.smoothing] || 0, theme.glide);
@@ -387,12 +399,13 @@ function start(host, deps) {
              */
             var shows = (theme && theme.shows) || {};
             needs = { oil: !!shows.oil, iat: !!shows.iat, volts: !!shows.volts,
-                      pedal: !!shows.pedal, throttle: !!shows.throttle, timing: !!shows.timing,
+                      pedal: !!shows.pedal || powerable, throttle: !!shows.throttle, timing: !!shows.timing,
                       boost: !!shows.boost && !reader.hasBusBoost(now(), BUS_BOOST_MS) };
             var runs = typeof raw.rpm === 'number' && raw.rpm >= ENGINE_RUNS_RPM;
             if (runs) engineRanAt = now();
-            /* running, or stopped at a light with drive readiness still on */
-            var engineOk = runs || (raw.condition === DRIVE_READINESS && now() - engineRanAt < AUTO_STOP_MS);
+            /* running, or stopped at a light with drive readiness still on (a plug-in hybrid or an electric
+               car driving on electricity: in drive readiness all the while, the pedal for its Power %) */
+            var engineOk = runs || (raw.condition === DRIVE_READINESS && (powerable || now() - engineRanAt < AUTO_STOP_MS));
             try {
                 engine.tick(now(), {
                     allowed: mode !== 'on' && !feeding && !(mode === 'auto' && hasBeem(now())) &&
@@ -455,6 +468,7 @@ function start(host, deps) {
             try { centre.stop(); } catch (e) { /* closing anyway */ }
             try { feed.stop(); } catch (e) { /* closing anyway */ }
             try { engine.stop(); } catch (e) { /* closing anyway */ }
+            try { providers.release(); } catch (e) { /* closing anyway */ }
             if (cr.close) cr.close();
         },
         /* where the extra readings are coming from, for the iDrive screen */

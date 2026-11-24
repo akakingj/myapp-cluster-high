@@ -129,6 +129,25 @@ function driveModeOf(raw) {
     }
     return undefined;
 }
+/*
+ * A plug-in hybrid's own modes, from the same field: 'electric' (ELECTRIC,
+ * ELECTRIC INDIVIDUAL), 'hybrid' (HYBRID, its ECO PRO and COMFORT, BATTERY
+ * CONTROL) or 'sport' (its SPORT, XTRABOOST); by name, or by number as
+ * Cluster Layouts reads them (its shared/data.js FES_MODES). undefined for
+ * any other (a petrol car's modes: driveModeOf has those).
+ */
+function phevModeOf(raw) {
+    var v = member(raw, 'actualValueModeDrivingExperience');
+    if (typeof v === 'number') {
+        return v === 0x14 || v === 0x15 ? 'electric' : (v >= 0x11 && v <= 0x13) || v === 0x16 ? 'hybrid'
+            : v === 0x0F || v === 0x10 ? 'sport' : undefined;
+    }
+    if (typeof v !== 'string') return undefined;
+    var s = v.toUpperCase();
+    if (/(XTRA|EXTRA)_?BOOST/.test(s) && !/NOT|INACTIVE|OFF|INVALID/.test(s)) return 'sport';
+    if (!/PHEV/.test(s)) return undefined;
+    return /ELECTRIC/.test(s) ? 'electric' : /HYBRID|BATTERY/.test(s) ? 'hybrid' : /SPORT/.test(s) ? 'sport' : undefined;
+}
 /* M cars: MDrive.controlDisplayMSystems.controlDisplayEngineMode. */
 function mEngineModeOf(raw) {
     var n = enumOf(member(raw, 'controlDisplayEngineMode'), { KOMFORT: 1, SPORT: 2, SPORT_PLUS: 3 });
@@ -341,8 +360,10 @@ function createReader(opts) {
                 b = value && value.displayBoostPressure;
                 if (typeof b === 'number' && b >= 0 && b < 255) put('boostBus', b / 100, now);
                 put('driveMode', driveModeOf(value), now);
+                put('phevMode', phevModeOf(value), now);
             } else if (field === 'statusFESVehicleDynamicSwitchHMI') {
                 put('driveMode', driveModeOf(value), now);
+                put('phevMode', phevModeOf(value), now);
             }
         } else if (service === 'de.bmw.infotainment.misc.MDrive' && field === 'dataDisplayGearbox') {
             put('program', programOf(value), now);
@@ -377,9 +398,10 @@ function createReader(opts) {
     /* Readings the bus does not carry: the intake air's temperature (C), the
        battery's voltage, the accelerator pedal and the throttle (%) and the
        ignition angle (degrees), from the engine unit (src/car/engine.js; or a
-       feed, src/car/feed.js, where a host turns one on). They age out like any
-       other, so a source that stops leaves dashes, not a number. */
-    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg'];
+       feed, src/car/feed.js, where a host turns one on); a plug-in hybrid's
+       battery power and its limits (kW), from eDrive Live (src/car/providers.js).
+       They age out like any other, so a source that stops leaves dashes, not a number. */
+    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg', 'kw', 'kwOut', 'kwIn'];
     function setFeed(key, value, now) {
         if (FED.indexOf(key) >= 0 && typeof value === 'number' && isFinite(value)) {
             put(key, value, now || Date.now());
@@ -417,6 +439,8 @@ function createReader(opts) {
             gearStaged: gearStaged(held('stage') || held('stageBox'), held('gearNum'), held('program')),
             condition: held('condition'),
             driveMode: held('driveMode'),
+            phevMode: held('phevMode'),
+            program: held('program'),
             boostBar: boost,
             boostPeakBar: peakBoost,
             oilTempC: get('oilTempC', now),
@@ -441,6 +465,7 @@ function createReader(opts) {
             iatC: get('iatC', now),
             batteryV: get('batteryV', now),
             pedalPct: get('pedalPct', now), throttlePct: get('throttlePct', now), timingDeg: get('timingDeg', now),
+            kw: get('kw', now), kwOut: get('kwOut', now), kwIn: get('kwIn', now),
             clock: d ? { h: d.getUTCHours(), m: d.getUTCMinutes() } : undefined,
             /* undefined, not zero, when the car is not sending it: the
                meter then shows dashes instead of a convincing 0.00 */
@@ -462,6 +487,6 @@ module.exports = {
     createReader: createReader,
     scaled: scaled, stageOf: stageOf, gearText: gearText, gearStaged: gearStaged, programOf: programOf,
     selectionOf: selectionOf, conditionOf: conditionOf,
-    driveModeOf: driveModeOf, mEngineModeOf: mEngineModeOf, clockOffset: clockOffset,
+    driveModeOf: driveModeOf, phevModeOf: phevModeOf, mEngineModeOf: mEngineModeOf, clockOffset: clockOffset,
     averageL100: averageL100
 };

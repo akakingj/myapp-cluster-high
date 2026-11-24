@@ -13,6 +13,21 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.16.0
+
+- **A plug-in hybrid's Power % in the rev counter's place**, as Cluster Layouts and BMW's own cluster show it
+  (*GENERAL → Electric range → Plug-in hybrid*; always on an *Electric car*): in its electric and hybrid modes Toro's
+  dial, M Sport's and M Sport Plus's rev dial and M Track Mode's rev bar read the accelerator's demand, 0 - 100, from
+  a 0 a quarter up (0, 50 and 100 on the marks they fall on); off the pedal, the battery taking the regeneration,
+  they light green below the 0 (CHARGE, to -100). Their name reads POWER (Toro: POWER %), or CHARGE in green. The
+  rev counter again in SPORT, XTRABOOST and with the lever in S or M; no red zone, shift lights or limiter flash
+  while Power % shows. No more layers than before but Toro's two.
+- The battery's power and its limits from eDrive Live, through the folder Cluster Layouts and Cluster Info read
+  (`src/car/providers.js`: a `wanted-akakingj_cluster_id8.json` of its own while Power % can show, gone when not);
+  the plug-in hybrid's own mode names (PHEV_ELECTRIC_…, PHEV_HYBRID_…, XTRABOOST) from FES; the pedal from the
+  engine unit all the while such a car is in drive readiness (docs/ENGINE-READINGS.md).
+- `test/power.test.js`; the preview's `phev=electric|hybrid|sport&kw=&pedal=`.
+
 ## AK 0.15.0
 
 - **GENERAL > Car: B48, B58, S58 (M car), Plug-in hybrid, Car profile values.** Each engine has its own figures

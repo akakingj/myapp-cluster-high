@@ -53,6 +53,12 @@
         'uniform vec3 u_lit;',
         'uniform vec3 u_base;',
         'uniform vec3 u_red;',
+        /* a plug-in hybrid's Power % (src/engine/state.js power): its 0, in scale units (0: the rev counter,
+           lit from the start); lit from it to the value either way, below it - the regeneration - u_regen */
+        'uniform float u_zero;',
+        'uniform vec3 u_regen;',
+        /* lit: between the 0 and the value (from the start, for the rev counter) */
+        'float litAt(float x) { return u_zero > 0.0 ? step(min(u_zero, u_frac), x) * step(x, max(u_zero, u_frac)) : step(x, u_frac); }',
         '',
         'void main() {',
         '  vec2 p = px() - u_centre;',
@@ -75,25 +81,25 @@
         /* The thin outer arc itself. */
         '  float arc = cov(abs(r - u_rOuter) - u_arcW * 0.5) * onArc;',
         '',
-        '  float red = step(u_redFrom, vt);',
-        '  float lit = step(vt, u_frac);',
+        '  float red = step(u_redFrom, vt), regen = step(0.001, u_zero) * step(vt, u_zero - 0.001);',
+        '  float lit = litAt(vt);',
         '  float flash = u_warn * (0.5 + 0.5 * sin(u_time * TAU * 6.0));',
-        '  vec3 cold = mix(u_base * 0.42, u_red * 0.40, red);',
-        '  vec3 hot = mix(u_lit, u_red, red);',
+        '  vec3 cold = mix(mix(u_base * 0.42, u_red * 0.40, red), u_regen * 0.40, regen);',
+        '  vec3 hot = mix(mix(u_lit, u_red, red), u_regen, regen);',
         '  hot = mix(hot, vec3(1.0), flash * 0.7);',
         '  vec3 tcol = mix(cold, hot, lit);',
         '',
-        '  float arcRed = step(u_redFrom, v);',
-        '  float arcLit = step(v, u_frac);',
-        '  vec3 acol = mix(mix(u_base * 0.5, u_red * 0.45, arcRed),',
-        '                  mix(u_lit, u_red, arcRed), arcLit);',
+        '  float arcRed = step(u_redFrom, v), arcRegen = step(0.001, u_zero) * step(v, u_zero);',
+        '  float arcLit = litAt(v);',
+        '  vec3 acol = mix(mix(mix(u_base * 0.5, u_red * 0.45, arcRed), u_regen * 0.45, arcRegen),',
+        '                  mix(mix(u_lit, u_red, arcRed), u_regen, arcRegen), arcLit);',
         '',
         /* A restrained bloom behind the lit run only. */
         '  float glow = exp(-abs(r - u_rOuter + u_tick.y * 0.5) / (u_tick.y * 0.9))',
         '             * onArc * arcLit * (0.10 + 0.34 * flash);',
         '',
         '  float a = clamp(tick + arc * 0.95 + glow, 0.0, 1.0);',
-        '  vec3 c = tcol * tick + acol * arc * 0.95 + mix(u_lit, u_red, arcRed) * glow;',
+        '  vec3 c = tcol * tick + acol * arc * 0.95 + mix(mix(u_lit, u_red, arcRed), u_regen, arcRegen) * glow;',
         '  gl_FragColor = vec4(a > 0.0 ? c / a : vec3(0.0), a);',
         '}'
     ].join('\n');
@@ -114,6 +120,8 @@
         'uniform vec3 u_col;',
         'uniform vec3 u_red;',
         'uniform vec3 u_lit;',
+        'uniform float u_zero;',    /* a Power %'s 0 (dial, above) */
+        'uniform vec3 u_regen;',
         '',
         'void main() {',
         '  vec2 p = px() - u_centre;',
@@ -127,7 +135,8 @@
         '  float line = cov(abs(length(p) - rr) - u_width * 0.5) * onArc;',
         '',
         '  vec3 col = mix(u_col, u_red, step(u_redFrom, v));',
-        '  col = mix(col, u_lit, step(v, u_frac) * 0.35);',
+        '  float lit = u_zero > 0.0 ? step(min(u_zero, u_frac), v) * step(v, max(u_zero, u_frac)) : step(v, u_frac);',
+        '  col = mix(col, v < u_zero ? u_regen : u_lit, lit * 0.35);',
         '  gl_FragColor = vec4(col, line * 0.92);',
         '}'
     ].join('\n');
@@ -156,6 +165,8 @@
         'uniform vec3 u_litCol;',
         'uniform vec3 u_needle;',
         'uniform float u_redV;',
+        'uniform float u_zero;',    /* a Power %'s 0 (dial, above): filled from it either way, below it u_regen */
+        'uniform vec3 u_regen;',
         '',
         'void main() {',
         '  vec2 p = px() - u_centre;',
@@ -178,9 +189,9 @@
         '',
         /* fill behind the lit run */
         '  float behind = u_rev.x - v;',
-        '  float filled = step(0.0, behind) * wash;',
-        '  float glowFill = filled * (0.10 + 0.34 * exp(-behind * 0.9)) * u_rev.y;',
-        '  vec3 fillCol = mix(u_litCol, u_red * 1.9, step(u_redV, v));',
+        '  float filled = (u_zero > 0.0 ? step(min(u_zero, u_rev.x), v) * step(v, max(u_zero, u_rev.x)) : step(0.0, behind)) * wash;',
+        '  float glowFill = filled * (0.10 + 0.34 * exp(-abs(behind) * 0.9)) * u_rev.y;',
+        '  vec3 fillCol = v < u_zero ? u_regen : mix(u_litCol, u_red * 1.9, step(u_redV, v));',
         '',
         /* the needle: a crisp radial line at the current value */
         '  float dvPx = r * (u_ang.y - u_ang.x) / (u_scale.y - u_scale.x);',

@@ -234,7 +234,9 @@
          */
         var REV = M.revScale(S.engine, S.scaleMaxRpm);
         var sixMarks = REV.marks !== M.SCALE.n;
-        function revTicks(s) { return M.rpmTicks(s.rpm, REV.top); }
+        /* (a plug-in hybrid's Power % in its electric and hybrid modes, s.power: on the same marks, Palette.powerAt) */
+        function powerOn(s) { return s.power !== null && s.power !== undefined; }
+        function revTicks(s) { return powerOn(s) ? Palette.powerAt(s.power, REV.marks) * REV.step : M.rpmTicks(s.rpm, REV.top); }
         /* ... and in marks, for the numerals of a scale with fewer than a mark a tick */
         function revMarks(s) { return revTicks(s) / REV.step; }
 
@@ -386,10 +388,10 @@
         }
 
         /* ----------------------------------------------------------- the dials */
-        function dial(id, b, side, look, val, zone, warn, shader) {
+        function dial(id, b, side, look, val, zone, warn, shader, zero) {
             shape(id, 10, shader || 'mgauge', b, function (s) {
                 return {
-                    u_side: side, u_val: val(s),
+                    u_side: side, u_val: val(s), u_zv: zero ? zero(s) : 0, u_regen: Palette.REGEN,
                     u_rimHi: look.rimHi, u_rimLo: look.rimLo, u_line: look.line, u_lineLo: look.lineLo,
                     u_chan: look.chan,
                     u_fill: look.fill, u_fillHot: look.fillHot, u_tick: look.tick, u_hot: look.hot,
@@ -401,6 +403,7 @@
         /* the red field from the redline to the top of the scale, and the
            amber one just before it (lower while the engine is cold: s.redRpm, src/engine/state.js shiftPoint) */
         function redZone(s) {
+            if (powerOn(s)) return [0, 0, 0, 0];
             var red = Math.min(M.SCALE.n - 0.3, M.rpmTicks(s.redRpm || S.rpmRedline, REV.top));
             /* (the amber from the yellow where a car or Shift lights from gives one, else just before the red) */
             var amber = S.yellowRpm ? Math.min(red - 0.33, M.rpmTicks(S.yellowRpm, REV.top)) : red - 0.33;
@@ -408,7 +411,8 @@
         }
         dial('revDial', box(M.mirror(634), 64, M.mirror(186), 523), 1, K.R, revTicks, redZone,
             function (s) { return flashRail ? (s.limiter || 0) : 0; },
-            sixMarks ? 'mgauge' + REV.marks : 'mgauge');
+            sixMarks ? 'mgauge' + REV.marks : 'mgauge',
+            function (s) { return powerOn(s) ? Palette.powerZero(REV.marks) * REV.step : 0; });
 
         /* --------------------------------------------------- fuel and oil */
         function strip(id, b, side, fn) {
@@ -440,12 +444,23 @@
          * The shader works out which tick a glyph belongs to from its own
          * height, and lights the ones either side of the value.
          */
-        function scale(id, b, face, h, items, val, col, shader) {
-            var size = fig(h);
+        /* alt: { items, when(s) } - other numerals the same layer shows while when(s) (a Power %'s) */
+        function scale(id, b, face, h, items, val, col, shader, alt) {
+            var size = fig(h), art = artOf(b);
+            var main = setOf(items), other = alt ? setOf(alt.items) : null;
+            layers.push({
+                id: id, z: 20, shader: shader || 'mnum', x: b.x, y: b.y, w: b.w, h: b.h,
+                uniforms: function (s) {
+                    var set = other && alt.when(s) ? other : main;
+                    return { u_art: art, u_g: set.placed.g, u_quad: set.placed.p,
+                             u_cfg: [set.placed.count, set.placed.sharp, val(s), 0.045],
+                             u_col: col, u_colOn: K.white, u_ax: set.mid, u_grow: grow };
+                }
+            });
+          function setOf(items) {
             var placed = Text.place(atlas, items.map(function (it) {
                 return { str: it.str, x: it.x - b.x, y: it.y - b.y, align: it.align };
             }), { face: face, size: size });
-            var art = artOf(b);
             /*
              * The point each numeral grows about, for every glyph of it (a
              * vec4 a glyph, as every uniform array is sent: x, y, 0, 0):
@@ -472,14 +487,8 @@
                 g += n;
             });
             while (mid.length < Text.MAX_GLYPHS * 4) mid.push(0);
-            layers.push({
-                id: id, z: 20, shader: shader || 'mnum', x: b.x, y: b.y, w: b.w, h: b.h,
-                uniforms: function (s) {
-                    return { u_art: art, u_g: placed.g, u_quad: placed.p,
-                             u_cfg: [placed.count, placed.sharp, val(s), 0.045],
-                             u_col: col, u_colOn: K.white, u_ax: mid, u_grow: grow };
-                }
-            });
+            return { placed: placed, mid: mid };
+          }
         }
         function speedItem(k) {
             var str = String(M.SPEED_SCALE[units][k]);
@@ -513,22 +522,32 @@
             [8, 7, 6, 5].map(speedItem), speedTicks, K.blueNum);
         scale('speedScaleB', roomy ? box(119, 278, 358, 526) : box(128, 282, 350, 522), 'mw', NUM_H.speed,
             [4, 3, 2, 1, 0].map(speedItem), speedTicks, K.blueNum);
+        var revBox = roomy ? box(1454, 74, 1676, 528) : box(1462, 78, 1668, 524);
+        /* a Power %'s figures (0, 50, 100) on the marks they stand at, in the rev numerals' place while it shows */
+        var pctMarks = [];
+        for (var q = REV.marks; q >= 0; q--) {
+            if (!Palette.powerFigure(q, REV.marks)) continue;
+            var it = sixMarks ? revItemAt(q) : revItem(q), str = Palette.powerFigure(q, REV.marks);
+            pctMarks.push({ str: str, align: 'left', tick: it.tick, x: it.x, y: it.y });
+        }
         if (sixMarks) {
             var marks = [];
             for (var j = REV.marks; j >= 0; j--) marks.push(revItemAt(j));
-            scale('revScale', roomy ? box(1454, 74, 1676, 528) : box(1462, 78, 1668, 524), 'mw', NUM_H.rev,
-                marks, revMarks, K.redNum, 'mnum' + REV.marks);
+            scale('revScale', revBox, 'mw', NUM_H.rev, marks, revMarks, K.redNum, 'mnum' + REV.marks, { items: pctMarks, when: powerOn });
         } else {
-            scale('revScale', roomy ? box(1454, 74, 1676, 528) : box(1462, 78, 1668, 524), 'mw', NUM_H.rev,
-                [8, 7, 6, 5, 4, 3, 2, 1, 0].map(revItem), revTicks, K.redNum);
+            scale('revScale', revBox, 'mw', NUM_H.rev, [8, 7, 6, 5, 4, 3, 2, 1, 0].map(revItem), revTicks, K.redNum, null,
+                { items: pctMarks, when: powerOn });
         }
 
         statics('speedTitle', 20, box(302, 36, 380, 72),
             { face: 'ms', size: words(24.8), align: 'left', color: K.blueTitle },
             [{ str: kmh ? 'km/h' : 'mph', x: X(309.5), y: Y(64.6) }]);
-        statics('revTitle', 20, box(1356, 34, 1530, 70),
-            { face: 'ms', size: words(26.1), align: 'left', color: K.redTitle },
-            [{ str: '1/min x 1000', x: X(1364.5), y: Y(62.4) }]);
+        /* (a Power %'s: POWER, or CHARGE in green while the battery takes the regeneration) */
+        txt('revTitle', 20, box(1356, 34, 1530, 70),
+            { face: function (s) { return powerOn(s) ? 'mb' : 'ms'; },
+              size: function (s) { return powerOn(s) ? words(24.0) : words(26.1); }, align: 'left', x: X(1364.5), y: Y(62.4),
+              color: function (s) { return powerOn(s) && s.power < 0 ? Palette.REGEN : K.redTitle; } },
+            function (s) { return powerOn(s) ? Palette.powerWord(s.power) : '1/min x 1000'; });
 
         /* --------------------------------------------------- speed and gear */
         /* the figures stand on the black band between the plates, the speed

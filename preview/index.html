@@ -166,6 +166,15 @@
       /* electric=hybrid|bev: a battery to show (the simulated car has none of its own) */
       if (cfg.electric === 'hybrid') { rawNow.evRangeKm = 43; rawNow.socPct = 78; }
       if (cfg.electric === 'bev') { rawNow.evRangeKm = 310; rawNow.socPct = 64; rawNow.hvTempC = 26; }
+      /* phev=electric|hybrid|sport: the plug-in hybrid's mode, with kw=K (the battery's power, - charging)
+         and pedal=P: its Power % in the rev counter's place (src/engine/state.js powerPct) */
+      if (params.get('phev')) {
+        rawNow.phevMode = params.get('phev');
+        rawNow.kw = params.get('kw') !== null ? parseFloat(params.get('kw')) : -18;
+        rawNow.pedalPct = params.get('pedal') !== null ? parseFloat(params.get('pedal')) : 0;
+        rawNow.driveMode = rawNow.phevMode === 'sport' ? 'SPORT' : '';
+        if (rawNow.phevMode !== 'sport') rawNow.rpm = 0;
+      }
       var st = MGUState.present(rawNow, profile, theme.settings);
       if (centre) st.centre = centre;
       /* now=S: the clock's own seconds, apart from where the drive is (t):

@@ -24,7 +24,10 @@ at, whether it is on the head unit or not (AK 0.13.0).
   never with the ignition on and the engine off, which is when a control
   unit is coded or flashed. (An engine stopped by auto start-stop is still
   asked, for up to three minutes: the car is in drive readiness then, and a
-  gauge that went blank at every traffic light would be no gauge.)
+  gauge that went blank at every traffic light would be no gauge. A plug-in
+  hybrid or an electric car - *GENERAL → Electric range* - is asked all the
+  while it is in drive readiness, engine or none: its Power % follows the
+  accelerator pedal on electricity too.)
 - **Only what is shown.** Toro's left gauges want oil pressure; an M
   style's footer, M Track Mode's rows and strips and Toro's side gauges
   want whatever they hold. A reading no style is showing is never asked.

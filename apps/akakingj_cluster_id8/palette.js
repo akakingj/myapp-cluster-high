@@ -461,7 +461,28 @@
        frame's time (s.now) */
     function blinkOn(s) { return !!(s && s.shiftNow) && Math.floor((Number(s.now) || 0) / 125) % 2 === 0; }
 
+    /*
+     * A plug-in hybrid's Power % on a rev counter's scale (s.power, src/engine/state.js powerPct),
+     * as Cluster Layouts draws it: its 0 on the mark nearest a quarter up, 100 at the top mark, 50
+     * on the mark half way where there is one, the regeneration (CHARGE) below the 0 down to the foot,
+     * in green. n: the scale's marks (0..n). In marks.
+     */
+    var REGEN = [0.24, 0.86, 0.52];       /* #3ddc84, the layouts' regeneration green */
+    function powerZero(n) { return Math.max(1, Math.round(n / 4)); }
+    function powerAt(pct, n) {
+        var z = powerZero(n), p = Math.max(-100, Math.min(100, pct || 0));
+        return p >= 0 ? z + (n - z) * p / 100 : z * (1 + p / 100);
+    }
+    /* the figure at mark k, or '' */
+    function powerFigure(k, n) {
+        var z = powerZero(n);
+        return k === z ? '0' : k === n ? '100' : k === (z + n) / 2 ? '50' : '';
+    }
+    /* the word with it: CHARGE while regenerating, else POWER */
+    function powerWord(pct) { return pct < 0 ? 'CHARGE' : 'POWER'; }
+
     return {
+        REGEN: REGEN, powerZero: powerZero, powerAt: powerAt, powerFigure: powerFigure, powerWord: powerWord,
         BASE: BASE, SCHEMES: SCHEMES, LIT: LIT, DEFAULTS: DEFAULTS, resolve: resolve, blinkOn: blinkOn,
         setAccent: setAccent, AMBIENT_FALLBACK: AMBIENT_FALLBACK, INTRO_WORDS: INTRO_WORDS,
         HOLES: HOLES, CENTRE_SIZES: CENTRE_SIZES, DIESEL: DIESEL

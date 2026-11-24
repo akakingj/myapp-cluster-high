@@ -327,6 +327,34 @@
                          x: it.pen ? X(it.x) : penFor(atlas, face, it.str, size, X(it.x), it.ink || 'l') };
             }));
         }
+        /*
+         * As snug, one layer showing either of two sets of words: alt's while when(s), in a box round both
+         * (a Power %'s figures in the rev numerals' place).
+         */
+        function snugSwap(id, z, base, items, alt, when) {
+            var px = function (list) {
+                return list.map(function (it) {
+                    return { str: it.str, y: Y(it.y), x: penFor(atlas, base.face, it.str, base.size, X(it.x), it.ink || 'l') };
+                });
+            };
+            var a = px(items), b2 = px(alt), x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+            a.concat(b2).forEach(function (it) {
+                var L = Text.place(atlas, [it], base), i;
+                for (i = 0; L && i < L.count; i++) {
+                    x0 = Math.min(x0, L.p[i * 4]); y0 = Math.min(y0, L.p[i * 4 + 1]);
+                    x1 = Math.max(x1, L.p[i * 4] + L.p[i * 4 + 2]); y1 = Math.max(y1, L.p[i * 4 + 1] + L.p[i * 4 + 3]);
+                }
+            });
+            var bx = { x: Math.max(0, Math.floor(x0) - 1), y: Math.max(0, Math.floor(y0) - 1) };
+            bx.w = Math.min(SIDE, Math.ceil(x1) + 1) - bx.x; bx.h = Math.ceil(y1) + 1 - bx.y;
+            var tmp = [], two = TextLayers.create(atlas, tmp, { text: K.white, muted: K.soft });
+            two.statics('main', z, bx, base, a);
+            var main = tmp[0];
+            two.statics('alt', z, bx, base, b2);
+            var other = tmp[1];
+            layers.push({ id: id, z: z, shader: 'text', x: bx.x, y: bx.y, w: bx.w, h: bx.h,
+                uniforms: function (s, t) { return when(s) ? (other ? other.uniforms(s, t) : null) : main.uniforms(s, t); } });
+        }
         /* a symbol, its ink's middle at a frame point, drawn `scale` times its own size */
         function icon(id, z, face, ch, cx, cy, scale, color, show, alpha) {
             var size = ICON_EM * scale * SC;
@@ -431,12 +459,16 @@
         var G = T.TACH;
         var MARKS = T.revMarks(S.engine, S.scaleMaxRpm);
         var topMark = MARKS[MARKS.length - 1];
-        function revY(s) { return T.revY(s.rpm, MARKS); }
+        /* (a plug-in hybrid's Power % in its electric and hybrid modes, s.power: on the same marks, Palette.powerAt) */
+        var NMARKS = MARKS.length - 1;
+        function powerOn(s) { return s.power !== null && s.power !== undefined; }
+        function revY(s) { return T.revY(powerOn(s) ? Palette.powerAt(s.power, NMARKS) * 1000 : s.rpm, MARKS); }
         /* the red field: from the top of the scale down to the redline (lower while the engine is cold:
            s.redRpm, src/engine/state.js shiftPoint) */
-        function redY(s) { return Math.max(topMark, T.revY(s.redRpm || S.rpmRedline, MARKS)); }
+        function redY(s) { return powerOn(s) ? topMark - 10 : Math.max(topMark, T.revY(s.redRpm || S.rpmRedline, MARKS)); }
         shape('revDial', 10, MARKS.length === 9 ? 'mtgauge' : 'mtgauge' + (MARKS.length - 1), box(742, 74, 1296, 484), function (s) {
             return { u_ym: revY(s), u_red: redY(s), u_warn: flashRail ? (s.limiter || 0) : 0,
+                     u_yz: powerOn(s) ? MARKS[Palette.powerZero(NMARKS)] : 0, u_regen: Palette.REGEN,
                      u_line: K.R.line, u_topCol: K.R.top, u_chan: K.R.chan, u_chanMid: K.R.chanMid,
                      u_rail: K.R.rail, u_tick: K.R.tick, u_zone: K.R.zone, u_fill: K.R.fill, u_fillEdge: K.R.fillEdge };
         });
@@ -454,12 +486,20 @@
         var numerals = [];
         for (var k = MARKS.length - 1; k >= 0; k--) numerals.push(revNumeral(k));
         /* (three to a layer: they stand down a leaning scale, and one box round all nine is mostly empty) */
+        /* (a Power %'s in the same layers while it shows: its 0, 50 and 100 on the marks they stand at) */
+        function pctOf(k) { var f = Palette.powerFigure(k, NMARKS); return f ? Object.assign(revNumeral(k), { str: f }) : null; }
         for (var g3 = 0; g3 * 3 < numerals.length; g3++) {
-            snug(g3 ? 'revScale_' + g3 : 'revScale', 20, { face: 'mw', size: fig(NUM_H), align: 'left', color: K.revNum },
-                numerals.slice(g3 * 3, g3 * 3 + 3));
+            var three = [], pct = [];
+            for (var k3 = NMARKS - g3 * 3; k3 > NMARKS - g3 * 3 - 3 && k3 >= 0; k3--) { three.push(revNumeral(k3)); if (pctOf(k3)) pct.push(pctOf(k3)); }
+            snugSwap(g3 ? 'revScale_' + g3 : 'revScale', 20, { face: 'mw', size: fig(NUM_H), align: 'left', color: K.revNum },
+                three, pct, powerOn);
         }
-        fixed('revTitle', 20, box(1100, 50, 1232, 80), { face: 'ms', size: words(21.8), align: 'left', color: K.title },
-            [{ str: '1/min x 1000', x: 1108.0, y: 73.6 }]);
+        /* (a Power %'s: POWER, or CHARGE in green while the battery takes the regeneration) */
+        dyn('revTitle', 20, box(1100, 50, 1232, 80), function (s) {
+            return powerOn(s) ? { str: Palette.powerWord(s.power), face: 'mb', size: words(20.0), x: X(1108.0), y: Y(73.6),
+                                  color: s.power < 0 ? Palette.REGEN : K.title }
+                : { str: '1/min x 1000', face: 'ms', size: words(21.8), x: X(1108.0), y: Y(73.6), color: K.title };
+        });
 
         /* --------------------------------------------------- the two strips */
         /*

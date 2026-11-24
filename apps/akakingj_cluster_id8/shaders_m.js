@@ -136,6 +136,11 @@
         'uniform vec4 u_zone;',      /* the red field (from, to) and the amber one, in ticks; 0: none */
         'uniform float u_hot;',      /* how far the rim whitens towards the marker */
         'uniform float u_warn;',     /* the limiter: the band flashes */
+        /* a plug-in hybrid's Power % (src/engine/state.js power): its 0, in ticks (0: the rev counter,
+           lit from its foot); lit from it to the value either way, below it - the regeneration - in u_regen,
+           its field a green strip from the foot up to it */
+        'uniform float u_zv;',
+        'uniform vec3 u_regen;',
         wedge('rimO', D.rimUp, D.rimLow, D.rimR),
         wedge('rimI', M.shift(D.rimUp, D.rimWUp), M.shift(D.rimLow, D.rimWLow), D.rimR),
         wedge('chanO', D.chanUp, D.chanLow, D.chanR),
@@ -157,11 +162,13 @@
         '  if (u_side > 0.5) p.x = 2.0 * AX - p.x;',
         '  float dO = rimO(p), dI = rimI(p), dK = conK(p);',
         '  float ym = Y0 - u_val * DY;',                     /* the marker's height */
+        '  float yz = u_zv > 0.0 ? Y0 - u_zv * DY : 10000.0;',   /* the 0's (none: far below) */
+        '  float hi = min(ym, yz), lo = max(ym, yz);',        /* the lit run's ends */
         '  float kf = (Y0 - p.y) / DY;',                     /* this height, in ticks */
         '  vec4 c = vec4(0.0);',
         '',
         /* the dark channel between rim and contour, above the marker */
-        '  float dCh = max(max(chanO(p), -chanI(p)), max(' + n(D.chanTop) + ' - p.y, p.y - (ym - 5.6)));',
+        '  float dCh = max(max(chanO(p), -chanI(p)), max(' + n(D.chanTop) + ' - p.y, min(p.y - (hi - 5.6), lo + 5.6 - p.y)));',
         /* ... keeping its distance where the contour rounds into the top line */
         '  if (p.y < ' + n(D.chanTop + 2.0 * D.conTopR) + ') dCh = max(dCh, ' + n(chanGapAcross) + ' - dK);',
         '  vec3 chan = u_chan * (1.0 + 0.35 * smoothstep(3.0, 7.8, kf));',
@@ -173,7 +180,7 @@
         '  c = over(vec4(u_line, ac(dTop)), c);',
         '',
         /* the fine contour, down to the marker */
-        '  float dCon = max(abs(dK) - ' + n(D.conW / 2) + ', max(p.x - topEnd, p.y - (ym - 6.6)));',
+        '  float dCon = max(abs(dK) - ' + n(D.conW / 2) + ', max(p.x - topEnd, min(p.y - (hi - 6.6), lo + 6.6 - p.y)));',
         '  c = over(vec4(mix(u_lineLo, u_line, smoothstep(300.0, 240.0, p.y)), ac(dCon)), c);',
         '',
         /* the red field and the amber one before it: fine strips inside the rim */
@@ -182,17 +189,19 @@
         '  float za = max(dZ, max(kf - u_zone.w, u_zone.z - kf) * DY);',
         '  c = over(vec4(ZRED, ac(zr) * step(0.001, u_zone.y)), c);',
         '  c = over(vec4(ZAMB, ac(za) * step(0.001, u_zone.w)), c);',
+        '  float zg = max(dZ, max(kf - u_zv, -kf) * DY);',
+        '  c = over(vec4(u_regen, ac(zg) * step(0.001, u_zv)), c);',
         '',
         /* the scale's ticks: level dashes in the gap inside the rim */
         even ? '  float k = floor(kf + 0.5);' : '  float k = floor(kf / STEP + 0.5);',
         even ? '  float yk = Y0 - k * DY;' : '  float yk = Y0 - k * STEP * DY;',
         '  float dT = max(max(abs(p.y - yk) - ' + n(D.tickH) + ', max(dI + ' + n(D.tickIn) + ', -dI - ' + n(D.tickIn + D.tickLen) + ')),',
-        '                 p.y - (ym - 5.0));',
+        '                 min(p.y - (hi - 5.0), lo + 5.0 - p.y));',
         '  if (k < -0.5 || k > ' + n(marks + 0.5) + ') dT = 1000.0;',
         '  c = over(vec4(u_tick, ac(dT)), c);',
         '',
         /* the rim: its two limbs differ a little, and it whitens towards the marker */
-        '  float dRim = max(max(dO, -dI), max(' + n(D.rimTop) + ' - p.y, p.y - (ym - 5.8)));',
+        '  float dRim = max(max(dO, -dI), max(' + n(D.rimTop) + ' - p.y, min(p.y - (hi - 5.8), lo + 5.8 - p.y)));',
         '  vec3 rim = mix(u_rimLo, u_rimHi, smoothstep(280.0, 220.0, p.y));',
         '  rim = mix(rim, vec3(1.0), u_hot * exp(-max(ym - p.y, 0.0) / 45.0));',
         '  c = over(vec4(rim, ac(dRim)), c);',
@@ -200,13 +209,14 @@
         /* the lit band: from the rim's outer edge to the contour's inner,
            from under the marker down to its base */
         '  float dBand = max(dO + 1.0, -dK - ' + n(D.conW / 2) + ');',
-        '  float dFill = max(dBand, max(ym + 5.5 - p.y, p.y - ' + n(D.tabTop + 1.0) + '));',
-        '  dFill = min(dFill, tab(p));',
+        '  float dFill = max(dBand, max(hi + 5.5 - p.y, p.y - min(lo, ' + n(D.tabTop + 1.0) + ')));',
+        '  if (u_zv <= 0.0) dFill = min(dFill, tab(p));',
         /* lighter just under the marker, settling to the rail's own colour
            well before the base */
         '  float hotz = (1.0 - smoothstep(16.0, 30.0, p.y - ym)) * smoothstep(0.0, 14.0, ' + n(D.tabTop) + ' - p.y);',
         '  vec3 fillc = mix(u_fill, u_fillHot, hotz);',
         '  fillc = mix(fillc, vec3(1.0), u_warn * step(0.5, fract(u_time * 9.0)) * 0.6);',
+        '  if (u_zv > 0.0 && ym > yz) fillc = u_regen;',
         '  c = over(vec4(fillc, ac(dFill)), c);',
         '',
         /* the marker: a level white bar across the band at the value */

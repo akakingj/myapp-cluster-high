@@ -220,6 +220,9 @@ Never run on such a car: every line here is a question. Off by default;
 | V4b | Fully electric, Toro's upper left gauge and the M styles' right strip | **TEMP. BATT.** / a scale of 14 – 140 °F (−10 – 60 °C): the drive battery's temperature. **Say what it reads and whether that is believable** (near outside temperature after a night parked) |
 | V6 | Speed Limit Info on, a limit showing, *Cover the speed limit sign's edge* on | The red arc right of the strip's clock is gone; the clock, and everything else in BMW's strip, is whole. **If the arc is elsewhere or still shows, a photograph** |
 | V5 | Any of them showing `--` | Say which car and which reading: its cluster is not sent that signal, or sends it differently |
+| V7 | Plug-in hybrid, *Plug-in hybrid*, eDrive Live running, HYBRID or ELECTRIC, each style | The rev counter reads **Power %**: 0 about a quarter up, 100 at the top, POWER (Toro: POWER %) as its name. On the pedal it lights from 0 up as far as you press; off the pedal while slowing it lights **green below 0** and the name reads **CHARGE**. **Say whether it moves with the pedal and with BMW's own Power %** |
+| V8 | The same, then SPORT (or XTRABOOST, or the lever to S / M) | The rev counter again (figures, 1/min x 1000, red zone, shift lights); back to Power % when you leave it |
+| V9 | eDrive Live not running | Power % still follows the pedal; nothing below 0 (the regeneration comes from eDrive Live) |
 
 ## Readings from the engine unit (Beta 5; on every head unit since AK 0.13.0)
 
