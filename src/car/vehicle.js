@@ -16,6 +16,8 @@
  * Field names and members were checked by other projects against an F98 X4 M
  * Competition's own SOME/IP catalog, the platform family the X3 M40i is on.
  */
+var Drive = require('./drive');
+
 var SIGNALS = {
     'de.bmw.infotainment.vehicle.Vehicle2': { statusCarSpeed2: 'rs' },
     'de.bmw.infotainment.vehicle.CDS': {
@@ -261,6 +263,7 @@ function createReader(opts) {
     opts = opts || {};
     var STALE_MS = opts.staleMs || 1500;
     var v = {};      /* key -> { value, at } */
+    var drive = Drive.create();     /* this drive's peaks, 0-60 / 0-100 and last upshift (src/car/drive.js) */
 
     function put(key, value, now) {
         if (value === undefined) return;
@@ -396,11 +399,11 @@ function createReader(opts) {
     }
     /* Readings the bus does not carry: the intake air's temperature (C), the
        battery's voltage, the accelerator pedal and the throttle (%) and the
-       ignition angle (degrees), from the engine unit (src/car/engine.js; or a
+       ignition angle (degrees), the boost target and the fuel pressures (bar), from the engine unit (src/car/engine.js; or a
        feed, src/car/feed.js, where a host turns one on); a plug-in hybrid's
        battery power and its limits (kW), from eDrive Live (src/car/providers.js).
        They age out like any other, so a source that stops leaves dashes, not a number. */
-    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg', 'kw', 'kwOut', 'kwIn'];
+    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg', 'boostTargetBar', 'hpfpBar', 'lpfpBar', 'kw', 'kwOut', 'kwIn'];
     function setFeed(key, value, now) {
         if (FED.indexOf(key) >= 0 && typeof value === 'number' && isFinite(value)) {
             put(key, value, now || Date.now());
@@ -427,6 +430,12 @@ function createReader(opts) {
         peakBoost = Math.max(typeof boost === 'number' ? boost : 0, peakBoost - dt * 0.18);
         peakLat = Math.abs(lat) > Math.abs(peakLat) ? lat : peakLat * (1 - dt * 0.25);
         peakLon = Math.abs(lon) > Math.abs(peakLon) ? lon : peakLon * (1 - dt * 0.25);
+
+        /* this drive's figures (src/car/drive.js): the engine's power from its torque and revs while it runs */
+        var rpmNow = get('rpm', now), tq = get('torqueNm', now);
+        var dr = drive.sample(now, { speedKmh: get('speedKmh', now), rpm: rpmNow, gear: held('gearNum'), boostBar: boost,
+                                     powerKw: typeof tq === 'number' && typeof rpmNow === 'number' && rpmNow >= 300 ? tq * rpmNow / 9549 : undefined,
+                                     engineOn: typeof rpmNow === 'number' ? rpmNow >= 300 : undefined });
 
         /* the car's time of day, once its cluster has told us the zone */
         var off = held('clockOffsetMs');
@@ -464,6 +473,9 @@ function createReader(opts) {
             iatC: get('iatC', now),
             batteryV: get('batteryV', now),
             pedalPct: get('pedalPct', now), throttlePct: get('throttlePct', now), timingDeg: get('timingDeg', now),
+            boostTargetBar: get('boostTargetBar', now), hpfpBar: get('hpfpBar', now), lpfpBar: get('lpfpBar', now),
+            drivePeakBoostBar: dr.boostPeakBar, powerPeakKw: dr.powerPeakKw, zero60S: dr.zero60S, zero100S: dr.zero100S,
+            lastShift: dr.lastShift,
             kw: get('kw', now), kwOut: get('kwOut', now), kwIn: get('kwIn', now),
             clock: d ? { h: d.getUTCHours(), m: d.getUTCMinutes() } : undefined,
             /* undefined, not zero, when the car is not sending it: the

@@ -1,9 +1,10 @@
 # Readings from the engine unit
 
-Six readings a style can show are not on the head unit's bus: **oil
+Nine readings a style can show are not on the head unit's bus: **oil
 pressure**, the **intake air's temperature**, the **battery's voltage**, the
-**accelerator pedal**, the **throttle's opening** and the **ignition
-angle**.
+**accelerator pedal**, the **throttle's opening**, the **ignition
+angle**, the **boost target** and the **fuel pressures** (the injection
+rail's and the supply's).
 AK Cluster ID8 asks the engine unit for them itself, on every head unit —
 and for **boost**, on a car whose Sport Display sends none. There is no
 setting for it, and nothing is taken from BeeM-Flash: its feed is not looked
@@ -34,7 +35,8 @@ at, whether it is on the head unit or not (AK 0.13.0).
 - **Lightly:** oil pressure twice a second, intake air every 2 s, battery
   every 5 s, boost four times a second (and only while the Sport Display
   gives none), the accelerator pedal and the throttle four times a second,
-  the ignition angle twice, ambient pressure once a minute. A reading that gets no
+  the ignition angle and the boost target twice, the fuel rail once a second, the
+supply every 2 s, ambient pressure once a minute. A reading that gets no
   answer three times is asked once a minute from then on. In the simulated
   car that is 2 requests a second for Toro, under 1 for an M style with
   intake air and the battery in its footer, and 6 with boost as well.
@@ -72,6 +74,16 @@ OBD identifiers are OBD-II service 01 PIDs (SAE J1979), a public standard;
 | | `DID F470` | 2 bytes from the 4th × 0.03125, kPa | ALMSTRA/idv7lol `apps/idv7lol/vehicle.js` |
 | | `OBD 70` | 2 bytes from the 4th × 0.03125, kPa | SAE J1979; ALMSTRA/idv7lol `apps/idv7lol/vehicle.js` |
 | | `OBD 0B` | 1 byte, kPa | SAE J1979; ALMSTRA/idv7lol `apps/idv7lol/vehicle.js`; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js` |
+| Boost target, absolute | `DID 4AB0` | 2 bytes × 0.00390625, kPa | cauliflowermossgrape/idrive7-apps `apps/live_data/useful.js`, `apps/live_data/builtin/DME8FF_R.json`, `apps/car_vitals/app.json`; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| | `DID F470` | 2 bytes from the 2nd × 0.03125, kPa | SAE J1979 (PID 70, commanded boost A); eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| | `OBD 70` | 2 bytes from the 2nd × 0.03125, kPa | SAE J1979; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| Fuel rail pressure (direct injection), over atmosphere | `DID F423` | 2 bytes × 0.1, bar | SAE J1979 (PID 23); eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| | `DID F459` | 2 bytes × 0.1 − 1, bar (absolute less 1) | SAE J1979 (PID 59); cauliflowermossgrape/idrive7-apps `apps/car_vitals/app.json`; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| | `OBD 23` | 2 bytes × 0.1, bar | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| Fuel supply pressure | `DID F40A` | 1 byte × 0.03, bar | SAE J1979 (PID 0A); cauliflowermossgrape/idrive7-apps `apps/car_vitals/app.json`; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| | `DID F422` | 2 bytes × 0.00079, bar (over the manifold) | SAE J1979 (PID 22); cauliflowermossgrape/idrive7-apps `apps/car_vitals/app.json`; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| | `OBD 0A` | 1 byte × 0.03, bar | SAE J1979; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| | `OBD 22` | 2 bytes × 0.00079, bar | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
 | Accelerator pedal, normalised | `DID 5814` | 2 bytes, signed × 0.01220703, % | cauliflowermossgrape/idrive7-apps `apps/live_data/useful.js`, `apps/live_data/builtin/DME8FF_R.json` |
 | | `DID 480B` | 2 bytes, signed × 0.01220703, % | cauliflowermossgrape/idrive7-apps `apps/live_data/useful.js`, `apps/live_data/builtin/DME8FF_R.json` |
 | | `OBD 49` | 1 byte × 100 / 255, % | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`, `apps/live_data/useful.js` |
@@ -82,7 +94,8 @@ OBD identifiers are OBD-II service 01 PIDs (SAE J1979), a public standard;
 | | `OBD 0E` | 1 byte × 0.5 − 64, degrees before top dead centre | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`, `apps/live_data/useful.js` |
 
 (Read at ALMSTRA/idv7lol `58e2418`, cauliflowermossgrape/idrive7-apps
-`a948390`, ZEKAI-Design/ID7-Cluster-Themes `8a4f72f`, November 2026. The
+`a948390`, ZEKAI-Design/ID7-Cluster-Themes `8a4f72f`, eroobeeroo/idrive7-cluster-info
+`e41969f`, November 2026. The
 catalogue `DME8FF_R.json` names its own source, a public description of
 BMW's diagnostic tables for the DME 8 engine units — B58, B48, B38.)
 
@@ -90,14 +103,18 @@ Each reading has its identifiers tried in that order; the first that
 answers with a plausible number is kept and asked first from then on. A
 number outside the plausible range is not shown: oil pressure 0 – 20 bar
 over ambient, intake air −45 – 150 °C, battery 5 – 18 V, the pedal and the
-throttle −2 – 102 % (shown 0 – 100 %), the ignition angle −40 – 70 °.
+throttle −2 – 102 % (shown 0 – 100 %), the ignition angle −40 – 70 °, the boost
+target 20 – 400 kPa absolute (600 by the standard forms), the fuel rail 0 – 500 bar,
+the supply 0.5 – 8 bar (15 over the manifold).
 
 **Oil pressure** is the absolute reading less the engine unit's own
 ambient pressure — what the pump makes — as both upstream projects compute
 it. Without an ambient reading there is no figure, rather than one taken
 over a guessed barometer. **Boost** is the absolute reading less the
 barometer (101.3 kPa until the engine unit has told us its own), and is
-used only while the car's Sport Display sends no boost of its own.
+used only while the car's Sport Display sends no boost of its own. The
+**boost target** is taken over the same barometer. Each is read only while
+a place shows it, as Cluster Layouts reads them (its `config.dme`).
 
 ## A diesel
 
@@ -105,7 +122,7 @@ With *GENERAL → Engine → Diesel* the engine unit is asked **only the
 standard identifiers** in the table: the OBD ones and their `F4xx` forms.
 A diesel's engine unit is a DDE, not the DME 8 the BMW identifiers belong
 to, and what a DDE answers to `4436`, `586F`, `4201`, `580F`, `5853`,
-`580B`, `5814`, `480B`, `4600`, `5858` or `59FA` is published in none of the projects above: a number in the right
+`580B`, `4AB0`, `5814`, `480B`, `4600`, `5858` or `59FA` is published in none of the projects above: a number in the right
 range would be shown as a reading whatever it really was. The standard
 PIDs mean the same on every engine.
 
@@ -117,6 +134,9 @@ What a diesel is asked, each from the table above:
 - **Intake air temperature**: `DID F40F`, then `OBD 0F`.
 - **Battery voltage**: `DID F442`, then `OBD 42`.
 - **Boost, absolute**: `DID F470`, then `OBD 70`, then `OBD 0B`.
+- **Boost target**: `DID F470`, then `OBD 70`.
+- **Fuel rail pressure**: `DID F423`, `DID F459`, then `OBD 23`.
+  **Fuel supply pressure**: `DID F40A`, `DID F422`, `OBD 0A`, then `OBD 22`.
 - **Accelerator pedal**: `OBD 49`. **Throttle**: `OBD 11`. **Ignition
   angle**: `OBD 0E` (a diesel has none to give).
 

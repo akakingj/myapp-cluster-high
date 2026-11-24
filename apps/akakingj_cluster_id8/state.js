@@ -213,7 +213,26 @@
             /* the trip computer's distance and driving time (h:mm), the odometer */
             trip: has(raw.tripKm) ? U.distIn(raw.tripKm).toFixed(U.distIn(raw.tripKm) < 1000 ? 1 : 0) : dash,
             tripTime: has(raw.tripMin) ? Math.floor(raw.tripMin / 60) + ':' + pad(raw.tripMin % 60, 2) : dash,
-            odo: has(raw.odoKm) ? String(Math.round(U.distIn(raw.odoKm))) : dash
+            odo: has(raw.odoKm) ? String(Math.round(U.distIn(raw.odoKm))) : dash,
+            /* the speed in the other unit (km/h where mph is shown, mph where km/h is) */
+            speed2: has(raw.speedKmh) ? String(Math.round(Math.max(0, U.speed === 'mph' ? raw.speedKmh : raw.speedKmh * MI_PER_KM))) : dash,
+            gear: raw.gearStaged || (/^[1-9]$/.test(String(raw.gear)) ? 'D' + raw.gear : raw.gear) || dash,
+            oilp: has(oilP) ? U.pressText(oilP, true) : dash,
+            boostTarget: has(raw.boostTargetBar) ? U.pressText(raw.boostTargetBar) : dash,
+            pedal: has(raw.pedalPct) ? String(Math.round(raw.pedalPct)) : dash,
+            throttle: has(raw.throttlePct) ? String(Math.round(raw.throttlePct)) : dash,
+            timing: has(raw.timingDeg) ? (Math.abs(raw.timingDeg) < 10 ? raw.timingDeg.toFixed(1) : String(Math.round(raw.timingDeg))) : dash,
+            /* the fuel rail's in whole figures (200 bar, 2900 psi); the supply's as boost */
+            hpfp: has(raw.hpfpBar) ? String(Math.round(U.pressIn(raw.hpfpBar))) : dash,
+            lpfp: has(raw.lpfpBar) ? U.pressText(raw.lpfpBar) : dash,
+            fuel: has(fuel) ? String(Math.round(fuel)) : dash,
+            /* the drive battery's power (eDrive Live's), + out of it */
+            kw: has(raw.kw) ? (raw.kw > 0.05 ? '+' : '') + (Math.abs(raw.kw) < 10 ? raw.kw.toFixed(1) : String(Math.round(raw.kw))) : dash,
+            /* this drive's (src/car/drive.js): the peaks, the 0-60 mph (0-100 km/h) time, the last upshift's rpm */
+            boostPeak: has(raw.drivePeakBoostBar) ? U.pressText(raw.drivePeakBoostBar) : dash,
+            powerPeak: has(raw.powerPeakKw) ? String(Math.round(U.powerIn(raw.powerPeakKw))) : dash,
+            zero100: has(U.speed === 'mph' ? raw.zero60S : raw.zero100S) ? (U.speed === 'mph' ? raw.zero60S : raw.zero100S).toFixed(1) : dash,
+            lastShift: raw.lastShift && has(raw.lastShift.rpm) ? String(raw.lastShift.rpm) : dash
         };
 
         var clockText = dash, clockHalf = '';
@@ -281,7 +300,11 @@
                    volts: has(raw.batteryV) ? raw.batteryV : null, socPct: soc, hvC: hvC,
                    gearboxC: has(raw.gearboxC) ? raw.gearboxC : null,
                    pedalPct: has(raw.pedalPct) ? raw.pedalPct : null, throttlePct: has(raw.throttlePct) ? raw.throttlePct : null,
-                   timingDeg: has(raw.timingDeg) ? raw.timingDeg : null } : null,
+                   timingDeg: has(raw.timingDeg) ? raw.timingDeg : null,
+                   torqueNm: has(raw.torqueNm) ? raw.torqueNm : null,
+                   powerKw: has(raw.torqueNm) && has(raw.rpm) ? Math.max(0, raw.torqueNm * raw.rpm / 9549) : null,
+                   hpfpBar: has(raw.hpfpBar) ? raw.hpfpBar : null, lpfpBar: has(raw.lpfpBar) ? raw.lpfpBar : null,
+                   fuelPct: has(fuel) ? fuel : null } : null,
             info: info
         };
     }

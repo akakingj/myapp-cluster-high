@@ -261,13 +261,15 @@ const DESIGNS = [
 ];
 /*
  * Each style's places on the CLUSTER page, as AK Cluster Layouts' readouts: what shows where (the settings of its
- * own tab that say so). A place is offered while its setting is (its "when").
+ * own tab that say so). A place is offered while its setting is (its "when"). The readings' places - the footers, the
+ * gauges, the gauge rows and strips - are set here alone ("page": not on a tab, nor in the head unit's settings list).
  */
 const PLACES = {
-    toro: ['tCentre', 'tCentreSize', 'gearPlace', 'showBoost', 'showAuxLeft', 'electricGauge', 'modeLabel', 'shiftStyle'],
+    toro: ['tCentre', 'tCentreSize', 'gearPlace', 'showBoost', 'showAuxLeft', 'electricGauge', 'modeLabel', 'shiftStyle',
+        'gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2'],
     track: ['mCentre', 'mCentreSize', 'mGear', 'mSpeed2', 'mFootL', 'mFootM', 'mFootR', 'mPanel'],
     mplus: ['pCentre', 'pCentreSize', 'pGear', 'pSpeed2', 'pFootL', 'pFootM', 'pFootR', 'pPanel'],
-    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kFootL', 'kFootM', 'kFootR']
+    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR']
 };
 /* the page's pictures (kit/record.js setImage): the big one, and each design's card (+ its index) */
 const IMG_BIG = 0x49443801, IMG_CARD = 0x49443810;
@@ -348,8 +350,8 @@ mgu.run({
             return centreOptions(st).indexOf(v) >= 0 ? v : 'off';
         };
         /* a setting is offered on its tab whatever style is in use: its other conditions still hold */
-        function offered(s) {
-            if (!s || s.hidden) return false;
+        function offered(s, onPage) {
+            if (!s || (s.hidden && !(onPage && s.page))) return false;
             const w = s.when || {};
             return Object.keys(w).every((k) => k === 'style' || [].concat(w[k]).indexOf(settings.get(k)) >= 0);
         }
@@ -562,7 +564,7 @@ mgu.run({
             label(lowered(st) ? tr('BMW strip hidden') + ': ' + lowered(st) + ' ' + tr('px lower (BETA)') : tr(status), RX + RW, top + 40, 18,
                 statusColour(status), { align: 'right', font: SK7 ? undefined : 'bold', done: true });
             fitLabel(D.sub, RX, top + 68, 18, RW, DIM);
-            const keys = (PLACES[st] || []).map((k) => settings.item(k)).filter((s) => s && offered(s));
+            const keys = (PLACES[st] || []).map((k) => settings.item(k)).filter((s) => s && offered(s, true));
             const COLS = keys.length <= 6 ? 2 : 3, gap = 10;
             const CW = (RW - gap * (COLS - 1)) / COLS, CH = 54;
             const rowsRoom = Math.max(1, Math.floor((cardsY - 12 - (top + 84) + 8) / (CH + 8)));

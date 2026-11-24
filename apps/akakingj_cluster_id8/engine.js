@@ -75,6 +75,12 @@ var CANDIDATES = {
         c({ obd: '70', bytes: 2, at: 3, factor: 0.03125, min: 20, max: 600 }),
         c({ obd: '0B', bytes: 1, factor: 1, min: 20, max: 255 })
     ],
+    /* the boost the engine unit asks for, absolute, kPa (taken over the same barometer) */
+    boostTarget: [
+        c({ did: '4AB0', bytes: 2, factor: 0.00390625, min: 20, max: 400 }),
+        c({ did: 'F470', bytes: 2, at: 1, factor: 0.03125, min: 20, max: 600 }),
+        c({ obd: '70', bytes: 2, at: 1, factor: 0.03125, min: 20, max: 600 })
+    ],
     baro: [
         c({ did: 'F433', bytes: 1, factor: 1, min: 50, max: 115 }),
         c({ obd: '33', bytes: 1, factor: 1, min: 50, max: 115 })
@@ -90,6 +96,19 @@ var CANDIDATES = {
         c({ did: '4600', bytes: 2, signed: true, factor: 0.0078125, min: -2, max: 102 }),
         c({ did: '5858', bytes: 2, signed: true, factor: 0.0078125, min: -2, max: 102 }),
         c({ obd: '11', bytes: 1, factor: 100 / 255, min: 0, max: 101 })
+    ],
+    /* the fuel rail (direct injection) over atmosphere, bar */
+    hpfp: [
+        c({ did: 'F423', bytes: 2, factor: 0.1, min: 0, max: 500 }),
+        c({ did: 'F459', bytes: 2, factor: 0.1, offset: -1, min: 0, max: 500 }),
+        c({ obd: '23', bytes: 2, factor: 0.1, min: 0, max: 500 })
+    ],
+    /* the low-pressure supply, bar */
+    lpfp: [
+        c({ did: 'F40A', bytes: 1, factor: 0.03, min: 0.5, max: 8 }),
+        c({ did: 'F422', bytes: 2, factor: 0.00079, min: 0.5, max: 15 }),
+        c({ obd: '0A', bytes: 1, factor: 0.03, min: 0.5, max: 8 }),
+        c({ obd: '22', bytes: 2, factor: 0.00079, min: 0.5, max: 15 })
     ],
     /* the ignition angle, degrees before top dead centre */
     timing: [
@@ -110,7 +129,8 @@ function isStandard(x) { return !!x.obd || /^F4/i.test(String(x.did)); }
 var STANDARD = {};
 Object.keys(CANDIDATES).forEach(function (name) { STANDARD[name] = CANDIDATES[name].filter(isStandard); });
 /* the candidates each reading is read through, first to last (boost and oil are taken over a second one) */
-var LISTS = { boost: 'boostAbs', oil: 'oilAbs', iat: 'iat', volts: 'volts', pedal: 'pedal', throttle: 'throttle', timing: 'timing' };
+var LISTS = { boost: 'boostAbs', boostTarget: 'boostTarget', oil: 'oilAbs', iat: 'iat', volts: 'volts', pedal: 'pedal', throttle: 'throttle',
+              timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp' };
 
 /*
  * The readings: how often each is asked while it is shown, and how long a
@@ -124,9 +144,12 @@ var READINGS = {
     volts: { everyMs: 5000, keepMs: 21000, words: 'battery' },
     pedal: { everyMs: 250, keepMs: 1500, words: 'accelerator pedal' },
     throttle: { everyMs: 250, keepMs: 1500, words: 'throttle' },
-    timing: { everyMs: 500, keepMs: 2500, words: 'ignition timing' }
+    timing: { everyMs: 500, keepMs: 2500, words: 'ignition timing' },
+    boostTarget: { everyMs: 500, keepMs: 2500, words: 'boost target' },
+    hpfp: { everyMs: 1000, keepMs: 5000, words: 'high fuel pressure' },
+    lpfp: { everyMs: 2000, keepMs: 9000, words: 'low fuel pressure' }
 };
-var ORDER = ['boost', 'oil', 'iat', 'volts', 'pedal', 'throttle', 'timing'];
+var ORDER = ['boost', 'oil', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp'];
 var SLOW_MS = 60000;          /* ambient pressure and the barometer: once a minute */
 var MISS_LIMIT = 3;           /* answers missed in a row before a reading goes quiet */
 var RETRY_MS = 60000;         /* ... and is then asked this often */
@@ -237,6 +260,17 @@ function create(opts) {
         pedal: function (rd) { return rd.value(nameOf('pedal'), list('pedal')).then(pct); },
         throttle: function (rd) { return rd.value(nameOf('throttle'), list('throttle')).then(pct); },
         timing: function (rd) { return rd.value(nameOf('timing'), list('timing')); },
+        hpfp: function (rd) { return rd.value(nameOf('hpfp'), list('hpfp')); },
+        lpfp: function (rd) { return rd.value(nameOf('lpfp'), list('lpfp')); },
+        boostTarget: function (rd, now) {
+            var first = now - baro.at > SLOW_MS ? rd.value(nameOf('baro'), list('baro')) : Promise.resolve(null);
+            return Promise.resolve(first).then(function (b) {
+                if (known(b)) { baro.value = b; baro.at = now; }
+                return rd.value(nameOf('boostTarget'), list('boostTarget'));
+            }).then(function (abs) {
+                return known(abs) ? Math.max(0, (abs - baro.value) / 100) : null;       /* bar over atmosphere */
+            });
+        },
         boost: function (rd, now) {
             var first = now - baro.at > SLOW_MS ? rd.value(nameOf('baro'), list('baro')) : Promise.resolve(null);
             return Promise.resolve(first).then(function (b) {
@@ -297,7 +331,8 @@ function create(opts) {
 
     return {
         /*
-         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost, pedal, throttle, timing }, diesel }.
+         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost, pedal, throttle, timing, boostTarget, hpfp, lpfp },
+         * diesel }.
          * allowed is the service's whole say-so (see the top of this file);
          * needs is what the style on the cluster is showing; diesel is the
          * owner's "Engine" setting (only the standard identifiers are asked).
@@ -333,7 +368,8 @@ function create(opts) {
         values: function (now) {
             function fresh(k) { var j = jobs[k]; return known(j.value) && now - j.at <= READINGS[k].keepMs ? j.value : undefined; }
             return { oilBar: fresh('oil'), iatC: fresh('iat'), batteryV: fresh('volts'), boostBar: fresh('boost'),
-                     pedalPct: fresh('pedal'), throttlePct: fresh('throttle'), timingDeg: fresh('timing') };
+                     pedalPct: fresh('pedal'), throttlePct: fresh('throttle'), timingDeg: fresh('timing'),
+                     boostTargetBar: fresh('boostTarget'), hpfpBar: fresh('hpfp'), lpfpBar: fresh('lpfp') };
         },
         /* for the app's page: { state, have: [words], missing: [words] } */
         info: function (needs, now) {
@@ -377,7 +413,7 @@ var INTERFACE = {
         _instances: 'SystemFunctionsInternalTasuInst1',
         _methods: ['sendTasuRequest'],
         _broadcasts: ['sendTasuResponse'],
-        _optional: 'Oil pressure, intake air temperature and battery voltage read from the engine unit (read only), for cars without BeeM-Flash'
+        _optional: 'Oil pressure, intake air temperature, battery voltage, fuel pressures and the boost target read from the engine unit (read only), for cars without BeeM-Flash'
     }
 };
 

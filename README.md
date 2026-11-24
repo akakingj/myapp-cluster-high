@@ -113,8 +113,14 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
   the holiday theme, the start-up message.
 - **TORO / M SPORT / M SPORT PLUS / M TRACK**: each style's own — what
   its middle (or M Track Mode's left wing) shows and how much of it,
-  colours, the gear (Toro: D1, S1, M1), the gauge rows and strips, Toro's four side gauges, the footer's
-  readings.
+  colours, the gear (Toro: D1, S1, M1).
+- **The readings' places are on the CLUSTER page** (AK 0.17.0): the footer's three, Toro's four side gauges, M Track
+  Mode's gauge rows and strips — a press on the place lists its readings. They offer the same readings as AK Cluster
+  Layouts' places: a footer the rpm, the speed in the other unit, the gear, boost, its target and this drive's peak,
+  engine power and this drive's peak, torque, oil temperature and pressure, coolant, gearbox oil, intake air, pedal,
+  throttle, ignition timing, the fuel rail's and the supply's pressures, the battery's voltage, the fuel, a drive
+  battery's charge, temperature and power, the electric range, the trip computer, the odometer, the 0-60 mph
+  (0-100 km/h) time and the last upshift's rpm; a gauge, row or strip any of them that has a scale.
   **km/h only** in an M style: *GENERAL → Units → km/h*, then on the
   style's tab *Second speed underneath → One speed only* (the M View
   otherwise shows mph and km/h together).
@@ -169,10 +175,11 @@ Everything on it is your car's live figures, in the units you chose.
 
 - **Four gauge rows** in the left wing. As they come they are BMW's own
   four: turbo boost, coolant, oil temperature and intake air. On the
-  **M TRACK** tab, *Gauge row 1 (top)* … *Gauge row 4 (bottom)* give each
+  **CLUSTER** page, *Gauge row 1 (top)* … *Gauge row 4 (bottom)* give each
   row another reading — oil pressure, the gearbox oil, battery voltage,
-  the accelerator pedal, the throttle, the ignition angle, a drive
-  battery's charge or temperature — or leave it out.
+  the accelerator pedal, the throttle, the ignition angle, the engine's
+  power or torque, the fuel pressures, the fuel, a drive battery's charge
+  or temperature — or leave it out.
 - **A row shows its reading as a small mark on its rail.** That is as much
   as the photograph gives away (it was taken with the car idling). If the
   marks are too small to read at a glance: *Gauge rows: the reading shows
@@ -297,8 +304,8 @@ BMW's cluster draws a black box in the rev dial instead. Warning lamps
 still show over the covered strip.
 
 With the strip hidden, the M styles' footer can carry what it showed:
-**M SPORT**, **M SPORT PLUS** or **M TRACK** tab → *Footer, left / middle /
-right* (time, range, outside temperature and more), and on the first two
+the **CLUSTER** page → *Footer, left / middle / right* (time, range,
+outside temperature and more), and on the M SPORT and M SPORT PLUS tabs
 *The gear's place shows* if you would rather not see the gear twice.
 
 ![BMW's bottom strip at each setting](docs/screenshots/strip.png)

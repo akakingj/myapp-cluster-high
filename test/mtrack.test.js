@@ -35,6 +35,12 @@ const state = (t, raw, over) => Object.assign(State.present(raw || {}, t.profile
 const RAW = { rpm: 3000, speedKmh: 120, gear: '4', driveMode: 'SPORT', fuelPct: 40, oilTempC: 100, coolantC: 92,
               boostBar: 0.8, iatC: 30, oilPressBar: 4.2, batteryV: 14.1, rangeKm: 402, ambientC: 21.0, clock: { h: 19, m: 2 } };
 const OPEN = { mode: 'map', open: 1, maneuver: null };
+/* the readings Cluster Layouts' places offer too (src/car/drive.js and the engine unit's), and how a footer says them (metric) */
+const MORE = { boostTargetBar: 1.1, hpfpBar: 200, lpfpBar: 5.2, pedalPct: 35, throttlePct: 40, timingDeg: 12.5, kw: -12.4,
+               drivePeakBoostBar: 1.35, powerPeakKw: 250, zero100S: 5.1, zero60S: 4.8, lastShift: { from: 2, to: 3, rpm: 6200 } };
+const MORE_SAYS = { speed2: '75mph', gear: 'D4', boostTarget: 'TGT1.10bar', boostPeak: 'PEAK1.35bar', powerPeak: 'PEAK335hp',
+                    oilp: 'OILP4.2bar', pedal: 'PEDAL35%', throttle: 'THR40%', timing: 'IGN13°', hpfp: 'HPFP200bar', lpfp: 'LPFP5.20bar',
+                    fuel: 'FUEL40%', kw: 'KW-12', zero100: '0-1005.1s', lastShift: 'SHIFT6200rpm' };
 
 /* ---- reading a text layer back: which characters, and where ---- */
 const GLYPH_AT = new Map();
@@ -476,9 +482,12 @@ test('each row can be given any reading, or left out: its figures, unit, symbol 
     assert.ok(Math.abs(u.u_val[0] - 0.42) < 1e-9 && Math.abs(u.u_val[1] - (14.1 - 10) / 6) < 1e-9 && u.u_val[2] === -1 &&
         Math.abs(u.u_val[3] - 0.78) < 1e-9);
     /* the engine unit is asked only for what a row or the footer shows */
-    assert.deepStrictEqual(t.shows, { oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false });
-    assert.deepStrictEqual(build().shows, { oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false });
-    assert.deepStrictEqual(build({ kRow1: 'off', kRow4: 'off', kFootR: 'iat' }).shows, { oil: false, boost: false, iat: true, volts: false, pedal: false, throttle: false, timing: false });
+    const NONE = { boostTarget: false, hpfp: false, lpfp: false };
+    assert.deepStrictEqual(t.shows, Object.assign({ oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false }, NONE));
+    assert.deepStrictEqual(build().shows, Object.assign({ oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false }, NONE));
+    assert.deepStrictEqual(build({ kRow1: 'off', kRow4: 'off', kFootR: 'iat' }).shows, Object.assign({ oil: false, boost: false, iat: true, volts: false, pedal: false, throttle: false, timing: false }, NONE));
+    assert.deepStrictEqual(build({ kRow1: 'hpfp', kRow2: 'power', kFootL: 'boostTarget', kFootM: 'boostPeak' }).shows,
+        { oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false, boostTarget: true, hpfp: true, lpfp: false });
     /* all four left out: no rows at all */
     const none = build({ kRow1: 'off', kRow2: 'off', kRow3: 'off', kRow4: 'off' });
     assert.ok(!none.layers.some((L) => /^row/.test(L.id)));
@@ -509,10 +518,10 @@ test('the state carries each reading as a number, in the car\'s own units - for 
     const N = { numbers: true };
     const st = State.present(RAW, PROFILE, N);
     assert.deepStrictEqual(st.num, { boostBar: 0.8, coolantC: 92, oilC: 100, iatC: 30, oilBar: 4.2, volts: 14.1, socPct: null, hvC: null, gearboxC: null,
-        pedalPct: null, throttlePct: null, timingDeg: null });
+        pedalPct: null, throttlePct: null, timingDeg: null, torqueNm: null, powerKw: null, hpfpBar: null, lpfpBar: null, fuelPct: 40 });
     assert.deepStrictEqual(State.present({}, PROFILE, N).num,
         { boostBar: null, coolantC: null, oilC: null, iatC: null, oilBar: null, volts: null, socPct: null, hvC: null, gearboxC: null,
-          pedalPct: null, throttlePct: null, timingDeg: null });
+          pedalPct: null, throttlePct: null, timingDeg: null, torqueNm: null, powerKw: null, hpfpBar: null, lpfpBar: null, fuelPct: null });
     const ev = State.present({ socPct: 64, hvTempC: 26 }, PROFILE, { electric: 'bev', numbers: true }).num;
     assert.deepStrictEqual([ev.socPct, ev.hvC], [64, 26]);
     assert.deepStrictEqual(State.present({ socPct: 64, hvTempC: 26 }, PROFILE, N).num.socPct, null, 'not unless electric range is on');
@@ -840,11 +849,11 @@ test('the footer: the time, the range and the outside temperature as the frame h
 
 test('the footer\'s three places: each can hold any reading the M styles\' footers can, or nothing', () => {
     assert.deepStrictEqual(spec.settings.find((s) => s.key === 'kFootL').options.map((o) => o[0]), Readings.KINDS);
-    const raw = Object.assign({}, RAW, { avgL100: 9.6, evRangeKm: 43, socPct: 78, hvTempC: 26, gearboxC: 70, torqueNm: 300, tripKm: 123.4, tripMin: 95, odoKm: 12345 });
-    const want = { time: '19:02', range: 'r402km', economy: '9.6l/100km', outside: '+21.0°C', iat: 'IAT30°C', rpm: '3000rpm',
+    const raw = Object.assign({}, RAW, { avgL100: 9.6, evRangeKm: 43, socPct: 78, hvTempC: 26, gearboxC: 70, torqueNm: 300, tripKm: 123.4, tripMin: 95, odoKm: 12345 }, MORE);
+    const want = Object.assign({ time: '19:02', range: 'r402km', economy: '9.6l/100km', outside: '+21.0°C', iat: 'IAT30°C', rpm: '3000rpm',
                    oil: 'OIL100°C', coolant: 'WATER92°C', boost: 'BOOST0.80bar', volts: 'BATT14.1v',
                    erange: 'EV43km', charge: 'CHARGE78', hvtemp: 'BATT26°C',
-                   gearbox: 'TRANS70°C', torque: 'TQ31kgm', power: 'PWR126hp', trip: 'TRIP123.4km', tripTime: 'TIME1:35h', odo: 'ODO12345km' };
+                   gearbox: 'TRANS70°C', torque: 'TQ31kgm', power: 'PWR126hp', trip: 'TRIP123.4km', tripTime: 'TIME1:35h', odo: 'ODO12345km' }, MORE_SAYS);
     for (const place of ['L', 'M', 'R']) for (const kind of Readings.KINDS) {
         const t = build({ units: 'metric', electric: 'hybrid', ['kFoot' + place]: kind });
         const st = state(t, raw), n = 'foot' + place;

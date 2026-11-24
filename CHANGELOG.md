@@ -13,6 +13,22 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.17.0
+
+- **Every reading the car gives, the same set as AK Cluster Layouts' places.** A footer place (M Sport, M Sport Plus,
+  M Track Mode) offers the rpm, the speed in the other unit, the gear (D4), boost, the **boost target** and this
+  drive's **peak boost**, engine power and this drive's **peak power**, torque, oil temperature and **oil pressure**,
+  coolant, gearbox oil, intake air, **pedal**, **throttle**, **ignition timing**, the **fuel rail's and the supply's
+  pressures**, the battery's voltage, the **fuel**, a drive battery's charge, temperature and **power**, the electric
+  range, the trip computer, the odometer, the **0-60 mph (0-100 km/h) time** and the **last upshift's rpm**. Toro's
+  side gauges and M Track Mode's gauge rows and strips offer every one of them with a scale (the **engine's power
+  and torque**, the **fuel pressures**, the **fuel** and the **drive battery** among them).
+- **The readings' places are set on the CLUSTER page alone**: the footers, Toro's side gauges, M Track Mode's rows and
+  strips are no longer rows of the style tabs nor of the head unit's settings list.
+- The engine unit is asked for the boost target (`4AB0`, `F470`, `OBD 70`), the fuel rail (`F423`, `F459`, `OBD 23`)
+  and the supply (`F40A`, `F422`, `OBD 0A`, `OBD 22`) only while a place shows them, as Cluster Layouts reads them
+  (docs/ENGINE-READINGS.md); a diesel the standard forms alone.
+
 ## AK 0.16.1
 
 - **GENERAL → Car → Plug-in hybrid is a plug-in hybrid's Electric range too** while that is on *Automatic*, as Cluster

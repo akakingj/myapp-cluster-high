@@ -370,6 +370,9 @@ function start(host, deps) {
                     reader.setFeed('pedalPct', ev.pedalPct, now());
                     reader.setFeed('throttlePct', ev.throttlePct, now());
                     reader.setFeed('timingDeg', ev.timingDeg, now());
+                    reader.setFeed('boostTargetBar', ev.boostTargetBar, now());
+                    reader.setFeed('hpfpBar', ev.hpfpBar, now());
+                    reader.setFeed('lpfpBar', ev.lpfpBar, now());
                 }
                 /* (the reader uses it only while the Sport Display sends no boost of its own) */
                 reader.setBoostBar(ev.boostBar, now());
@@ -423,6 +426,7 @@ function start(host, deps) {
             var shows = (theme && theme.shows) || {};
             needs = { oil: !!shows.oil, iat: !!shows.iat, volts: !!shows.volts,
                       pedal: !!shows.pedal || powerable, throttle: !!shows.throttle, timing: !!shows.timing,
+                      boostTarget: !!shows.boostTarget, hpfp: !!shows.hpfp, lpfp: !!shows.lpfp,
                       boost: !!shows.boost && !reader.hasBusBoost(now(), BUS_BOOST_MS) };
             var runs = typeof raw.rpm === 'number' && raw.rpm >= ENGINE_RUNS_RPM;
             if (runs) engineRanAt = now();

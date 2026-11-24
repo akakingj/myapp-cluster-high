@@ -91,7 +91,7 @@ test('every identifier asked is in the table of where it is published, and the t
     rows.forEach((l) => {
         const cells = l.split('|').map((x) => x.trim());
         const id = /`((?:DID|OBD) [0-9A-F]{2,4})`/.exec(cells[2])[1];
-        assert.ok(cells[4].length > 20 && /SAE J1979|ALMSTRA\/idv7lol|cauliflowermossgrape\/idrive7-apps|ZEKAI-Design\/ID7-Cluster-Themes|MGU App Kit/.test(cells[4]),
+        assert.ok(cells[4].length > 20 && /SAE J1979|ALMSTRA\/idv7lol|cauliflowermossgrape\/idrive7-apps|ZEKAI-Design\/ID7-Cluster-Themes|eroobeeroo\/idrive7-cluster-info|MGU App Kit/.test(cells[4]),
             id + ' has no published source beside it');
         assert.ok(!/BeeM/i.test(cells[4]), id + ' is credited to BeeM-Flash: it must not be here');
         listed[id] = cells[4];
@@ -100,7 +100,7 @@ test('every identifier asked is in the table of where it is published, and the t
     const ids = Engine.identifiers();
     Object.keys(ids).forEach((name) => ids[name].forEach((id) => { asked[id] = true; }));
     assert.deepStrictEqual(Object.keys(asked).sort(), Object.keys(listed).sort());
-    assert.strictEqual(Object.keys(asked).length, 23);
+    assert.strictEqual(Object.keys(asked).length, 31);
     /* and the kit's own guard takes every one of them for a read, of the engine unit and nothing else */
     Object.keys(Engine.CANDIDATES).forEach((name) => Engine.CANDIDATES[name].forEach((cand) => {
         assert.strictEqual(cand.ecu, 0x12, name);
@@ -114,7 +114,7 @@ test('the readings, decoded: oil pressure over ambient, intake air, battery, boo
     const c = car(B58), logs = [], o = opener(c, logs), clock = { t: 1000000 };
     const e = Engine.create({ open: o.open, log: o.log, now: () => clock.t });
     assert.deepStrictEqual(e.values(clock.t), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
-        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined });
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined });
     assert.ok(await run(e, clock, { allowed: true, needs: ALL }, () => {
         const v = e.values(clock.t);
         return v.oilBar !== undefined && v.iatC !== undefined && v.batteryV !== undefined && v.boostBar !== undefined;
@@ -135,6 +135,29 @@ test('the readings, decoded: oil pressure over ambient, intake air, battery, boo
     assert.strictEqual(o.made(), 1, 'one link, made once');
     assert.ok(logs.some((l) => /oil pressure from the engine unit \(4436\)/.test(l)), logs.join(' | '));
     assert.deepStrictEqual(e.info(ALL, clock.t).have.sort(), ['battery', 'boost', 'intake air', 'oil pressure']);
+});
+
+test('the boost target over the barometer and the fuel pressures, as Cluster Layouts reads them, only while shown', async () => {
+    const answers = Object.assign({}, B58, {
+        '22 4AB0': be(Math.round(180 / 0.00390625), 2),     /* 180 kPa absolute: 0.8 bar over 100 */
+        '22 F423': be(2000, 2),                              /* 200.0 bar */
+        '22 F40A': [170]                                     /* 5.1 bar */
+    });
+    const c = car(answers), logs = [], o = opener(c, logs), clock = { t: 1000000 };
+    const e = Engine.create({ open: o.open, log: o.log, now: () => clock.t });
+    const needs = { boostTarget: true, hpfp: true, lpfp: true };
+    assert.ok(await run(e, clock, { allowed: true, needs }, () => {
+        const v = e.values(clock.t);
+        return v.boostTargetBar !== undefined && v.hpfpBar !== undefined && v.lpfpBar !== undefined;
+    }), logs.join(' | '));
+    const v = e.values(clock.t);
+    assert.ok(Math.abs(v.boostTargetBar - 0.8) < 0.001, 'target ' + v.boostTargetBar);
+    assert.ok(Math.abs(v.hpfpBar - 200) < 1e-9);
+    assert.ok(Math.abs(v.lpfpBar - 5.1) < 1e-9);
+    assert.strictEqual(v.oilBar, undefined, 'oil pressure not shown: not asked');
+    assert.ok(!c.sent.some((r) => r.key === '22 4436'));
+    assert.deepStrictEqual(e.info(needs, clock.t).have.sort(), ['boost target', 'high fuel pressure', 'low fuel pressure']);
+    e.stop();
 });
 
 test('an engine unit that refuses BMW\'s identifiers is asked the standard ones, and the one that answers is kept', async () => {
@@ -281,7 +304,7 @@ test('no diagnostic link on the head unit: said once, tried again a minute later
     const none = Engine.create({ now: () => 0 });
     none.tick(0, { allowed: true, needs: ALL });
     assert.deepStrictEqual(none.values(0), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
-        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined });
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined });
     e.stop(); none.stop();
 });
 

@@ -2714,3 +2714,13 @@ Left lower gauge	왼쪽 아래 게이지
 Right upper gauge	오른쪽 위 게이지
 Right lower gauge	오른쪽 아래 게이지
 Automatic: a plug-in hybrid once the car shows it is one	자동: 차가 플러그인 하이브리드로 확인되면 켜짐
+0-100 km/h (0-60 mph) time	0-100 km/h (0-60 mph) 기록
+Boost target	목표 부스트
+Drive battery power	구동 배터리 출력
+Gear (D / S / M and its number)	기어 (D / S / M과 단수)
+Last upshift (rpm)	마지막 업시프트 (rpm)
+Peak boost (this drive)	최고 부스트 (이번 주행)
+Peak engine power (this drive)	최고 엔진 출력 (이번 주행)
+Speed in the other unit (km/h with mph, mph with km/h)	다른 단위 속도 (mph면 km/h, km/h면 mph)
+Fuel pressure: high (injection rail)	연료 압력: 고압 (인젝션 레일)
+Fuel pressure: low (supply)	연료 압력: 저압 (공급)

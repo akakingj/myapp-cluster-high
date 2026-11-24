@@ -212,7 +212,6 @@
         S.mLines = settings && settings.mLines === 'keep' ? 'keep' : 'fade';
         var linesFade = !plus && S.mLines === 'fade' &&
             (S.centre === 'waze' || S.centre === 'map' || S.centre === 'camera');
-        function footShows(kind) { return S.footL === kind || S.footM === kind || S.footR === kind; }
         var fixture = !!(settings && settings.mFixture);
         /* the units shown (S.u, units.js): the speed's, and the temperatures' */
         var kmh = S.u.speed === 'kmh', celsius = S.u.temp === 'c';
@@ -631,23 +630,25 @@
         function place(name, kind, at) {
             var R = READINGS[kind];
             if (!R) return;
+            /* (the figures' and the unit's faces: the footer's own, or the reading's) */
+            var FF = R.face || 'mn', UF = R.unitFace || 'ms';
             var b = at.box, size = fig(FOOT_H);
             function figures(s) { var v = R.value(s); return v === null ? (R.tag ? '--' : null) : String(v); }
             function unitOf(s) { return typeof R.unit === 'function' ? R.unit(s) : R.unit; }
             var tagW = R.tag ? Text.measure(atlas, 'mb', R.tag, fig(TAG_H), 0) / SC : 0;
             if (at.right) {
                 /* the unit starts where the frame's does; the figures end before it */
-                txt(name, 30, b, { face: 'mn', size: size, align: 'right', x: X(at.x + 0.075 * FOOT_H), y: Y(at.y),
+                txt(name, 30, b, { face: FF, size: size, align: 'right', x: X(at.x + 0.075 * FOOT_H), y: Y(at.y),
                                    color: K.soft }, figures);
                 dyn(name + 'Unit', 30, b, function (s) {
                     if (figures(s) === null || !unitOf(s)) return null;
-                    return { str: unitOf(s), face: 'ms', size: words(26.1), x: X(at.x + 7.7), y: Y(at.y + 1.0), color: K.soft };
+                    return { str: unitOf(s), face: UF, size: words(26.1), x: X(at.x + 7.7), y: Y(at.y + 1.0), color: K.soft };
                 });
                 if (R.tag) {
                     dyn(name + 'Tag', 30, b, function (s) {
                         var v = figures(s);
                         if (v === null) return null;
-                        var w = Text.measure(atlas, 'mn', v, size, 0);
+                        var w = Text.measure(atlas, FF, v, size, 0);
                         return { str: R.tag, face: 'mb', size: fig(TAG_H), align: 'right',
                                  x: X(at.x) - w - TAG_GAP * SC, y: Y(at.y), color: K.unit2 };
                     });
@@ -656,7 +657,7 @@
                     dyn(name + 'Icon', 30, b, function (s) {
                         var v = figures(s);
                         if (v === null) return null;
-                        var w = Text.measure(atlas, 'mn', v, size, 0);
+                        var w = Text.measure(atlas, FF, v, size, 0);
                         return { str: R.icon, face: 'mi', size: 32 * SC, x: X(at.x) - w - 43.0 * SC, y: Y(at.y - 25.0),
                                  color: K.soft };
                     });
@@ -669,12 +670,12 @@
                 statics(name + 'Tag', 30, b, { face: 'mb', size: fig(TAG_H), align: 'left', color: K.unit2 },
                     [{ str: R.tag, x: X(at.x), y: Y(at.y) }]);
             }
-            txt(name, 30, b, { face: 'mn', size: size, align: 'left', x: X(pen), y: Y(at.y), color: K.soft }, figures);
+            txt(name, 30, b, { face: FF, size: size, align: 'left', x: X(pen), y: Y(at.y), color: K.soft }, figures);
             dyn(name + 'Unit', 30, b, function (s) {
                 var v = figures(s);
                 if (v === null || !unitOf(s)) return null;
-                var w = Text.measure(atlas, 'mn', v, size, 0);
-                return { str: unitOf(s), face: 'ms', size: words(25.5), x: X(pen) + w + UNIT_GAP * SC, y: Y(at.y - 0.6),
+                var w = Text.measure(atlas, FF, v, size, 0);
+                return { str: unitOf(s), face: UF, size: words(25.5), x: X(pen) + w + UNIT_GAP * SC, y: Y(at.y - 0.6),
                          color: K.soft };
             });
         }
@@ -854,7 +855,7 @@
                  slot: plus ? slot : null,
                  /* readings shown that the car's bus may not carry (see Toro's): here only
                     what the footer's places hold */
-                 shows: { oil: false, boost: footShows('boost'), iat: footShows('iat'), volts: footShows('volts') },
+                 shows: Readings.shows([S.footL, S.footM, S.footR]),
                  /* the fullest window's pads, or the widest's four (null: another window) */
                  pads: pads,
                  /* the widest window's field: the picture's rectangle on the artboard, to the field's foot (null: another window) */

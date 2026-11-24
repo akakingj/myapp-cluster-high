@@ -723,9 +723,20 @@ test('each of the four side gauges can be given a reading or nothing; auto keeps
     const set = { units: 'metric', gaugeL1: 'gearbox', gaugeL2: 'iat', gaugeR1: 'volts', gaugeR2: 'off' };
     const t = Theme.build(atlas, 'carprofile', set);
     assert.deepStrictEqual(ids(t), ['bar_gL1', 'bar_gL2', 'bar_gR1']);
-    assert.deepStrictEqual(t.shows, { oil: false, boost: true, iat: true, volts: true, pedal: false, throttle: false, timing: false });
+    const NONE = { boostTarget: false, hpfp: false, lpfp: false };
+    assert.deepStrictEqual(t.shows, Object.assign({ oil: false, boost: true, iat: true, volts: true, pedal: false, throttle: false, timing: false }, NONE));
     assert.deepStrictEqual(Theme.build(atlas, 'carprofile', { gaugeR1: 'oilp', gaugeR2: 'volts', showAuxLeft: false, showBoost: false }).shows,
-        { oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false });
+        Object.assign({ oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false }, NONE));
+    /* (the same readings as Cluster Layouts' gauges: the engine's power and torque, the fuel pressures, the drive battery) */
+    const more = Theme.build(atlas, 'carprofile', { units: 'metric', electric: 'hybrid', gaugeL1: 'power', gaugeL2: 'hpfp', gaugeR1: 'charge', gaugeR2: 'torque' });
+    assert.deepStrictEqual(ids(more), ['bar_gL1', 'bar_gL2', 'bar_gR1', 'bar_gR2']);
+    assert.strictEqual(more.shows.hpfp, true);
+    const mst = State.present({ rpm: 4000, torqueNm: 400, hpfpBar: 175, socPct: 8 }, profile, more.settings);
+    const mu = (id) => more.layers.find((L) => L.id === id).uniforms(mst, 0);
+    assert.ok(Math.abs(mu('bar_gL1').u_frac - 400 * 4000 / 9549 * 1.341022 / 400) < 1e-6, 'the power, hp on 0 - 400');
+    assert.ok(Math.abs(mu('bar_gL2').u_frac - 0.5) < 1e-9, 'the rail: 175 on 0 - 350 bar');
+    assert.strictEqual(mu('bar_gR1').u_alarm, 1, 'the charge low');
+    assert.ok(Math.abs(mu('bar_gR2').u_frac - 400 * 0.101972 / 60) < 1e-6, 'the torque, kgm on 0 - 60');
     const st = State.present({ gearboxC: 85, iatC: 20, batteryV: 11.5 }, profile, t.settings);
     const u = (id) => t.layers.find((L) => L.id === id).uniforms(st, 0);
     assert.ok(Math.abs(u('bar_gL1').u_frac - 0.5) < 1e-9, 'the gearbox oil: 85 on 40 - 130');

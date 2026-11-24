@@ -45,8 +45,8 @@
 <script src="../src/theme/palette.js"></script>
 <script src="../src/theme/guide.js"></script>
 <script src="../src/theme/textlayers.js"></script>
-<script src="../src/theme/lambo.js"></script>
 <script src="../src/theme/readings.js"></script>
+<script src="../src/theme/lambo.js"></script>
 <script src="../src/theme/track.js"></script>
 <script src="../src/theme/mtrack.js"></script>
 <script src="../src/theme/overlays.js"></script>
@@ -174,6 +174,14 @@
         rawNow.pedalPct = params.get('pedal') !== null ? parseFloat(params.get('pedal')) : 0;
         rawNow.driveMode = rawNow.phevMode === 'sport' ? 'SPORT' : '';
         if (rawNow.phevMode !== 'sport') rawNow.rpm = 0;
+      }
+      /* more=1: the readings Cluster Layouts' places offer too - the engine unit's boost target, fuel pressures, pedal,
+         throttle and timing, the drive battery's power, and this drive's figures (src/car/drive.js) - at fixed values */
+      if (params.get('more') === '1') {
+        rawNow = Object.assign({}, rawNow, { boostTargetBar: 1.1, hpfpBar: 200, lpfpBar: 5.2, throttlePct: 40, timingDeg: 12.5,
+          oilPressBar: 4.2, torqueNm: 300, drivePeakBoostBar: 1.35, powerPeakKw: 250, zero100S: 5.1, zero60S: 4.8,
+          lastShift: { from: 2, to: 3, rpm: 6200 } });
+        if (!params.get('phev')) { rawNow.pedalPct = 35; rawNow.kw = -12.4; }
       }
       var st = MGUState.present(rawNow, profile, theme.settings);
       if (centre) st.centre = centre;

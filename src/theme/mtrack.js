@@ -109,12 +109,18 @@
      * (in the car's own units, as the reading is). The first four are the
      * frame's, with the frame's own scales; the rest are in the same hand.
      */
-    var ROW_KINDS = ['boost', 'coolant', 'oil', 'gearbox', 'iat', 'oilp', 'volts', 'pedal', 'throttle', 'timing', 'charge', 'hvtemp', 'off'];
+    /* (the same readings AK Cluster Layouts' gauges offer) */
+    var ROW_KINDS = ['boost', 'coolant', 'oil', 'gearbox', 'iat', 'oilp', 'volts', 'pedal', 'throttle', 'timing', 'charge', 'hvtemp',
+                     'power', 'torque', 'hpfp', 'lpfp', 'fuel', 'off'];
     /* the four as they come: the frame's - or, in an electric car, what it has instead */
     var ROW_HOME = { frame: ['boost', 'coolant', 'oil', 'iat'], bev: ['charge', 'hvtemp', 'off', 'off'] };
     /* u: the units shown (units.js) */
     function rowScales(u) {
         var celsius = u.temp === 'c';
+        function unitScale(key, tag, unit, hi, show) {
+            return { key: key, icon: null, tag: tag, unit: unit, marks: ['0', String(hi / 2), String(hi)], lo: 0, hi: hi,
+                     show: show, cold: null, hot: null };
+        }
         function temp(key, icon, lo, hi, marksC, marksF, loF, hiF, cold, hot) {
             return { key: key, icon: icon, unit: u.labels.temp, marks: celsius ? marksC : marksF,
                      lo: celsius ? lo : loF, hi: celsius ? hi : hiF,
@@ -150,7 +156,15 @@
                       show: function (v) { return v; }, cold: null, hot: null },
             charge: { key: 'socPct', icon: 'c', unit: '%', unitFace: 'mx', marks: ['0', '50', '100'], lo: 0, hi: 100,
                       show: function (v) { return v; }, cold: 10, hot: null },
-            hvtemp: temp('hvC', 'h', -10, 60, ['-10', '25', '60'], ['14', '77', '140'], 14, 140, 5, 50)
+            hvtemp: temp('hvC', 'h', -10, 60, ['-10', '25', '60'], ['14', '77', '140'], 14, 140, 5, 50),
+            /* the engine's power and torque in the units shown, each by its word */
+            power: unitScale('powerKw', 'PWR', u.labels.power, { hp: 400, ps: 400, kw: 300 }[u.power] || 400, u.powerIn),
+            torque: unitScale('torqueNm', 'TQ', u.labels.torque, { nm: 600, kgm: 60, lbft: 450 }[u.torque] || 600, u.torqueIn),
+            /* the fuel rail's and the supply's pressures */
+            hpfp: Object.assign(press('hpfpBar', null, 350, ['0', '175', '350'], 5000, ['0', '2500', '5000']), { tag: 'HPFP' }),
+            lpfp: Object.assign(press('lpfpBar', null, 10, ['0', '5', '10'], 140, ['0', '70', '140']), { tag: 'LPFP' }),
+            fuel: { key: 'fuelPct', icon: null, tag: 'FUEL', unit: '%', unitFace: 'mx', marks: ['0', '50', '100'], lo: 0, hi: 100,
+                    show: function (v) { return v; }, cold: 10, hot: null }
         };
     }
 
@@ -232,7 +246,7 @@
             return ROW_KINDS.indexOf(v) >= 0 ? v : home[i];
         });
         /* the two strips right of the rev counter: the frame's oil and fuel, or a row's reading, or nothing */
-        var STRIP_KINDS = ROW_KINDS.concat(['fuel']);
+        var STRIP_KINDS = ROW_KINDS;
         S.strips = [['stripL', bev ? 'hvtemp' : 'oil'], ['stripR', 'fuel']].map(function (p) {
             var v = settings && settings[p[0]];
             return STRIP_KINDS.indexOf(v) >= 0 ? v : p[1];
@@ -245,8 +259,6 @@
         S.footL = Readings.kind(settings && settings.footL, 'time');
         S.footM = Readings.kind(settings && settings.footM, 'range');
         S.footR = Readings.kind(settings && settings.footR, 'outside');
-        function footShows(kind) { return S.footL === kind || S.footM === kind || S.footR === kind; }
-        function rowShows(kind) { return S.rows.indexOf(kind) >= 0 || S.strips.indexOf(kind) >= 0; }
 
         var layers = [];
         var TL = TextLayers.create(atlas, layers, { text: K.white, muted: K.soft });
@@ -618,11 +630,13 @@
         function place(name, kind, at) {
             var Rd = READINGS[kind];
             if (!Rd) return;
+            /* (the figures' and the unit's faces: the footer's own, or the reading's) */
+            var FF = Rd.face || 'mn', UF = Rd.unitFace || 'ms';
             var b = at.box, size = fig(FOOT_H), usize = words(UNIT_EM), tsize = fig(TAG_H);
             /* a named reading with no value shows dashes, so a place the owner filled never just goes dark */
             function figures(s) { var v = Rd.value(s); return v === null ? (Rd.tag ? '--' : null) : String(v); }
             function unitOf(s) { return typeof Rd.unit === 'function' ? Rd.unit(s) : Rd.unit; }
-            function width(s) { var k = inkSpan(atlas, 'mn', figures(s), size); return k.r - k.l; }
+            function width(s) { var k = inkSpan(atlas, FF, figures(s), size); return k.r - k.l; }
             if (at.right) {
                 /* the unit ends where the frame's does (at.x), the figures a gap before it: with the
                    frame's own unit that sets them where the frame has them, and a longer unit
@@ -630,15 +644,15 @@
                 var figEnd = function (s) {
                     var un = unitOf(s);
                     if (!un) return X(at.x);
-                    var k = inkSpan(atlas, 'ms', un, usize);
+                    var k = inkSpan(atlas, UF, un, usize);
                     return X(at.x) - (k.r - k.l) - UNIT_GAP * SC;
                 };
                 dyn(name, 30, b, function (s) {
-                    return { str: figures(s), face: 'mn', size: size, x: figEnd(s), y: Y(FOOT_Y), ink: 'r', color: K.soft };
+                    return { str: figures(s), face: FF, size: size, x: figEnd(s), y: Y(FOOT_Y), ink: 'r', color: K.soft };
                 });
                 dyn(name + 'Unit', 30, b, function (s) {
                     if (figures(s) === null || !unitOf(s)) return null;
-                    return { str: unitOf(s), face: 'ms', size: usize, x: X(at.x), y: Y(FOOT_Y), ink: 'r', color: K.soft };
+                    return { str: unitOf(s), face: UF, size: usize, x: X(at.x), y: Y(FOOT_Y), ink: 'r', color: K.soft };
                 });
                 if (Rd.tag) {
                     dyn(name + 'Tag', 30, b, function (s) {
@@ -672,11 +686,11 @@
                 pen = at.x + (tw.r - tw.l) / SC + TAG_GAP;
             }
             dyn(name, 30, b, function (s) {
-                return { str: figures(s), face: 'mn', size: size, x: X(pen), y: Y(FOOT_Y), color: K.soft };
+                return { str: figures(s), face: FF, size: size, x: X(pen), y: Y(FOOT_Y), color: K.soft };
             });
             dyn(name + 'Unit', 30, b, function (s) {
                 if (figures(s) === null || !unitOf(s)) return null;
-                return { str: unitOf(s), face: 'ms', size: usize, x: X(pen) + width(s) + UNIT_GAP * SC, y: Y(FOOT_Y), color: K.soft };
+                return { str: unitOf(s), face: UF, size: usize, x: X(pen) + width(s) + UNIT_GAP * SC, y: Y(FOOT_Y), color: K.soft };
             });
         }
         /* the frame has the time on the left, the range (after its symbol,
@@ -762,9 +776,7 @@
                  glide: S.rows.concat(S.strips).map(function (kind) { return ROW_GLIDE[kind]; })
                      .filter(function (k, i, a) { return !!k && a.indexOf(k) === i; }),
                  /* readings shown that the car's bus may not carry: what the rows and the footer hold */
-                 shows: { oil: rowShows('oilp'), boost: rowShows('boost') || footShows('boost'),
-                          iat: rowShows('iat') || footShows('iat'), volts: rowShows('volts') || footShows('volts'),
-                          pedal: rowShows('pedal'), throttle: rowShows('throttle'), timing: rowShows('timing') },
+                 shows: Readings.shows(S.rows.concat(S.strips, [S.footL, S.footM, S.footR])),
                  window: { x: win.x, y: win.y, w: win.w, h: win.h } };
     }
 

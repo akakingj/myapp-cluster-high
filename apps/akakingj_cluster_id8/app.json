@@ -2,7 +2,7 @@
   "id": "akakingj_cluster_id8",
   "title": "AK Cluster ID8",
   "vendor": "MGU-Styles",
-  "version": "0.16.1",
+  "version": "0.17.0",
   "loggingId": "AKC8",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
@@ -104,7 +104,7 @@
       "_broadcasts": [
         "sendTasuResponse"
       ],
-      "_optional": "Oil pressure, intake air temperature and battery voltage read from the engine unit (read only), for cars without BeeM-Flash"
+      "_optional": "Oil pressure, intake air temperature, battery voltage, fuel pressures and the boost target read from the engine unit (read only), for cars without BeeM-Flash"
     }
   },
   "settings": [
@@ -1960,8 +1960,8 @@
           "As the style has it"
         ],
         [
-          "fuel",
-          "Fuel"
+          "boost",
+          "Boost"
         ],
         [
           "coolant",
@@ -1972,20 +1972,16 @@
           "Oil temperature"
         ],
         [
-          "oilp",
-          "Oil pressure"
-        ],
-        [
-          "boost",
-          "Boost"
-        ],
-        [
           "gearbox",
           "Gearbox oil temperature"
         ],
         [
           "iat",
           "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
         ],
         [
           "volts",
@@ -2004,6 +2000,34 @@
           "Ignition timing"
         ],
         [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
           "off",
           "Nothing"
         ]
@@ -2011,7 +2035,9 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "tab": "toro",
+      "hidden": true,
+      "page": true
     },
     {
       "key": "gaugeL2",
@@ -2024,8 +2050,8 @@
           "As the style has it"
         ],
         [
-          "fuel",
-          "Fuel"
+          "boost",
+          "Boost"
         ],
         [
           "coolant",
@@ -2036,20 +2062,16 @@
           "Oil temperature"
         ],
         [
-          "oilp",
-          "Oil pressure"
-        ],
-        [
-          "boost",
-          "Boost"
-        ],
-        [
           "gearbox",
           "Gearbox oil temperature"
         ],
         [
           "iat",
           "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
         ],
         [
           "volts",
@@ -2068,6 +2090,34 @@
           "Ignition timing"
         ],
         [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
           "off",
           "Nothing"
         ]
@@ -2075,7 +2125,9 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "tab": "toro",
+      "hidden": true,
+      "page": true
     },
     {
       "key": "gaugeR1",
@@ -2088,8 +2140,8 @@
           "As the style has it"
         ],
         [
-          "fuel",
-          "Fuel"
+          "boost",
+          "Boost"
         ],
         [
           "coolant",
@@ -2100,20 +2152,16 @@
           "Oil temperature"
         ],
         [
-          "oilp",
-          "Oil pressure"
-        ],
-        [
-          "boost",
-          "Boost"
-        ],
-        [
           "gearbox",
           "Gearbox oil temperature"
         ],
         [
           "iat",
           "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
         ],
         [
           "volts",
@@ -2132,6 +2180,34 @@
           "Ignition timing"
         ],
         [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
           "off",
           "Nothing"
         ]
@@ -2139,7 +2215,9 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "tab": "toro",
+      "hidden": true,
+      "page": true
     },
     {
       "key": "gaugeR2",
@@ -2152,8 +2230,8 @@
           "As the style has it"
         ],
         [
-          "fuel",
-          "Fuel"
+          "boost",
+          "Boost"
         ],
         [
           "coolant",
@@ -2164,20 +2242,16 @@
           "Oil temperature"
         ],
         [
-          "oilp",
-          "Oil pressure"
-        ],
-        [
-          "boost",
-          "Boost"
-        ],
-        [
           "gearbox",
           "Gearbox oil temperature"
         ],
         [
           "iat",
           "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
         ],
         [
           "volts",
@@ -2196,6 +2270,34 @@
           "Ignition timing"
         ],
         [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
           "off",
           "Nothing"
         ]
@@ -2203,7 +2305,9 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "tab": "toro",
+      "hidden": true,
+      "page": true
     },
     {
       "key": "mCentre",
@@ -2358,40 +2462,104 @@
           "Outside temperature"
         ],
         [
-          "iat",
-          "Intake air temperature"
-        ],
-        [
           "rpm",
           "Engine speed, in figures"
         ],
         [
-          "oil",
-          "Oil temperature"
+          "speed2",
+          "Speed in the other unit (km/h with mph, mph with km/h)"
         ],
         [
-          "coolant",
-          "Coolant temperature"
+          "gear",
+          "Gear (D / S / M and its number)"
         ],
         [
           "boost",
           "Boost"
         ],
         [
-          "volts",
-          "Battery voltage"
+          "boostTarget",
+          "Boost target"
         ],
         [
-          "gearbox",
-          "Gearbox oil temperature"
+          "boostPeak",
+          "Peak boost (this drive)"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "powerPeak",
+          "Peak engine power (this drive)"
         ],
         [
           "torque",
           "Engine torque"
         ],
         [
-          "power",
-          "Engine power"
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "kw",
+          "Drive battery power"
+        ],
+        [
+          "erange",
+          "Electric range"
         ],
         [
           "trip",
@@ -2406,16 +2574,12 @@
           "Odometer"
         ],
         [
-          "erange",
-          "Electric range"
+          "zero100",
+          "0-100 km/h (0-60 mph) time"
         ],
         [
-          "charge",
-          "Drive battery charge"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
+          "lastShift",
+          "Last upshift (rpm)"
         ],
         [
           "off",
@@ -2425,7 +2589,9 @@
       "tab": "msport",
       "when": {
         "style": "track"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "mFootM",
@@ -2450,40 +2616,104 @@
           "Outside temperature"
         ],
         [
-          "iat",
-          "Intake air temperature"
-        ],
-        [
           "rpm",
           "Engine speed, in figures"
         ],
         [
-          "oil",
-          "Oil temperature"
+          "speed2",
+          "Speed in the other unit (km/h with mph, mph with km/h)"
         ],
         [
-          "coolant",
-          "Coolant temperature"
+          "gear",
+          "Gear (D / S / M and its number)"
         ],
         [
           "boost",
           "Boost"
         ],
         [
-          "volts",
-          "Battery voltage"
+          "boostTarget",
+          "Boost target"
         ],
         [
-          "gearbox",
-          "Gearbox oil temperature"
+          "boostPeak",
+          "Peak boost (this drive)"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "powerPeak",
+          "Peak engine power (this drive)"
         ],
         [
           "torque",
           "Engine torque"
         ],
         [
-          "power",
-          "Engine power"
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "kw",
+          "Drive battery power"
+        ],
+        [
+          "erange",
+          "Electric range"
         ],
         [
           "trip",
@@ -2498,16 +2728,12 @@
           "Odometer"
         ],
         [
-          "erange",
-          "Electric range"
+          "zero100",
+          "0-100 km/h (0-60 mph) time"
         ],
         [
-          "charge",
-          "Drive battery charge"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
+          "lastShift",
+          "Last upshift (rpm)"
         ],
         [
           "off",
@@ -2517,7 +2743,9 @@
       "tab": "msport",
       "when": {
         "style": "track"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "mFootR",
@@ -2542,40 +2770,104 @@
           "Outside temperature"
         ],
         [
-          "iat",
-          "Intake air temperature"
-        ],
-        [
           "rpm",
           "Engine speed, in figures"
         ],
         [
-          "oil",
-          "Oil temperature"
+          "speed2",
+          "Speed in the other unit (km/h with mph, mph with km/h)"
         ],
         [
-          "coolant",
-          "Coolant temperature"
+          "gear",
+          "Gear (D / S / M and its number)"
         ],
         [
           "boost",
           "Boost"
         ],
         [
-          "volts",
-          "Battery voltage"
+          "boostTarget",
+          "Boost target"
         ],
         [
-          "gearbox",
-          "Gearbox oil temperature"
+          "boostPeak",
+          "Peak boost (this drive)"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "powerPeak",
+          "Peak engine power (this drive)"
         ],
         [
           "torque",
           "Engine torque"
         ],
         [
-          "power",
-          "Engine power"
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "kw",
+          "Drive battery power"
+        ],
+        [
+          "erange",
+          "Electric range"
         ],
         [
           "trip",
@@ -2590,16 +2882,12 @@
           "Odometer"
         ],
         [
-          "erange",
-          "Electric range"
+          "zero100",
+          "0-100 km/h (0-60 mph) time"
         ],
         [
-          "charge",
-          "Drive battery charge"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
+          "lastShift",
+          "Last upshift (rpm)"
         ],
         [
           "off",
@@ -2609,7 +2897,9 @@
       "tab": "msport",
       "when": {
         "style": "track"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "mPanel",
@@ -2795,40 +3085,104 @@
           "Outside temperature"
         ],
         [
-          "iat",
-          "Intake air temperature"
-        ],
-        [
           "rpm",
           "Engine speed, in figures"
         ],
         [
-          "oil",
-          "Oil temperature"
+          "speed2",
+          "Speed in the other unit (km/h with mph, mph with km/h)"
         ],
         [
-          "coolant",
-          "Coolant temperature"
+          "gear",
+          "Gear (D / S / M and its number)"
         ],
         [
           "boost",
           "Boost"
         ],
         [
-          "volts",
-          "Battery voltage"
+          "boostTarget",
+          "Boost target"
         ],
         [
-          "gearbox",
-          "Gearbox oil temperature"
+          "boostPeak",
+          "Peak boost (this drive)"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "powerPeak",
+          "Peak engine power (this drive)"
         ],
         [
           "torque",
           "Engine torque"
         ],
         [
-          "power",
-          "Engine power"
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "kw",
+          "Drive battery power"
+        ],
+        [
+          "erange",
+          "Electric range"
         ],
         [
           "trip",
@@ -2843,16 +3197,12 @@
           "Odometer"
         ],
         [
-          "erange",
-          "Electric range"
+          "zero100",
+          "0-100 km/h (0-60 mph) time"
         ],
         [
-          "charge",
-          "Drive battery charge"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
+          "lastShift",
+          "Last upshift (rpm)"
         ],
         [
           "off",
@@ -2862,7 +3212,9 @@
       "tab": "mplus",
       "when": {
         "style": "mplus"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "pFootM",
@@ -2887,40 +3239,104 @@
           "Outside temperature"
         ],
         [
-          "iat",
-          "Intake air temperature"
-        ],
-        [
           "rpm",
           "Engine speed, in figures"
         ],
         [
-          "oil",
-          "Oil temperature"
+          "speed2",
+          "Speed in the other unit (km/h with mph, mph with km/h)"
         ],
         [
-          "coolant",
-          "Coolant temperature"
+          "gear",
+          "Gear (D / S / M and its number)"
         ],
         [
           "boost",
           "Boost"
         ],
         [
-          "volts",
-          "Battery voltage"
+          "boostTarget",
+          "Boost target"
         ],
         [
-          "gearbox",
-          "Gearbox oil temperature"
+          "boostPeak",
+          "Peak boost (this drive)"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "powerPeak",
+          "Peak engine power (this drive)"
         ],
         [
           "torque",
           "Engine torque"
         ],
         [
-          "power",
-          "Engine power"
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "kw",
+          "Drive battery power"
+        ],
+        [
+          "erange",
+          "Electric range"
         ],
         [
           "trip",
@@ -2935,16 +3351,12 @@
           "Odometer"
         ],
         [
-          "erange",
-          "Electric range"
+          "zero100",
+          "0-100 km/h (0-60 mph) time"
         ],
         [
-          "charge",
-          "Drive battery charge"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
+          "lastShift",
+          "Last upshift (rpm)"
         ],
         [
           "off",
@@ -2954,7 +3366,9 @@
       "tab": "mplus",
       "when": {
         "style": "mplus"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "pFootR",
@@ -2979,40 +3393,104 @@
           "Outside temperature"
         ],
         [
-          "iat",
-          "Intake air temperature"
-        ],
-        [
           "rpm",
           "Engine speed, in figures"
         ],
         [
-          "oil",
-          "Oil temperature"
+          "speed2",
+          "Speed in the other unit (km/h with mph, mph with km/h)"
         ],
         [
-          "coolant",
-          "Coolant temperature"
+          "gear",
+          "Gear (D / S / M and its number)"
         ],
         [
           "boost",
           "Boost"
         ],
         [
-          "volts",
-          "Battery voltage"
+          "boostTarget",
+          "Boost target"
         ],
         [
-          "gearbox",
-          "Gearbox oil temperature"
+          "boostPeak",
+          "Peak boost (this drive)"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "powerPeak",
+          "Peak engine power (this drive)"
         ],
         [
           "torque",
           "Engine torque"
         ],
         [
-          "power",
-          "Engine power"
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "kw",
+          "Drive battery power"
+        ],
+        [
+          "erange",
+          "Electric range"
         ],
         [
           "trip",
@@ -3027,16 +3505,12 @@
           "Odometer"
         ],
         [
-          "erange",
-          "Electric range"
+          "zero100",
+          "0-100 km/h (0-60 mph) time"
         ],
         [
-          "charge",
-          "Drive battery charge"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
+          "lastShift",
+          "Last upshift (rpm)"
         ],
         [
           "off",
@@ -3046,7 +3520,9 @@
       "tab": "mplus",
       "when": {
         "style": "mplus"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "pPanel",
@@ -3207,6 +3683,26 @@
           "Drive battery temperature"
         ],
         [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
           "off",
           "Nothing: the row left out"
         ]
@@ -3214,7 +3710,9 @@
       "tab": "mtrack",
       "when": {
         "style": "mtrack"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "kRow2",
@@ -3275,6 +3773,26 @@
           "Drive battery temperature"
         ],
         [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
           "off",
           "Nothing: the row left out"
         ]
@@ -3282,7 +3800,9 @@
       "tab": "mtrack",
       "when": {
         "style": "mtrack"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "kRow3",
@@ -3343,6 +3863,26 @@
           "Drive battery temperature"
         ],
         [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
           "off",
           "Nothing: the row left out"
         ]
@@ -3350,7 +3890,9 @@
       "tab": "mtrack",
       "when": {
         "style": "mtrack"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "kRow4",
@@ -3411,6 +3953,26 @@
           "Drive battery temperature"
         ],
         [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
           "off",
           "Nothing: the row left out"
         ]
@@ -3418,7 +3980,9 @@
       "tab": "mtrack",
       "when": {
         "style": "mtrack"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "kRowMark",
@@ -3499,6 +4063,22 @@
           "Drive battery temperature"
         ],
         [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
           "fuel",
           "Fuel"
         ],
@@ -3510,7 +4090,9 @@
       "tab": "mtrack",
       "when": {
         "style": "mtrack"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "kStripR",
@@ -3571,6 +4153,22 @@
           "Drive battery temperature"
         ],
         [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
           "fuel",
           "Fuel"
         ],
@@ -3582,7 +4180,9 @@
       "tab": "mtrack",
       "when": {
         "style": "mtrack"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "kFootL",
@@ -3607,40 +4207,104 @@
           "Outside temperature"
         ],
         [
-          "iat",
-          "Intake air temperature"
-        ],
-        [
           "rpm",
           "Engine speed, in figures"
         ],
         [
-          "oil",
-          "Oil temperature"
+          "speed2",
+          "Speed in the other unit (km/h with mph, mph with km/h)"
         ],
         [
-          "coolant",
-          "Coolant temperature"
+          "gear",
+          "Gear (D / S / M and its number)"
         ],
         [
           "boost",
           "Boost"
         ],
         [
-          "volts",
-          "Battery voltage"
+          "boostTarget",
+          "Boost target"
         ],
         [
-          "gearbox",
-          "Gearbox oil temperature"
+          "boostPeak",
+          "Peak boost (this drive)"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "powerPeak",
+          "Peak engine power (this drive)"
         ],
         [
           "torque",
           "Engine torque"
         ],
         [
-          "power",
-          "Engine power"
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "kw",
+          "Drive battery power"
+        ],
+        [
+          "erange",
+          "Electric range"
         ],
         [
           "trip",
@@ -3655,16 +4319,12 @@
           "Odometer"
         ],
         [
-          "erange",
-          "Electric range"
+          "zero100",
+          "0-100 km/h (0-60 mph) time"
         ],
         [
-          "charge",
-          "Drive battery charge"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
+          "lastShift",
+          "Last upshift (rpm)"
         ],
         [
           "off",
@@ -3674,7 +4334,9 @@
       "tab": "mtrack",
       "when": {
         "style": "mtrack"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "kFootM",
@@ -3699,40 +4361,104 @@
           "Outside temperature"
         ],
         [
-          "iat",
-          "Intake air temperature"
-        ],
-        [
           "rpm",
           "Engine speed, in figures"
         ],
         [
-          "oil",
-          "Oil temperature"
+          "speed2",
+          "Speed in the other unit (km/h with mph, mph with km/h)"
         ],
         [
-          "coolant",
-          "Coolant temperature"
+          "gear",
+          "Gear (D / S / M and its number)"
         ],
         [
           "boost",
           "Boost"
         ],
         [
-          "volts",
-          "Battery voltage"
+          "boostTarget",
+          "Boost target"
         ],
         [
-          "gearbox",
-          "Gearbox oil temperature"
+          "boostPeak",
+          "Peak boost (this drive)"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "powerPeak",
+          "Peak engine power (this drive)"
         ],
         [
           "torque",
           "Engine torque"
         ],
         [
-          "power",
-          "Engine power"
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "kw",
+          "Drive battery power"
+        ],
+        [
+          "erange",
+          "Electric range"
         ],
         [
           "trip",
@@ -3747,16 +4473,12 @@
           "Odometer"
         ],
         [
-          "erange",
-          "Electric range"
+          "zero100",
+          "0-100 km/h (0-60 mph) time"
         ],
         [
-          "charge",
-          "Drive battery charge"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
+          "lastShift",
+          "Last upshift (rpm)"
         ],
         [
           "off",
@@ -3766,7 +4488,9 @@
       "tab": "mtrack",
       "when": {
         "style": "mtrack"
-      }
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "kFootR",
@@ -3791,40 +4515,104 @@
           "Outside temperature"
         ],
         [
-          "iat",
-          "Intake air temperature"
-        ],
-        [
           "rpm",
           "Engine speed, in figures"
         ],
         [
-          "oil",
-          "Oil temperature"
+          "speed2",
+          "Speed in the other unit (km/h with mph, mph with km/h)"
         ],
         [
-          "coolant",
-          "Coolant temperature"
+          "gear",
+          "Gear (D / S / M and its number)"
         ],
         [
           "boost",
           "Boost"
         ],
         [
-          "volts",
-          "Battery voltage"
+          "boostTarget",
+          "Boost target"
         ],
         [
-          "gearbox",
-          "Gearbox oil temperature"
+          "boostPeak",
+          "Peak boost (this drive)"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "powerPeak",
+          "Peak engine power (this drive)"
         ],
         [
           "torque",
           "Engine torque"
         ],
         [
-          "power",
-          "Engine power"
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "kw",
+          "Drive battery power"
+        ],
+        [
+          "erange",
+          "Electric range"
         ],
         [
           "trip",
@@ -3839,16 +4627,12 @@
           "Odometer"
         ],
         [
-          "erange",
-          "Electric range"
+          "zero100",
+          "0-100 km/h (0-60 mph) time"
         ],
         [
-          "charge",
-          "Drive battery charge"
-        ],
-        [
-          "hvtemp",
-          "Drive battery temperature"
+          "lastShift",
+          "Last upshift (rpm)"
         ],
         [
           "off",
@@ -3858,7 +4642,9 @@
       "tab": "mtrack",
       "when": {
         "style": "mtrack"
-      }
+      },
+      "hidden": true,
+      "page": true
     }
   ]
 }

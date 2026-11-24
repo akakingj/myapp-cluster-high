@@ -5,12 +5,13 @@
                                  require('./palette.js'),
                                  require('./guide.js'),
                                  require('./textlayers.js'),
-                                 require('./strip.js'));
+                                 require('./strip.js'),
+                                 require('./readings.js'));
     } else {
         root.MGUTheme = factory(root.MGUText, root.MGUPanel, root.MGUPalette, root.MGUGuide,
-                                root.MGUTextLayers, root.MGUStrip);
+                                root.MGUTextLayers, root.MGUStrip, root.MGUReadings);
     }
-}(typeof self !== 'undefined' ? self : this, function (Text, Panel, Palette, Guide, TextLayers, Strip) {
+}(typeof self !== 'undefined' ? self : this, function (Text, Panel, Palette, Guide, TextLayers, Strip, Readings) {
     'use strict';
 
     /*
@@ -666,6 +667,14 @@
             return numPod(key, 0, hi, UN.pressIn, function (x, bar) { return UN.pressText(bar, oil); },
                 function (bar, s) { return oil && s.rpm > 1200 && bar < 1.0; });
         }
+        /* a reading on a scale to hi in the unit shown (show: the car's unit to it), its figure whole */
+        function unitPod(key, hi, show) {
+            return numPod(key, 0, hi, show, function (x) { return String(Math.round(x)); }, function () { return false; });
+        }
+        function thirds(hi) { return ['0', String(hi / 2), String(hi)]; }
+        var PW_HI = { hp: 400, ps: 400, kw: 300 }[UN.power] || 400;
+        var TQ_HI = { nm: 600, kgm: 60, lbft: 450 }[UN.torque] || 600;
+        var RAIL_HI = { psi: 5000, bar: 350, kpa: 35000 }[UN.press];
         function gaugeKind(kind) {
             var P3 = { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press];
             var O3 = { psi: ['0', '70', '140'], bar: ['0', '5', '10'], kpa: ['0', '500', '1000'] }[UN.press];
@@ -686,6 +695,16 @@
             case 'pedal': return { icon: null, label: 'PEDALE %', pod: plain('pedalPct', 0, 100, 0), marks: ['0', '50', '100'], red: [0.9, 1] };
             case 'throttle': return { icon: null, label: 'FARFALLA %', pod: plain('throttlePct', 0, 100, 0), marks: ['0', '50', '100'], red: [0.9, 1] };
             case 'timing': return { icon: null, label: 'ANTICIPO °', pod: plain('timingDeg', -10, 50, 1), marks: ['-10', '20', '50'], red: [0, 0.17] };
+            /* (the same readings AK Cluster Layouts' gauges offer: the engine's power and torque in the units shown,
+               the fuel rail's and the supply's pressures, a plug-in hybrid's drive battery) */
+            case 'power': return { icon: null, label: 'POTENZA', pod: unitPod('powerKw', PW_HI, UN.powerIn), marks: thirds(PW_HI), red: [0.9, 1] };
+            case 'torque': return { icon: null, label: 'COPPIA', pod: unitPod('torqueNm', TQ_HI, UN.torqueIn), marks: thirds(TQ_HI), red: [0.9, 1] };
+            case 'hpfp': return { icon: null, label: 'PRESS. RAIL', pod: unitPod('hpfpBar', RAIL_HI, UN.pressIn), marks: thirds(RAIL_HI), red: [0, 0.1] };
+            case 'lpfp': return { icon: null, label: 'PRESS. BENZINA', pod: pressPod('lpfpBar', 10, true), marks: O3, red: [0, 0.08] };
+            case 'charge': return { icon: null, label: 'BATTERIA %', pod: numPod('socPct', 0, 100, function (v) { return v; },
+                                                                              function (v) { return String(Math.round(v)); }, function (v) { return v <= 10; }),
+                                    marks: ['0', '50', '100'], red: [0, 0.1] };
+            case 'hvtemp': return { icon: null, label: 'TEMP. BATTERIA', pod: tempPod('hvC', -10, 60, 50), marks: tLabels([-10, 25, 60]), red: [0.86, 1] };
             default: return null;
             }
         }
@@ -706,7 +725,8 @@
          * hidden) and the fuel gauge on an electric car, which has no fuel.
          */
         /* what each side gauge shows (left upper, left lower, right upper, right lower) */
-        var GAUGE_KINDS = ['auto', 'fuel', 'coolant', 'oil', 'oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'off'];
+        var GAUGE_KINDS = ['auto', 'fuel', 'coolant', 'oil', 'oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing',
+                           'power', 'torque', 'hpfp', 'lpfp', 'charge', 'hvtemp', 'off'];
         S.gauges = {};
         ['L1', 'L2', 'R1', 'R2'].forEach(function (n) {
             var v = S['gauge' + n];
@@ -716,7 +736,8 @@
             return ['L1', 'L2', 'R1', 'R2'].some(function (n) { return kinds.indexOf(S.gauges[n]) >= 0; });
         }
         /* those set on a scale here are read as numbers */
-        if (anyGauge(['oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing'])) S.numbers = true;
+        if (anyGauge(['oilp', 'boost', 'gearbox', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'power', 'torque', 'hpfp', 'lpfp',
+                      'charge', 'hvtemp'])) S.numbers = true;
         var evSlot = S.electric === 'off' ? null
             : S.electricGauge !== 'auto' ? S.electricGauge
             : S.electric === 'bev' ? 'fuel' : S.showAuxLeft ? 'oilP' : 'coolant';
@@ -943,10 +964,8 @@
                     (BeeM-Flash's feed, or the engine unit: src/car/engine.js) is asked for
                     these and no others. The second left gauge is oil pressure when there is
                     one and turbo pressure when there is not, so it wants both. */
-                 shows: { oil: auxLeft || anyGauge(['oilp']),
-                          boost: !!(P.boost && (S.showBoost || auxLeft)) || anyGauge(['boost']),
-                          iat: anyGauge(['iat']), volts: anyGauge(['volts']),
-                          pedal: anyGauge(['pedal']), throttle: anyGauge(['throttle']), timing: anyGauge(['timing']) },
+                 shows: Object.assign(Readings.shows(['L1', 'L2', 'R1', 'R2'].map(function (n) { return S.gauges[n]; })),
+                          { oil: auxLeft || anyGauge(['oilp']), boost: !!(P.boost && (S.showBoost || auxLeft)) || anyGauge(['boost']) }),
                  settings: S, palette: C, guide: G, imperial: imperial,
                  dial: { centre: DC, rOuter: rOuter, ang: ANG, redV: redV } };
     }

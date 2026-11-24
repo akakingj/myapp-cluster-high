@@ -17,17 +17,32 @@
      * so each place can be given something the strip does not have, or
      * nothing.
      */
-    var KINDS = ['time', 'range', 'economy', 'outside', 'iat', 'rpm', 'oil', 'coolant', 'boost', 'volts',
-                 'gearbox', 'torque', 'power', 'trip', 'tripTime', 'odo', 'erange', 'charge', 'hvtemp', 'off'];
+    /* (the same readings AK Cluster Layouts' readout places offer: its READOUTS) */
+    var KINDS = ['time', 'range', 'economy', 'outside', 'rpm', 'speed2', 'gear', 'boost', 'boostTarget', 'boostPeak', 'power',
+                 'powerPeak', 'torque', 'oil', 'oilp', 'coolant', 'gearbox', 'iat', 'pedal', 'throttle', 'timing', 'hpfp', 'lpfp',
+                 'volts', 'fuel', 'charge', 'hvtemp', 'kw', 'erange', 'trip', 'tripTime', 'odo', 'zero100', 'lastShift', 'off'];
     function kind(v, home) { return KINDS.indexOf(v) >= 0 ? v : home; }
 
     function known(v) { return v !== null && v !== undefined && v !== '' && v !== '--'; }
+
+    /* what a reading needs read from the engine unit (src/car/engine.js: its needs), for a style's shows */
+    var NEEDS = { oilp: 'oil', iat: 'iat', volts: 'volts', boost: 'boost', boostPeak: 'boost', boostTarget: 'boostTarget',
+                  pedal: 'pedal', throttle: 'throttle', timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp' };
+    var ASKED = ['oil', 'boost', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp'];
+    function shows(kinds) {
+        var out = {};
+        ASKED.forEach(function (k) { out[k] = false; });
+        (kinds || []).forEach(function (k) { if (NEEDS[k]) out[NEEDS[k]] = true; });
+        return out;
+    }
     function infoOf(key) { return function (s) { return s.info && known(s.info[key]) ? s.info[key] : null; }; }
 
     /*
      * A reading for a place: its figures (null: nothing to show), its
      * unit, and what says which it is - a symbol, or a short word in
      * capitals before the figures. The frames' own three need neither.
+     * face: the figures' face where the footer's figures have not the
+     * letters (the gear's D, S, M); unitFace: the unit's (the per cent).
      *
      * opts: { u: the units shown (units.js), clock12 }
      */
@@ -64,9 +79,27 @@
             power: { tag: 'PWR', value: infoOf('power'), unit: L.power },
             trip: { tag: 'TRIP', value: infoOf('trip'), unit: L.dist },
             tripTime: { tag: 'TIME', value: infoOf('tripTime'), unit: 'h' },
-            odo: { tag: 'ODO', value: infoOf('odo'), unit: L.dist }
+            odo: { tag: 'ODO', value: infoOf('odo'), unit: L.dist },
+            /* the speed in the other unit; the gear with its programme (D4), in the footer's capitals */
+            speed2: { value: infoOf('speed2'), unit: opts.u.speed === 'mph' ? 'km/h' : 'mph' },
+            gear: { value: infoOf('gear'), unit: '', face: 'mb' },
+            oilp: { tag: 'OILP', value: infoOf('oilp'), unit: L.press },
+            boostTarget: { tag: 'TGT', value: infoOf('boostTarget'), unit: L.press },
+            /* this drive's (src/car/drive.js): the unit says which peak */
+            boostPeak: { tag: 'PEAK', value: infoOf('boostPeak'), unit: L.press },
+            powerPeak: { tag: 'PEAK', value: infoOf('powerPeak'), unit: L.power },
+            pedal: { tag: 'PEDAL', value: infoOf('pedal'), unit: '%', unitFace: 'mx' },
+            throttle: { tag: 'THR', value: infoOf('throttle'), unit: '%', unitFace: 'mx' },
+            timing: { tag: 'IGN', value: infoOf('timing'), unit: '°' },
+            hpfp: { tag: 'HPFP', value: infoOf('hpfp'), unit: L.press },
+            lpfp: { tag: 'LPFP', value: infoOf('lpfp'), unit: L.press },
+            fuel: { tag: 'FUEL', value: infoOf('fuel'), unit: '%', unitFace: 'mx' },
+            /* the drive battery's power, + out of it (its unit for its word: the words' face sets k and w into each other) */
+            kw: { tag: 'KW', value: infoOf('kw'), unit: '' },
+            zero100: { tag: opts.u.speed === 'mph' ? '0-60' : '0-100', value: infoOf('zero100'), unit: 's' },
+            lastShift: { tag: 'SHIFT', value: infoOf('lastShift'), unit: 'rpm' }
         };
     }
 
-    return { KINDS: KINDS, kind: kind, known: known, table: table };
+    return { KINDS: KINDS, kind: kind, known: known, table: table, shows: shows, NEEDS: NEEDS };
 }));

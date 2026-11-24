@@ -23,7 +23,7 @@ const item = (k) => spec.settings.find((s) => s.key === k);
 const keys = (page, prefix) => page.targets().map((t) => t.key).filter((k) => k.indexOf(prefix) === 0);
 /* what the page should offer on a tab, from the manifest: the tab's settings whose own conditions hold */
 function offered(tab, values) {
-    return spec.settings.filter((s) => s.tab === tab && Object.keys(s.when || {}).every((k) =>
+    return spec.settings.filter((s) => s.tab === tab && !s.hidden && Object.keys(s.when || {}).every((k) =>
         k === 'style' || [].concat(s.when[k]).indexOf(values[k]) >= 0)).map((s) => s.key);
 }
 
@@ -77,11 +77,15 @@ test('the settings are in five groups, and each style keeps its own adjustments 
 
 /* each style's places on the CLUSTER page, as app/entry.js has them, and the designs' cards */
 const PLACES = {
-    toro: ['tCentre', 'tCentreSize', 'gearPlace', 'showBoost', 'showAuxLeft', 'electricGauge', 'modeLabel', 'shiftStyle'],
+    toro: ['tCentre', 'tCentreSize', 'gearPlace', 'showBoost', 'showAuxLeft', 'electricGauge', 'modeLabel', 'shiftStyle',
+        'gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2'],
     track: ['mCentre', 'mCentreSize', 'mGear', 'mSpeed2', 'mFootL', 'mFootM', 'mFootR', 'mPanel'],
     mplus: ['pCentre', 'pCentreSize', 'pGear', 'pSpeed2', 'pFootL', 'pFootM', 'pFootR', 'pPanel'],
-    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kFootL', 'kFootM', 'kFootR']
+    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR']
 };
+/* the readings' places: set on the CLUSTER page alone, on no tab and not in the head unit's settings list */
+const PAGE_ONLY = ['gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2', 'mFootL', 'mFootM', 'mFootR', 'pFootL', 'pFootM', 'pFootR',
+    'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR'];
 const DESIGN_IDS = ['toro_genuine', 'toro_modern', 'toro_revuelto', 'track', 'mplus', 'mtrack'];
 const placesOf = (style, values) => PLACES[style].filter((k) => Object.keys(item(k).when || {}).every((w) =>
     w === 'style' || [].concat(item(k).when[w]).indexOf(values[w]) >= 0)).map((k) => 'place:' + k);
@@ -163,16 +167,19 @@ test('a tab of settings holds its own style\'s adjustments and nothing of anothe
     const page = Harness.open({ values: { style: 'toro' } });
     page.run('tab:msport');
     const m = keys(page, 'set:');
-    assert.ok(m.indexOf('set:mFootL') >= 0 && m.indexOf('set:mCentre') >= 0 && m.indexOf('set:mPanel') >= 0);
+    assert.ok(m.indexOf('set:mCentre') >= 0 && m.indexOf('set:mPanel') >= 0);
+    assert.ok(PAGE_ONLY.every((n) => m.indexOf('set:' + n) < 0), 'the readings\' places are on the CLUSTER page alone');
     assert.ok(m.every((k) => !/^set:(accent|background|shiftStyle|zoom|tCentre|[pk][A-Z])/.test(k)), m.join(' '));
     page.run('tab:toro');
     const t = keys(page, 'set:');
     assert.ok(t.indexOf('set:accent') >= 0 && t.indexOf('set:tCentre') >= 0);
     assert.ok(t.every((k) => !/^set:[mpk](Foot|Panel|Pop|Centre|Row)/.test(k)), t.join(' '));
-    /* M Track Mode's tab: its wing, its four rows, its footer - and no other style's */
+    /* M Track Mode's tab: its wing and how a row marks its reading (its rows, strips and footer: the CLUSTER page's) - and no other style's */
     page.run('tab:mtrack');
     const k = keys(page, 'set:');
-    assert.deepStrictEqual(k, ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kRowMark', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR'].map((n) => 'set:' + n));
+    assert.deepStrictEqual(k, ['kCentre', 'kWing', 'kRowMark'].map((n) => 'set:' + n));
+    /* and none of them is a string of the head unit's settings list */
+    PAGE_ONLY.forEach((n) => assert.ok(item(n).hidden && item(n).page, n));
     /* "use this style" takes it, and the offer goes */
     page.run('tab:mplus');
     page.run('use:mplus');
@@ -202,8 +209,9 @@ test('a row pressed: a switch turns, a choice opens its values in the kit\'s own
     page.run('set:holiday');
     assert.strictEqual(page.values.holiday, true);
     assert.strictEqual(page.sheet(), null, 'a switch needs no list');
-    page.run('tab:msport');
-    page.run('set:mFootR');
+    /* (a footer's place: on the CLUSTER page, its list as a tab's row's) */
+    page.run('tab:cluster');
+    page.run('place:mFootR');
     const sh = page.sheet();
     assert.ok(sh, 'the values, as a list over the page');
     assert.strictEqual(sh.title, item('mFootR').label);
@@ -216,7 +224,7 @@ test('a row pressed: a switch turns, a choice opens its values in the kit\'s own
     assert.strictEqual(page.values.pFootR, 'outside', 'the other M style keeps its own');
     /* Back leaves it as it was */
     page.closeSheet();
-    page.run('set:mFootL');
+    page.run('place:mFootL');
     assert.strictEqual(page.sheet().back(), 'close');
     assert.strictEqual(page.values.mFootL, 'time');
 });

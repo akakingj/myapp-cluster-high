@@ -392,7 +392,7 @@ test('BeeM-Flash off: its feed is never looked for, and the engine unit is asked
     h.rpm(1500);
     await wait(300);
     assert.strictEqual(lastTick(engine).allowed, true, 'running: asked');
-    assert.deepStrictEqual(lastTick(engine).needs, { oil: true, iat: false, volts: false, pedal: false, throttle: false, timing: false, boost: true },
+    assert.deepStrictEqual(lastTick(engine).needs, { oil: true, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, boost: true },
         'Toro shows oil pressure and boost, and the Sport Display has sent no boost');
     /* what it reads reaches the gauges; BeeM-Flash's figures do not */
     const raw = h.svc.reader.raw(1000000);
@@ -516,14 +516,14 @@ test('the car\'s own boost comes first; an M style asks for what its footer hold
     /* M Sport, its footer holding intake air and the battery */
     h.change({ style: 'track', mFootL: 'iat', mFootR: 'volts' });
     await wait(800);
-    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: true, volts: true, pedal: false, throttle: false, timing: false, boost: false });
+    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: true, volts: true, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, boost: false });
     h.change({ mFootM: 'boost' });
     await wait(800);
     assert.strictEqual(lastTick(engine).needs.boost, false, 'boost in the footer, and the car still sends its own');
     /* M Sport as it comes: nothing of the engine unit's is shown, so nothing is asked for */
     h.change({ mFootL: 'time', mFootM: 'range', mFootR: 'outside' });
     await wait(800);
-    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: false, volts: false, pedal: false, throttle: false, timing: false, boost: false });
+    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, boost: false });
     /* turned on while driving: the feed starts, the engine unit is left alone */
     assert.strictEqual(feed.starts, 0);
     h.change({ beemFlash: 'on' });

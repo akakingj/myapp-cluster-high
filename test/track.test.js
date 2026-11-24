@@ -1014,11 +1014,15 @@ test('the footer: clock, range and outside temperature, each only when the car h
 });
 
 test('the footer\'s three places: each can hold any reading, with its unit and its name, or nothing', () => {
-    assert.deepStrictEqual(Track.FOOT_KINDS, ['time', 'range', 'economy', 'outside', 'iat', 'rpm', 'oil', 'coolant', 'boost', 'volts',
-        'gearbox', 'torque', 'power', 'trip', 'tripTime', 'odo', 'erange', 'charge', 'hvtemp', 'off']);
+    /* (the same readings as Cluster Layouts' readout places) */
+    assert.deepStrictEqual(Track.FOOT_KINDS, ['time', 'range', 'economy', 'outside', 'rpm', 'speed2', 'gear', 'boost', 'boostTarget',
+        'boostPeak', 'power', 'powerPeak', 'torque', 'oil', 'oilp', 'coolant', 'gearbox', 'iat', 'pedal', 'throttle', 'timing', 'hpfp',
+        'lpfp', 'volts', 'fuel', 'charge', 'hvtemp', 'kw', 'erange', 'trip', 'tripTime', 'odo', 'zero100', 'lastShift', 'off']);
     const RAW = { evRangeKm: 43, socPct: 78, rpm: 2456, speedKmh: 80, gear: '4', oilTempC: 104, coolantC: 91, boostBar: 0.86, rangeKm: 259, ambientC: 3,
                   clock: { h: 15, m: 7 }, avgL100: 9.6, iatC: 38, batteryV: 14.13,
-                  gearboxC: 70, torqueNm: 300, tripKm: 1234.5, tripMin: 125, odoKm: 23456 };
+                  gearboxC: 70, torqueNm: 300, tripKm: 1234.5, tripMin: 125, odoKm: 23456,
+                  oilPressBar: 4.2, boostTargetBar: 1.1, hpfpBar: 200, lpfpBar: 5.2, pedalPct: 35, throttlePct: 40, timingDeg: 12.5, kw: -12.4,
+                  fuelPct: 40, drivePeakBoostBar: 1.35, powerPeakKw: 250, zero100S: 5.1, zero60S: 4.8, lastShift: { from: 2, to: 3, rpm: 6200 } };
     /* what each reading says: [figures, unit, the word before it] - imperial, then metric */
     const WANT = {
         time: [['3:07', 'pm', null], ['3:07', 'pm', null]],
@@ -1039,7 +1043,22 @@ test('the footer\'s three places: each can hold any reading, with its unit and i
         power: [['103', 'hp', 'PWR'], ['103', 'hp', 'PWR']],
         trip: [['767.1', 'mi', 'TRIP'], ['1235', 'km', 'TRIP']],
         tripTime: [['2:05', 'h', 'TIME'], ['2:05', 'h', 'TIME']],
-        odo: [['14575', 'mi', 'ODO'], ['23456', 'km', 'ODO']]
+        odo: [['14575', 'mi', 'ODO'], ['23456', 'km', 'ODO']],
+        /* the speed in the other unit; the engine unit's (the boost target, oil pressure, pedal, throttle, timing, the fuel
+           rail's and the supply's pressures); the fuel; this drive's (src/car/drive.js) */
+        speed2: [['80', 'km/h', null], ['50', 'mph', null]],
+        boostTarget: [['16.0', 'psi', 'TGT'], ['1.10', 'bar', 'TGT']],
+        oilp: [['61', 'psi', 'OILP'], ['4.2', 'bar', 'OILP']],
+        pedal: [['35', '%', 'PEDAL'], ['35', '%', 'PEDAL']],
+        throttle: [['40', '%', 'THR'], ['40', '%', 'THR']],
+        timing: [['13', '°', 'IGN'], ['13', '°', 'IGN']],
+        hpfp: [['2901', 'psi', 'HPFP'], ['200', 'bar', 'HPFP']],
+        lpfp: [['75.4', 'psi', 'LPFP'], ['5.20', 'bar', 'LPFP']],
+        fuel: [['40', '%', 'FUEL'], ['40', '%', 'FUEL']],
+        boostPeak: [['19.6', 'psi', 'PEAK'], ['1.35', 'bar', 'PEAK']],
+        powerPeak: [['335', 'hp', 'PEAK'], ['335', 'hp', 'PEAK']],
+        zero100: [['4.8', 's', '0-60'], ['5.1', 's', '0-100']],
+        lastShift: [['6200', 'rpm', 'SHIFT'], ['6200', 'rpm', 'SHIFT']]
     };
     const HOME = { L: 'time', M: 'range', R: 'outside' };
     for (const style of M_STYLES) for (const [ui, units] of [[0, 'imperial'], [1, 'metric']]) {
@@ -1069,6 +1088,12 @@ test('the footer\'s three places: each can hold any reading, with its unit and i
             if (tag) assert.strictEqual(parts[0][2], id + 'Tag', 'the word comes first');
             assert.strictEqual(parts[parts.length - 1][2], id + 'Unit', 'the unit last');
         }
+    }
+    /* the gear (D4, in the footer's capitals) and the drive battery's power under its word: no unit after either */
+    for (const style of M_STYLES) {
+        const g = build({ style, footL: 'gear' }), k = build({ style, electric: 'hybrid', footR: 'kw' });
+        assert.strictEqual(says(g, 'slotL', state(g, RAW)), 'D4', style);
+        assert.strictEqual(says(k, 'slotRTag', state(k, RAW)) + says(k, 'slotR', state(k, RAW)), 'KW-12', style);
     }
     /* the drive battery's charge: a figure under its name, in per cent, with no unit after it */
     for (const style of M_STYLES) {
@@ -1154,7 +1179,9 @@ test('the footer\'s places keep to themselves: inside their boxes, the panel and
 test('the readings a footer can show: figures only, in the units chosen, dashes when the car is not saying', () => {
     const P = PROFILE;
     const imp = State.present({ rpm: 2456.4, oilTempC: 104, coolantC: 91, boostBar: 0.86, avgL100: 9.6, iatC: 38, batteryV: 14.13 }, P, { units: 'imperial' }).info;
-    const NONE = { gearbox: '--', torque: '--', power: '--', trip: '--', tripTime: '--', odo: '--' };
+    const NONE = { gearbox: '--', torque: '--', power: '--', trip: '--', tripTime: '--', odo: '--', speed2: '--', gear: '--', oilp: '--',
+                   boostTarget: '--', pedal: '--', throttle: '--', timing: '--', hpfp: '--', lpfp: '--', fuel: '--', kw: '--',
+                   boostPeak: '--', powerPeak: '--', zero100: '--', lastShift: '--' };
     assert.deepStrictEqual(imp, Object.assign({ rpm: '2460', economy: '24.5', iat: '100', oil: '219', coolant: '196', boost: '12.5', volts: '14.1', erange: '--', charge: '--', hvtemp: '--' }, NONE));
     const met = State.present({ rpm: 2456.4, oilTempC: 104, coolantC: 91, boostBar: 0.86, avgL100: 9.6, iatC: 38, batteryV: 14.13 }, P, { units: 'metric' }).info;
     assert.deepStrictEqual(met, Object.assign({ rpm: '2460', economy: '9.6', iat: '38', oil: '104', coolant: '91', boost: '0.86', volts: '14.1', erange: '--', charge: '--', hvtemp: '--' }, NONE));
