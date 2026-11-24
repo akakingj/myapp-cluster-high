@@ -21,7 +21,9 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
 - **The page's design pictures** (`app/previews_data.js`, `tools/make-previews.py`) drawn again: the M styles'
   speedometer to 260 km/h, as the cluster has it since 0.13.0. The README's screenshots likewise.
 - Toro's *Shift lights* choice says it bursts at the limit or from *Shift now at*.
-- `tools/page-sim.js` asks about *Shift now at* where it asked about the BeeM-Flash setting (gone in 0.13.0).
+- `tools/page-sim.js` works the page as it is: the design cards and each style's places on its picture on
+  CLUSTER (it still looked for the arrows and centre buttons the page had before), and *Shift now at* where it
+  asked about the BeeM-Flash setting (gone in 0.13.0). It passes again, with the renderer and without.
 - docs/IN-CAR-TEST.md: S1 - S4, Shift now, the cold engine and the Car profile.
 
 ## AK 0.14.0

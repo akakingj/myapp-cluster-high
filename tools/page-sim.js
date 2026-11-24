@@ -172,10 +172,11 @@ async function child(mode) {
         check(d.headH() === 0 && d.left() === 0, 'the HMI\'s header or back column is still drawn');
         check(d.barH() === 0, 'the HMI\'s bar is still drawn (' + d.barH() + ' px)');
         ['BTN_SHOW', 'BTN_DESIGN', 'BTN_CENTRE'].forEach((b) => check(comp(b).props.Visible === 0, 'the HMI\'s own ' + b + ' is not hidden under the page'));
-        /* ---- the bar of tabs and CLUSTER */
-        ['exit', 'tab:cluster', 'tab:general', 'tab:toro', 'tab:msport', 'tab:mplus', 'show', 'prev', 'next',
-         'centre:off', 'centre:waze', 'centre:map', 'centre:camera'].forEach((key) => check(has(key), 'CLUSTER has no place "' + key + '"'));
-        check(!has('centre:turn'), 'Toro is offered a turn card it does not have');
+        /* ---- the bar of tabs and CLUSTER: the switch, the style's own places on its picture, a card for each design */
+        const DESIGNS = ['toro_genuine', 'toro_modern', 'toro_revuelto', 'track', 'mplus', 'mtrack'];
+        ['exit', 'tab:cluster', 'tab:general', 'tab:toro', 'tab:msport', 'tab:mplus', 'tab:mtrack', 'show', 'place:tCentre']
+            .concat(DESIGNS.map((id) => 'design:' + id)).forEach((key) => check(has(key), 'CLUSTER has no place "' + key + '"'));
+        check(!keys().some((q) => /^place:[pmk][A-Z]/.test(q)), 'Toro\'s CLUSTER shows another style\'s places: ' + keys().join(' '));
         notes.push('the page on the whole screen, ' + keys().length + ' places on CLUSTER: ' + keys().join(' '));
         /* ---- the controller: round the places, each heard by the page */
         d._ccu(knob(k));
@@ -184,14 +185,24 @@ async function child(mode) {
         const seen = [d.focusKey];
         for (let i = 0; i < 16; i++) { turn(1); if (seen.indexOf(d.focusKey) < 0) seen.push(d.focusKey); }
         check(seen.length >= 10, 'the controller reaches only ' + seen.length + ' places: ' + seen.join(' '));
-        /* ---- a press: the design steps, the centre is chosen, in this style's own setting */
-        const style0 = s.get('style'), bg0 = s.get('background');
-        d.focusPage('next'); await push();
-        check(s.get('style') !== style0 || s.get('background') !== bg0, 'pressing > did not step the design');
-        s.set('style', 'mplus');
-        check(await until(() => has('centre:turn'), 1500), 'an M style is not offered the turn card on CLUSTER');
-        d.focusPage('centre:map'); await push();
-        check(s.get('pCentre') === 'map', 'the centre chosen on CLUSTER did not reach M Sport Plus\'s own setting (pCentre ' + s.get('pCentre') + ')');
+        /* ---- a press on a card: that design on the cluster */
+        d.focusPage('design:mplus'); await push();
+        check(s.get('style') === 'mplus', 'pressing M Sport Plus\'s card did not choose it (' + s.get('style') + ')');
+        check(await until(() => has('place:pCentre'), 1500), 'CLUSTER does not show M Sport Plus\'s own places (' + keys().join(' ') + ')');
+        d.focusPage('design:toro_modern'); await push();
+        check(s.get('style') === 'toro' && s.get('background') === 'modern', 'pressing Toro hex\'s card did not choose it');
+        /* ---- a place on the picture: its list, a value picked, into this style's own setting */
+        d.focusPage('design:mplus'); await push();
+        await until(() => has('place:pCentre'), 1500);
+        const pc0 = s.get('pCentre');
+        d.focusPage('place:pCentre'); await push();
+        check(await until(() => !!d.sheet, 1500), 'M Sport Plus\'s centre place opened no list');
+        if (d.sheet) {
+            turn(1);
+            d._ccu(knob(k, { frontRotaryEncoderPushButton: 1 })); d._ccu(knob(k));
+            await until(() => !d.sheet, 1500);
+            check(s.get('pCentre') !== pc0, 'the centre picked on CLUSTER did not reach M Sport Plus\'s own setting (pCentre ' + s.get('pCentre') + ')');
+        }
         check(s.get('mCentre') === 'off' && s.get('tCentre') === 'off', 'another style\'s centre changed with it');
         /* ---- a tab by the controller: M SPORT, its rows, nothing of another style's */
         d.focusPage('tab:msport'); await push();
