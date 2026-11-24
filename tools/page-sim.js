@@ -229,17 +229,16 @@ async function child(mode) {
             await tap('set:holiday');
             check(s.get('holiday') === !hol, 'a tap on a switch did not turn it');
         }
-        /* ---- BeeM-Flash readings: this car ran an earlier version, so it was kept to BeeM-Flash only
-           (nothing of the car's is asked after an update); turned off like any other choice */
-        if (check(has('set:beemFlash'), 'GENERAL has no row for BeeM-Flash readings')) {
-            check(s.get('beemFlash') === 'on', 'an install from before the setting existed was not kept to BeeM-Flash only: ' + s.get('beemFlash'));
-            d.focusPage('set:beemFlash'); await push();
-            check(await until(() => !!d.sheet, 1500), 'BeeM-Flash readings opened no list');
+        /* ---- Shift now at: off as it comes, a list of values, Auto chosen with the controller */
+        if (check(has('set:shiftAt'), 'GENERAL has no row for Shift now at')) {
+            check(s.get('shiftAt') === 'off', 'Shift now at does not come off: ' + s.get('shiftAt'));
+            d.focusPage('set:shiftAt'); await push();
+            check(await until(() => !!d.sheet, 1500), 'Shift now at opened no list');
             if (d.sheet) {
                 turn(1);
                 d._ccu(knob(k, { frontRotaryEncoderPushButton: 1 })); d._ccu(knob(k));
                 await until(() => !d.sheet, 1500);
-                check(s.get('beemFlash') === 'off', 'turning BeeM-Flash readings off did not reach the store: ' + s.get('beemFlash'));
+                check(s.get('shiftAt') === 'auto', 'choosing Auto for Shift now at did not reach the store: ' + s.get('shiftAt'));
             }
         }
         /* ---- a value an older version saved: as the store hands it on */
@@ -263,8 +262,8 @@ async function child(mode) {
     } else {
         /* the plain page: the HMI shows what the app pushes, and its bar does the jobs */
         check(await until(() => sim.pushed > 0, 8000), 'the plain page was never pushed to the HMI');
-        /* a new install: BeeM-Flash readings as it comes */
-        check(s.get('beemFlash') === 'auto', 'a new install does not come with BeeM-Flash readings on automatic: ' + s.get('beemFlash'));
+        /* a new install: Shift now at and the cold-engine guard as they come */
+        check(s.get('shiftAt') === 'off' && s.get('coldGuard') === 'off', 'a new install does not come with Shift now at and Cold engine off: ' + s.get('shiftAt') + ' ' + s.get('coldGuard'));
         check(!d.own(), 'the kit says it runs the screen with no renderer there');
         const en = s.get('enabled'), style0 = s.get('style'), bg0 = s.get('background');
         comp('BTN_SHOW').emit('action', {}); await wait(200);
@@ -284,7 +283,7 @@ async function child(mode) {
     /* what was saved is what the next start reads */
     let saved = {};
     try { saved = JSON.parse(fs.readFileSync(path.join(PKG, 'data', 'settings.json'), 'utf8')); } catch (e) { problems.push('settings.json: ' + e.message); }
-    ['style', 'enabled', 'beemFlash'].forEach((key) => check(saved[key] === s.get(key), 'the saved ' + key + ' (' + saved[key] + ') is not the one in use (' + s.get(key) + ')'));
+    ['style', 'enabled', 'shiftAt'].forEach((key) => check(saved[key] === s.get(key), 'the saved ' + key + ' (' + saved[key] + ') is not the one in use (' + s.get(key) + ')'));
     errors().forEach((e) => problems.push('the kit logged an error: ' + e.split('\n')[0].slice(0, 220)));
     /* (the offline build has no RHMI description: the kit says so, and it is not the car's case) */
     const warns = sim.log.filter((l) => l.level === 'warn' && !/no rhmiData\/application\.json/.test(l.text))

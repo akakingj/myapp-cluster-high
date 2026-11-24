@@ -13,6 +13,17 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.14.1
+
+- **Korean for 0.14.0's settings.** *Shift now at*, *Cold engine*, *Cold rev limit*, *At the limiter* and their
+  choices were in ko.tsv but not in ko.json, which the build reads (`python3 kit/tools/sync_locales.py ko`);
+  `test/korean.test.js` now holds every setting's name and choice to ko.json, and ko.json to ko.tsv.
+- **The page's design pictures** (`app/previews_data.js`, `tools/make-previews.py`) drawn again: the M styles'
+  speedometer to 260 km/h, as the cluster has it since 0.13.0. The README's screenshots likewise.
+- Toro's *Shift lights* choice says it bursts at the limit or from *Shift now at*.
+- `tools/page-sim.js` asks about *Shift now at* where it asked about the BeeM-Flash setting (gone in 0.13.0).
+- docs/IN-CAR-TEST.md: S1 - S4, Shift now, the cold engine and the Car profile.
+
 ## AK 0.14.0
 
 - **The shift lights with the Car profile.** Every rev setting the Car profile sets is followed, at every value

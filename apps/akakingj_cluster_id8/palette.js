@@ -70,7 +70,7 @@
         clock12: false,
         secondaryGlyph: null,     /* the small glyph beside the gear; off */
         shiftLights: true,
-        /* toro (Lamborghini blades, bursts at the limit) | gt3 | blade | off */
+        /* toro (Lamborghini blades, bursts at the limit, or from Shift now at) | gt3 | blade | off */
         shiftStyle: 'toro',
         /* how hard the whole cluster shakes at the limiter: off | light | medium | hard */
         shake: 'medium',

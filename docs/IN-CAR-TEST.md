@@ -29,6 +29,15 @@ still stand, except where a newer check says otherwise.
 - For anything in the middle (a map, the camera): the car's **Instrument
   cluster > Central display area** on **Map view**.
 
+## Shift now, the cold engine and the Car profile (AK 0.14.0)
+
+| # | Do | Look for |
+|---|---|---|
+| S1 | Car profile: set *Red light at*, *Engine's top rpm*, *Yellow light at*, *Shift now warning at*, *Gauge goes up to* | Within a few seconds GENERAL shows each as *Redline*, *Limiter*, *Shift lights from*, *Shift now at*, *Tach scale* with "Car profile" beside it, and they can't be changed here. *Red light at → Auto* shows *At the limiter* |
+| S2 | *Shift now at* set (or Auto), rev past it, parked | The speed and the gear blink red, four times a second, in every style; in Toro the shift lights are full at the shift point and flash from there. Under it, nothing blinks |
+| S3 | *Shift now at → Off* | Nothing blinks at the shift point; Toro's shift lights flash at the limiter, as before |
+| S4 | Car profile *Cold-engine rev guard → On* (or GENERAL → *Cold engine* on), a cold start | The red field of the rev counter starts low (about the cold rev limit plus 300) and climbs to the redline as the oil reaches *Oil is warm at*; the shift point (S2) goes with it |
+
 ## M Track Mode (Beta 7, 0.10.0)
 
 A fourth style: BMW M's track view, rebuilt from one photograph
