@@ -181,3 +181,13 @@ test('Electric range on Automatic: a plug-in hybrid found by its drive modes, ke
     assert.ok(!fs.existsSync(path.join(dir2, 'vehicle.json')));
     fs.rmSync(dir, { recursive: true, force: true }); fs.rmSync(dir2, { recursive: true, force: true });
 });
+
+test('General: Car on the Plug-in hybrid is a plug-in hybrid\'s Electric range too, on Automatic, as Cluster Layouts\' Vehicle', () => {
+    const Main = require('../src/car/main.js');
+    assert.strictEqual(Main.electricOf({ electric: 'auto', profile: 'hybrid' }, false), 'hybrid');
+    assert.strictEqual(Main.electricOf({ electric: 'auto', profile: 'b48' }, false), 'off');
+    assert.strictEqual(Main.electricOf({ electric: 'auto', profile: 'b48' }, true), 'hybrid', 'found by the car itself');
+    /* chosen by hand: as chosen */
+    assert.strictEqual(Main.electricOf({ electric: 'off', profile: 'hybrid' }, true), 'off');
+    assert.strictEqual(Main.electricOf({ electric: 'bev', profile: 'b48' }, false), 'bev');
+});

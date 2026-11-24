@@ -257,7 +257,7 @@ function start(host, deps) {
             settings = host.settings() || {};
             /* (Electric range on Automatic: a plug-in hybrid's once found, else none) */
             autoElectric = settings.electric === 'auto';
-            if (autoElectric) settings = Object.assign({}, settings, { electric: phevFound ? 'hybrid' : 'off' });
+            if (autoElectric) settings = Object.assign({}, settings, { electric: electricOf(settings, phevFound) });
             applyFeedMode();
             /* your own start-up words come from a file (src/car/message.js) */
             if (settings.intro && settings.introMessage === 'custom') {
@@ -510,7 +510,18 @@ function start(host, deps) {
     };
 }
 
-module.exports = { start: start, shaders: shaders, carState: carState,
+/*
+ * General: Electric range on Automatic: a plug-in hybrid's when General: Car is the Plug-in hybrid, or once the car
+ * has shown it is one (found: lookForPhev), as Cluster Layouts' Vehicle; else none. Off, Plug-in hybrid and Fully
+ * electric are as chosen.
+ */
+function electricOf(settings, found) {
+    var e = settings && settings.electric;
+    if (e !== 'auto') return e;
+    return found || (settings && settings.profile === 'hybrid') ? 'hybrid' : 'off';
+}
+
+module.exports = { start: start, shaders: shaders, carState: carState, electricOf: electricOf,
                    ambientAccent: ambientAccent, FRAME_MS: FRAME_MS,
                    feedModeOf: feedModeOf, FEED_MODES: FEED_MODES,
                    ENGINE_RUNS_RPM: ENGINE_RUNS_RPM, BEEM_KEPT_MS: BEEM_KEPT_MS, AUTO_STOP_MS: AUTO_STOP_MS };

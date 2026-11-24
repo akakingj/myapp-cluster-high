@@ -13,6 +13,12 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.16.1
+
+- **GENERAL → Car → Plug-in hybrid is a plug-in hybrid's Electric range too** while that is on *Automatic*, as Cluster
+  Layouts' *Vehicle → Plug-in hybrid* is: the electric range, Power % and CHARGE without waiting for the car to show
+  it. Electric range chosen by hand (Off, Plug-in hybrid, Fully electric) stays as chosen.
+
 ## AK 0.16.0
 
 - **A plug-in hybrid's Power % in the rev counter's place**, as Cluster Layouts and BMW's own cluster show it

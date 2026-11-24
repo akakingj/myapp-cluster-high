@@ -99,9 +99,9 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
   BMW's bottom strip (show, trim or hide it), **electric range** for
   plug-in hybrids and fully electric cars (*Automatic* as it comes: on once
   the car shows it is a plug-in hybrid - its drive modes, or eDrive Live
-  sharing its battery's power - as Cluster Layouts finds one; a Car profile
-  set to a plug-in hybrid turns it on too; a fully electric car is chosen by
-  hand. A
+  sharing its battery's power - as Cluster Layouts finds one; *Car → Plug-in
+  hybrid*, or a Car profile set to a plug-in hybrid, turns it on too; a fully
+  electric car is chosen by hand. A
   hybrid gets its electric range beside the fuel's; a fully electric car
   gets range, charge and battery temperature in place of fuel and oil; in
   a plug-in hybrid's electric and hybrid modes, and always on an electric

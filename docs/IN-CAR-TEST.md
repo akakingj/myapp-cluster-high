@@ -215,7 +215,7 @@ plug-in hybrid), or chosen.
 | # | Check | Expect |
 |---|---|---|
 | V1 | Setting off, or *Automatic* on a petrol or diesel car | Nothing different anywhere |
-| V1b | Plug-in hybrid, *Automatic* (as it comes) | Within a few seconds of driving off, the electric range and (in HYBRID / ELECTRIC) Power % appear by themselves, and from the next start at once. **If they don't, say so** |
+| V1b | Plug-in hybrid, *Automatic* (as it comes; or *Car → Plug-in hybrid*: at once) | Within a few seconds of driving off, the electric range and (in HYBRID / ELECTRIC) Power % appear by themselves, and from the next start at once. **If they don't, say so** |
 | V2 | Plug-in hybrid, *Plug-in hybrid*, Toro | The lower left gauge reads **ELETTRICO MI** (or KM): its figure the electric range, its bar the battery's charge. **Compare the figure with BMW's own electric range and say both numbers** |
 | V3 | The same, M Sport, a footer place on *Electric range* and another on *Drive battery charge* | `EV 27 mi` and `CHARGE 78`, agreeing with BMW's own |
 | V4 | Electric car, *Electric car* | Toro: the fuel gauge's place reads ELETTRICO. M styles: the footer's range is the electric range, the fuel strip the charge |
