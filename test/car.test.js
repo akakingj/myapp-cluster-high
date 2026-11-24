@@ -46,11 +46,18 @@ test('each car\'s own figures: the most it revs, the red zone, the shift point, 
     assert.deepStrictEqual(fig('b48'), [7000, 7000, 6000, 6500, null, 260]);
     assert.deepStrictEqual(fig('b58'), [7500, 8000, 6500, 7000, null, 260]);
     assert.deepStrictEqual(fig('mCarS58'), [8000, 8000, 7000, 7500, 6500, 330]);
-    /* GENERAL's are not used for them, and are shown only for the Car profile's values */
+    /* GENERAL's are not used for them, and are shown only for a plug-in hybrid and the Car profile's values (the boost
+       gauge's top for the latter alone: a plug-in hybrid has no boost gauge) */
     assert.deepStrictEqual(fig('b48', { rpmRedline: '5000', scaleMaxRpm: '10000', shiftAt: 'off' }), fig('b48'));
-    for (const k of ['rpmRedline', 'rpmLimiter', 'shiftFrom', 'shiftAt', 'scaleMaxRpm', 'speedMax', 'boostMax', 'tankLitres']) {
-        assert.strictEqual(item(k).when.profile, 'carprofile', k);
+    for (const k of ['rpmRedline', 'rpmLimiter', 'shiftFrom', 'shiftAt', 'scaleMaxRpm', 'speedMax', 'tankLitres']) {
+        assert.deepStrictEqual(item(k).when.profile, ['hybrid', 'carprofile'], k);
     }
+    assert.strictEqual(item('boostMax').when.profile, 'carprofile');
+    /* a plug-in hybrid: as Cluster Layouts' Vehicle, GENERAL's (or the Car profile app's) figures; on Auto its own */
+    assert.deepStrictEqual(fig('hybrid'), [6500, 8000, 6000, null, null, 260]);
+    assert.deepStrictEqual(fig('hybrid', { rpmRedline: '6200', rpmLimiter: '6800', shiftAt: '6500', scaleMaxRpm: '7000', speedMax: '330' }),
+        [6800, 7000, 6200, 6500, null, 330]);
+    assert.strictEqual(Panel.profileFor('hybrid', { tankLitres: '40' }).tankLitres, 40);
     /* the Car profile's values: GENERAL's, as set there or by the Car profile app */
     assert.deepStrictEqual(fig('carprofile', { rpmRedline: '6200', rpmLimiter: '6800', shiftAt: '6500', scaleMaxRpm: '7000', speedMax: '330' }),
         [6800, 7000, 6200, 6500, null, 330]);

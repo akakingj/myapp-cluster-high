@@ -140,10 +140,11 @@ var PROFILES = {
         gearCount: 8, gearbox: 'ZF 8HP / DCT', boost: true, boostMaxPsi: 26, tankLitres: 59,
         extraZones: [M_BOX_A, M_BOX_B]
     },
+    /* a plug-in hybrid: as Cluster Layouts' Vehicle, its rev figures GENERAL's (set there or by the Car profile app;
+       on Auto / From the car these), its electric side from General: Electric range */
     hybrid: {
         id: 'hybrid', name: 'Plug-in hybrid (eDrive)', engine: 'B46/B58 PHEV', cylinders: 4, aspiration: 'turbo',
-        rpmMax: 7000, rpmRedline: 6000, rpmLimiter: 6500,
-        rev: { limiter: 6500, red: 6000, shift: null, yellow: null, speedMax: 260 },
+        rpmMax: 7000, rpmRedline: 6000, rpmLimiter: 6500, rev: null,
         gearCount: 8, gearbox: 'ZF 8HP', boost: false, boostMaxPsi: 18, tankLitres: 60, extraZones: [EDRIVE_BOX]
     },
     /* GENERAL's own figures, or the Car profile's (Redline and Limiter on "From the car": these) */
@@ -160,11 +161,11 @@ function profile(id) {
     return PROFILES[id] || PROFILES[DEFAULT_PROFILE];
 }
 
-/* The profile for a car, with GENERAL's tank and boost gauge where it is "carprofile" (tankLitres: the Car
-   profile's where it gives one; boostMax) */
+/* The profile for a car, with GENERAL's tank and boost gauge where its figures are GENERAL's (the Car profile's
+   values, a plug-in hybrid; tankLitres: the Car profile's where it gives one; boostMax) */
 function profileFor(id, settings) {
     var p = profile(id);
-    if (p.id !== 'carprofile' || !settings) return p;
+    if (p.rev || !settings) return p;
     var num = function (v, lo, hi, d) { v = Number(v); return v >= lo && v <= hi ? v : d; };
     var out = {}, k;
     for (k in p) if (Object.prototype.hasOwnProperty.call(p, k)) out[k] = p[k];

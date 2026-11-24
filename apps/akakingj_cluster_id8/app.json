@@ -390,7 +390,10 @@
         ]
       ],
       "when": {
-        "profile": "carprofile"
+        "profile": [
+          "hybrid",
+          "carprofile"
+        ]
       },
       "tab": "general"
     },
@@ -510,7 +513,10 @@
         ]
       ],
       "when": {
-        "profile": "carprofile"
+        "profile": [
+          "hybrid",
+          "carprofile"
+        ]
       },
       "tab": "general",
       "profile": "tankLitres"
@@ -636,7 +642,10 @@
         "0": "limiter"
       },
       "when": {
-        "profile": "carprofile"
+        "profile": [
+          "hybrid",
+          "carprofile"
+        ]
       }
     },
     {
@@ -756,7 +765,10 @@
         "0": "auto"
       },
       "when": {
-        "profile": "carprofile"
+        "profile": [
+          "hybrid",
+          "carprofile"
+        ]
       }
     },
     {
@@ -821,7 +833,10 @@
       "tab": "general",
       "profile": "lightStart",
       "when": {
-        "profile": "carprofile"
+        "profile": [
+          "hybrid",
+          "carprofile"
+        ]
       }
     },
     {
@@ -905,7 +920,10 @@
         "0": "auto"
       },
       "when": {
-        "profile": "carprofile"
+        "profile": [
+          "hybrid",
+          "carprofile"
+        ]
       }
     },
     {
@@ -1694,7 +1712,10 @@
       ],
       "when": {
         "engine": "petrol",
-        "profile": "carprofile"
+        "profile": [
+          "hybrid",
+          "carprofile"
+        ]
       },
       "tab": "general",
       "profile": "rpmScale"

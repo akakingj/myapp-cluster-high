@@ -91,9 +91,10 @@ Central display area* to *Map view*.
 
 Everything is set on the app's page on iDrive — nothing on the cluster.
 
-- **GENERAL**: on / off, start with the car, the style, units, **your car** (B48, B58, S58 or a plug-in hybrid,
-  each with its own red zone, limiter, shift point and speedometer; or *Car profile values*, which brings the
-  tach scale, redline, limiter and **Shift now at** to set yourself), **petrol or diesel**, the limiter flash
+- **GENERAL**: on / off, start with the car, the style, units, **your car** (B48, B58 or S58, each with its own
+  red zone, limiter, shift point and speedometer; a plug-in hybrid or *Car profile values*, which bring the
+  tach scale, redline, limiter and **Shift now at** to set yourself or from the Car profile app, as Cluster
+  Layouts does), **petrol or diesel**, the limiter flash
   (past the shift point the shift lights flash and the speed and the gear blink red, in every style), the
   **cold engine** guard (the shift point and the red zone lower while the oil is cold),
   BMW's bottom strip (show, trim or hide it), **electric range** for

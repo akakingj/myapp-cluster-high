@@ -18,6 +18,9 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
 - **GENERAL → Car → Plug-in hybrid is a plug-in hybrid's Electric range too** while that is on *Automatic*, as Cluster
   Layouts' *Vehicle → Plug-in hybrid* is: the electric range, Power % and CHARGE without waiting for the car to show
   it. Electric range chosen by hand (Off, Plug-in hybrid, Fully electric) stays as chosen.
+- **The plug-in hybrid's rev figures are GENERAL's**, as Cluster Layouts': Redline, Limiter, Shift lights from,
+  Shift now at, Tach scale, the speedometer's top and the fuel tank show for it as for *Car profile values*, set
+  there or by the Car profile app (on Auto / From the car: red from 6,000, limiter 6,500). It had fixed ones.
 
 ## AK 0.16.0
 

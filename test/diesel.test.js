@@ -106,7 +106,7 @@ test('Redline and Limiter can be set for a diesel, and the tach scale is a petro
         assert.strictEqual(s.rpmLimiter, Math.max(l, s.rpmRedline));
     }
     /* a diesel's dial reads 0 - 6: the scale's own choice (every style's, General) is offered to a petrol only */
-    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: 'petrol', profile: 'carprofile' });
+    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: 'petrol', profile: ['hybrid', 'carprofile'] });
     assert.strictEqual(item('scaleMaxRpm').tab, 'general');
     assert.strictEqual(item('scaleMaxRpm').default, '8000');
 });
