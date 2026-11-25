@@ -13,6 +13,16 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.17.1
+
+- **A plug-in hybrid's drive modes on the cluster.** The mode word now names what BMW's own cluster does on a plug-in
+  hybrid (*HYBRID*, *HYBRID ECO PRO*, *HYBRID COMFORT*, *ELECTRIC*, *ELECTRIC INDIVIDUAL*, *BATTERY CONTROL*, *SPORT*,
+  *SPORT INDIVIDUAL*, *XTRABOOST*), whether the car sends it by name or by number; Toro names them as the Revuelto
+  does (*CITTA* for electric, *STRADA* for hybrid, *RECHARGE* for battery control, *SPORT*, *CORSA* for XtraBoost).
+  Where a plug-in hybrid's mode showed nothing, it shows its name.
+- **Toro's fuel gauge says GASOLIO on a diesel** (BENZINA on a petrol car).
+- **LOGS** carry the litres in the tank as the car gives them, beside the fuel gauge's percentage.
+
 ## AK 0.17.0
 
 - **A LOGS tab**, as AK Cluster Layouts' Logs: what's needed to find a problem (the settings, the service's state, the

@@ -191,3 +191,26 @@ test('General: Car on the Plug-in hybrid is a plug-in hybrid\'s Electric range t
     assert.strictEqual(Main.electricOf({ electric: 'off', profile: 'hybrid' }, true), 'off');
     assert.strictEqual(Main.electricOf({ electric: 'bev', profile: 'b48' }, false), 'bev');
 });
+
+test('a plug-in hybrid\'s drive mode named as BMW\'s cluster names it (and Toro as the Revuelto), by name or by number', () => {
+    const FES = (v) => ({ actualValueModeDrivingExperience: v });
+    const names = (v) => Vehicle.phevNameOf(FES(v));
+    assert.deepStrictEqual(['PHEV_HYBRID_STANDARD', 'PHEV_HYBRID_ECO', 'PHEV_ELECTRIC_STANDARD', 'PHEV_ELECTRIC_INDIVIDUAL', 'PHEV_BATTERY_CONTROL',
+        'PHEV_SPORT_STANDARD', 'PHEV_SPORT_PLUS', 'XTRABOOST_ACTIVE', 'COMFORT', 'SPORT_DYNAMIC'].map(names),
+        ['HYBRID', 'HYBRID_ECO_PRO', 'ELECTRIC', 'ELECTRIC_INDIVIDUAL', 'BATTERY_CONTROL', 'PHEV_SPORT', 'XTRABOOST', 'XTRABOOST', undefined, undefined]);
+    assert.deepStrictEqual([0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x0F, 0x04].map(names),
+        ['HYBRID', 'HYBRID_ECO_PRO', 'HYBRID_COMFORT', 'ELECTRIC', 'ELECTRIC_INDIVIDUAL', 'BATTERY_CONTROL', 'PHEV_SPORT', undefined]);
+    /* a petrol car's modes by number too */
+    assert.deepStrictEqual([1, 2, 4, 7, 10, 0x11].map((n) => Vehicle.driveModeOf(FES(n))), ['SPORT', 'SPORT_PLUS', 'COMFORT', 'ECO_PRO', 'ADAPTIVE', undefined]);
+    /* through the reader into the label: BMW's names for the M styles, the Revuelto's for Toro */
+    const label = (v, style) => {
+        const r = Vehicle.createReader({});
+        r.receive('de.bmw.infotainment.drivingexcitement.FES', 'statusFESVehicleDynamicSwitchHMI', FES(v), 1000);
+        return State.present(r.raw(1100, 60), Panel.profile('carprofile'), { modeLabel: style }).modeLabel;
+    };
+    assert.deepStrictEqual(['PHEV_HYBRID_STANDARD', 'PHEV_ELECTRIC_STANDARD', 'PHEV_BATTERY_CONTROL', 0x14].map((v) => label(v, 'bmw')),
+        ['HYBRID', 'ELECTRIC', 'BATTERY CONTROL', 'ELECTRIC']);
+    assert.deepStrictEqual(['PHEV_HYBRID_STANDARD', 'PHEV_ELECTRIC_STANDARD', 'PHEV_BATTERY_CONTROL', 'PHEV_SPORT_STANDARD', 'PHEV_SPORT_PLUS'].map((v) => label(v, 'lamborghini')),
+        ['STRADA', 'CITTA', 'RECHARGE', 'SPORT', 'CORSA']);
+    assert.strictEqual(label('COMFORT', 'bmw'), 'COMFORT', 'a petrol car\'s as before');
+});

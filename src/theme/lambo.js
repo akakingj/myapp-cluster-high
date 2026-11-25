@@ -675,11 +675,13 @@
         var PW_HI = { hp: 400, ps: 400, kw: 300 }[UN.power] || 400;
         var TQ_HI = { nm: 600, kgm: 60, lbft: 450 }[UN.torque] || 600;
         var RAIL_HI = { psi: 5000, bar: 350, kpa: 35000 }[UN.press];
+        /* the fuel's name in Italian, as the car's own gauge names its fuel: petrol (benzina) or diesel (gasolio) */
+        var FUEL_WORD = S.engine === 'diesel' ? 'GASOLIO' : 'BENZINA';
         function gaugeKind(kind) {
             var P3 = { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press];
             var O3 = { psi: ['0', '70', '140'], bar: ['0', '5', '10'], kpa: ['0', '500', '1000'] }[UN.press];
             switch (kind) {
-            case 'fuel': return { icon: 0, label: 'BENZINA', key: 'fuel', marks: ['0', '50', '100'], red: [0, 0.12] };
+            case 'fuel': return { icon: 0, label: FUEL_WORD, key: 'fuel', marks: ['0', '50', '100'], red: [0, 0.12] };
             case 'coolant': return { icon: 1, label: 'TEMP. ACQUA', key: 'coolant', marks: tLabels([50, 90, 130]), red: [0.81, 1] };
             case 'oil': return { icon: 2, label: 'TEMP. OLIO', key: 'oilTemp', marks: tLabels([50, 110, 170]), red: [0.83, 1] };
             case 'oilp': return { icon: 2, label: 'PRESS. OLIO', pod: pressPod('oilBar', 10, true), marks: O3, red: [0, 0.08] };
@@ -772,7 +774,7 @@
         }
         slot('R1', function () {
             gaugeOr('fuel', 'fuel', RECTS.R1, {
-                side: 'right', icon: 0, label: 'BENZINA', key: 'fuel', dir: -1,
+                side: 'right', icon: 0, label: FUEL_WORD, key: 'fuel', dir: -1,
                 marks: ['0', '50', '100'], red: [0, 0.12]
             });
         });

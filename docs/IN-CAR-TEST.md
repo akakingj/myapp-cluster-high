@@ -242,6 +242,8 @@ writes to the car: the app can only read (docs/ENGINE-READINGS.md).
 | E8 | AK 0.17.0: M Sport, CLUSTER page → footers *Boost target*, *Fuel pressure: high*, *Fuel pressure: low*, engine running | `TGT` near the boost under load and about 0 at idle; `HPFP` some 30 – 60 bar at idle (B58 / B48), rising to some 200 – 350 bar under load; `LPFP` about 5 bar. **If any stays at `--`, say which** |
 | E9 | AK 0.17.0: footers *Peak boost*, *Peak engine power*, *0-60 mph (0-100 km/h) time*, *Last upshift*; a pull from a stop through two gears | The peaks hold the highest of the drive; the time counts from leaving the stop and stops at 60 mph (100 km/h); SHIFT shows the rpm you changed up at. **Say whether the time agrees with your own reckoning** |
 | E10 | AK 0.17.0: Toro, CLUSTER page → side gauges *Engine power*, *Engine torque*, *Fuel pressure: high*; M Track Mode rows the same | Each a scale (POTENZA, COPPIA, PRESS. RAIL; PWR, TQ, HPFP) whose bar follows the reading; nothing else moves. **Screenshots** |
+| E11 | AK 0.17.1: a plug-in hybrid, M Sport and Toro; each drive mode in turn (Hybrid, Electric, Battery Control, Sport, XtraBoost) | M Sport's mode word as BMW's own cluster names it; Toro's CITTA / STRADA / RECHARGE / SPORT / CORSA. **If a mode shows nothing or the wrong word, photograph the LOGS tab in that mode** |
+| E12 | AK 0.17.1: a diesel, Toro | The fuel gauge says GASOLIO. **Photograph BMW's own fuel gauge and the range beside the LOGS tab, to set the gauge against BMW's** |
 
 ## Beta 4 — what Beta 3's drive asked for
 

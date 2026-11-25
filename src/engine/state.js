@@ -28,10 +28,18 @@
      * road, Sport, and Corsa for the track. 'bmw' shows BMW's own name;
      * 'fixed' always shows the mode setting's text.
      */
+    /* (a plug-in hybrid's own, src/car/vehicle.js phevNameOf: as the Revuelto names its - CITTA on electricity
+       alone, STRADA the hybrid, RECHARGE charging the battery, CORSA the boost - and as BMW's cluster does) */
     var LAMBO = { COMFORT: 'STRADA', ECO_PRO: 'STRADA', ADAPTIVE: 'STRADA',
-                  SPORT: 'SPORT', SPORT_PLUS: 'CORSA', TRACK: 'CORSA' };
+                  SPORT: 'SPORT', SPORT_PLUS: 'CORSA', TRACK: 'CORSA',
+                  PHEV_SPORT: 'SPORT', PHEV_SPORT_INDIVIDUAL: 'SPORT', HYBRID: 'STRADA', HYBRID_ECO_PRO: 'STRADA',
+                  HYBRID_COMFORT: 'STRADA', ELECTRIC: 'CITTA', ELECTRIC_INDIVIDUAL: 'CITTA', BATTERY_CONTROL: 'RECHARGE',
+                  XTRABOOST: 'CORSA' };
     var BMW = { COMFORT: 'COMFORT', ECO_PRO: 'ECO PRO', ADAPTIVE: 'ADAPTIVE',
-                SPORT: 'SPORT', SPORT_PLUS: 'SPORT+', TRACK: 'TRACK' };
+                SPORT: 'SPORT', SPORT_PLUS: 'SPORT+', TRACK: 'TRACK',
+                PHEV_SPORT: 'SPORT', PHEV_SPORT_INDIVIDUAL: 'SPORT INDIVIDUAL', HYBRID: 'HYBRID', HYBRID_ECO_PRO: 'HYBRID ECO PRO',
+                HYBRID_COMFORT: 'HYBRID COMFORT', ELECTRIC: 'ELECTRIC', ELECTRIC_INDIVIDUAL: 'ELECTRIC INDIVIDUAL',
+                BATTERY_CONTROL: 'BATTERY CONTROL', XTRABOOST: 'XTRABOOST' };
     function modeLabelOf(mode, style, fallback) {
         if (style === 'fixed' || !mode) return fallback;
         var t = style === 'bmw' ? BMW : LAMBO;
@@ -255,7 +263,8 @@
             /* the gear with its programme, D1 / S1 / M1 (src/car/vehicle.js gearStaged; a bare figure is D's) */
             gearStaged: raw.gearStaged || (/^[1-9]$/.test(String(raw.gear)) ? 'D' + raw.gear : raw.gear || 'P'),
             driveMode: raw.driveMode || '',
-            modeLabel: modeLabelOf(raw.driveMode, opts.modeLabel,
+            /* a plug-in hybrid's own mode by its name first (HYBRID, ELECTRIC ...), else the drive mode */
+            modeLabel: modeLabelOf(raw.phevName || raw.driveMode, opts.modeLabel,
                                    opts.mode === undefined || opts.mode === null ? 'CORSA' : opts.mode),
             /* a plug-in hybrid's Power % in the rev counter's place (null: the rev counter): powerPct */
             power: power,

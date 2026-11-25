@@ -122,8 +122,13 @@ var MODE_PATTERNS = [
     [/TRACK|RACE/i, 'TRACK'], [/ADAPTIVE|ADAPTIV/i, 'ADAPTIVE'],
     [/SPORT|XTRABOOST/i, 'SPORT'], [/COMFORT|NORMAL|BASIS|BASE/i, 'COMFORT']
 ];
+/* the same by number, as Cluster Layouts reads them (its shared/data.js FES_MODES); a plug-in hybrid's own modes
+   other than its SPORT (0x11 - 0x16) are phevNameOf's */
+var MODE_BY_NUMBER = { 1: 'SPORT', 2: 'SPORT_PLUS', 3: 'SPORT', 4: 'COMFORT', 5: 'COMFORT', 6: 'COMFORT',
+                       7: 'ECO_PRO', 8: 'ECO_PRO', 9: 'ECO_PRO', 10: 'ADAPTIVE', 15: 'SPORT', 16: 'SPORT' };
 function driveModeOf(raw) {
     var v = member(raw, 'actualValueModeDrivingExperience');
+    if (typeof v === 'number') return MODE_BY_NUMBER[v];
     if (typeof v === 'string' && MODE_BY_KEY[v.toUpperCase()]) return MODE_BY_KEY[v.toUpperCase()];
     if (typeof v !== 'string') return undefined;
     for (var i = 0; i < MODE_PATTERNS.length; i++) {
@@ -149,6 +154,31 @@ function phevModeOf(raw) {
     if (/(XTRA|EXTRA)_?BOOST/.test(s) && !/NOT|INACTIVE|OFF|INVALID/.test(s)) return 'sport';
     if (!/PHEV/.test(s)) return undefined;
     return /ELECTRIC/.test(s) ? 'electric' : /HYBRID|BATTERY/.test(s) ? 'hybrid' : /SPORT/.test(s) ? 'sport' : undefined;
+}
+/*
+ * A plug-in hybrid's mode by the name BMW's own cluster shows (the key src/engine/state.js names it by): its SPORT
+ * (and SPORT INDIVIDUAL), HYBRID (and its ECO PRO and COMFORT), ELECTRIC (and INDIVIDUAL), BATTERY CONTROL, and
+ * XTRABOOST while that is on; by name, or by number as Cluster Layouts reads them (FES_MODES). undefined for any
+ * other: a petrol or diesel car's modes are driveModeOf's.
+ */
+var PHEV_NAMES = { 15: 'PHEV_SPORT', 16: 'PHEV_SPORT_INDIVIDUAL', 17: 'HYBRID', 18: 'HYBRID_ECO_PRO', 19: 'HYBRID_COMFORT',
+                   20: 'ELECTRIC', 21: 'ELECTRIC_INDIVIDUAL', 22: 'BATTERY_CONTROL' };
+var PHEV_PATTERNS = [
+    [/ELECTRIC_?INDIVIDUAL/, 'ELECTRIC_INDIVIDUAL'], [/ELECTRIC/, 'ELECTRIC'], [/BATTERY/, 'BATTERY_CONTROL'],
+    [/HYBRID_?ECO/, 'HYBRID_ECO_PRO'], [/HYBRID_?COMFORT/, 'HYBRID_COMFORT'], [/HYBRID/, 'HYBRID'],
+    [/SPORT_?PLUS/, 'XTRABOOST'], [/SPORT_?INDIVIDUAL/, 'PHEV_SPORT_INDIVIDUAL'], [/SPORT/, 'PHEV_SPORT']
+];
+function phevNameOf(raw) {
+    var v = member(raw, 'actualValueModeDrivingExperience');
+    if (typeof v === 'number') return PHEV_NAMES[v];
+    if (typeof v !== 'string') return undefined;
+    var s = v.toUpperCase();
+    if (/(XTRA|EXTRA)_?BOOST/.test(s) && !/NOT|INACTIVE|OFF|INVALID/.test(s)) return 'XTRABOOST';
+    if (!/PHEV/.test(s)) return undefined;
+    for (var i = 0; i < PHEV_PATTERNS.length; i++) {
+        if (PHEV_PATTERNS[i][0].test(s)) return PHEV_PATTERNS[i][1];
+    }
+    return undefined;
 }
 /* M cars: MDrive.controlDisplayMSystems.controlDisplayEngineMode. */
 function mEngineModeOf(raw) {
@@ -364,9 +394,11 @@ function createReader(opts) {
                 if (typeof b === 'number' && b >= 0 && b < 255) put('boostBus', b / 100, now);
                 put('driveMode', driveModeOf(value), now);
                 put('phevMode', phevModeOf(value), now);
+                put('phevName', phevNameOf(value), now);
             } else if (field === 'statusFESVehicleDynamicSwitchHMI') {
                 put('driveMode', driveModeOf(value), now);
                 put('phevMode', phevModeOf(value), now);
+                put('phevName', phevNameOf(value), now);
             }
         } else if (service === 'de.bmw.infotainment.misc.MDrive' && field === 'dataDisplayGearbox') {
             put('program', programOf(value), now);
@@ -449,12 +481,15 @@ function createReader(opts) {
             condition: held('condition'),
             driveMode: held('driveMode'),
             phevMode: held('phevMode'),
+            phevName: held('phevName'),
             program: held('program'),
             boostBar: boost,
             boostPeakBar: peakBoost,
             oilTempC: get('oilTempC', now),
             oilPressBar: get('oilPressBar', now),
             coolantC: get('coolantC', now),
+            /* the car's litres as it sends them (the Logs tab), and over the tank's size */
+            fuelLitres: typeof litres === 'number' ? litres : undefined,
             fuelPct: typeof litres === 'number' && tankLitres
                 ? Math.max(0, Math.min(100, litres / tankLitres * 100)) : undefined,
             odoKm: held('odoKm'),
@@ -499,6 +534,6 @@ module.exports = {
     createReader: createReader,
     scaled: scaled, stageOf: stageOf, gearText: gearText, gearStaged: gearStaged, programOf: programOf,
     selectionOf: selectionOf, conditionOf: conditionOf,
-    driveModeOf: driveModeOf, phevModeOf: phevModeOf, mEngineModeOf: mEngineModeOf, clockOffset: clockOffset,
+    driveModeOf: driveModeOf, phevModeOf: phevModeOf, phevNameOf: phevNameOf, mEngineModeOf: mEngineModeOf, clockOffset: clockOffset,
     averageL100: averageL100
 };
