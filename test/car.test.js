@@ -162,3 +162,26 @@ test('the move happens once, through the kit\'s own settings: saved, and the nex
         assert.strictEqual(s.get('engine'), 'petrol');
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('the Sport Display\'s boost and its gauge\'s end in the car\'s pressure unit; Boost gauge up to from the car (the Car profile\'s Auto)', () => {
+    const FES = 'de.bmw.infotainment.drivingexcitement.FES', VEH = 'de.bmw.infotainment.vehicle.Vehicle';
+    const r = Vehicle.createReader({});
+    const sport = (b, m) => r.receive(FES, 'statusSwitchDriveDynamicSport2', { displayBoostPressure: b, displayMaximumValueBoostPressure: m }, 1000);
+    sport(120, 200);
+    let x = r.raw(1000, 59);
+    assert.deepStrictEqual([+x.boostBar.toFixed(3), +x.boostMaxCar.toFixed(3)], [1.2, 2], 'hundredths of a bar');
+    /* a car set to psi: tenths of a psi (20 psi, raw 200, is 1.38 bar - not 2.0) */
+    r.receive(VEH, 'statusNewCurrentUnitsStatusExt', { unitOfMeasurementAirPressure: 3 }, 1000);
+    sport(150, 200);
+    x = r.raw(1000, 59);
+    assert.deepStrictEqual([+(x.boostBar * 14.503774).toFixed(1), +(x.boostMaxCar * 14.503774).toFixed(1)], [15, 20]);
+    /* a figure no gauge ends at is not taken */
+    sport(150, 30);
+    assert.strictEqual(+(r.raw(1000, 59).boostMaxCar * 14.503774).toFixed(1), 20);
+    assert.ok(Vehicle.SIGNALS[VEH].statusNewCurrentUnitsStatusExt);
+    /* the least pair at or over it */
+    assert.deepStrictEqual([1.16, 1.38, 2, 2.07, 3.9, undefined].map(Panel.snapBoost), ['1.5', '1.5', '2.0', '2.5', '3.5', null]);
+    /* the setting: from the car as it comes, the Car profile's alone (not on GENERAL), its Auto as from the car */
+    const it = item('boostMax');
+    assert.deepStrictEqual([it.default, it.hidden, it.profileMap['0'], it.options[0][1]], ['auto', true, 'auto', 'From the car\'s Sport Display']);
+});

@@ -312,7 +312,7 @@
       "options": [
         [
           "auto",
-          "Automatic (1.5 bar / 22 psi; an M car 1.8 bar / 26 psi)"
+          "From the car's Sport Display"
         ],
         [
           "1.0",
@@ -342,6 +342,7 @@
       "tab": "general",
       "profile": "boostMax",
       "profileMap": {
+        "0": "auto",
         "1": "1.0",
         "2": "2.0",
         "3": "3.0"
@@ -357,7 +358,8 @@
         "30": "2.0",
         "35": "3.0",
         "40": "3.0"
-      }
+      },
+      "hidden": true
     },
     {
       "key": "tankLitres",

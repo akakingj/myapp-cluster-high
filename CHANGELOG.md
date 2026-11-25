@@ -24,6 +24,11 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   (the Car profile's *Plug-in hybrid* sets it). A car chosen before - B48, B58, S58, Plug-in hybrid - has its figures
   put in GENERAL's settings once, at the first start, so the cluster reads as it did (in bar a B48's boost gauge
   ends at 1.5, the others' at 2.0); a boost top saved in psi reads as the pair Toro's gauge ended on.
+- **Boost gauge up to is set in the Car profile app** (not on GENERAL): a pair below, or *Auto* - the car's own
+  Sport Display's boost gauge end (FES displayMaximumValueBoostPressure, in the car's pressure unit), as the least
+  pair at or over it, kept for the next start; the kind of car's own until the car has sent it.
+- **The Sport Display's boost in the car's pressure unit**: tenths of a psi on a car set to psi (as AK Cluster
+  Layouts reads it), hundredths of a bar otherwise; before, a psi car's 20 psi read as 2.0 bar.
 - **Boost gauge up to** is a pair, as the car's own gauge reads it: 1.0 bar or 15 psi, 1.5 or 20, 2.0 or 30, 2.5 or
   35, 3.0 or 40, 3.5 or 50 - the end in the unit shown. Every boost gauge ends there where it is set: Toro's wedge,
   its PRESS. TURBO gauges and M Track's boost row (the frame's own 1.9 bar, 28 psi on *Automatic*), their numbers

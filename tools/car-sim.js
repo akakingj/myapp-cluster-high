@@ -26,6 +26,7 @@
  *        feeding  BeeM-Flash feeding throughout: its feed is not looked at
  *        idle     BeeM-Flash on the head unit (its folder is there) but not feeding
  *   CAR_SIM_BG=genuine|modern|revuelto Toro's background
+ *   CAR_SIM_BOOST_TOP=200             the Sport Display's boost gauge end it sends (raw; 255: none)
  *   CAR_SIM_DIESEL=1                   a diesel: it pulls to 5,050 rpm and cruises at 2,200, its
  *        engine unit is a DDE (it answers the standard identifiers - and BMW's petrol ones with
  *        figures that are not readings, which must never be asked for), and "Engine" is set to diesel
@@ -272,7 +273,7 @@ exports.value = (iface, field, t) => {
   if (iface === V2) return { speedVehicleCentreOfGravity: Math.round(d.kmh * 64) };
   if (iface === VI && field === 'DataPowerTrain2') return { statusGearSelectionDrive: d.gear };
   /* (CAR_SIM_NO_BUS_BOOST=1: a car whose Sport Display sends no boost - 255 is "no value") */
-  if (iface === FES && field === 'statusSwitchDriveDynamicSport2') return { displayBoostPressure: ${process.env.CAR_SIM_NO_BUS_BOOST ? '255' : 't > 5000 && t < 7600 ? 108 : 0'}, actualValueModeDrivingExperience: 'SPORT_EXPERT' };
+  if (iface === FES && field === 'statusSwitchDriveDynamicSport2') return { displayBoostPressure: ${process.env.CAR_SIM_NO_BUS_BOOST ? '255' : 't > 5000 && t < 7600 ? 108 : 0'}, displayMaximumValueBoostPressure: ${process.env.CAR_SIM_BOOST_TOP || 255}, actualValueModeDrivingExperience: 'SPORT_EXPERT' };
   if (iface === FES) return { actualValueModeDrivingExperience: 'SPORT_EXPERT' };
   if (iface === CDS2 && field === 'statusLateralAccelerationMassCenter') return { lateralAccelerationCentreOfGravity: Math.round((65 + 0.4 * 9.80665 * Math.sin(t / 700)) / 0.002) };
   if (iface === CDS2) return { longitudinalAccelerationCentreOfGravity: Math.round((65 + 0.3 * 9.80665) / 0.002) };

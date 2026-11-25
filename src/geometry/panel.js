@@ -168,6 +168,15 @@ function boostTicks(end, unit, roomer) {
     return out;
 }
 
+/* The car's Sport Display's boost gauge end (bar) as one of Boost gauge up to's pairs, its setting's value: the least at
+   or over it (null: none) */
+function snapBoost(bar) {
+    if (!(typeof bar === 'number' && bar > 0)) return null;
+    var ends = Object.keys(BOOST_PSI).map(Number).sort(function (a, b) { return a - b; });
+    for (var i = 0; i < ends.length; i++) if (ends[i] >= bar - 0.02) return ends[i].toFixed(1);
+    return '3.5';
+}
+
 /* The profile for a car with GENERAL's tank and boost gauge (each set there or by the Car profile app): boostBar,
    Boost gauge up to in bar, and boostPsi its pair (both null on Automatic: the kind's own, boostMaxPsi) */
 function profileFor(id, settings) {
@@ -284,6 +293,7 @@ return {
     figuresOfCar: figuresOfCar,
     moveCarFigures: moveCarFigures,
     PSI_PER_BAR: PSI_PER_BAR,
+    snapBoost: snapBoost,
     BOOST_PSI: BOOST_PSI,
     boostTicks: boostTicks,
     keepClear: keepClear,

@@ -47,6 +47,10 @@
     "de.bmw.infotainment.vehicle.Vehicle2": {
       "statusCarSpeed2": "rs"
     },
+    "de.bmw.infotainment.vehicle.Vehicle": {
+      "statusNewCurrentUnitsStatusExt": "rs",
+      "_optional": "The car's pressure unit: the Sport Display's boost comes in it"
+    },
     "de.bmw.infotainment.vehicle.CDS": {
       "statusEngineSpeed2": "rs",
       "statusEngineTemperature": "rs"
@@ -375,7 +379,7 @@
       "options": [
         [
           "auto",
-          "Automatic (1.5 bar / 22 psi; an M car 1.8 bar / 26 psi)"
+          "From the car's Sport Display"
         ],
         [
           "1.0",
@@ -405,6 +409,7 @@
       "tab": "general",
       "profile": "boostMax",
       "profileMap": {
+        "0": "auto",
         "1": "1.0",
         "2": "2.0",
         "3": "3.0"
@@ -420,7 +425,8 @@
         "30": "2.0",
         "35": "3.0",
         "40": "3.0"
-      }
+      },
+      "hidden": true
     },
     {
       "key": "tankLitres",

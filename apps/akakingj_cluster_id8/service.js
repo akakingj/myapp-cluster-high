@@ -182,6 +182,26 @@ function start(host, deps) {
     var vehicleFile = host.dataDir ? path.join(host.dataDir, 'vehicle.json') : null;
     var phevFound = false, autoElectric = false, phevLookedAt = -Infinity;
     try { phevFound = JSON.parse(fs.readFileSync(vehicleFile, 'utf8')).phev === true; } catch (e) { /* not yet */ }
+    var boostCarTop = null, boostFromCar = false;
+    try { boostCarTop = Panel.snapBoost(JSON.parse(fs.readFileSync(vehicleFile, 'utf8')).boostMaxCar); } catch (e) { /* not yet */ }
+    /* the Sport Display's boost gauge end, once it comes (or changes): kept, and the style built for it */
+    function lookForBoostTop(raw) {
+        var top = Panel.snapBoost(raw.boostMaxCar);
+        if (!top || top === boostCarTop) return;
+        boostCarTop = top;
+        log.info('vehicle: the Sport Display\'s boost gauge ends at ' + raw.boostMaxCar.toFixed(2) + ' bar: ' + top + ' bar');
+        saveVehicle({ boostMaxCar: raw.boostMaxCar });
+        if (boostFromCar) reconfigure();
+    }
+    /* what was found of the car (vehicle.json): added to what is there */
+    function saveVehicle(found) {
+        if (!vehicleFile) return;
+        try {
+            var saved = {};
+            try { saved = JSON.parse(fs.readFileSync(vehicleFile, 'utf8')) || {}; } catch (e) { /* none yet */ }
+            fs.writeFileSync(vehicleFile, JSON.stringify(Object.assign(saved, found)));
+        } catch (e) { log.warn('vehicle: cannot save ' + vehicleFile); }
+    }
     function lookForPhev(raw) {
         if (!autoElectric || phevFound || now() - phevLookedAt < 2000) return;
         phevLookedAt = now();
@@ -190,7 +210,7 @@ function start(host, deps) {
         if (!why) return;
         phevFound = true;
         log.info('vehicle: a plug-in hybrid (' + why + ')');
-        try { if (vehicleFile) fs.writeFileSync(vehicleFile, JSON.stringify({ phev: true, why: why })); } catch (e) { log.warn('vehicle: cannot save ' + vehicleFile); }
+        saveVehicle({ phev: true, why: why });
         reconfigure();
     }
     var needs = {};              /* what the style on the cluster shows of those readings */
@@ -266,6 +286,10 @@ function start(host, deps) {
             /* (Electric range on Automatic: a plug-in hybrid's once found, else none) */
             autoElectric = settings.electric === 'auto';
             if (autoElectric) settings = Object.assign({}, settings, { electric: electricOf(settings, phevFound) });
+            /* (Boost gauge up to, set in the Car profile: From the car's Sport Display - its own gauge's end as one of
+               the pairs, once the car has sent it (kept for the next start); until then the kind of car's own) */
+            boostFromCar = settings.boostMax === 'auto';
+            if (boostFromCar && boostCarTop) settings = Object.assign({}, settings, { boostMax: boostCarTop });
             applyFeedMode();
             /* your own start-up words come from a file (src/car/message.js) */
             if (settings.intro && settings.introMessage === 'custom') {
@@ -398,7 +422,7 @@ function start(host, deps) {
             } catch (e) { log.warn('providers: ' + e); }
 
             var raw = reader.raw(now(), profileTank(profile), fuelFrom());
-            try { lookForPhev(raw); } catch (e) { log.warn('vehicle: ' + e); }
+            try { lookForPhev(raw); lookForBoostTop(raw); } catch (e) { log.warn('vehicle: ' + e); }
             if (theme) raw = smoother.apply(raw, now(), Smooth.TAU[theme.settings.smoothing] || 0, theme.glide);
             var car = carState(raw);
             var enabled = theme && theme.settings.enabled;

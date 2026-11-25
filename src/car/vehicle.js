@@ -17,9 +17,14 @@
  * Competition's own SOME/IP catalog, the platform family the X3 M40i is on.
  */
 var Drive = require('./drive');
+var PSI_BAR = 14.503774;
 
 var SIGNALS = {
     'de.bmw.infotainment.vehicle.Vehicle2': { statusCarSpeed2: 'rs' },
+    'de.bmw.infotainment.vehicle.Vehicle': {
+        statusNewCurrentUnitsStatusExt: 'rs',
+        _optional: 'The car\'s pressure unit: the Sport Display\'s boost comes in it'
+    },
     'de.bmw.infotainment.vehicle.CDS': {
         statusEngineSpeed2: 'rs',
         statusEngineTemperature: 'rs'
@@ -299,6 +304,9 @@ function createReader(opts) {
         if (value === undefined) return;
         v[key] = { value: value, at: now };
     }
+    /* the car's pressure unit (statusNewCurrentUnitsStatusExt): the Sport Display's boost comes in it */
+    var carPress = null;
+    function inBar(raw) { return carPress === 'PSI' ? raw * 0.1 / PSI_BAR : raw / 100; }
     function get(key, now) {
         var e = v[key];
         if (!e) return undefined;
@@ -318,7 +326,13 @@ function createReader(opts) {
 
     function decode(service, field, value, now) {
         var b;
-        if (service === 'de.bmw.infotainment.vehicle.Vehicle2' && field === 'statusCarSpeed2') {
+        if (service === 'de.bmw.infotainment.vehicle.Vehicle' && field === 'statusNewCurrentUnitsStatusExt') {
+            /* the car's pressure unit (1 bar, 2 kPa, 3 psi; by name or number) */
+            var pu = value && typeof value === 'object' ? value.unitOfMeasurementAirPressure : value;
+            var pn = pu && typeof pu === 'object' ? (pu.name || pu.value) : pu;
+            var pp = { 1: 'BAR', 2: 'KPA', 3: 'PSI' }[pn] || (/BAR|KPA|PSI/.test(String(pn)) ? String(pn).match(/BAR|KPA|PSI/)[0] : null);
+            if (pp) carPress = pp;
+        } else if (service === 'de.bmw.infotainment.vehicle.Vehicle2' && field === 'statusCarSpeed2') {
             var sp = value && value.speedVehicleCentreOfGravity;
             /* 25601 and up is past 400 km/h: an invalid frame, not a speed */
             if (typeof sp === 'number' && sp < 25601) put('speedKmh', scaled(sp, 65535, 1 / 64), now);
@@ -388,9 +402,15 @@ function createReader(opts) {
             put('ambientC', scaled(value && value.temperatureExterior, 255, 0.5, -40), now);
         } else if (service === 'de.bmw.infotainment.drivingexcitement.FES') {
             if (field === 'statusSwitchDriveDynamicSport2') {
-                /* displayBoostPressure: hundredths of a bar, 255 = no value */
+                /* displayBoostPressure over atmosphere in the car's pressure unit, as BMW's Sport Display shows it:
+                   hundredths of a bar (or 1 kPa) a step, tenths of a psi on a car set to psi (as AK Cluster Layouts reads
+                   it); 255 = no value */
                 b = value && value.displayBoostPressure;
-                if (typeof b === 'number' && b >= 0 && b < 255) put('boostBus', b / 100, now);
+                if (typeof b === 'number' && b >= 0 && b < 255) put('boostBus', inBar(b), now);
+                /* ... and the Sport Display's own boost gauge's end, the same way (Boost gauge up to: From the car's
+                   Sport Display); a figure no boost gauge ends at (under 0.5 bar, past 4) is not taken */
+                var mx = value && value.displayMaximumValueBoostPressure;
+                if (typeof mx === 'number' && mx > 0 && mx < 255 && inBar(mx) >= 0.5 && inBar(mx) <= 4) put('boostMaxCar', inBar(mx), now);
                 put('driveMode', driveModeOf(value), now);
                 put('phevMode', phevModeOf(value), now);
                 put('phevName', phevNameOf(value), now);
@@ -492,6 +512,8 @@ function createReader(opts) {
             phevName: held('phevName'),
             program: held('program'),
             boostBar: boost,
+            /* the Sport Display's own boost gauge's end, bar (Boost gauge up to: From the car's Sport Display) */
+            boostMaxCar: held('boostMaxCar'),
             boostPeakBar: peakBoost,
             oilTempC: get('oilTempC', now),
             oilPressBar: get('oilPressBar', now),
