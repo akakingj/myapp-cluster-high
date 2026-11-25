@@ -104,7 +104,7 @@
       "_broadcasts": [
         "sendTasuResponse"
       ],
-      "_optional": "Oil pressure, intake air temperature, battery voltage, fuel pressures and the boost target read from the engine unit (read only), for cars without BeeM-Flash"
+      "_optional": "Oil pressure, intake air temperature, battery voltage, fuel pressures, the boost target and the fuel tank level read from the engine unit (read only), for cars without BeeM-Flash"
     }
   },
   "settings": [
@@ -520,6 +520,23 @@
       },
       "tab": "general",
       "profile": "tankLitres"
+    },
+    {
+      "key": "fuelFrom",
+      "label": "Fuel % from",
+      "type": "choice",
+      "default": "engine",
+      "options": [
+        [
+          "engine",
+          "Engine unit (OBD tank level)"
+        ],
+        [
+          "litres",
+          "Litres / tank size"
+        ]
+      ],
+      "tab": "general"
     },
     {
       "key": "rpmRedline",

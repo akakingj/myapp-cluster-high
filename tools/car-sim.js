@@ -290,7 +290,8 @@ exports.value = (iface, field, t) => {
 /*
  * The engine unit (0x12) on the diagnostic link, read-only identifiers as the open projects
  * publish them (docs/ENGINE-READINGS.md): oil pressure absolute 4436 (hPa) and ambient 4201,
- * intake air 580F, battery 5853, boost 580B and the barometer F433. Anything else is refused
+ * intake air 580F, battery 5853, boost 580B, the barometer F433 and the tank's level F42F (40 %,
+ * where the car's 41 L over 59 L would make 69 %). Anything else is refused
  * (NRC 31), any other unit does not answer, and nothing but a read is answered at all.
  */
 const be2 = (n) => [(n >> 8) & 255, n & 255];
@@ -310,6 +311,7 @@ ${DIESEL ? `  /*
   if (did === 0xF442) return reply(be2(14130));                                   /* 14.13 V */
   if (did === 0xF470) return reply([1, 0, 0].concat(be2(Math.round(150 / 0.03125))));   /* 150 kPa absolute */
   if (did === 0xF433) return reply([100]);
+  if (did === 0xF42F) return reply([102]);                                        /* 40 % */
   if (did === 0x4436 || did === 0x586F) return reply(be2(10014));
   if (did === 0x4201) return reply(be2(Math.round(1014 / 0.0390625)));
   if (did === 0x580F) return reply([180]);
@@ -322,6 +324,7 @@ ${DIESEL ? `  /*
   if (did === 0x5853) return reply(be2(14130));                                   /* 14.13 V */
   if (did === 0x580B) return reply(be2(Math.round(150 / 0.00390625)));            /* 150 kPa absolute */
   if (did === 0xF433) return reply([100]);
+  if (did === 0xF42F) return reply([102]);                                        /* 40 % */
   return [0x7F, 0x22, 0x31];
 };
 `);
@@ -698,9 +701,11 @@ async function main() {
     /* (Engine: diesel - its engine unit is asked only the standard identifiers, and there is none for oil pressure) */
     const dieselSet = settings.engine === 'diesel';
     const held = mFoot.concat(rows);
-    const wanted = THEME === 'toro' ? (oilGauge && !dieselSet) || (!!process.env.CAR_SIM_NO_BUS_BOOST && settings.showBoost !== false)
+    /* (the fuel gauge, in every style as it comes: the engine unit's tank level, unless Fuel % from keeps to litres) */
+    const tankWanted = settings.electric !== 'bev' && settings.fuelFrom !== 'litres';
+    const wanted = tankWanted || (THEME === 'toro' ? (oilGauge && !dieselSet) || (!!process.env.CAR_SIM_NO_BUS_BOOST && settings.showBoost !== false)
         : held.indexOf('iat') >= 0 || held.indexOf('volts') >= 0 || (rows.indexOf('oilp') >= 0 && !dieselSet) ||
-          (!!process.env.CAR_SIM_NO_BUS_BOOST && held.indexOf('boost') >= 0);
+          (!!process.env.CAR_SIM_NO_BUS_BOOST && held.indexOf('boost') >= 0));
     if (dieselSet) {
         const petrolOnly = Object.keys(ids).filter((k) => /^22 (4436|586F|4201|580F|5853|580B)$/.test(k));
         if (petrolOnly.length) problems.push('a diesel\'s engine unit was asked a petrol unit\'s identifier: ' + petrolOnly.join(', '));

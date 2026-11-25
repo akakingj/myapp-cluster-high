@@ -167,6 +167,9 @@
         scaleMaxRpm: 8000,
         /* petrol | diesel: a diesel's own rev range (DIESEL, below). Petrol as it comes. */
         engine: 'petrol',
+        /* engine | litres: the fuel gauge's figure, as AK Cluster Layouts' Fuel % from - the engine unit's
+           tank level while it answers, else the car's litres over the tank's size (src/car/vehicle.js) */
+        fuelFrom: 'engine',
         showZeroNumeral: false,  /* the brief keeps the 0 end unlabelled */
         redFromScale: null,      /* null: derive from rpmRedline */
         /*
@@ -288,6 +291,7 @@
 
         var diesel = settings.engine === 'diesel';
         s.engine = diesel ? 'diesel' : 'petrol';
+        s.fuelFrom = settings.fuelFrom === 'litres' ? 'litres' : 'engine';
         /* Whole thousands: every numeral lands on a mark. (A diesel's dial reads 0 - 6.) */
         var scale = diesel ? DIESEL.scaleMaxRpm
             : Math.round(clampNum(settings.scaleMaxRpm, 6000, 10000,

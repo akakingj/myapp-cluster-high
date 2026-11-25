@@ -81,3 +81,26 @@ test('the gear with its programme: D1, S1, M1 from MDrive.dataDisplayGearbox; P,
     assert.ok(Vehicle.SIGNALS['de.bmw.infotainment.misc.MDrive'].dataDisplayGearbox);
     assert.strictEqual(item('gearShows').default, 'staged');
 });
+
+test('the fuel gauge as AK Cluster Layouts\': the engine unit\'s tank level while it answers, else litres over the tank', () => {
+    const r = Vehicle.createReader({});
+    r.receive('de.bmw.infotainment.KombiIF', 'statusRangeTankStatus', { fluidLevelFuelTank: 20, range: 300 }, 1000);
+    /* no answer from the engine unit: the car's litres over the tank's size */
+    let x = r.raw(1000, 59, 'engine');
+    assert.ok(Math.abs(x.fuelPct - 20 / 59 * 100) < 1e-9);
+    assert.deepStrictEqual([x.fuelPctFrom, x.fuelLitres, x.tankPct], ['litres', 20, undefined]);
+    /* the engine unit's own level, while fresh */
+    r.setFeed('tankPct', 12.5, 1000);
+    x = r.raw(1000, 59, 'engine');
+    assert.deepStrictEqual([x.fuelPct, x.fuelPctFrom, x.tankPct], [12.5, 'engine', 12.5]);
+    /* GENERAL: Fuel % from: Litres / tank size keeps to the litres */
+    x = r.raw(1000, 59, 'litres');
+    assert.ok(Math.abs(x.fuelPct - 20 / 59 * 100) < 1e-9);
+    assert.strictEqual(x.fuelPctFrom, 'litres');
+    /* no longer fed (the engine reader keeps it a minute): back to the litres */
+    x = r.raw(5000, 59, 'engine');
+    assert.strictEqual(x.fuelPctFrom, 'litres');
+    /* the setting, as Layouts' */
+    const it = item('fuelFrom');
+    assert.deepStrictEqual([it.label, it.default, it.options.map((o) => o[0])], ['Fuel % from', 'engine', ['engine', 'litres']]);
+});

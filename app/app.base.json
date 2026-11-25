@@ -459,6 +459,23 @@
       "profile": "tankLitres"
     },
     {
+      "key": "fuelFrom",
+      "label": "Fuel % from",
+      "type": "choice",
+      "default": "engine",
+      "options": [
+        [
+          "engine",
+          "Engine unit (OBD tank level)"
+        ],
+        [
+          "litres",
+          "Litres / tank size"
+        ]
+      ],
+      "tab": "general"
+    },
+    {
       "key": "rpmRedline",
       "label": "Redline",
       "type": "choice",

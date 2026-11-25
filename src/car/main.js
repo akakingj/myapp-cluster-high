@@ -152,6 +152,8 @@ function start(host, deps) {
     var reader = Vehicle.createReader({});
     var smoother = Smooth.create();
     /* how long one frame is, from the refresh rate setting */
+    /* GENERAL: Fuel % from (engine | litres) */
+    function fuelFrom() { return theme && theme.settings.fuelFrom === 'litres' ? 'litres' : 'engine'; }
     function frameMs() {
         var hz = theme && theme.settings && theme.settings.refreshHz;
         return hz ? Math.max(16, Math.round(1000 / hz)) : FRAME_MS;
@@ -378,6 +380,7 @@ function start(host, deps) {
                     reader.setFeed('boostTargetBar', ev.boostTargetBar, now());
                     reader.setFeed('hpfpBar', ev.hpfpBar, now());
                     reader.setFeed('lpfpBar', ev.lpfpBar, now());
+                    reader.setFeed('tankPct', ev.tankPct, now());
                 }
                 /* (the reader uses it only while the Sport Display sends no boost of its own) */
                 reader.setBoostBar(ev.boostBar, now());
@@ -392,7 +395,7 @@ function start(host, deps) {
                 reader.setFeed('kwIn', pw.kwIn, now());
             } catch (e) { log.warn('providers: ' + e); }
 
-            var raw = reader.raw(now(), profileTank(profile));
+            var raw = reader.raw(now(), profileTank(profile), fuelFrom());
             try { lookForPhev(raw); } catch (e) { log.warn('vehicle: ' + e); }
             if (theme) raw = smoother.apply(raw, now(), Smooth.TAU[theme.settings.smoothing] || 0, theme.glide);
             var car = carState(raw);
@@ -434,6 +437,8 @@ function start(host, deps) {
             needs = { oil: !!shows.oil, iat: !!shows.iat, volts: !!shows.volts,
                       pedal: !!shows.pedal || powerable, throttle: !!shows.throttle, timing: !!shows.timing,
                       boostTarget: !!shows.boostTarget, hpfp: !!shows.hpfp, lpfp: !!shows.lpfp,
+                      /* the tank's level, unless GENERAL: Fuel % from keeps to the car's litres */
+                      tank: !!shows.tank && fuelFrom() === 'engine',
                       boost: !!shows.boost && !reader.hasBusBoost(now(), BUS_BOOST_MS) };
             var runs = typeof raw.rpm === 'number' && raw.rpm >= ENGINE_RUNS_RPM;
             if (runs) engineRanAt = now();
@@ -517,7 +522,7 @@ function start(host, deps) {
         snapshot: function () {
             var raw = {}, eng = null;
             try {
-                var r = reader.raw(now(), profileTank(profile));
+                var r = reader.raw(now(), profileTank(profile), fuelFrom());
                 Object.keys(r).forEach(function (k) {
                     var v = r[k];
                     if (typeof v === 'number') raw[k] = Math.round(v * 100) / 100;

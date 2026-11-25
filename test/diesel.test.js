@@ -318,7 +318,7 @@ test('a diesel\'s engine unit is asked only the standard identifiers, and never 
                                   boostAbs: ['DID F470', 'OBD 70', 'OBD 0B'], baro: ['DID F433', 'OBD 33'],
                                   boostTarget: ['DID F470', 'OBD 70'], hpfp: ['DID F423', 'DID F459', 'OBD 23'],
                                   lpfp: ['DID F40A', 'DID F422', 'OBD 0A', 'OBD 22'],
-                                  pedal: ['OBD 49'], throttle: ['OBD 11'], timing: ['OBD 0E'] });
+                                  pedal: ['OBD 49'], throttle: ['OBD 11'], timing: ['OBD 0E'], tank: ['DID F42F', 'OBD 2F'] });
     Object.keys(std).forEach((name) => std[name].forEach((id) => {
         assert.ok(all[name].includes(id), id + ' is one of the published identifiers');
         assert.match(id, /^(OBD [0-9A-F]{2}|DID F4[0-9A-F]{2})$/);
@@ -405,7 +405,7 @@ test('a petrol engine unit is asked as before; changing the engine starts the re
     const before = c.sent.length;
     e.tick(clock.t, { allowed: true, needs: ALL, diesel: true });
     assert.deepStrictEqual(e.values(clock.t), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
-        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined });
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined, tankPct: undefined });
     assert.ok(await run(e, clock, { allowed: true, needs: ALL, diesel: true }, () => e.values(clock.t).iatC !== undefined && e.values(clock.t).boostBar !== undefined),
         logs.join(' | '));
     await run(e, clock, { allowed: true, needs: ALL, diesel: true }, null, 200);

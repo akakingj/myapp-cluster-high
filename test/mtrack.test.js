@@ -482,12 +482,12 @@ test('each row can be given any reading, or left out: its figures, unit, symbol 
     assert.ok(Math.abs(u.u_val[0] - 0.42) < 1e-9 && Math.abs(u.u_val[1] - (14.1 - 10) / 6) < 1e-9 && u.u_val[2] === -1 &&
         Math.abs(u.u_val[3] - 0.78) < 1e-9);
     /* the engine unit is asked only for what a row or the footer shows */
-    const NONE = { boostTarget: false, hpfp: false, lpfp: false };
+    const NONE = { boostTarget: false, hpfp: false, lpfp: false, tank: true };
     assert.deepStrictEqual(t.shows, Object.assign({ oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false }, NONE));
     assert.deepStrictEqual(build().shows, Object.assign({ oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false }, NONE));
     assert.deepStrictEqual(build({ kRow1: 'off', kRow4: 'off', kFootR: 'iat' }).shows, Object.assign({ oil: false, boost: false, iat: true, volts: false, pedal: false, throttle: false, timing: false }, NONE));
     assert.deepStrictEqual(build({ kRow1: 'hpfp', kRow2: 'power', kFootL: 'boostTarget', kFootM: 'boostPeak' }).shows,
-        { oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false, boostTarget: true, hpfp: true, lpfp: false });
+        { oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false, boostTarget: true, hpfp: true, lpfp: false, tank: true });
     /* all four left out: no rows at all */
     const none = build({ kRow1: 'off', kRow2: 'off', kRow3: 'off', kRow4: 'off' });
     assert.ok(!none.layers.some((L) => /^row/.test(L.id)));

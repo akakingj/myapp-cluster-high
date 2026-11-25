@@ -723,10 +723,19 @@ test('each of the four side gauges can be given a reading or nothing; auto keeps
     const set = { units: 'metric', gaugeL1: 'gearbox', gaugeL2: 'iat', gaugeR1: 'volts', gaugeR2: 'off' };
     const t = Theme.build(atlas, 'carprofile', set);
     assert.deepStrictEqual(ids(t), ['bar_gL1', 'bar_gL2', 'bar_gR1']);
-    const NONE = { boostTarget: false, hpfp: false, lpfp: false };
+    /* (the fuel gauge given another reading: the tank's level is not asked for) */
+    const NONE = { boostTarget: false, hpfp: false, lpfp: false, tank: false };
     assert.deepStrictEqual(t.shows, Object.assign({ oil: false, boost: true, iat: true, volts: true, pedal: false, throttle: false, timing: false }, NONE));
     assert.deepStrictEqual(Theme.build(atlas, 'carprofile', { gaugeR1: 'oilp', gaugeR2: 'volts', showAuxLeft: false, showBoost: false }).shows,
         Object.assign({ oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false }, NONE));
+    /* the fuel gauge in its own place, or given to another: asked for */
+    assert.strictEqual(Theme.build(atlas, 'carprofile', {}).shows.tank, true);
+    assert.strictEqual(Theme.build(atlas, 'carprofile', { gaugeR1: 'volts', gaugeL1: 'fuel' }).shows.tank, true);
+    /* an electric car's fuel gauge is its battery: not asked for */
+    assert.strictEqual(Theme.build(atlas, 'carprofile', { electric: 'bev' }).shows.tank, false);
+    /* M Sport's fuel strip: asked for; an electric car's strip is its battery's */
+    assert.strictEqual(Theme.build(atlas, 'carprofile', { style: 'track' }).shows.tank, true);
+    assert.strictEqual(Theme.build(atlas, 'carprofile', { style: 'track', electric: 'bev' }).shows.tank, false);
     /* (the same readings as Cluster Layouts' gauges: the engine's power and torque, the fuel pressures, the drive battery) */
     const more = Theme.build(atlas, 'carprofile', { units: 'metric', electric: 'hybrid', gaugeL1: 'power', gaugeL2: 'hpfp', gaugeR1: 'charge', gaugeR2: 'torque' });
     assert.deepStrictEqual(ids(more), ['bar_gL1', 'bar_gL2', 'bar_gR1', 'bar_gR2']);

@@ -2,8 +2,8 @@
 /*
  * Readings the car's bus does not carry, asked of the engine unit itself:
  * oil pressure, the intake air's temperature, the battery's voltage, the
- * accelerator pedal, the throttle's opening and the ignition angle - and
- * boost, for a car whose Sport Display sends none. For a head unit without
+ * accelerator pedal, the throttle's opening, the ignition angle and the
+ * fuel tank's level - and boost, for a car whose Sport Display sends none. For a head unit without
  * BeeM-Flash, whose feed (src/car/feed.js) supplies the same readings.
  *
  * READ ONLY, and lightly.
@@ -113,6 +113,11 @@ var CANDIDATES = {
     timing: [
         c({ did: '59FA', bytes: 1, signed: true, factor: 0.75, min: -40, max: 70 }),
         c({ obd: '0E', bytes: 1, factor: 0.5, offset: -64, min: -40, max: 63.5 })
+    ],
+    /* the fuel tank's level, the engine unit's own fill in % (as AK Cluster Layouts and Live Data read it) */
+    tank: [
+        c({ did: 'F42F', bytes: 1, factor: 100 / 255, min: 0, max: 101 }),
+        c({ obd: '2F', bytes: 1, factor: 100 / 255, min: 0, max: 101 })
     ]
 };
 
@@ -129,7 +134,7 @@ var STANDARD = {};
 Object.keys(CANDIDATES).forEach(function (name) { STANDARD[name] = CANDIDATES[name].filter(isStandard); });
 /* the candidates each reading is read through, first to last (boost and oil are taken over a second one) */
 var LISTS = { boost: 'boostAbs', boostTarget: 'boostTarget', oil: 'oilAbs', iat: 'iat', volts: 'volts', pedal: 'pedal', throttle: 'throttle',
-              timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp' };
+              timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp', tank: 'tank' };
 
 /*
  * The readings: how often each is asked while it is shown, and how long a
@@ -146,9 +151,11 @@ var READINGS = {
     timing: { everyMs: 500, keepMs: 2500, words: 'ignition timing' },
     boostTarget: { everyMs: 500, keepMs: 2500, words: 'boost target' },
     hpfp: { everyMs: 1000, keepMs: 5000, words: 'high fuel pressure' },
-    lpfp: { everyMs: 2000, keepMs: 9000, words: 'low fuel pressure' }
+    lpfp: { everyMs: 2000, keepMs: 9000, words: 'low fuel pressure' },
+    /* (AK Cluster Layouts' own: every 10 s, kept a minute) */
+    tank: { everyMs: 10000, keepMs: 60000, words: 'fuel tank level' }
 };
-var ORDER = ['boost', 'oil', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp'];
+var ORDER = ['boost', 'oil', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp', 'tank'];
 var SLOW_MS = 60000;          /* ambient pressure and the barometer: once a minute */
 var MISS_LIMIT = 3;           /* answers missed in a row before a reading goes quiet */
 var RETRY_MS = 60000;         /* ... and is then asked this often */
@@ -261,6 +268,7 @@ function create(opts) {
         timing: function (rd) { return rd.value(nameOf('timing'), list('timing')); },
         hpfp: function (rd) { return rd.value(nameOf('hpfp'), list('hpfp')); },
         lpfp: function (rd) { return rd.value(nameOf('lpfp'), list('lpfp')); },
+        tank: function (rd) { return rd.value(nameOf('tank'), list('tank')).then(pct); },
         boostTarget: function (rd, now) {
             var first = now - baro.at > SLOW_MS ? rd.value(nameOf('baro'), list('baro')) : Promise.resolve(null);
             return Promise.resolve(first).then(function (b) {
@@ -330,7 +338,7 @@ function create(opts) {
 
     return {
         /*
-         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost, pedal, throttle, timing, boostTarget, hpfp, lpfp },
+         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost, pedal, throttle, timing, boostTarget, hpfp, lpfp, tank },
          * diesel }.
          * allowed is the service's whole say-so (see the top of this file);
          * needs is what the style on the cluster is showing; diesel is the
@@ -368,7 +376,7 @@ function create(opts) {
             function fresh(k) { var j = jobs[k]; return known(j.value) && now - j.at <= READINGS[k].keepMs ? j.value : undefined; }
             return { oilBar: fresh('oil'), iatC: fresh('iat'), batteryV: fresh('volts'), boostBar: fresh('boost'),
                      pedalPct: fresh('pedal'), throttlePct: fresh('throttle'), timingDeg: fresh('timing'),
-                     boostTargetBar: fresh('boostTarget'), hpfpBar: fresh('hpfp'), lpfpBar: fresh('lpfp') };
+                     boostTargetBar: fresh('boostTarget'), hpfpBar: fresh('hpfp'), lpfpBar: fresh('lpfp'), tankPct: fresh('tank') };
         },
         /* for the app's page: { state, have: [words], missing: [words] } */
         info: function (needs, now) {
@@ -412,7 +420,7 @@ var INTERFACE = {
         _instances: 'SystemFunctionsInternalTasuInst1',
         _methods: ['sendTasuRequest'],
         _broadcasts: ['sendTasuResponse'],
-        _optional: 'Oil pressure, intake air temperature, battery voltage, fuel pressures and the boost target read from the engine unit (read only), for cars without BeeM-Flash'
+        _optional: 'Oil pressure, intake air temperature, battery voltage, fuel pressures, the boost target and the fuel tank level read from the engine unit (read only), for cars without BeeM-Flash'
     }
 };
 

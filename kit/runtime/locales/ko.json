@@ -2725,5 +2725,8 @@
   "Cold engine: shift point with the oil at 30 °C": "냉간: 오일 30 °C일 때 변속 시점",
   "Off (the red zone where it is set)": "끔 (설정한 레드 존 그대로)",
   "On (as the Redline app: from the cold rev limit up to the red line as the oil warms)": "켬 (Redline 앱처럼: 오일이 데워지면서 냉간 회전수 제한에서 레드라인까지)",
-  "Shift now warning at": "변속 경고 rpm"
+  "Shift now warning at": "변속 경고 rpm",
+  "Engine unit (OBD tank level)": "엔진 ECU (OBD 연료량)",
+  "Fuel % from": "연료 % 출처",
+  "Litres / tank size": "남은 리터 / 탱크 용량"
 }

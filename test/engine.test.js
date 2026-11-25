@@ -100,7 +100,7 @@ test('every identifier asked is in the table of where it is published, and the t
     const ids = Engine.identifiers();
     Object.keys(ids).forEach((name) => ids[name].forEach((id) => { asked[id] = true; }));
     assert.deepStrictEqual(Object.keys(asked).sort(), Object.keys(listed).sort());
-    assert.strictEqual(Object.keys(asked).length, 31);
+    assert.strictEqual(Object.keys(asked).length, 33);
     /* and the kit's own guard takes every one of them for a read, of the engine unit and nothing else */
     Object.keys(Engine.CANDIDATES).forEach((name) => Engine.CANDIDATES[name].forEach((cand) => {
         assert.strictEqual(cand.ecu, 0x12, name);
@@ -114,7 +114,7 @@ test('the readings, decoded: oil pressure over ambient, intake air, battery, boo
     const c = car(B58), logs = [], o = opener(c, logs), clock = { t: 1000000 };
     const e = Engine.create({ open: o.open, log: o.log, now: () => clock.t });
     assert.deepStrictEqual(e.values(clock.t), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
-        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined });
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined, tankPct: undefined });
     assert.ok(await run(e, clock, { allowed: true, needs: ALL }, () => {
         const v = e.values(clock.t);
         return v.oilBar !== undefined && v.iatC !== undefined && v.batteryV !== undefined && v.boostBar !== undefined;
@@ -304,7 +304,7 @@ test('no diagnostic link on the head unit: said once, tried again a minute later
     const none = Engine.create({ now: () => 0 });
     none.tick(0, { allowed: true, needs: ALL });
     assert.deepStrictEqual(none.values(0), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
-        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined });
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined, tankPct: undefined });
     e.stop(); none.stop();
 });
 
@@ -359,4 +359,30 @@ test('the accelerator pedal, the throttle and the ignition angle: BMW\'s identif
     await run(e3, clock3, { allowed: true, needs: { volts: true } }, null, 200);
     assert.ok(!c3.sent.some((r) => /5814|4600|59FA|01 49|01 11|01 0E/.test(r.key)));
     e3.stop();
+});
+
+test('the fuel tank\'s level, as Cluster Layouts reads it: the engine unit\'s own %, every 10 s, kept a minute, only while shown', async () => {
+    const answers = Object.assign({}, B58, { '22 F42F': [128] });          /* 128 / 255 = 50.2 % */
+    const c = car(answers), logs = [], o = opener(c, logs), clock = { t: 1000000 };
+    const e = Engine.create({ open: o.open, log: o.log, now: () => clock.t });
+    /* not shown: never asked */
+    await run(e, clock, { allowed: true, needs: { iat: true } }, null, 200);
+    assert.ok(!c.sent.some((r) => r.key === '22 F42F'));
+    const needs = { tank: true };
+    assert.ok(await run(e, clock, { allowed: true, needs }, () => e.values(clock.t).tankPct !== undefined), logs.join(' | '));
+    assert.ok(Math.abs(e.values(clock.t).tankPct - 128 / 255 * 100) < 1e-9);
+    assert.ok(logs.some((l) => /fuel tank level from the engine unit \(F42F\)/.test(l)), logs.join(' | '));
+    /* asked again only 10 s on */
+    const asked = () => c.sent.filter((r) => r.key === '22 F42F').length, n = asked();
+    for (let i = 0; i < 50; i++) { clock.t += 100; e.tick(clock.t, { allowed: true, needs }); await wait(1); }
+    assert.strictEqual(asked(), n, 'not asked again within 10 s');
+    /* standing down: the figure is kept for a minute, then gone */
+    e.tick(clock.t, { allowed: false, needs });
+    clock.t += 30000;
+    assert.notStrictEqual(e.values(clock.t).tankPct, undefined);
+    clock.t += 31000;
+    assert.strictEqual(e.values(clock.t).tankPct, undefined);
+    e.stop();
+    /* a diesel is asked it too: a standard PID */
+    assert.deepStrictEqual(Engine.identifiers(true).tank, ['DID F42F', 'OBD 2F']);
 });

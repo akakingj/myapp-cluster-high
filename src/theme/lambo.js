@@ -967,7 +967,9 @@
                     these and no others. The second left gauge is oil pressure when there is
                     one and turbo pressure when there is not, so it wants both. */
                  shows: Object.assign(Readings.shows(['L1', 'L2', 'R1', 'R2'].map(function (n) { return S.gauges[n]; })),
-                          { oil: auxLeft || anyGauge(['oilp']), boost: !!(P.boost && (S.showBoost || auxLeft)) || anyGauge(['boost']) }),
+                          { oil: auxLeft || anyGauge(['oilp']), boost: !!(P.boost && (S.showBoost || auxLeft)) || anyGauge(['boost']),
+                            /* the tank's level: the fuel gauge, its own place's or one given it */
+                            tank: (S.gauges.R1 === 'auto' && evSlot !== 'fuel') || anyGauge(['fuel']) }),
                  settings: S, palette: C, guide: G, imperial: imperial,
                  dial: { centre: DC, rOuter: rOuter, ang: ANG, redV: redV } };
     }

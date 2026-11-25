@@ -854,9 +854,9 @@
                  palette: K, imperial: !kmh, hasCentre: true, art: A,
                  /* the picture's rectangle on the artboard, where the glass is held to it (lowered: null as it comes) */
                  slot: plus ? slot : null,
-                 /* readings shown that the car's bus may not carry (see Toro's): here only
-                    what the footer's places hold */
-                 shows: Readings.shows([S.footL, S.footM, S.footR]),
+                 /* readings shown that the car's bus may not carry (see Toro's): what the footer's
+                    places hold, and the tank's level for the frame's fuel strip (an electric car has none) */
+                 shows: Object.assign(Readings.shows([S.footL, S.footM, S.footR]), bev ? {} : { tank: true }),
                  /* the fullest window's pads, or the widest's four (null: another window) */
                  pads: pads,
                  /* the widest window's field: the picture's rectangle on the artboard, to the field's foot (null: another window) */

@@ -436,7 +436,7 @@ function createReader(opts) {
        feed, src/car/feed.js, where a host turns one on); a plug-in hybrid's
        battery power and its limits (kW), from eDrive Live (src/car/providers.js).
        They age out like any other, so a source that stops leaves dashes, not a number. */
-    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg', 'boostTargetBar', 'hpfpBar', 'lpfpBar', 'kw', 'kwOut', 'kwIn'];
+    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg', 'boostTargetBar', 'hpfpBar', 'lpfpBar', 'tankPct', 'kw', 'kwOut', 'kwIn'];
     function setFeed(key, value, now) {
         if (FED.indexOf(key) >= 0 && typeof value === 'number' && isFinite(value)) {
             put(key, value, now || Date.now());
@@ -445,11 +445,20 @@ function createReader(opts) {
 
     var peakBoost = 0, peakLat = 0, peakLon = 0, lastPeak = 0;
 
-    function raw(now, tankLitres) {
+    function raw(now, tankLitres, fuelFrom) {
         now = now || Date.now();
         /* the tank is read slowly; holding it stops the gauge blinking
            between a number and dashes between polls */
         var litres = held('fuelLitres');
+        /*
+         * The fuel gauge's figure, as AK Cluster Layouts': the engine unit's own tank level (OBD PID 0x2F,
+         * src/car/engine.js) while it answers, else the car's litres over the tank's size. fuelFrom
+         * 'litres' (GENERAL: Fuel % from) keeps to the litres.
+         */
+        var byLitres = typeof litres === 'number' && tankLitres
+            ? Math.max(0, Math.min(100, litres / tankLitres * 100)) : undefined;
+        var byEngine = fuelFrom === 'litres' ? undefined : get('tankPct', now);
+        var fuelPct = typeof byEngine === 'number' ? byEngine : byLitres;
         var boost = get('boostBus', now);
         if (boost === undefined) boost = get('boostDme', now);
         var latR = get('gLat', now), lonR = get('gLon', now);
@@ -488,10 +497,11 @@ function createReader(opts) {
             oilTempC: get('oilTempC', now),
             oilPressBar: get('oilPressBar', now),
             coolantC: get('coolantC', now),
-            /* the car's litres as it sends them (the Logs tab), and over the tank's size */
+            /* the car's litres as it sends them and the engine unit's level (the Logs tab), and the gauge's figure */
             fuelLitres: typeof litres === 'number' ? litres : undefined,
-            fuelPct: typeof litres === 'number' && tankLitres
-                ? Math.max(0, Math.min(100, litres / tankLitres * 100)) : undefined,
+            tankPct: byEngine,
+            fuelPct: fuelPct,
+            fuelPctFrom: typeof byEngine === 'number' ? 'engine' : typeof byLitres === 'number' ? 'litres' : undefined,
             odoKm: held('odoKm'),
             /* the trip computer's distance and time, the gearbox oil, the torque */
             tripKm: held('tripKm'),

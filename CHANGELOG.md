@@ -20,8 +20,14 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   *SPORT INDIVIDUAL*, *XTRABOOST*), whether the car sends it by name or by number; Toro names them as the Revuelto
   does (*CITTA* for electric, *STRADA* for hybrid, *RECHARGE* for battery control, *SPORT*, *CORSA* for XtraBoost).
   Where a plug-in hybrid's mode showed nothing, it shows its name.
+- **The fuel gauge reads as AK Cluster Layouts' does**, in every style: the engine unit's own tank level (OBD PID 0x2F,
+  `DID F42F`, then `OBD 2F`; a diesel too: it is a standard PID), asked every 10 s while a fuel gauge or place is
+  shown and the engine runs, kept a minute; otherwise, and before the engine has answered, the car's litres over the
+  tank's size. *GENERAL → Fuel % from*, as Layouts' setting: *Engine unit (OBD tank level)* (as it comes) or
+  *Litres / tank size*, which never asks.
 - **Toro's fuel gauge says GASOLIO on a diesel** (BENZINA on a petrol car).
-- **LOGS** carry the litres in the tank as the car gives them, beside the fuel gauge's percentage.
+- **LOGS** carry the litres in the tank as the car gives them and the engine unit's level, beside the fuel gauge's
+  percentage and which of the two it is.
 
 ## AK 0.17.0
 

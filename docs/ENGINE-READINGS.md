@@ -92,6 +92,8 @@ OBD identifiers are OBD-II service 01 PIDs (SAE J1979), a public standard;
 | | `OBD 11` | 1 byte × 100 / 255, % | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`, `apps/live_data/useful.js` |
 | Ignition angle | `DID 59FA` | 1 byte, signed × 0.75, degrees before top dead centre | cauliflowermossgrape/idrive7-apps `apps/live_data/useful.js`, `apps/live_data/builtin/DME8FF_R.json` |
 | | `OBD 0E` | 1 byte × 0.5 − 64, degrees before top dead centre | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`, `apps/live_data/useful.js` |
+| Fuel tank level, the engine unit's own fill | `DID F42F` | 1 byte × 100 / 255, % | SAE J1979 (PID 2F); eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| | `OBD 2F` | 1 byte × 100 / 255, % | SAE J1979; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
 
 (Read at ALMSTRA/idv7lol `58e2418`, cauliflowermossgrape/idrive7-apps
 `a948390`, ZEKAI-Design/ID7-Cluster-Themes `8a4f72f`, eroobeeroo/idrive7-cluster-info
@@ -105,7 +107,7 @@ number outside the plausible range is not shown: oil pressure 0 – 20 bar
 over ambient, intake air −45 – 150 °C, battery 5 – 18 V, the pedal and the
 throttle −2 – 102 % (shown 0 – 100 %), the ignition angle −40 – 70 °, the boost
 target 20 – 400 kPa absolute (600 by the standard forms), the fuel rail 0 – 500 bar,
-the supply 0.5 – 8 bar (15 over the manifold).
+the supply 0.5 – 8 bar (15 over the manifold), the tank 0 – 101 % (shown 0 – 100 %).
 
 **Oil pressure** is the absolute reading less the engine unit's own
 ambient pressure — what the pump makes — as both upstream projects compute
@@ -115,6 +117,12 @@ barometer (101.3 kPa until the engine unit has told us its own), and is
 used only while the car's Sport Display sends no boost of its own. The
 **boost target** is taken over the same barometer. Each is read only while
 a place shows it, as Cluster Layouts reads them (its `config.dme`).
+
+The **fuel gauge** is Cluster Layouts' own figure: the engine unit's tank
+level while it answers (asked every 10 s while a fuel gauge or place is
+shown, kept a minute), otherwise the car's litres over *GENERAL → Fuel tank
+size*. *GENERAL → Fuel % from → Litres / tank size* keeps to the litres and
+never asks.
 
 ## A diesel
 
@@ -139,6 +147,7 @@ What a diesel is asked, each from the table above:
   **Fuel supply pressure**: `DID F40A`, `DID F422`, `OBD 0A`, then `OBD 22`.
 - **Accelerator pedal**: `OBD 49`. **Throttle**: `OBD 11`. **Ignition
   angle**: `OBD 0E` (a diesel has none to give).
+- **Fuel tank level**: `DID F42F`, then `OBD 2F`.
 
 Everything else is as for a petrol car: only while the engine runs, only
 what a style shows, one request at a time. Changing *Engine* drops what was read and starts
