@@ -22,50 +22,72 @@ function settingsClass(dir) {
     return new Function('fs', 'path', 'DATA_DIR', 'log', src.slice(from, to) + '\nreturn Settings;')(fs, path, dir, { info() {}, warn() {}, error() {} });
 }
 
-test('the five cars: B48, B58, S58, a plug-in hybrid, the Car profile\'s values; a B48 as it comes', () => {
-    const car = item('profile');
-    assert.deepStrictEqual(car.options.map((o) => o[0]), ['b48', 'b58', 'mCarS58', 'hybrid', 'carprofile']);
-    assert.strictEqual(car.default, 'b48');
-    car.options.forEach((o) => assert.strictEqual(Panel.profile(o[0]).id, o[0]));
-    /* a saved X3 M40i reads as the B48, a saved My car as the Car profile's values */
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'car-'));
-    try {
-        for (const [saved, now] of [['x3m40i', 'b48'], ['custom', 'carprofile']]) {
-            fs.writeFileSync(path.join(dir, 'settings.json'), JSON.stringify({ profile: saved }));
-            assert.strictEqual(new (settingsClass(dir))(spec.settings).get('profile'), now);
-        }
-    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+test('no Car to choose: GENERAL\'s figures (or the Car profile\'s) for every car; an M car and a plug-in hybrid by Engine and Electric range', () => {
+    assert.strictEqual(item('profile'), undefined, 'GENERAL > Car is gone');
+    assert.deepStrictEqual(item('engine').options.map((o) => o[0]), ['petrol', 'diesel', 'm']);
+    assert.strictEqual(item('electric').profileMap.m, 'off');
+    /* every figure is offered whatever the car (the tach scale for a petrol engine, an M car's too) */
+    for (const k of ['rpmRedline', 'rpmLimiter', 'shiftFrom', 'shiftAt', 'speedMax', 'boostMax', 'tankLitres']) assert.strictEqual(item(k).when, undefined, k);
+    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: ['petrol', 'm'] });
+    /* the kind of car: an M car (its M display's boxes), a plug-in hybrid (its eDrive box), a car */
+    assert.strictEqual(Panel.kindOf({ engine: 'm', electric: 'off' }), 'mCarS58');
+    assert.strictEqual(Panel.kindOf({ engine: 'petrol', electric: 'hybrid' }), 'hybrid');
+    assert.strictEqual(Panel.kindOf({ engine: 'petrol', electric: 'off' }), 'carprofile');
+    assert.strictEqual(Panel.kindOf({ engine: 'diesel' }), 'carprofile');
+    assert.deepStrictEqual(Panel.PROFILES.mCarS58.extraZones.map((z) => z.id), ['mBoxA', 'mBoxB']);
+    assert.deepStrictEqual(Panel.PROFILES.hybrid.extraZones.map((z) => z.id), ['edrive']);
+    assert.deepStrictEqual(Panel.PROFILES.carprofile.extraZones, []);
 });
 
-test('each car\'s own figures: the most it revs, the red zone, the shift point, the yellow, the speedometer', () => {
+test('the figures: GENERAL\'s, the kind of car\'s own where left to the car; the speedometer and boost gauge as set', () => {
     const fig = (id, cfg) => {
         const S = Palette.resolve(cfg || {}, Panel.profile(id));
         return [S.rpmLimiter, S.scaleMaxRpm, S.rpmRedline, S.shiftWarn ? S.shiftAtRpm : null, S.yellowRpm, S.speedMax];
     };
-    /* (the tach to the thousand at or over the limiter: a B58's 7,500 on a dial to 8) */
-    assert.deepStrictEqual(fig('b48'), [7000, 7000, 6000, 6500, null, 260]);
-    assert.deepStrictEqual(fig('b58'), [7500, 8000, 6500, 7000, null, 260]);
-    assert.deepStrictEqual(fig('mCarS58'), [8000, 8000, 7000, 7500, 6500, 330]);
-    /* GENERAL's are not used for them, and are shown only for a plug-in hybrid and the Car profile's values (the boost
-       gauge's top for the latter alone: a plug-in hybrid has no boost gauge) */
-    assert.deepStrictEqual(fig('b48', { rpmRedline: '5000', scaleMaxRpm: '10000', shiftAt: 'off' }), fig('b48'));
-    for (const k of ['rpmRedline', 'rpmLimiter', 'shiftFrom', 'shiftAt', 'scaleMaxRpm', 'speedMax', 'tankLitres']) {
-        assert.deepStrictEqual(item(k).when.profile, ['hybrid', 'carprofile'], k);
-    }
-    assert.strictEqual(item('boostMax').when.profile, 'carprofile');
-    /* a plug-in hybrid: as Cluster Layouts' Vehicle, GENERAL's (or the Car profile app's) figures; on Auto its own */
-    assert.deepStrictEqual(fig('hybrid'), [6500, 8000, 6000, null, null, 260]);
-    assert.deepStrictEqual(fig('hybrid', { rpmRedline: '6200', rpmLimiter: '6800', shiftAt: '6500', scaleMaxRpm: '7000', speedMax: '330' }),
-        [6800, 7000, 6200, 6500, null, 330]);
-    assert.strictEqual(Panel.profileFor('hybrid', { tankLitres: '40' }).tankLitres, 40);
-    /* the Car profile's values: GENERAL's, as set there or by the Car profile app */
+    assert.deepStrictEqual(fig('carprofile'), [7000, 8000, 6750, null, null, 260]);
     assert.deepStrictEqual(fig('carprofile', { rpmRedline: '6200', rpmLimiter: '6800', shiftAt: '6500', scaleMaxRpm: '7000', speedMax: '330' }),
         [6800, 7000, 6200, 6500, null, 330]);
-    const p = Panel.profileFor('carprofile', { tankLitres: '52', boostMax: '28' });
-    assert.deepStrictEqual([p.tankLitres, p.boostMaxPsi], [52, 28]);
+    /* an M car: its own redline and limiter on From the car, the speedometer to 330 on Automatic */
+    assert.deepStrictEqual(fig('mCarS58', { engine: 'm' }), [8000, 8000, 7000, null, null, 330]);
+    assert.deepStrictEqual(fig('mCarS58', { engine: 'm', speedMax: '260' }).slice(5), [260]);
+    assert.deepStrictEqual(fig('hybrid'), [6500, 8000, 6000, null, null, 260]);
+    /* the boost gauge's top in bar (Automatic: the kind's own), the tank */
+    const p = Panel.profileFor('carprofile', { tankLitres: '52', boostMax: '2.5' });
+    assert.deepStrictEqual([p.tankLitres, p.boostBar, p.boostMaxPsi], [52, 2.5, 36]);
+    const a = Panel.profileFor('mCarS58', { boostMax: 'auto' });
+    assert.deepStrictEqual([a.boostBar, a.boostMaxPsi], [null, 26]);
     assert.strictEqual(item('tankLitres').profile, 'tankLitres');
-    /* the tanks: a B48's 59 L, a B58's 60 */
-    assert.deepStrictEqual(['b48', 'b58', 'mCarS58'].map((id) => Panel.profile(id).tankLitres), [59, 60, 59]);
+    assert.strictEqual(item('speedMax').profile, 'speedMax');
+    assert.strictEqual(item('boostMax').profile, 'boostMax');
+    /* every boost top the Car profile gives is one of this app's (its numbers: 2 bar as "2.0") */
+    const own = item('boostMax').options.map((o) => o[0]);
+    [1.0, 1.2, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.5, 2.8, 3.0, 3.5].forEach((v) => {
+        const m = item('boostMax').profileMap[v];
+        assert.ok(own.indexOf(m !== undefined ? m : String(v)) >= 0, v + ' bar');
+    });
+});
+
+test('a car chosen under GENERAL > Car before it went keeps its figures: moved into GENERAL\'s own once', () => {
+    const was = (car, extra) => Panel.figuresOfCar(Object.assign({ profile: car }, extra || {}));
+    assert.deepStrictEqual(was('b58'), { rpmLimiter: '7500', rpmRedline: '6500', shiftAt: '7000', shiftFrom: 'auto', scaleMaxRpm: '8000',
+        speedMax: '260', boostMax: '1.5', tankLitres: '60' });
+    assert.strictEqual(was('mCarS58').engine, 'm');
+    assert.strictEqual(was('mCarS58', { engine: 'diesel' }).engine, undefined, 'a diesel stays one');
+    assert.deepStrictEqual(was('hybrid'), { electric: 'hybrid' });
+    assert.deepStrictEqual(was('hybrid', { electric: 'bev' }), {});
+    assert.deepStrictEqual(was('x3m40i'), was('b48'));
+    assert.strictEqual(was('carprofile'), null);
+    assert.strictEqual(was('custom'), null);
+    assert.strictEqual(Panel.figuresOfCar({}), null);
+    /* each one a value its setting has, and the old figures as they were: a B48's 7,000 limit on a dial to 7 */
+    for (const car of ['b48', 'b58', 'mCarS58', 'hybrid']) {
+        const f = was(car);
+        Object.keys(f).forEach((k) => assert.ok(item(k).options.some((o) => o[0] === f[k]), car + ' ' + k + ' ' + f[k]));
+    }
+    const S = Palette.resolve(was('b48'), Panel.profile('carprofile'));
+    assert.deepStrictEqual([S.rpmLimiter, S.scaleMaxRpm, S.rpmRedline, S.shiftAtRpm, S.speedMax], [7000, 7000, 6000, 6500, 260]);
+    /* an old boost top in psi reads as the nearest in bar */
+    assert.strictEqual(item('boostMax').aliases['22'], '1.5');
 });
 
 test('the gear with its programme: D1, S1, M1 from MDrive.dataDisplayGearbox; P, R, N as they are', () => {
@@ -111,4 +133,29 @@ test('the Car profile\'s fuel settings land: every tank size it can give, and Fu
     const own = item('tankLitres').options.map((o) => o[0]);
     assert.deepStrictEqual(CAR_PROFILE_TANKS.map(String).filter((v) => own.indexOf(v) < 0), []);
     assert.strictEqual(item('fuelFrom').profile, 'fuelFrom');
+});
+
+test('the move happens once, through the kit\'s own settings: saved, and the next start leaves later choices alone', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'car-'));
+    try {
+        const S = settingsClass(dir), file = path.join(dir, 'settings.json');
+        fs.writeFileSync(file, JSON.stringify({ profile: 'mCarS58', rpmRedline: 'auto', boostMax: '22' }));
+        let s = new S(spec.settings);
+        assert.strictEqual(s.get('boostMax'), '1.5', 'an old boost top in psi, read as bar');
+        const moved = Panel.moveCarFigures(s);
+        assert.strictEqual(moved.engine, 'm');
+        assert.deepStrictEqual([s.get('engine'), s.get('rpmRedline'), s.get('rpmLimiter'), s.get('speedMax'), s.get('boostMax')], ['m', '7000', '8000', '330', '1.8']);
+        /* the next start: saved as moved; a later choice of the owner's stays */
+        s = new S(spec.settings);
+        assert.deepStrictEqual([s.get('engine'), s.get('rpmRedline'), s.values._carMoved], ['m', '7000', 1]);
+        s.set('rpmRedline', '6500');
+        s = new S(spec.settings);
+        assert.strictEqual(Panel.moveCarFigures(s), null);
+        assert.strictEqual(s.get('rpmRedline'), '6500');
+        /* a new install: nothing moved */
+        fs.rmSync(file);
+        s = new S(spec.settings);
+        assert.strictEqual(Panel.moveCarFigures(s), null);
+        assert.strictEqual(s.get('engine'), 'petrol');
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });

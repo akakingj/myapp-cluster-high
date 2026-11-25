@@ -779,7 +779,7 @@ async function main() {
      * its peak, so a limit set above that is - rightly - never reached.
      */
     const limits = require(path.join(ROOT, 'src', 'theme', 'palette.js'))
-        .resolve(settings, require(path.join(ROOT, 'src', 'geometry', 'panel.js')).profile(settings.profile));
+        .resolve(settings, require(path.join(ROOT, 'src', 'geometry', 'panel.js')).profile(require(path.join(ROOT, 'src', 'geometry', 'panel.js')).kindOf(settings)));
     const reached = PEAK_RPM >= limits.flashFromRpm;
     console.log('  the limiter: set at ' + limits.rpmLimiter + ' rpm (warning from ' + limits.flashFromRpm + '); the pull goes to ' + PEAK_RPM +
         (reached ? '' : ': not reached, so nothing may flash or shake'));

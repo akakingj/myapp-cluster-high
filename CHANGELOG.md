@@ -13,8 +13,18 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
-## AK 0.17.1
+## AK 0.18.0
 
+- **No Car to choose on GENERAL; its figures are GENERAL's, as AK Cluster Layouts has them.** The tach scale, redline,
+  limiter, shift lights, *Shift now warning at*, **Speedometer up to** and **Boost gauge up to** (now in bar, its
+  psi beside it) and the fuel tank are on GENERAL for every car, set there or by the Car profile app (1.8.0 sets the
+  speedometer's and the boost gauge's ends too). **Engine** has *Petrol, M car*, as the Car profile's Engine: M Sport
+  and M Track keep clear of the M display's two boxes, the speedometer reads to 330 km/h on *Automatic*, and the
+  redline and limiter left to the car are an S58's. A plug-in hybrid's eDrive box is kept clear by *Electric range*
+  (the Car profile's *Plug-in hybrid* sets it). A car chosen before - B48, B58, S58, Plug-in hybrid - has its figures
+  put in GENERAL's settings once, at the first start, so the cluster reads as it did; a boost top saved in psi reads
+  as the nearest in bar.
+- **M Track's boost row** ends at *Boost gauge up to* where it is set (the frame's own 1.9 bar, 28 psi on *Automatic*).
 - **A plug-in hybrid's drive modes on the cluster.** The mode word now names what BMW's own cluster does on a plug-in
   hybrid (*HYBRID*, *HYBRID ECO PRO*, *HYBRID COMFORT*, *ELECTRIC*, *ELECTRIC INDIVIDUAL*, *BATTERY CONTROL*, *SPORT*,
   *SPORT INDIVIDUAL*, *XTRABOOST*), whether the car sends it by name or by number; Toro names them as the Revuelto
@@ -24,7 +34,7 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   `DID F42F`, then `OBD 2F`; a diesel too: it is a standard PID), asked every 10 s while a fuel gauge or place is
   shown and the engine runs, kept a minute; otherwise, and before the engine has answered, the car's litres over the
   tank's size. *GENERAL → Fuel % from*, as Layouts' setting: *Engine unit (OBD tank level)* (as it comes) or
-  *Litres / tank size*, which never asks. The Car profile app's *Fuel % from* (Car profile 1.7.4) sets it for this
+  *Litres / tank size*, which never asks. The Car profile app's *Fuel % from* (Car profile 1.8.0) sets it for this
   app and Layouts at once.
 - **Fuel tank size takes every size the Car profile app gives** (42, 46, 66, 69, 83, 85 and 90 L as well): before,
   one of those set there was left at this app's own.

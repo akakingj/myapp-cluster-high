@@ -111,67 +111,101 @@ var M_BOX_A = { id: 'mBoxA', x: 793, y: 289, w: 246, h: 92, name: 'M box (left)'
 var M_BOX_B = { id: 'mBoxB', x: 1223, y: 328, w: 171, h: 78, name: 'M box (right)' };
 
 /*
- * Vehicle profiles (GENERAL > Car). B48, B58, S58 and the plug-in hybrid are the owner's figures for those
- * engines (`rev`): the most the engine revs (the limiter; the tach goes to the thousand at or above it), where
- * the red zone starts, where to shift (Shift now: the shift lights flash, the speed and the gear blink), where
- * the yellow starts (the shift lights and the M dial's amber), and the speedometer's top (km/h). With one of
- * them chosen, GENERAL's Redline, Limiter, Shift lights from, Shift now warning at and Tach scale are not used.
- * "carprofile" takes all of those from GENERAL as set there or by the Car profile app (its own figures below
- * only where neither says). Also each car's: the top of Toro's boost gauge, the fuel tank (the fuel's litres as
- * a level), and the boxes some KOMBIs draw over a panel layer.
+ * The kinds of car (Panel.kindOf: GENERAL > Engine and Electric range, as set there or by the Car profile app).
+ * Each gives the figures used where GENERAL's are left to the car (Redline, Limiter on "From the car"), the top of
+ * Toro's boost gauge where GENERAL's Boost gauge up to is on Automatic, the fuel tank where nothing says, whether
+ * the car has boost to show, and the boxes its KOMBI draws over a panel layer: an M car's two in the M display,
+ * a plug-in hybrid's eDrive box.
  */
 var PROFILES = {
-    b48: {
-        id: 'b48', name: 'B48', engine: 'B48', cylinders: 4, aspiration: 'turbo',
-        rpmMax: 7000, rpmRedline: 6000, rpmLimiter: 7000,
-        rev: { limiter: 7000, red: 6000, shift: 6500, yellow: null, speedMax: 260 },
-        gearCount: 8, gearbox: 'ZF 8HP', boost: true, boostMaxPsi: 20, tankLitres: 59, extraZones: []
-    },
-    b58: {
-        id: 'b58', name: 'B58', engine: 'B58', cylinders: 6, aspiration: 'turbo',
-        rpmMax: 8000, rpmRedline: 6500, rpmLimiter: 7500,
-        rev: { limiter: 7500, red: 6500, shift: 7000, yellow: null, speedMax: 260 },
+    carprofile: {
+        id: 'carprofile', name: 'Car', engine: '', cylinders: 6, aspiration: 'turbo',
+        rpmMax: 8000, rpmRedline: 6750, rpmLimiter: 7000,
         gearCount: 8, gearbox: 'ZF 8HP', boost: true, boostMaxPsi: 22, tankLitres: 60, extraZones: []
     },
     mCarS58: {
-        id: 'mCarS58', name: 'S58 (M car)', engine: 'S58', cylinders: 6, aspiration: 'turbo',
+        id: 'mCarS58', name: 'M car', engine: 'S58', cylinders: 6, aspiration: 'turbo',
         rpmMax: 8000, rpmRedline: 7000, rpmLimiter: 8000,
-        rev: { limiter: 8000, red: 7000, shift: 7500, yellow: 6500, speedMax: 330 },
         gearCount: 8, gearbox: 'ZF 8HP / DCT', boost: true, boostMaxPsi: 26, tankLitres: 59,
         extraZones: [M_BOX_A, M_BOX_B]
     },
-    /* a plug-in hybrid: as Cluster Layouts' Vehicle, its rev figures GENERAL's (set there or by the Car profile app;
-       on Auto / From the car these), its electric side from General: Electric range */
+    /* a plug-in hybrid: as Cluster Layouts' Vehicle, its electric side from General: Electric range */
     hybrid: {
         id: 'hybrid', name: 'Plug-in hybrid (eDrive)', engine: 'B46/B58 PHEV', cylinders: 4, aspiration: 'turbo',
-        rpmMax: 7000, rpmRedline: 6000, rpmLimiter: 6500, rev: null,
+        rpmMax: 7000, rpmRedline: 6000, rpmLimiter: 6500,
         gearCount: 8, gearbox: 'ZF 8HP', boost: false, boostMaxPsi: 18, tankLitres: 60, extraZones: [EDRIVE_BOX]
-    },
-    /* GENERAL's own figures, or the Car profile's (Redline and Limiter on "From the car": these) */
-    carprofile: {
-        id: 'carprofile', name: 'Car profile', engine: '', cylinders: 6, aspiration: 'turbo',
-        rpmMax: 8000, rpmRedline: 6750, rpmLimiter: 7000, rev: null,
-        gearCount: 8, gearbox: 'ZF 8HP', boost: true, boostMaxPsi: 22, tankLitres: 60, extraZones: []
     }
 };
 
-var DEFAULT_PROFILE = 'b48';
+var DEFAULT_PROFILE = 'carprofile';
+
+/* The kind of car for the settings: GENERAL > Engine "Petrol, M car", else a plug-in hybrid (Electric range, as
+   main.js has worked it out), else a car. */
+function kindOf(settings) {
+    if (settings && settings.engine === 'm') return 'mCarS58';
+    return settings && settings.electric === 'hybrid' ? 'hybrid' : 'carprofile';
+}
 
 function profile(id) {
     return PROFILES[id] || PROFILES[DEFAULT_PROFILE];
 }
 
-/* The profile for a car, with GENERAL's tank and boost gauge where its figures are GENERAL's (the Car profile's
-   values, a plug-in hybrid; tankLitres: the Car profile's where it gives one; boostMax) */
+var PSI_PER_BAR = 14.503774;
+/* The profile for a car with GENERAL's tank and boost gauge (each set there or by the Car profile app): boostBar,
+   Boost gauge up to in bar (null on Automatic: the kind's own, boostMaxPsi) */
 function profileFor(id, settings) {
     var p = profile(id);
-    if (p.rev || !settings) return p;
+    if (!settings) return p;
     var num = function (v, lo, hi, d) { v = Number(v); return v >= lo && v <= hi ? v : d; };
     var out = {}, k;
     for (k in p) if (Object.prototype.hasOwnProperty.call(p, k)) out[k] = p[k];
-    out.boostMaxPsi = num(settings.boostMax, 5, 60, p.boostMaxPsi);
+    var bar = num(settings.boostMax, 0.5, 4, null);
+    out.boostBar = bar;
+    /* (in whole psi, as the choices name it: 1.4 bar is a 20 psi gauge) */
+    out.boostMaxPsi = bar ? Math.round(bar * PSI_PER_BAR) : p.boostMaxPsi;
     out.tankLitres = num(settings.tankLitres, 20, 120, p.tankLitres);
     return out;
+}
+
+/*
+ * GENERAL > Car, B48 / B58 / S58 (M car) / Plug-in hybrid, as chosen before it went: each one's own figures, which
+ * GENERAL's settings now hold (app/entry.js moves them across once). null for Car profile values or nothing chosen.
+ */
+var CAR_FIGURES = {
+    b48: { rpmLimiter: '7000', rpmRedline: '6000', shiftAt: '6500', shiftFrom: 'auto', scaleMaxRpm: '7000', speedMax: '260',
+           boostMax: '1.4', tankLitres: '59' },
+    b58: { rpmLimiter: '7500', rpmRedline: '6500', shiftAt: '7000', shiftFrom: 'auto', scaleMaxRpm: '8000', speedMax: '260',
+           boostMax: '1.5', tankLitres: '60' },
+    mCarS58: { engine: 'm', rpmLimiter: '8000', rpmRedline: '7000', shiftAt: '7500', shiftFrom: '6500', scaleMaxRpm: '8000',
+               speedMax: '330', boostMax: '1.8', tankLitres: '59' },
+    hybrid: { electric: 'hybrid' }
+};
+function figuresOfCar(saved) {
+    var car = saved && ({ x3m40i: 'b48', custom: 'carprofile' }[saved.profile] || saved.profile);
+    var f = CAR_FIGURES[car];
+    if (!f) return null;
+    var out = {}, k;
+    for (k in f) if (Object.prototype.hasOwnProperty.call(f, k)) out[k] = f[k];
+    /* (a diesel stays one; a plug-in hybrid's Electric range set by hand stays as set) */
+    if (out.engine && saved.engine === 'diesel') delete out.engine;
+    if (out.electric && saved.electric && saved.electric !== 'auto') delete out.electric;
+    return out;
+}
+/*
+ * GENERAL > Car went in AK 0.18.0: the figures of the car chosen there are set in GENERAL's own settings once, when
+ * the app starts (app/entry.js), so the cluster reads as it did. settings: the kit's (values as saved). Nothing for
+ * a new install, nor for Car profile values: GENERAL's already.
+ */
+function moveCarFigures(settings, log) {
+    var v = settings.values || {};
+    if (v._carMoved || v.profile === undefined) return null;
+    var f = figuresOfCar(v);
+    if (f) {
+        Object.keys(f).forEach(function (k) { settings.set(k, f[k]); });
+        if (log) log.info('GENERAL > Car ' + v.profile + ': its figures are GENERAL\'s own now ' + JSON.stringify(f));
+    }
+    settings.set('_carMoved', 1);
+    return f;
 }
 
 /* Every rectangular zone a layout must keep clear for the given profile. */
@@ -228,6 +262,10 @@ return {
     DEFAULT_PROFILE: DEFAULT_PROFILE,
     profile: profile,
     profileFor: profileFor,
+    kindOf: kindOf,
+    figuresOfCar: figuresOfCar,
+    moveCarFigures: moveCarFigures,
+    PSI_PER_BAR: PSI_PER_BAR,
     keepClear: keepClear,
     inCutCorner: inCutCorner,
     violations: violations

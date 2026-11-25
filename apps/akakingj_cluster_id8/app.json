@@ -2,7 +2,7 @@
   "id": "akakingj_cluster_id8",
   "title": "AK Cluster ID8",
   "vendor": "MGU-Styles",
-  "version": "0.17.1",
+  "version": "0.18.0",
   "loggingId": "AKC8",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
@@ -321,39 +321,6 @@
       "profile": "clock"
     },
     {
-      "key": "profile",
-      "label": "Car",
-      "type": "choice",
-      "default": "b48",
-      "options": [
-        [
-          "b48",
-          "B48"
-        ],
-        [
-          "b58",
-          "B58"
-        ],
-        [
-          "mCarS58",
-          "S58 (M car)"
-        ],
-        [
-          "hybrid",
-          "Plug-in hybrid"
-        ],
-        [
-          "carprofile",
-          "Car profile values"
-        ]
-      ],
-      "tab": "general",
-      "aliases": {
-        "x3m40i": "b48",
-        "custom": "carprofile"
-      }
-    },
-    {
       "key": "engine",
       "label": "Engine",
       "type": "choice",
@@ -366,6 +333,10 @@
         [
           "diesel",
           "Diesel: the rev counter reads 0 - 6,000, red from 4,500"
+        ],
+        [
+          "m",
+          "Petrol, M car"
         ]
       ],
       "tab": "general",
@@ -378,8 +349,12 @@
       "key": "speedMax",
       "label": "Speedometer up to (M Sport)",
       "type": "choice",
-      "default": "260",
+      "default": "auto",
       "options": [
+        [
+          "auto",
+          "Automatic (330 km/h for an M car, else 260)"
+        ],
         [
           "260",
           "260 km/h (160 mph)"
@@ -389,65 +364,87 @@
           "330 km/h (200 mph)"
         ]
       ],
-      "when": {
-        "profile": [
-          "hybrid",
-          "carprofile"
-        ]
-      },
-      "tab": "general"
+      "tab": "general",
+      "profile": "speedMax"
     },
     {
       "key": "boostMax",
-      "label": "Boost gauge up to (Toro)",
+      "label": "Boost gauge up to",
       "type": "choice",
-      "default": "22",
+      "default": "auto",
       "options": [
         [
-          "15",
-          "15 psi (1.0 bar)"
+          "auto",
+          "Automatic (1.5 bar / 22 psi; an M car 1.8 bar / 26 psi)"
         ],
         [
-          "18",
-          "18 psi (1.2 bar)"
+          "1.0",
+          "1.0 bar / 15 psi"
         ],
         [
-          "20",
-          "20 psi (1.4 bar)"
+          "1.2",
+          "1.2 bar / 17 psi"
         ],
         [
-          "22",
-          "22 psi (1.5 bar)"
+          "1.4",
+          "1.4 bar / 20 psi"
         ],
         [
-          "25",
-          "25 psi (1.7 bar)"
+          "1.5",
+          "1.5 bar / 22 psi"
         ],
         [
-          "26",
-          "26 psi (1.8 bar)"
+          "1.6",
+          "1.6 bar / 23 psi"
         ],
         [
-          "28",
-          "28 psi (1.9 bar)"
+          "1.8",
+          "1.8 bar / 26 psi"
         ],
         [
-          "30",
-          "30 psi (2.1 bar)"
+          "2.0",
+          "2.0 bar / 29 psi"
         ],
         [
-          "35",
-          "35 psi (2.4 bar)"
+          "2.2",
+          "2.2 bar / 32 psi"
         ],
         [
-          "40",
-          "40 psi (2.8 bar)"
+          "2.5",
+          "2.5 bar / 36 psi"
+        ],
+        [
+          "2.8",
+          "2.8 bar / 41 psi"
+        ],
+        [
+          "3.0",
+          "3.0 bar / 44 psi"
+        ],
+        [
+          "3.5",
+          "3.5 bar / 51 psi"
         ]
       ],
-      "when": {
-        "profile": "carprofile"
+      "tab": "general",
+      "profile": "boostMax",
+      "profileMap": {
+        "1": "1.0",
+        "2": "2.0",
+        "3": "3.0"
       },
-      "tab": "general"
+      "aliases": {
+        "15": "1.0",
+        "18": "1.2",
+        "20": "1.4",
+        "22": "1.5",
+        "25": "1.8",
+        "26": "1.8",
+        "28": "2.0",
+        "30": "2.0",
+        "35": "2.5",
+        "40": "2.8"
+      }
     },
     {
       "key": "tankLitres",
@@ -540,12 +537,6 @@
           "90 L"
         ]
       ],
-      "when": {
-        "profile": [
-          "hybrid",
-          "carprofile"
-        ]
-      },
       "tab": "general",
       "profile": "tankLitres"
     },
@@ -686,12 +677,6 @@
       "profile": "lightRed",
       "profileMap": {
         "0": "limiter"
-      },
-      "when": {
-        "profile": [
-          "hybrid",
-          "carprofile"
-        ]
       }
     },
     {
@@ -809,12 +794,6 @@
       "profile": "redline",
       "profileMap": {
         "0": "auto"
-      },
-      "when": {
-        "profile": [
-          "hybrid",
-          "carprofile"
-        ]
       }
     },
     {
@@ -877,13 +856,7 @@
         ]
       ],
       "tab": "general",
-      "profile": "lightStart",
-      "when": {
-        "profile": [
-          "hybrid",
-          "carprofile"
-        ]
-      }
+      "profile": "lightStart"
     },
     {
       "key": "shiftAt",
@@ -964,12 +937,6 @@
       "profile": "shiftAt",
       "profileMap": {
         "0": "auto"
-      },
-      "when": {
-        "profile": [
-          "hybrid",
-          "carprofile"
-        ]
       }
     },
     {
@@ -1234,6 +1201,7 @@
       "profileMap": {
         "phev": "hybrid",
         "petrol": "off",
+        "m": "off",
         "diesel": "off"
       },
       "reset": 1
@@ -1757,10 +1725,9 @@
         ]
       ],
       "when": {
-        "engine": "petrol",
-        "profile": [
-          "hybrid",
-          "carprofile"
+        "engine": [
+          "petrol",
+          "m"
         ]
       },
       "tab": "general",

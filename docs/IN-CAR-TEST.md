@@ -33,8 +33,8 @@ still stand, except where a newer check says otherwise.
 
 | # | Do | Look for |
 |---|---|---|
-| C1 | GENERAL → *Car*: B48, then B58, then S58 (M car) | The tach ends at 7 / 8 / 8 (thousand), red from 6,000 / 6,500 / 7,000; revved past 6,500 / 7,000 / 7,500 the speed and the gear blink and Toro's shift lights flash. S58: the M dials amber from 6,500 and the speedometer to 330 km/h. Redline, Limiter, Shift lights from, Shift now warning at and Tach scale are not on GENERAL |
-| C2 | *Car → Car profile values* (or *Plug-in hybrid*) | Those rows come back, with the speedometer's top, the boost gauge's top (not for the plug-in hybrid) and the fuel tank; what they say (or the Car profile app's) is what the cluster shows |
+| C1 | AK 0.18.0: GENERAL → *Engine → Petrol, M car* (or the Car profile app's *Engine → Petrol, M car*) | There is no *Car* row. M Sport and M Track keep their readings clear of the M display's two boxes; *Speedometer up to* on *Automatic* reads to 330 km/h; Redline and Limiter on *From the car*: red from 7,000, the limit 8,000. **Photograph the M display's boxes against the layers** |
+| C2 | AK 0.18.0: update from a version where GENERAL → *Car* was B48, B58, S58 or Plug-in hybrid | The cluster reads as before (the tach's end, red zone, shift point, speedometer, boost gauge and tank that car had), and GENERAL's rows show those figures. **Say which car it was and whether anything changed** |
 | C3 | Toro, in D, then S, then M (manual) | D1 … / S1 … / M1 … beside the gear's figure, the pair a little smaller; *TORO → Gear → The figure alone, as a Lamborghini* shows 1 … as before |
 | C4 | M Track: rows and footer places set to *Gearbox oil temperature*, *Torque*, *Odometer*, *Trip* | TRANS (row), TQ, ODO, TRIP with sensible figures; the gearbox oil climbs slower than the engine oil after a cold start |
 | C5 | M TRACK → *Strip right of the rev counter, left* / *… right*: e.g. gearbox oil and coolant, then *Nothing* | Each strip, its three figures, unit and symbol follow; *Nothing* leaves the place empty. As they come: the oil and the fuel, the fuel strip lit from the bottom up to the level, its lowest piece orange only when nearly empty |
@@ -43,7 +43,7 @@ still stand, except where a newer check says otherwise.
 
 ## Shift now, the cold engine and the Car profile (AK 0.14.0)
 
-With GENERAL → *Car → Car profile values* or *Plug-in hybrid* (the other cars bring their own figures: C1).
+With GENERAL's figures, as set there or by the Car profile app.
 
 | # | Do | Look for |
 |---|---|---|
@@ -242,8 +242,9 @@ writes to the car: the app can only read (docs/ENGINE-READINGS.md).
 | E8 | AK 0.17.0: M Sport, CLUSTER page → footers *Boost target*, *Fuel pressure: high*, *Fuel pressure: low*, engine running | `TGT` near the boost under load and about 0 at idle; `HPFP` some 30 – 60 bar at idle (B58 / B48), rising to some 200 – 350 bar under load; `LPFP` about 5 bar. **If any stays at `--`, say which** |
 | E9 | AK 0.17.0: footers *Peak boost*, *Peak engine power*, *0-60 mph (0-100 km/h) time*, *Last upshift*; a pull from a stop through two gears | The peaks hold the highest of the drive; the time counts from leaving the stop and stops at 60 mph (100 km/h); SHIFT shows the rpm you changed up at. **Say whether the time agrees with your own reckoning** |
 | E10 | AK 0.17.0: Toro, CLUSTER page → side gauges *Engine power*, *Engine torque*, *Fuel pressure: high*; M Track Mode rows the same | Each a scale (POTENZA, COPPIA, PRESS. RAIL; PWR, TQ, HPFP) whose bar follows the reading; nothing else moves. **Screenshots** |
-| E11 | AK 0.17.1: a plug-in hybrid, M Sport and Toro; each drive mode in turn (Hybrid, Electric, Battery Control, Sport, XtraBoost) | M Sport's mode word as BMW's own cluster names it; Toro's CITTA / STRADA / RECHARGE / SPORT / CORSA. **If a mode shows nothing or the wrong word, photograph the LOGS tab in that mode** |
-| E12 | AK 0.17.1: the fuel gauge (Toro's, M Sport's strip, M Track Mode's), engine running; a diesel too | The same figure as AK Cluster Layouts' fuel at the same moment; on a diesel Toro's says GASOLIO. *GENERAL → Fuel % from → Litres / tank size*: the figure moves to the litres'. **Photograph BMW's own fuel gauge and range with the LOGS tab, and Layouts' fuel if it is on the unit** |
+| E11 | AK 0.18.0: a plug-in hybrid, M Sport and Toro; each drive mode in turn (Hybrid, Electric, Battery Control, Sport, XtraBoost) | M Sport's mode word as BMW's own cluster names it; Toro's CITTA / STRADA / RECHARGE / SPORT / CORSA. **If a mode shows nothing or the wrong word, photograph the LOGS tab in that mode** |
+| E12 | AK 0.18.0: the fuel gauge (Toro's, M Sport's strip, M Track Mode's), engine running; a diesel too | The same figure as AK Cluster Layouts' fuel at the same moment; on a diesel Toro's says GASOLIO. *GENERAL → Fuel % from → Litres / tank size*: the figure moves to the litres'. **Photograph BMW's own fuel gauge and range with the LOGS tab, and Layouts' fuel if it is on the unit** |
+| E13 | AK 0.18.0: the Car profile app → *Speedometer up to 330 km/h*, *Boost gauge up to 2.5 bar*, *Fuel % from* | M Sport's speedometer to 330; Toro's boost gauge and M Track's boost row end at 2.5 bar (36 psi with psi); each shows on GENERAL as the Car profile's and can't be changed there. **Screenshots** |
 
 ## Beta 4 — what Beta 3's drive asked for
 

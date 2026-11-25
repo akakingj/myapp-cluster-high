@@ -78,7 +78,7 @@
     });
   })
   .then(function (a) {
-    var profileId = params.get('profile') || 'b48';
+    var profileId = params.get('profile');
     /*
      * fixture=m: the M style in the exact state of its reference frame
      * (docs/ref/m-view-reference.jpg): 0 km/h, P, idling, 12:04 pm, 207 km,
@@ -106,7 +106,8 @@
      'mode', 'background', 'style', 'centre', 'mPanel', 'mPop', 'shiftStyle', 'shake',
      'introText', 'bottomExtra', 'footL', 'footM', 'footR', 'mGear',
      'gearFill', 'gearPlace', 'centreSize', 'electric', 'electricGauge', 'speed2', 'mLines', 'engine',
-     'row1', 'row2', 'row3', 'row4', 'rowMark', 'wing', 'stripL', 'stripR', 'gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2', 'shiftAt', 'coldGuard', 'coldLimit', 'warmOil'].forEach(function (k) {
+     'row1', 'row2', 'row3', 'row4', 'rowMark', 'wing', 'stripL', 'stripR', 'gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2', 'shiftAt', 'coldGuard', 'coldLimit', 'warmOil',
+     'shiftFrom', 'speedMax', 'boostMax', 'tankLitres'].forEach(function (k) {
       if (params.get(k)) cfg[k] = params.get(k);
     });
     ['scaleMaxRpm', 'rpmRedline', 'rpmLimiter', 'redFromScale', 'flashFromRpm',
@@ -124,7 +125,9 @@
     engine.build(shaders, MGUPrelude);
     engine.setAtlas(a.img);
 
-    var profile = MGUPanel.profile(profileId);
+    /* the kind of car, as the app works it out (GENERAL > Engine, Electric range), with GENERAL's tank and boost gauge */
+    profileId = profileId || MGUPanel.kindOf(cfg);
+    var profile = MGUPanel.profileFor(profileId, cfg);
     var theme = MGUThemes.build(a.atlas, profileId, cfg);
     var ambHex = params.get('ambient');
     var amb = ambHex && /^[0-9a-fA-F]{6}$/.test(ambHex)

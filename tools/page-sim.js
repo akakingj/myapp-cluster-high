@@ -205,7 +205,9 @@ async function child(mode) {
         /* ---- a tab by the controller: M SPORT, its rows, nothing of another style's */
         d.focusPage('tab:msport'); await push();
         check(await until(() => has('set:mGear'), 2000), 'M SPORT shows no row for the gear\'s place (' + keys().join(' ') + ')');
-        ['set:mCentre', 'set:mGear', 'set:mFootL', 'set:mFootM', 'set:mFootR', 'set:mPanel', 'set:mPop'].forEach((key) => check(has(key), 'M SPORT has no row "' + key + '"'));
+        /* (the footer's three places are on the CLUSTER page, AK 0.17.0) */
+        ['set:mCentre', 'set:mGear', 'set:mPanel', 'set:mPop'].forEach((key) => check(has(key), 'M SPORT has no row "' + key + '"'));
+        ['set:mFootL', 'set:mFootM', 'set:mFootR'].forEach((key) => check(!has(key), 'M SPORT still has a row "' + key + '": it is the CLUSTER page\'s'));
         check(!keys().some((q) => /^set:(p[A-Z]|t[A-Z]|background|accent)/.test(q)), 'M SPORT shows another style\'s settings: ' + keys().join(' '));
         check(has('use:track'), 'no "use this style" on the tab of a style that is not on the cluster');
         /* ---- a row: its values in the kit's own list, one picked with the knob */
@@ -238,11 +240,10 @@ async function child(mode) {
             await tap('set:holiday');
             check(s.get('holiday') === !hol, 'a tap on a switch did not turn it');
         }
-        /* ---- Shift now at: the car's own as it comes (B48), a row of its own with Car profile values:
-           off as it comes, a list of values, Auto chosen with the controller */
-        check(s.get('profile') === 'b48' && !has('set:shiftAt'), 'a new install is not a B48 with its own shift point: ' + s.get('profile'));
-        s.set('profile', 'carprofile');
-        if (check(await until(() => has('set:shiftAt'), 2000), 'GENERAL has no row for Shift now at with Car profile values')) {
+        /* ---- Shift now at: a row of GENERAL's for every car (no Car to choose): off as it comes, a list of values,
+           Auto chosen with the controller */
+        check(s.get('profile') === undefined, 'GENERAL > Car is still there: ' + s.get('profile'));
+        if (check(await until(() => has('set:shiftAt'), 2000), 'GENERAL has no row for Shift now at')) {
             check(s.get('shiftAt') === 'off', 'Shift now at does not come off: ' + s.get('shiftAt'));
             d.focusPage('set:shiftAt'); await push();
             check(await until(() => !!d.sheet, 1500), 'Shift now at opened no list');
@@ -275,7 +276,8 @@ async function child(mode) {
         /* the plain page: the HMI shows what the app pushes, and its bar does the jobs */
         check(await until(() => sim.pushed > 0, 8000), 'the plain page was never pushed to the HMI');
         /* a new install: Shift now at and the cold-engine guard as they come */
-        check(s.get('shiftAt') === 'off' && s.get('coldGuard') === 'off', 'a new install does not come with Shift now at and Cold engine off: ' + s.get('shiftAt') + ' ' + s.get('coldGuard'));
+        /* (Cold engine on as it comes, as Cluster Layouts', AK 0.17.0) */
+        check(s.get('shiftAt') === 'off' && s.get('coldGuard') === 'on', 'a new install does not come with Shift now at off and Cold engine on: ' + s.get('shiftAt') + ' ' + s.get('coldGuard'));
         check(!d.own(), 'the kit says it runs the screen with no renderer there');
         const en = s.get('enabled'), style0 = s.get('style'), bg0 = s.get('background');
         comp('BTN_SHOW').emit('action', {}); await wait(200);

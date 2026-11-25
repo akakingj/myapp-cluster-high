@@ -2412,7 +2412,6 @@
   "Fuel tank size": "연료 탱크 용량",
   "Car profile values": "차량 프로필 설정값",
   "Speedometer up to (M Sport)": "속도계 최대 (M Sport)",
-  "Boost gauge up to (Toro)": "부스트 게이지 최대 (Toro)",
   "With D / S / M (D1, S1, M1)": "D / S / M 함께 (D1, S1, M1)",
   "The figure alone, as a Lamborghini": "숫자만 (람보르기니처럼)",
   "Diesel: the rev counter reads 0 - 6,000, red from 4,500": "디젤: 회전계 0 - 6,000, 4,500부터 빨강",
@@ -2728,5 +2727,9 @@
   "Shift now warning at": "변속 경고 rpm",
   "Engine unit (OBD tank level)": "엔진 ECU (OBD 연료량)",
   "Fuel % from": "연료 % 출처",
-  "Litres / tank size": "남은 리터 / 탱크 용량"
+  "Litres / tank size": "남은 리터 / 탱크 용량",
+  "Petrol, M car": "가솔린, M 차량",
+  "Automatic (330 km/h for an M car, else 260)": "자동 (M 차량은 330 km/h, 그 외 260)",
+  "Boost gauge up to": "부스트 게이지 최고값",
+  "Automatic (1.5 bar / 22 psi; an M car 1.8 bar / 26 psi)": "자동 (1.5 bar / 22 psi, M 차량은 1.8 bar / 26 psi)"
 }

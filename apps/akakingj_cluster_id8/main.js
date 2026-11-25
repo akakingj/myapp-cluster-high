@@ -36,6 +36,7 @@ const Theme = require('./theme.js');
 const Previews = require('./previews.js');
 /* the LOGS tab's codes and file: AK Cluster Layouts' logs.js, the same codes as its Logs (tools/decode_logs.py) */
 const Logs = require('./logs.js');
+const Panel = require('./panel.js');
 const path = require('path');
 /* the page's words in the app's language (the Store builds it in Korean): drawn as literal text, so they go through
    the kit's catalogue here; the cluster's own lettering stays as the styles have it */
@@ -315,6 +316,8 @@ mgu.run({
                 bg.log.info('start at every startup is off: BMW original until turned on');
             }
         } catch (e) { bg.log.warn('autoStart: ' + e); }
+        /* (a car chosen under GENERAL > Car before it went: its figures into GENERAL's, once) */
+        try { Panel.moveCarFigures(bg.settings, bg.log); } catch (e) { bg.log.warn('car figures: ' + e); }
         try {
             const svc = Service.start(hostFor(bg), { appId: bg.spec.id });
             bg.log.info('cluster service started');

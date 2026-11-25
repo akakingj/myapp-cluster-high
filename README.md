@@ -91,10 +91,11 @@ Central display area* to *Map view*.
 
 Everything is set on the app's page on iDrive — nothing on the cluster.
 
-- **GENERAL**: on / off, start with the car, the style, units, **your car** (B48, B58 or S58, each with its own
-  red zone, limiter, shift point and speedometer; a plug-in hybrid or *Car profile values*, which bring the
-  tach scale, redline, limiter and **Shift now warning at** to set yourself or from the Car profile app, as Cluster
-  Layouts does), **petrol or diesel**, **Fuel % from** (as Cluster Layouts' fuel gauge: the engine unit's own tank
+- **GENERAL**: on / off, start with the car, the style, units, the car's figures - tach scale, redline, limiter,
+  shift lights, **Shift now warning at**, **Speedometer up to** (260 km/h, 330 for an M car), **Boost gauge up to**
+  (bar or psi, as the units) and the fuel tank - set here or by the Car profile app, as Cluster Layouts does;
+  **Engine** (petrol, diesel, or petrol in an M car: the layers keep clear of its M display's boxes; a plug-in
+  hybrid's eDrive box is kept clear by *Electric range*), **Fuel % from** (as Cluster Layouts' fuel gauge: the engine unit's own tank
   level while the engine runs, otherwise the car's litres over the tank's size; or the litres always; the Car profile
   app sets it for both apps), the limiter flash
   (past the shift point the shift lights flash and the speed and the gear blink red, in every style), the
@@ -228,9 +229,9 @@ gear.
 
 ## If your car is a diesel
 
-As it comes the app is set for a petrol engine (the B48): a rev counter
-to 7,000, its red zone from 6,000, shift lights and the limiter flash near
-it — which a diesel never reaches, so its revs stay in the bottom half and nothing
+As it comes the app is set for a petrol engine: a rev counter to 8,000,
+its red zone from 6,750, shift lights and the limiter flash near 7,000 —
+which a diesel never reaches, so its revs stay in the bottom half and nothing
 lights up. Tell the app it is a diesel:
 
 1. Open the app from iDrive's menu.
@@ -241,13 +242,13 @@ That gives every style a diesel's rev counter:
 
 | | Petrol (as it comes) | Diesel |
 |---|---|---|
-| The rev counter reads | 0 – 7,000 | **0 – 6,000** |
-| Red zone from | the car's (6,000 on the B48) | **4,500** |
-| Limiter flash, last shift light | the car's (7,000) | **5,000** |
+| The rev counter reads | 0 – 8,000 | **0 – 6,000** |
+| Red zone from | 6,750 | **4,500** |
+| Limiter flash, last shift light | 7,000 | **5,000** |
 | Toro's shift lights begin at | 1,800 below the redline | **3,200** |
 
-If your engine revs higher or lower than that, choose **Car → Car profile
-values** and set **Redline** and **Limiter** on the same tab (from 3,000
+If your engine revs higher or lower than that, set **Redline** and
+**Limiter** on the same tab (from 3,000
 and 4,000 upwards); *From the car* is the diesel's own figures above.
 
 On a diesel, Toro's lower left gauge shows turbo

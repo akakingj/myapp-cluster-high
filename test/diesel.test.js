@@ -49,12 +49,12 @@ test('Engine is a setting on GENERAL: petrol as it comes, diesel only when the o
     const e = item('engine');
     assert.ok(e, 'there is an Engine setting');
     assert.deepStrictEqual([e.tab, e.type, e.default, e.label], ['general', 'choice', 'petrol', 'Engine']);
-    assert.deepStrictEqual(e.options.map((o) => o[0]), ['petrol', 'diesel']);
+    assert.deepStrictEqual(e.options.map((o) => o[0]), ['petrol', 'diesel', 'm']);
     assert.strictEqual(e.when, undefined, 'offered whatever the style');
     assert.match(e.options[1][1], /^Diesel: .*6,000/);
-    /* it stands with the car's own choice, before the limits it changes */
+    /* it stands before the limits it changes */
     const keys = spec.settings.map((s) => s.key);
-    assert.ok(keys.indexOf('engine') === keys.indexOf('profile') + 1 && keys.indexOf('engine') < keys.indexOf('rpmRedline'));
+    assert.ok(keys.indexOf('engine') >= 0 && keys.indexOf('engine') < keys.indexOf('rpmRedline'));
 
     /* a new install, and one from before the setting (its saved settings have no such key), are petrol:
        every style builds exactly what it builds with no engine named */
@@ -105,8 +105,8 @@ test('Redline and Limiter can be set for a diesel, and the tach scale is a petro
         const s = Palette.resolve({ engine: 'diesel', rpmRedline: 'auto', rpmLimiter: String(l) }, P);
         assert.strictEqual(s.rpmLimiter, Math.max(l, s.rpmRedline));
     }
-    /* a diesel's dial reads 0 - 6: the scale's own choice (every style's, General) is offered to a petrol only */
-    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: 'petrol', profile: ['hybrid', 'carprofile'] });
+    /* a diesel's dial reads 0 - 6: the scale's own choice (every style's, General) is offered to a petrol (an M car's too) only */
+    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: ['petrol', 'm'] });
     assert.strictEqual(item('scaleMaxRpm').tab, 'general');
     assert.strictEqual(item('scaleMaxRpm').default, '8000');
 });
@@ -143,9 +143,9 @@ test('a diesel\'s limits: the dial to 6,000, red from 4,500, the limit at 5,000 
     };
     assert.deepStrictEqual(p({}), [8000, 6750, 7000, 6850, 4950]);
     assert.deepStrictEqual(p({ engine: 'petrol', scaleMaxRpm: '10000', rpmRedline: '7250', rpmLimiter: '7500' }), [10000, 7250, 7500, 7350, 5450]);
-    /* a car of GENERAL > Car: its own figures (an S58: red from 7,000, the limit 8,000, the yellow from 6,500) */
-    assert.deepStrictEqual(p({}, 'mCarS58'), [8000, 7000, 8000, 7850, 6500]);
-    assert.deepStrictEqual(p({ rpmRedline: '5000' }, 'b48'), [7000, 6000, 7000, 6850, 4200], 'GENERAL\'s are not used for it');
+    /* an M car, its Redline and Limiter left to the car: its own (red from 7,000, the limit 8,000); set: as set */
+    assert.deepStrictEqual(p({ engine: 'm' }, 'mCarS58'), [8000, 7000, 8000, 7850, 5200]);
+    assert.deepStrictEqual(p({ engine: 'm', rpmRedline: '5000' }, 'mCarS58'), [8000, 5000, 8000, 7850, 3200]);
     /* the new, lower choices work for a petrol too (they are only numbers) */
     assert.deepStrictEqual(p({ rpmRedline: '4500', rpmLimiter: '5000' }), [8000, 4500, 5000, 4850, 2700]);
 });

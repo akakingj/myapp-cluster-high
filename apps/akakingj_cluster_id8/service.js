@@ -273,7 +273,8 @@ function start(host, deps) {
                     : Message.load({ dataDir: host.dataDir, log: log });
                 settings = Object.assign({}, settings, { introText: words || null });
             }
-            profile = Panel.profileFor(settings.profile || Panel.DEFAULT_PROFILE, settings);
+            /* the kind of car: an M car (GENERAL > Engine), a plug-in hybrid (Electric range, worked out above), a car */
+            profile = Panel.profileFor(Panel.kindOf(settings), settings);
             theme = Theme.build(atlas, profile.id, settings);
             driver = Driver.create({
                 cr: cr, theme: theme, shaders: SHADERS,
@@ -545,14 +546,14 @@ function start(host, deps) {
 }
 
 /*
- * General: Electric range on Automatic: a plug-in hybrid's when General: Car is the Plug-in hybrid, or once the car
- * has shown it is one (found: lookForPhev), as Cluster Layouts' Vehicle; else none. Off, Plug-in hybrid and Fully
- * electric are as chosen.
+ * General: Electric range on Automatic: a plug-in hybrid's once the car has shown it is one (found: lookForPhev),
+ * as Cluster Layouts' Vehicle; else none. Off, Plug-in hybrid and Fully electric are as chosen (the Car profile's
+ * Engine "Plug-in hybrid" sets it).
  */
 function electricOf(settings, found) {
     var e = settings && settings.electric;
     if (e !== 'auto') return e;
-    return found || (settings && settings.profile === 'hybrid') ? 'hybrid' : 'off';
+    return found ? 'hybrid' : 'off';
 }
 
 module.exports = { start: start, shaders: shaders, carState: carState, electricOf: electricOf,

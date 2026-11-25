@@ -154,7 +154,7 @@ test('Electric range on Automatic: a plug-in hybrid found by its drive modes, ke
     const spec = require('../app/app.base.json'), item = spec.settings.find((s) => s.key === 'electric');
     assert.strictEqual(item.default, 'auto');
     assert.strictEqual(item.options[0][0], 'auto');
-    assert.deepStrictEqual(item.profileMap, { phev: 'hybrid', petrol: 'off', diesel: 'off' }, 'a Car profile set to a plug-in hybrid says so itself');
+    assert.deepStrictEqual(item.profileMap, { phev: 'hybrid', petrol: 'off', m: 'off', diesel: 'off' }, 'a Car profile set to a plug-in hybrid says so itself');
     function run(dir, modes) {
         const logs = [], cr = { on() {}, asset: () => 1, effect: () => 1, uniform() {}, bind() {}, set() {}, drop() {}, pixels() {}, close() {} };
         let onValue = null, clock = 1000000;
@@ -182,14 +182,15 @@ test('Electric range on Automatic: a plug-in hybrid found by its drive modes, ke
     fs.rmSync(dir, { recursive: true, force: true }); fs.rmSync(dir2, { recursive: true, force: true });
 });
 
-test('General: Car on the Plug-in hybrid is a plug-in hybrid\'s Electric range too, on Automatic, as Cluster Layouts\' Vehicle', () => {
+test('Electric range on Automatic: a plug-in hybrid once the car shows it is one; the Car profile\'s Engine sets it, as Cluster Layouts\' Vehicle', () => {
     const Main = require('../src/car/main.js');
-    assert.strictEqual(Main.electricOf({ electric: 'auto', profile: 'hybrid' }, false), 'hybrid');
-    assert.strictEqual(Main.electricOf({ electric: 'auto', profile: 'b48' }, false), 'off');
-    assert.strictEqual(Main.electricOf({ electric: 'auto', profile: 'b48' }, true), 'hybrid', 'found by the car itself');
-    /* chosen by hand: as chosen */
-    assert.strictEqual(Main.electricOf({ electric: 'off', profile: 'hybrid' }, true), 'off');
-    assert.strictEqual(Main.electricOf({ electric: 'bev', profile: 'b48' }, false), 'bev');
+    assert.strictEqual(Main.electricOf({ electric: 'auto' }, false), 'off');
+    assert.strictEqual(Main.electricOf({ electric: 'auto' }, true), 'hybrid', 'found by the car itself');
+    /* chosen by hand (or by the Car profile's Engine: Plug-in hybrid, a petrol car, an M car): as chosen */
+    assert.strictEqual(Main.electricOf({ electric: 'off' }, true), 'off');
+    assert.strictEqual(Main.electricOf({ electric: 'bev' }, false), 'bev');
+    const e = require('../app/app.base.json').settings.find((s) => s.key === 'electric');
+    assert.deepStrictEqual([e.profile, e.profileMap.phev, e.profileMap.m], ['engine', 'hybrid', 'off']);
 });
 
 test('a plug-in hybrid\'s drive mode named as BMW\'s cluster names it (and Toro as the Revuelto), by name or by number', () => {
