@@ -66,7 +66,7 @@ follow; **main** is this version.
    this version (**beta-6** is the stable beta, 0.9.6).
 2. Install **mgu-styles2**.
 3. Open it from iDrive's menu. It is **off** after install: nothing on
-   your cluster changes until you press the switch on the **CLUSTER** tab.
+   your cluster changes until you press **Cluster on / off** in its bar.
 
 **If the Store will not add it**, its status line says why:
 
@@ -89,9 +89,15 @@ Central display area* to *Map view*.
 
 ## Settings, in short
 
-Everything is set on the app's page on iDrive — nothing on the cluster.
+Everything is set in the app on iDrive — nothing on the cluster. Its page
+(as AK Cluster Layouts'): the style on the cluster, what each of its places
+shows, and a card for each design to tap. Its bar: **Cluster on / off**,
+**Logs** and **Settings**. Settings goes a step at a time, as the head
+unit's own: on / off, start with the car, the style and the skin at the
+top, then **General**, then the style in use's own (**Toro**, **M Sport**,
+**M Sport Plus** or **M Track**; another style's appear once it is chosen).
 
-- **GENERAL**: on / off, start with the car, the style, units, the car's figures - tach scale, redline, limiter,
+- **General**: units, the car's figures - tach scale, redline, limiter,
   shift lights, **Shift now warning at**, **Speedometer up to** (260 km/h, 330 for an M car), **Boost gauge up to**
   (bar or psi, as the units) and the fuel tank - set here or by the Car profile app, as Cluster Layouts does;
   **Engine** (petrol, diesel, or petrol in an M car: the layers keep clear of its M display's boxes; a plug-in
@@ -114,21 +120,21 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
   takes the regeneration, from eDrive Live's battery power; the rev counter
   again in SPORT, XTRABOOST and with the lever in S or M),
   the holiday theme, the start-up message.
-- **TORO / M SPORT / M SPORT PLUS / M TRACK**: each style's own — what
+- **Toro / M Sport / M Sport Plus / M Track**: each style's own — what
   its middle (or M Track Mode's left wing) shows and how much of it,
   colours, the gear (Toro: D1, S1, M1).
-- **LOGS** (AK 0.17.0): the app's state and logs as QR codes to photograph and send with a problem, three a page,
-  and as a file on a USB stick - the same codes as AK Cluster Layouts' Logs (`python3 tools/decode_logs.py
+- **Logs** (AK 0.17.0): the app's state and logs as QR codes to photograph and send with a problem, three a page
+  (Logs again: the next page), and as a file on a USB stick - the same codes as AK Cluster Layouts' Logs (`python3 tools/decode_logs.py
   photo1.jpg photo2.jpg ...` puts them back together).
-- **The readings' places are on the CLUSTER page** (AK 0.17.0): the footer's three, Toro's four side gauges, M Track
+- **The readings' places are on the page** (AK 0.17.0): the footer's three, Toro's four side gauges, M Track
   Mode's gauge rows and strips — a press on the place lists its readings. They offer the same readings as AK Cluster
   Layouts' places: a footer the rpm, the speed in the other unit, the gear, boost, its target and this drive's peak,
   engine power and this drive's peak, torque, oil temperature and pressure, coolant, gearbox oil, intake air, pedal,
   throttle, ignition timing, the fuel rail's and the supply's pressures, the battery's voltage, the fuel, a drive
   battery's charge, temperature and power, the electric range, the trip computer, the odometer, the 0-60 mph
   (0-100 km/h) time and the last upshift's rpm; a gauge, row or strip any of them that has a scale.
-  **km/h only** in an M style: *GENERAL → Units → km/h*, then on the
-  style's tab *Second speed underneath → One speed only* (the M View
+  **km/h only** in an M style: *Settings → General → Speed unit → km/h*, then in the
+  style's own settings *Second speed underneath → One speed only* (the M View
   otherwise shows mph and km/h together).
 
 ![Toro's map opening in its three sizes](docs/screenshots/toro-opening.png)
@@ -139,7 +145,7 @@ Everything is set on the app's page on iDrive — nothing on the cluster.
 
 **M Sport Plus** has a third size, *Fullest*: one blended picture across
 the middle, soft at every edge and reaching further down, with the speed
-and the gear kept on dark ground. M SPORT PLUS tab → *Centre picture: how
+and the gear kept on dark ground. Settings → M Sport Plus → *Centre picture: how
 much shows*.
 
 **New in 0.10.0 — *Widest*, in M Sport and M Sport Plus.** The car's whole
@@ -148,7 +154,7 @@ half of the map, where *More* shows about a third of it. The blue plates
 make way for the picture while it shows (and M Sport's two lines with
 them), and come back when it goes; the speed, the gear and the fuel and oil
 strips each keep a soft patch of dark glass under them, so they read the
-same over a bright daytime map. M SPORT or M SPORT PLUS tab → *Centre
+same over a bright daytime map. Settings → M Sport or M Sport Plus → *Centre
 picture: how much shows → Widest*. It is off until you choose it.
 
 ![The widest window: all of the car's picture, in both M styles, by day, by night and over the camera](docs/screenshots/m-widest.png)
@@ -156,12 +162,12 @@ picture: how much shows → Widest*. It is off until you choose it.
 **M Sport's two centre lines no longer cross the map.** Where a picture
 shows (the phone's map, BMW's map or the camera) they fade out with the
 rest of the window; under it they still run into the rails. To have them
-over the picture as before: M SPORT tab → *Centre picture: the two lines
+over the picture as before: Settings → M Sport → *Centre picture: the two lines
 across it → Keep them over the picture*.
 
 ![M Sport's centre lines: faded where the picture shows, or kept](docs/screenshots/m-lines.png)
 
-**The start-up message comes up on a dark screen** (GENERAL tab: *Start-up
+**The start-up message comes up on a dark screen** (Settings → General: *Start-up
 message*, on as it comes). The words fade in, stay for the time you set,
 and fade away as the cluster comes up through them. Until 0.10.0 the
 cluster could be seen behind the words for about a second just as they
@@ -173,15 +179,15 @@ else about it has changed.
 ## M Track Mode
 
 New in 0.10.0: BMW M's track view, rebuilt for the iDrive 7 panel from a
-photograph of it. *GENERAL → Style → M Track Mode*.
+photograph of it. *Settings → Style → M Track Mode*.
 
 ![M Track Mode](docs/screenshots/m-track.png)
 
 Everything on it is your car's live figures, in the units you chose.
 
 - **Four gauge rows** in the left wing. As they come they are BMW's own
-  four: turbo boost, coolant, oil temperature and intake air. On the
-  **CLUSTER** page, *Gauge row 1 (top)* … *Gauge row 4 (bottom)* give each
+  four: turbo boost, coolant, oil temperature and intake air. On the app's
+  page, *Gauge row 1 (top)* … *Gauge row 4 (bottom)* give each
   row another reading — oil pressure, the gearbox oil, battery voltage,
   the accelerator pedal, the throttle, the ignition angle, the engine's
   power or torque, the fuel pressures, the fuel, a drive battery's charge
@@ -235,7 +241,7 @@ which a diesel never reaches, so its revs stay in the bottom half and nothing
 lights up. Tell the app it is a diesel:
 
 1. Open the app from iDrive's menu.
-2. Choose the **GENERAL** tab along the top.
+2. Press **Settings**, then **General**.
 3. Press **Engine** and choose **Diesel**.
 
 That gives every style a diesel's rev counter:
@@ -248,7 +254,7 @@ That gives every style a diesel's rev counter:
 | Toro's shift lights begin at | 1,800 below the redline | **3,200** |
 
 If your engine revs higher or lower than that, set **Redline** and
-**Limiter** on the same tab (from 3,000
+**Limiter** in the same list (from 3,000
 and 4,000 upwards); *From the car* is the diesel's own figures above.
 
 On a diesel, Toro's lower left gauge shows turbo
@@ -267,7 +273,7 @@ your car and model year, and whether the speed and the gear show.
 The Car profile app (akakingj/myapp-id7) sets these for every app that follows it, AK Cluster ID8 too. What
 it sets is shown here with "Car profile" beside it and changed there:
 
-| Car profile | Here (GENERAL) |
+| Car profile | Here (Settings → General) |
 |---|---|
 | Yellow light at | Shift lights from |
 | Red light at (Auto: the redline) | Redline (*At the limiter*) |
@@ -286,7 +292,7 @@ cluster shows between the style and the strip's figures. To show more of
 it, or less:
 
 1. Open the app from iDrive's menu.
-2. Choose the **GENERAL** tab along the top.
+2. Press **Settings**, then **General**.
 3. Scroll to **BMW's bottom strip** and press it.
 4. Pick one:
 
@@ -301,7 +307,7 @@ The change shows on the cluster within about half a second, for every
 style. Nothing is set on the cluster itself.
 
 **If the top of BMW's speed limit sign shows under the style** (a small
-red arc right of the strip's clock, with Speed Limit Info on): GENERAL →
+red arc right of the strip's clock, with Speed Limit Info on): Settings → General →
 **Cover the speed limit sign's edge in BMW's strip**. It covers that spot
 alone and leaves the rest of the strip as you have it.
 
@@ -310,8 +316,8 @@ BMW's cluster draws a black box in the rev dial instead. Warning lamps
 still show over the covered strip.
 
 With the strip hidden, the M styles' footer can carry what it showed:
-the **CLUSTER** page → *Footer, left / middle / right* (time, range,
-outside temperature and more), and on the M SPORT and M SPORT PLUS tabs
+the app's page → *Footer, left / middle / right* (time, range,
+outside temperature and more), and in Settings → M Sport or M Sport Plus
 *The gear's place shows* if you would rather not see the gear twice.
 
 ![BMW's bottom strip at each setting](docs/screenshots/strip.png)
@@ -321,7 +327,7 @@ outside temperature and more), and on the M SPORT and M SPORT PLUS tabs
 With the strip hidden, the rows it stood in are plain black. This option
 draws the whole style into them — lower, and larger by the same amount:
 
-1. Open the app, choose the **GENERAL** tab.
+1. Open the app, press **Settings**, then **General**.
 2. Press **BETA: lower and enlarge the cluster** and pick an amount:
    **20, 40, 58 or 74 px lower** (3, 6, 9 or 11 % larger). **Off** puts it
    back exactly as it was.

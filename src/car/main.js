@@ -152,7 +152,7 @@ function start(host, deps) {
     var reader = Vehicle.createReader({});
     var smoother = Smooth.create();
     /* how long one frame is, from the refresh rate setting */
-    /* GENERAL: Fuel % from (engine | litres) */
+    /* General: Fuel % from (engine | litres) */
     function fuelFrom() { return theme && theme.settings.fuelFrom === 'litres' ? 'litres' : 'engine'; }
     function frameMs() {
         var hz = theme && theme.settings && theme.settings.refreshHz;
@@ -296,7 +296,7 @@ function start(host, deps) {
                     : Message.load({ dataDir: host.dataDir, log: log });
                 settings = Object.assign({}, settings, { introText: words || null });
             }
-            /* the kind of car: an M car (GENERAL > Engine), a plug-in hybrid (Electric range, worked out above), a car */
+            /* the kind of car: an M car (General > Engine), a plug-in hybrid (Electric range, worked out above), a car */
             profile = Panel.profileFor(Panel.kindOf(settings), settings);
             theme = Theme.build(atlas, profile.id, settings);
             driver = Driver.create({
@@ -462,7 +462,7 @@ function start(host, deps) {
             needs = { oil: !!shows.oil, iat: !!shows.iat, volts: !!shows.volts,
                       pedal: !!shows.pedal || powerable, throttle: !!shows.throttle, timing: !!shows.timing,
                       boostTarget: !!shows.boostTarget, hpfp: !!shows.hpfp, lpfp: !!shows.lpfp,
-                      /* the tank's level, unless GENERAL: Fuel % from keeps to the car's litres */
+                      /* the tank's level, unless General: Fuel % from keeps to the car's litres */
                       tank: !!shows.tank && fuelFrom() === 'engine',
                       boost: !!shows.boost && !reader.hasBusBoost(now(), BUS_BOOST_MS) };
             var runs = typeof raw.rpm === 'number' && raw.rpm >= ENGINE_RUNS_RPM;

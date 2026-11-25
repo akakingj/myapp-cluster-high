@@ -11,17 +11,15 @@
  * by itself ("autostart"), so the cluster comes back at every start once
  * turned on.
  *
- * The page is the whole screen where the kit runs it (app.json: "hmi":
- * false, "fill": true - the GPU renderer, touch and the controller): its
- * own way out at the top left, and six tabs - CLUSTER (the design's
- * picture, on / off, what each of its places shows, the designs to pick
- * from, as AK Cluster Layouts' page) and one page of settings each for
- * GENERAL, TORO, M SPORT, M SPORT PLUS and M TRACK, so a style's own
- * adjustments are never mixed up with another's. Everywhere else (no renderer) the
- * CLUSTER tab is drawn in the HMI's own page, with the HMI's bar buttons
- * and its settings list, which offers only the style in use. Skin (as AK
- * Cluster Layouts', or the Car profile's): Classic, or iDrive 7 - near-black,
- * flat rows and the orange focus, as the head unit's own screens.
+ * The page, as AK Cluster Layouts': the design's picture, its state, what
+ * each of its places shows and the designs to pick from, with the bar's
+ * Cluster on / off and Logs (the codes to photograph, in the page's place
+ * until Logs is pressed past the last). Settings is the kit's list, one
+ * step at a time: on / off, the style and the skin at its top, then
+ * General and the style in use's own (Toro, M Sport, M Sport Plus or
+ * M Track). Skin (or the Car profile's): Classic, or iDrive 7 -
+ * near-black, flat rows and the orange focus, as the head unit's own
+ * screens.
  *
  * This file is staged as main.js by tools/stage-app.js; the kit's builder
  * makes it the package's app.js. Node 8.
@@ -34,7 +32,7 @@ const MGeom = require('./mgeom.js');
 const TGeom = require('./tgeom.js');
 const Theme = require('./theme.js');
 const Previews = require('./previews.js');
-/* the LOGS tab's codes and file: AK Cluster Layouts' logs.js, the same codes as its Logs (tools/decode_logs.py) */
+/* Logs' codes and file: AK Cluster Layouts' logs.js, the same codes as its Logs (tools/decode_logs.py) */
 const Logs = require('./logs.js');
 const Panel = require('./panel.js');
 const path = require('path');
@@ -117,17 +115,17 @@ function hostFor(bg) {
 /* the page's colours, as the skin has them (useSkin) */
 const SKINS = {
     classic: { INK: '#e8f0f6', DIM: '#8d9aa6', FAINT: '#55626e', RED: '#ff263d', CARD: '#121b25', FIELD: '#05090f',
-               BG: '#070b11', BAR: '#0b1119', LINE: '#18222e', OFF: '#2a3846', R: 1 },
+               BG: '#070b11', LINE: '#18222e', R: 1 },
     /* the head unit's own screens: near-black, silver-grey words, the orange focus, square corners */
     idrive7: { INK: '#f4f3f2', DIM: '#b5b3b4', FAINT: '#7d7c81', RED: '#ff570c', CARD: '#0b0b0d', FIELD: '#060607',
-               BG: '#030304', BAR: '#0b0b0d', LINE: '#2c2b2f', OFF: '#4b4a50', R: 0 }
+               BG: '#030304', LINE: '#2c2b2f', R: 0 }
 };
-let INK, DIM, FAINT, RED, CARD, FIELD, BG, BAR, LINE, OFF, SK7 = false;
+let INK, DIM, FAINT, RED, CARD, FIELD, BG, LINE, SK7 = false;
 /* a corner's radius in the skin: as drawn (Classic), or nearly square (iDrive 7) */
 const rad = (r) => (SK7 ? Math.min(r, 3) : r);
 function useSkin(id) {
     const k = SKINS[id] || SKINS.classic;
-    ({ INK, DIM, FAINT, RED, CARD, FIELD, BG, BAR, LINE, OFF } = k);
+    ({ INK, DIM, FAINT, RED, CARD, FIELD, BG, LINE } = k);
     SK7 = !k.R;
 }
 useSkin('classic');
@@ -251,7 +249,7 @@ function tSketch(cv, x, y, w) {
 }
 
 /*
- * The designs, in the order of their cards on the CLUSTER page (and of the
+ * The designs, in the order of their cards on the page (and of the
  * HMI bar's Design button). Each is a style and, for Toro, its background;
  * the colours and everything else stay as set. id: its picture's
  * (previews_data.js).
@@ -265,9 +263,9 @@ const DESIGNS = [
     { id: 'mtrack', name: 'M Track Mode', card: 'M Track', sub: 'BMW M\'s track view: four gauges, the gear, a leaning rev counter', style: 'mtrack' }
 ];
 /*
- * Each style's places on the CLUSTER page, as AK Cluster Layouts' readouts: what shows where (the settings of its
- * own tab that say so). A place is offered while its setting is (its "when"). The readings' places - the footers, the
- * gauges, the gauge rows and strips - are set here alone ("page": not on a tab, nor in the head unit's settings list).
+ * Each style's places on the page, as AK Cluster Layouts' readouts: what shows where (the settings of its own
+ * group that say so). A place is offered while its setting is (its "when"). The readings' places - the footers, the
+ * gauges, the gauge rows and strips - are set here alone ("page": not in the settings list).
  */
 const PLACES = {
     toro: ['tCentre', 'tCentreSize', 'gearPlace', 'showBoost', 'showAuxLeft', 'electricGauge', 'modeLabel', 'shiftStyle',
@@ -283,17 +281,6 @@ function designIndex(style, background) {
     return i < 0 ? 0 : i;
 }
 
-/* The page's tabs: the cluster itself, then a page of settings each. */
-/* (label: the Classic skin's capitals; name: the iDrive 7 skin's words, as the head unit writes them) */
-const TABS = [
-    { id: 'cluster', label: 'CLUSTER', name: 'Cluster' },
-    { id: 'general', label: 'GENERAL', name: 'General' },
-    { id: 'toro', label: 'TORO', name: 'Toro', style: 'toro' },
-    { id: 'msport', label: 'M SPORT', name: 'M Sport', style: 'track' },
-    { id: 'mplus', label: 'M SPORT PLUS', name: 'M Sport Plus', style: 'mplus' },
-    { id: 'mtrack', label: 'M TRACK', name: 'M Track', style: 'mtrack' },
-    { id: 'logs', label: 'LOGS', name: 'Logs' }
-];
 const STYLE_NAME = { toro: 'Toro', track: 'M Sport', mplus: 'M Sport Plus', mtrack: 'M Track Mode' };
 /* what a style's middle can show, as the short words the buttons carry */
 const CENTRE_WORDS = { off: 'Closed', waze: 'Waze', map: 'BMW map', camera: 'Camera', turn: 'Turn card' };
@@ -301,7 +288,6 @@ const CENTRE_WORDS = { off: 'Closed', waze: 'Waze', map: 'BMW map', camera: 'Cam
 const WING_WORDS = Object.assign({}, CENTRE_WORDS, { off: 'Gauges' });
 
 const W = 1600;
-const ROW_H = 60, ROW_GAP = 8;
 
 mgu.run({
     background(bg) {
@@ -316,7 +302,7 @@ mgu.run({
                 bg.log.info('start at every startup is off: BMW original until turned on');
             }
         } catch (e) { bg.log.warn('autoStart: ' + e); }
-        /* (a car chosen under GENERAL > Car before it went: its figures into GENERAL's, once) */
+        /* (a car chosen under General > Car before it went: its figures into General's, once) */
         try { Panel.moveCarFigures(bg.settings, bg.log); } catch (e) { bg.log.warn('car figures: ' + e); }
         try {
             const svc = Service.start(hostFor(bg), { appId: bg.spec.id });
@@ -331,13 +317,8 @@ mgu.run({
     start(ctx) {
         const { ui, settings, background } = ctx;
         const loop = ctx.loop('MAIN', 4, render);
-        const items = ctx.spec.settings || [];
         let last = '';
-        let tab = 'cluster';              /* the page showing */
-        const scroll = {};                /* tab -> how far its list is scrolled, px */
-        let focusKey = null;              /* the place the controller is on (the kit says) */
-        let listBox = null;               /* the settings list as last drawn: { y, h, rows: [{ key, y }] } */
-        let wasOwn = false;
+        let tab = 'cluster';              /* the page showing: cluster or logs */
 
         function choice(key) {
             const item = settings.item(key);
@@ -357,27 +338,18 @@ mgu.run({
             const v = settings.get(centreKey(st));
             return centreOptions(st).indexOf(v) >= 0 ? v : 'off';
         };
-        /* a setting is offered on its tab whatever style is in use: its other conditions still hold */
+        /* a place is offered whatever style is in use: its setting's other conditions still hold */
         function offered(s, onPage) {
             if (!s || (s.hidden && !(onPage && s.page))) return false;
             const w = s.when || {};
             return Object.keys(w).every((k) => k === 'style' || [].concat(w[k]).indexOf(settings.get(k)) >= 0);
         }
-        const rowsOf = (id) => items.filter((s) => s.tab === id && offered(s));
 
         function refresh() { last = ''; loop.kick(); }
-        function show(id) {
-            if (!TABS.some((t) => t.id === id)) return;
-            /* the logs made afresh each time the tab opens */
-            if (id === 'logs' && tab !== 'logs') logView = null;
-            tab = id;
-            refresh();
-        }
-        function step(dir) {
-            const i = designIndex(settings.get('style'), settings.get('background'));
-            const d = DESIGNS[(i + dir + DESIGNS.length) % DESIGNS.length];
-            settings.set('style', d.style);
-            if (d.background) settings.set('background', d.background);
+        /* Logs: made afresh each time it opens; pressed again, the next page, past the last back to the cluster */
+        function logsPressed() {
+            if (tab !== 'logs') { logView = null; tab = 'logs'; } else if (logView && (logView.page + 1) * LOG_PER_PAGE < logView.codes.length) logView.page++;
+            else tab = 'cluster';
             refresh();
         }
         function toggleShown() { settings.set('enabled', settings.get('enabled') !== true); refresh(); }
@@ -410,13 +382,6 @@ mgu.run({
                 dialSketch(cv, x + w / 2, y + h - 12, r, '#ff6a1a');
             }
         }
-        function nextCentre() {
-            const opts = centreOptions(), i = opts.indexOf(centreOf());
-            if (opts.length) settings.set(centreKey(), opts[(i + 1) % opts.length]);
-            refresh();
-        }
-        function exit() { Promise.resolve(ui.close('MAIN')).catch(() => {}); }
-
         /* one setting's values, to pick from: the kit's own list (a sheet over the page) */
         function pick(s) {
             const sh = Sheet.listSheet(settings, s.label);
@@ -452,17 +417,8 @@ mgu.run({
 
             useSkin(settings.get('skin'));
             const cv = ctx.canvas(W, 520);
-            /* the kit runs the screen: the page is the whole display, with its own tabs and way out */
-            const own = !!cv.own;
-            const H = 520 + (own ? cv.extra || 0 : 0);
-            if (own !== wasOwn) {
-                wasOwn = own;
-                /* their jobs are on the page there; elsewhere the HMI's bar has them */
-                ['BTN_SHOW', 'BTN_DESIGN', 'BTN_CENTRE'].forEach((b) => { if (ctx.hideButton) ctx.hideButton(b, own); });
-            }
-            const page = own ? tab : 'cluster';
-            const sig = JSON.stringify([status, on, centre, feed, settingsOf(settings, ctx.spec), own, H, page,
-                scroll[page] || 0, focusKey]);
+            const H = 520, page = tab;
+            const sig = JSON.stringify([status, on, centre, feed, settingsOf(settings, ctx.spec), page, logView && logView.page]);
             if (sig === last) return;
             last = sig;
 
@@ -474,57 +430,14 @@ mgu.run({
                 label(String(s), x, y, w > maxW ? size * maxW / w : size, c, o);
             };
             cv.fillRect(0, 0, W, H, BG);
-            listBox = null;
 
-            /*
-             * Places a finger or the controller can press, gathered and handed to the kit at the end:
-             * the bar's first, so the controller's knob runs way out, tabs, page - though the bar is
-             * drawn last, over a list that has scrolled up under it (nothing here relies on clipping:
-             * the head unit's software renderer has none).
-             */
-            const barPlaces = [], pagePlaces = [];
-            const place = (list) => (x, y, w, h, run, key, r) => list.push([x, y, w, h, run, key, r]);
-            const top = own ? 84 : 44;
-            function drawBar() {
-                if (!own) return;
-                const tgt = place(barPlaces);
-                cv.fillRect(0, 0, W, 72, BG);
-                cv.fillRect(0, 0, W, 70, BAR);
-                cv.fillRect(0, 70, W, 2, LINE);
-                /* the way out (the HMI's back arrow is under the page) */
-                cv.roundRect(14, 10, 92, 50, rad(25), CARD);
-                cv.line(66, 23, 52, 35, 4, INK); cv.line(52, 35, 66, 47, 4, INK);
-                tgt(14, 10, 92, 50, exit, 'exit', 25);
-                /* the app's own name, as its manifest has it (a public release may carry another) */
-                const title = String(ctx.spec.title || 'AK Cluster ID8');
-                fitLabel(SK7 ? title : title.toUpperCase(), 124, 45, 26, 214, INK, SK7 ? {} : { font: 'bold', spacing: 1.5 });
-                let x = 352;
-                TABS.forEach((t) => {
-                    const word = SK7 ? t.name : t.label, wf = SK7 ? { literal: true } : { literal: true, font: 'bold', spacing: 1 };
-                    const tw = cv.textWidth(tr(word), SK7 ? 23 : 21, wf) + 44;
-                    const sel = t.id === tab;
-                    if (sel && SK7) focus7(cv, x, 12, tw, 46);
-                    else cv.roundRect(x, 12, tw, 46, rad(23), sel ? RED : CARD);
-                    label(word, x + 22, 43, SK7 ? 23 : 21, sel ? '#ffffff' : (t.style && t.style === st ? INK : DIM), SK7 ? {} : { font: 'bold', spacing: 1 });
-                    /* the style in use carries a mark */
-                    if (t.style && t.style === st) cv.circle(x + tw - 12, 22, 4, sel ? '#ffffff' : '#3ddc84');
-                    tgt(x, 12, tw, 46, () => show(t.id), 'tab:' + t.id, rad(23));
-                    x += tw + 10;
-                });
-                cv.circle(x + 26, 35, 8, statusColour(status));
-                fitLabel(status, x + 44, 43, 20, W - 20 - (x + 44), DIM);
-            }
-            function done() {
-                drawBar();
-                barPlaces.concat(pagePlaces).forEach((q) => cv.target(q[0], q[1], q[2], q[3], q[4], q[5], q[6]));
-                return ui.image('MAIN_GFX', cv);
-            }
-            const tgt = place(pagePlaces);
-            const bottom = H - (own ? 14 : 6);
-            const ch = bottom - top;
+            /* places a finger or the controller can press (nothing here relies on clipping: the head unit's
+               software renderer has none) */
+            const tgt = (x, y, w, h, run, key, r) => cv.target(x, y, w, h, run, key, r);
+            const done = () => ui.image('MAIN_GFX', cv);
+            const top = 44, bottom = H - 6, ch = bottom - top;
 
             if (page === 'logs') { drawLogs(cv, label, fitLabel, tgt, top, ch); return done(); }
-            if (page !== 'cluster') { drawSettings(cv, label, fitLabel, tgt, page, top, ch, st); return done(); }
 
             const auto = settings.get('autoStart') !== false;
             const di = designIndex(settings.get('style'), settings.get('background'));
@@ -542,24 +455,12 @@ mgu.run({
                 cv.fillRect(BX, BY, PW, PH, withAlpha('#000000', 0.55));
                 label('BMW\'s own cluster shows', BX + PW / 2, BY + PH / 2 + 10, 28, INK, { align: 'center', font: SK7 ? undefined : 'bold' });
             }
-            /* under it: on / off, the one button that matters most, and what the centre has to show */
+            /* under it: the service's state (on / off: the bar's Cluster on / off), and what the centre has to show */
             let y = BY + PH + 14;
             const bw = PW + 8, bh = 56;
-            if (own) {
-                if (on && SK7) focus7(cv, BX - 4, y, bw, bh);
-                else {
-                    cv.roundRect(BX - 4, y, bw, bh, rad(28), on ? (SK7 ? CARD : '#12301f') : FIELD);
-                    cv.strokeRoundRect(BX - 4, y, bw, bh, rad(28), 2, on ? (SK7 ? RED : '#3ddc84') : OFF);
-                }
-                cv.circle(BX + 26, y + bh / 2, 9, statusColour(status));
-                fitLabel(on ? 'On the cluster  -  press for BMW\'s own' : 'Off  -  press to show it on the cluster',
-                    BX + 48, y + bh / 2 + 8, 22, bw - 70, INK);
-                tgt(BX - 4, y, bw, bh, toggleShown, 'show', rad(28));
-            } else {
-                cv.roundRect(BX - 4, y, bw, bh, rad(10), FIELD);
-                cv.circle(BX + 26, y + bh / 2, 9, statusColour(status));
-                fitLabel(status, BX + 48, y + bh / 2 + 8, 22, bw - 70, INK);
-            }
+            cv.roundRect(BX - 4, y, bw, bh, rad(10), FIELD);
+            cv.circle(BX + 26, y + bh / 2, 9, statusColour(status));
+            fitLabel(status, BX + 48, y + bh / 2 + 8, 22, bw - 70, INK);
             y += bh + 26;
             const cardsY = bottom - (TH + 46);
             if (y + 18 < cardsY - 8) {
@@ -587,7 +488,7 @@ mgu.run({
                 fitLabel(s.label.replace(/\s*\(.*\)$/, ''), x + 16, yy + 20, 14, CW - 30, DIM, { font: SK7 ? undefined : 'bold' });
                 const v = s.type === 'bool' ? (isOn ? 'On' : 'Off') : choice(s.key).replace(/ \(.*$/, '');
                 fitLabel(v, x + 16, yy + 44, 19, CW - 30, isOn === false ? FAINT : INK, { font: SK7 ? undefined : 'bold' });
-                if (own) tgt(x, yy, CW, CH, () => press(s), 'place:' + s.key, rad(10));
+                tgt(x, yy, CW, CH, () => press(s), 'place:' + s.key, rad(10));
             });
 
             /* ---- the designs: a card each, the one in use framed; a tap shows it on the cluster ---- */
@@ -603,7 +504,7 @@ mgu.run({
                     sketchOf(cv, d, d.style, ix, iy, TW, TH);
                 }
                 fitLabel(d.card, x + CWD / 2, cardsY + CHT - 10, 18, CWD - 16, mine ? '#ffffff' : INK, { align: 'center', font: SK7 ? undefined : 'bold' });
-                if (own) tgt(x, cardsY, CWD, CHT, () => useDesign(d), 'design:' + d.id, rad(10));
+                tgt(x, cardsY, CWD, CHT, () => useDesign(d), 'design:' + d.id, rad(10));
             });
             return done();
         }
@@ -611,7 +512,7 @@ mgu.run({
         /*
          * LOGS: what's needed to find a problem, as AK Cluster Layouts' Logs gathers it - QR codes to photograph,
          * three a page (tools/decode_logs.py puts them back together), and the whole as a file in the app's data folder
-         * and on a USB stick. Made when the tab opens and at Make again.
+         * and on a USB stick. Made when Logs opens and at Make again.
          */
         let logView = null;      /* { codes, page, saved } */
         const LOG_PER_PAGE = 3;
@@ -672,127 +573,14 @@ mgu.run({
             if (!n) label('Nothing to show yet', 30, cy + 40, 22, DIM);
         }
 
-        /* A page of settings: the rows of one tab, each a place to press. */
-        function drawSettings(cv, label, fitLabel, tgt, id, top, ch, st) {
-            const t = TABS.find((q) => q.id === id);
-            const rows = rowsOf(id);
-            const inUse = !t.style || t.style === st;
-            const y0 = top + 62, vh = ch - 62 + 14;             /* the list runs to the screen's foot */
-            const total = rows.length * (ROW_H + ROW_GAP) - ROW_GAP + 14;
-            const max = Math.max(0, total - vh);
-            scroll[id] = Math.max(0, Math.min(max, scroll[id] || 0));
-            const sy = scroll[id];
-            listBox = { id, y: y0, h: vh, max, rows: [] };
-            rows.forEach((s, i) => {
-                const y = y0 + i * (ROW_H + ROW_GAP) - sy;
-                listBox.rows.push({ key: s.key, y, s });
-                if (y + ROW_H < y0 || y > y0 + vh) return;
-                const x = 16, w = W - 32 - (max ? 16 : 0);
-                cv.roundRect(x, y, w, ROW_H, rad(14), CARD);
-                if (SK7) cv.fillRect(x, y + ROW_H + ROW_GAP / 2, w, 1, LINE);
-                const cy = y + ROW_H / 2;
-                let right = x + w - 26;
-                if (s.type === 'bool' && SK7) {
-                    /* iDrive 7: a check box, the orange tick when on */
-                    const onV = !!settings.get(s.key);
-                    cv.strokeRoundRect(right - 30, cy - 15, 30, 30, 2, 2, '#bdbcc0');
-                    if (onV) { cv.line(right - 24, cy, right - 18, cy + 7, 4, RED); cv.line(right - 18, cy + 7, right - 5, cy - 8, 4, RED); }
-                    right -= 54;
-                } else if (s.type === 'bool') {
-                    const onV = !!settings.get(s.key);
-                    cv.roundRect(right - 76, cy - 19, 76, 38, 19, onV ? RED : OFF);
-                    cv.circle(onV ? right - 19 : right - 57, cy, 14, '#ffffff');
-                    right -= 100;
-                } else {
-                    /* (no arrow where the Car profile sets it: nothing to pick here) */
-                    if (!held(s.key)) { cv.line(right - 9, cy - 9, right, cy, 3, DIM); cv.line(right, cy, right - 9, cy + 9, 3, DIM); right -= 30; }
-                    const v = choice(s.key);
-                    const vw = Math.min(700, cv.textWidth(tr(v), 22, { literal: true }));
-                    fitLabel(v, right - vw, cy + 8, 22, 700, DIM);
-                    right -= vw + 24;
-                }
-                fitLabel(s.label, x + 26, cy + 9, 24, right - (x + 26), INK);
-            });
-            if (max) {
-                const bh = Math.max(40, vh * vh / total), by = y0 + (vh - bh) * (sy / max);
-                cv.roundRect(W - 22, by, 6, bh, rad(3), SK7 ? '#8d8c92' : '#3a4654');
-            }
-            /* over the rows that have scrolled up: the page's own line - whose settings these are, and
-               the way to that style (the bar is drawn over the rest, last) */
-            cv.fillRect(0, 0, W, y0 - 4, BG);
-            fitLabel(t.style ? STYLE_NAME[t.style] + tr(inUse ? ': the style on the cluster now.' : ': its own settings, kept for when it is chosen.')
-                             : tr('For every style: the car, units, the limiter, BMW\'s strip, extras.'),
-                     30, top + 32, 21, t.style && !inUse ? 1180 : 1500, inUse ? INK : DIM, { done: true });
-            if (t.style && !inUse) {
-                cv.roundRect(W - 330, top + 2, 304, 46, rad(23), FIELD);
-                cv.strokeRoundRect(W - 330, top + 2, 304, 46, rad(23), 1.5, SK7 ? RED : '#3ddc84');
-                label(SK7 ? 'Use this style' : 'USE THIS STYLE', W - 178, top + 33, SK7 ? 22 : 20, INK, { align: 'center', font: SK7 ? undefined : 'bold', spacing: SK7 ? 0 : 1 });
-                tgt(W - 330, top + 2, 304, 46, () => { settings.set('style', t.style); refresh(); }, 'use:' + t.style, rad(23));
-            }
-            /* every row is a place for the controller, in view or not (one out of view is brought in when
-               the controller reaches it: onPageFocus). Those out of view stand well clear of the page, in
-               their order, so a finger cannot find them and a push up or down still lands on the next. */
-            rows.forEach((s, i) => {
-                const y = y0 + i * (ROW_H + ROW_GAP) - sy;
-                const inView = y >= y0 - 1 && y + ROW_H <= y0 + vh + 1;
-                const ty = inView ? y : (y < y0 ? y - 4000 : y + 4000);
-                tgt(16, ty, W - 32 - (max ? 16 : 0), ROW_H, () => press(s), 'set:' + s.key, rad(14));
-            });
-        }
-
-        /* the controller reached a row out of view: bring it in */
-        function reveal(key) {
-            if (!listBox || !key || key.indexOf('set:') !== 0) return;
-            const row = listBox.rows.find((r) => 'set:' + r.key === key);
-            if (!row) return;
-            let sy = scroll[listBox.id] || 0;
-            if (row.y < listBox.y) sy -= listBox.y - row.y;
-            else if (row.y + ROW_H > listBox.y + listBox.h) sy += row.y + ROW_H - (listBox.y + listBox.h);
-            scroll[listBox.id] = Math.max(0, Math.min(listBox.max, sy));
-        }
-
         settings.onChange(refresh);
         ctx.onLayout(refresh);
         ui.onVisible((name) => { if (name === 'MAIN') refresh(); });
 
-        /* the HMI's bar, where the kit does not run the screen */
         ui.onClick('BTN_SHOW', toggleShown);
-        ui.onClick('BTN_DESIGN', () => step(1));
-        ui.onClick('BTN_CENTRE', nextCentre);
-
-        /* where the kit runs the screen: the controller and the finger */
-        if (ctx.onPageFocus) ctx.onPageFocus((key) => { focusKey = key || null; reveal(focusKey); refresh(); });
-        /* pushed left with nothing further left: a settings page goes back to CLUSTER, CLUSTER leaves the app */
-        if (ctx.onBack) ctx.onBack((edge) => { if (edge && tab !== 'cluster') { show('cluster'); if (ctx.focus) ctx.focus('tab:cluster'); return true; } return false; });
-        /* a finger on a settings list: a drag scrolls it, a tap presses the row under it */
-        if (ctx.onTouch) {
-            let drag = null;
-            ctx.onTouch((phase, x, y) => {
-                if (phase === 1) {
-                    drag = null;
-                    if (tab === 'cluster' || !listBox || y < listBox.y || y > listBox.y + listBox.h) return false;
-                    drag = { x, y0: y, last: y, moved: false };
-                    return true;
-                }
-                if (!drag) return false;
-                if (phase === 2) {
-                    if (Math.abs(y - drag.y0) > 12) drag.moved = true;
-                    if (drag.moved && listBox) {
-                        scroll[listBox.id] = Math.max(0, Math.min(listBox.max, (scroll[listBox.id] || 0) + drag.last - y));
-                        refresh();
-                    }
-                    drag.last = y;
-                } else if (phase === 3) {
-                    const d = drag;
-                    drag = null;
-                    if (!d.moved && listBox) {
-                        const row = listBox.rows.find((r) => d.y0 >= r.y && d.y0 < r.y + ROW_H);
-                        if (row) press(row.s);
-                    }
-                }
-                return true;
-            });
-        }
+        ui.onClick('BTN_LOGS', logsPressed);
+        /* the controller pushed left with nothing further left on Logs: back to the page (on the page: the kit's, it leaves) */
+        if (ctx.onBack) ctx.onBack((edge) => { if (!edge || tab !== 'logs') return false; tab = 'cluster'; refresh(); return true; });
         refresh();
     }
 });

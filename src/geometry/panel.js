@@ -124,9 +124,9 @@ var M_BOX_A = { id: 'mBoxA', x: 793, y: 289, w: 246, h: 92, name: 'M box (left)'
 var M_BOX_B = { id: 'mBoxB', x: 1223, y: 328, w: 171, h: 78, name: 'M box (right)' };
 
 /*
- * The kinds of car (Panel.kindOf: GENERAL > Engine and Electric range, as set there or by the Car profile app).
- * Each gives the figures used where GENERAL's are left to the car (Redline, Limiter on "From the car"), the top of
- * Toro's boost gauge where GENERAL's Boost gauge up to is on Automatic, the fuel tank where nothing says, whether
+ * The kinds of car (Panel.kindOf: General > Engine and Electric range, as set there or by the Car profile app).
+ * Each gives the figures used where General's are left to the car (Redline, Limiter on "From the car"), the top of
+ * Toro's boost gauge where General's Boost gauge up to is on Automatic, the fuel tank where nothing says, whether
  * the car has boost to show, and the boxes its KOMBI draws over a panel layer: an M car's two in the M display,
  * a plug-in hybrid's eDrive box.
  */
@@ -152,7 +152,7 @@ var PROFILES = {
 
 var DEFAULT_PROFILE = 'carprofile';
 
-/* The kind of car for the settings: GENERAL > Engine "Petrol, M car", else a plug-in hybrid (Electric range, as
+/* The kind of car for the settings: General > Engine "Petrol, M car", else a plug-in hybrid (Electric range, as
    main.js has worked it out), else a car. */
 function kindOf(settings) {
     if (settings && settings.engine === 'm') return 'mCarS58';
@@ -190,7 +190,7 @@ function snapBoost(bar) {
     return '45';
 }
 
-/* The profile for a car with GENERAL's tank and boost gauge (each set there or by the Car profile app): boostPsi, Boost
+/* The profile for a car with General's tank and boost gauge (each set there or by the Car profile app): boostPsi, Boost
    gauge up to's end in psi, and boostBar its end in bar (both null on Automatic: the kind's own, boostMaxPsi) */
 function profileFor(id, settings) {
     var p = profile(id);
@@ -207,8 +207,8 @@ function profileFor(id, settings) {
 }
 
 /*
- * GENERAL > Car, B48 / B58 / S58 (M car) / Plug-in hybrid, as chosen before it went: each one's own figures, which
- * GENERAL's settings now hold (app/entry.js moves them across once). null for Car profile values or nothing chosen.
+ * General > Car, B48 / B58 / S58 (M car) / Plug-in hybrid, as chosen before it went: each one's own figures, which
+ * General's settings now hold (app/entry.js moves them across once). null for Car profile values or nothing chosen.
  */
 var CAR_FIGURES = {
     /* (the boost gauge's end as Toro drew it in psi: 20 for a B48, 30 for the others) */
@@ -232,9 +232,9 @@ function figuresOfCar(saved) {
     return out;
 }
 /*
- * GENERAL > Car went in AK 0.18.0: the figures of the car chosen there are set in GENERAL's own settings once, when
+ * General > Car went in AK 0.18.0: the figures of the car chosen there are set in General's own settings once, when
  * the app starts (app/entry.js), so the cluster reads as it did. settings: the kit's (values as saved). Nothing for
- * a new install, nor for Car profile values: GENERAL's already.
+ * a new install, nor for Car profile values: General's already.
  */
 function moveCarFigures(settings, log) {
     var v = settings.values || {};
@@ -242,7 +242,7 @@ function moveCarFigures(settings, log) {
     var f = figuresOfCar(v);
     if (f) {
         Object.keys(f).forEach(function (k) { settings.set(k, f[k]); });
-        if (log) log.info('GENERAL > Car ' + v.profile + ': its figures are GENERAL\'s own now ' + JSON.stringify(f));
+        if (log) log.info('General > Car ' + v.profile + ': its figures are General\'s own now ' + JSON.stringify(f));
     }
     settings.set('_carMoved', 1);
     return f;

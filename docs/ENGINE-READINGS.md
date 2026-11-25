@@ -26,7 +26,7 @@ at, whether it is on the head unit or not (AK 0.13.0).
   unit is coded or flashed. (An engine stopped by auto start-stop is still
   asked, for up to three minutes: the car is in drive readiness then, and a
   gauge that went blank at every traffic light would be no gauge. A plug-in
-  hybrid or an electric car - *GENERAL → Electric range* - is asked all the
+  hybrid or an electric car - *Settings → General → Electric range* - is asked all the
   while it is in drive readiness, engine or none: its Power % follows the
   accelerator pedal on electricity too.)
 - **Only what is shown.** Toro's left gauges want oil pressure; an M
@@ -41,7 +41,7 @@ supply every 2 s, ambient pressure once a minute. A reading that gets no
   car that is 2 requests a second for Toro, under 1 for an M style with
   intake air and the battery in its footer, and 6 with boost as well.
 
-The app's page says what is happening on the CLUSTER tab's *Readings* row:
+The app's page says what is happening on its *Readings* row:
 *Engine unit: oil pressure, intake air*, *read while the engine runs*,
 *no answer*, *no diagnostic link*.
 
@@ -120,13 +120,13 @@ a place shows it, as Cluster Layouts reads them (its `config.dme`).
 
 The **fuel gauge** is Cluster Layouts' own figure: the engine unit's tank
 level while it answers (asked every 10 s while a fuel gauge or place is
-shown, kept a minute), otherwise the car's litres over *GENERAL → Fuel tank
-size*. *GENERAL → Fuel % from → Litres / tank size* keeps to the litres and
+shown, kept a minute), otherwise the car's litres over *Settings → General → Fuel tank
+size*. *Settings → General → Fuel % from → Litres / tank size* keeps to the litres and
 never asks.
 
 ## A diesel
 
-With *GENERAL → Engine → Diesel* the engine unit is asked **only the
+With *Settings → General → Engine → Diesel* the engine unit is asked **only the
 standard identifiers** in the table: the OBD ones and their `F4xx` forms.
 A diesel's engine unit is a DDE, not the DME 8 the BMW identifiers belong
 to, and what a DDE answers to `4436`, `586F`, `4201`, `580F`, `5853`,

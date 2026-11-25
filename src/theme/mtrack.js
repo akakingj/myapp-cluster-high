@@ -114,7 +114,7 @@
                      'power', 'torque', 'hpfp', 'lpfp', 'fuel', 'off'];
     /* the four as they come: the frame's - or, in an electric car, what it has instead */
     var ROW_HOME = { frame: ['boost', 'coolant', 'oil', 'iat'], bev: ['charge', 'hvtemp', 'off', 'off'] };
-    /* u: the units shown (units.js); boostBar: GENERAL > Boost gauge up to's end in bar, and boostPsi in psi (null: the
+    /* u: the units shown (units.js); boostBar: General > Boost gauge up to's end in bar, and boostPsi in psi (null: the
        frame's own 1.9 bar, 28 psi) */
     function rowScales(u, boostBar, boostPsi) {
         var celsius = u.temp === 'c';

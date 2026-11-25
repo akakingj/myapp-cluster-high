@@ -45,10 +45,10 @@ const COND = 'de.bmw.infrastructure.VehicleCondition';
 
 /* ------------------------------------------------------------ the setting */
 
-test('Engine is a setting on GENERAL: petrol as it comes, diesel only when the owner says so', () => {
+test('Engine is a setting in General: petrol as it comes, diesel only when the owner says so', () => {
     const e = item('engine');
     assert.ok(e, 'there is an Engine setting');
-    assert.deepStrictEqual([e.tab, e.type, e.default, e.label], ['general', 'choice', 'petrol', 'Engine']);
+    assert.deepStrictEqual([e.group, e.type, e.default, e.label], ['General', 'choice', 'petrol', 'Engine']);
     assert.deepStrictEqual(e.options.map((o) => o[0]), ['petrol', 'diesel', 'm']);
     assert.strictEqual(e.when, undefined, 'offered whatever the style');
     assert.match(e.options[1][1], /^Diesel: .*6,000/);
@@ -107,7 +107,7 @@ test('Redline and Limiter can be set for a diesel, and the tach scale is a petro
     }
     /* a diesel's dial reads 0 - 6: the scale's own choice (every style's, General) is offered to a petrol (an M car's too) only */
     assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: ['petrol', 'm'] });
-    assert.strictEqual(item('scaleMaxRpm').tab, 'general');
+    assert.strictEqual(item('scaleMaxRpm').group, 'General');
     assert.strictEqual(item('scaleMaxRpm').default, '8000');
 });
 

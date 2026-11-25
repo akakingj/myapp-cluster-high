@@ -77,7 +77,7 @@
     var SPEED_SCALE = {
         metric: [0, 30, 60, 90, 120, 150, 180, 220, 260],
         imperial: [0, 20, 40, 60, 80, 100, 120, 140, 160],
-        /* a car to 330 km/h (GENERAL > Car: S58): the top marks spread out, as an M car's own */
+        /* a car to 330 km/h (General > Car: S58): the top marks spread out, as an M car's own */
         metric330: [0, 30, 60, 90, 120, 150, 210, 270, 330],
         imperial330: [0, 20, 40, 60, 80, 100, 120, 160, 200]
     };

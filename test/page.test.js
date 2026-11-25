@@ -1,9 +1,10 @@
 'use strict';
 /*
- * The app's own page on the iDrive screen: the whole screen where the kit
- * runs it, with a way out, a CLUSTER tab and a tab of settings for each
- * style - and the plain page with the HMI's bar everywhere else. The staged
- * app is run as it is (tools/page-harness.js) and its places are pressed.
+ * The app's own page on the iDrive screen, as AK Cluster Layouts': the design,
+ * its places and the designs' cards, the bar's Cluster on / off and Logs, and
+ * the settings in the kit's list a step at a time (General, then the style in
+ * use's own). The staged app is run as it is (tools/page-harness.js) and its
+ * places are pressed.
  * Run: node --test test/page.test.js      (after node tools/stage-app.js)
  */
 const { test } = require('node:test');
@@ -17,32 +18,39 @@ const Centre = require('../src/car/centre.js');
 const { Recorder } = require(path.join(Harness.KIT, 'record.js'));
 const spec = require('../app/app.base.json');
 
-const TABS = ['cluster', 'general', 'toro', 'msport', 'mplus', 'mtrack'];
-const STYLE_OF = { toro: 'toro', msport: 'track', mplus: 'mplus', mtrack: 'mtrack' };
+const Sheet = require(path.join(Harness.KIT, 'sheet.js'));
+const TOP = ['enabled', 'autoStart', 'style', 'skin'];
+const GROUP_STYLE = { General: null, Toro: 'toro', 'M Sport': 'track', 'M Sport Plus': 'mplus', 'M Track': 'mtrack' };
+const GROUP_OF = { toro: 'Toro', track: 'M Sport', mplus: 'M Sport Plus', mtrack: 'M Track' };
 const item = (k) => spec.settings.find((s) => s.key === k);
 const keys = (page, prefix) => page.targets().map((t) => t.key).filter((k) => k.indexOf(prefix) === 0);
-/* what the page should offer on a tab, from the manifest: the tab's settings whose own conditions hold */
-function offered(tab, values) {
-    return spec.settings.filter((s) => s.tab === tab && !s.hidden && Object.keys(s.when || {}).every((k) =>
-        k === 'style' || [].concat(s.when[k]).indexOf(values[k]) >= 0)).map((s) => s.key);
+/* the kit's settings list (kit/runtime/mgu.js, BTN_SETTINGS): its rows' words at the top, or in a group */
+function listed(page, group) {
+    const sh = Sheet.listSheet(page.settings, null, {});
+    if (group) sh.group = group;
+    return sh.rows().map((r) => r.label);
 }
+/* what a group should list, from the manifest: its settings offered now */
+const offered = (group, values) => spec.settings.filter((s) => s.group === group && !s.hidden && Object.keys(s.when || {}).every((k) =>
+    [].concat(s.when[k]).indexOf(values[k]) >= 0)).map((s) => s.label);
 
-test('the settings are in five groups, and each style keeps its own adjustments under its own names', () => {
+test('the settings: on / off, the style and the skin on top, then General and a group each style keeps its own under', () => {
+    assert.deepStrictEqual(spec.settings.filter((s) => !s.group).map((s) => s.key), TOP);
     for (const s of spec.settings) {
-        assert.ok(['general', 'toro', 'msport', 'mplus', 'mtrack'].indexOf(s.tab) >= 0, s.key + ' has no tab');
-        if (s.tab === 'general') assert.ok(!(s.when && s.when.style), s.key + ': a general setting tied to a style');
-        /* the HMI's own settings list (where the kit does not draw ours) offers only the style in use */
-        else assert.strictEqual(s.when && s.when.style, STYLE_OF[s.tab], s.key + ': shown only for its style');
+        if (TOP.indexOf(s.key) >= 0) continue;
+        assert.ok(s.group in GROUP_STYLE, s.key + ': no group');
+        if (s.group === 'General') assert.ok(!(s.when && s.when.style), s.key + ': a general setting tied to a style');
+        /* a style's own: offered only while it is the style in use */
+        else assert.strictEqual(s.when && s.when.style, GROUP_STYLE[s.group], s.key + ': shown only for its style');
         if (s.type === 'choice') assert.ok(s.options.some((o) => o[0] === String(s.default)), s.key + ': its default is one of its values');
     }
     assert.strictEqual(new Set(spec.settings.map((s) => s.key)).size, spec.settings.length, 'no key twice');
-    /* every name a style's builder is handed (src/theme/index.js OWN) is a setting on that style's tab */
-    const tabOf = { toro: 'toro', track: 'msport', mplus: 'mplus', mtrack: 'mtrack' };
+    /* every name a style's builder is handed (src/theme/index.js OWN) is a setting in that style's group */
     for (const style of Object.keys(Themes.OWN)) {
         for (const name of Object.keys(Themes.OWN[style])) {
             const s = item(Themes.OWN[style][name]);
             assert.ok(s, `${style}: no setting ${Themes.OWN[style][name]}`);
-            assert.strictEqual(s.tab, tabOf[style]);
+            assert.strictEqual(s.group, GROUP_OF[style]);
             const values = s.options.map((o) => o[0]);
             if (name === 'centre') {
                 values.forEach((v) => assert.ok(Centre.PREFS.indexOf(v) >= 0, `${s.key}: ${v}`));
@@ -75,7 +83,7 @@ test('the settings are in five groups, and each style keeps its own adjustments 
     assert.strictEqual(item('centre'), undefined, 'the one centre for every style is gone');
 });
 
-/* each style's places on the CLUSTER page, as app/entry.js has them, and the designs' cards */
+/* each style's places on the page, as app/entry.js has them, and the designs' cards */
 const PLACES = {
     toro: ['tCentre', 'tCentreSize', 'gearPlace', 'showBoost', 'showAuxLeft', 'electricGauge', 'modeLabel', 'shiftStyle',
         'gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2'],
@@ -83,43 +91,39 @@ const PLACES = {
     mplus: ['pCentre', 'pCentreSize', 'pGear', 'pSpeed2', 'pFootL', 'pFootM', 'pFootR', 'pPanel'],
     mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR']
 };
-/* the readings' places: set on the CLUSTER page alone, on no tab and not in the head unit's settings list */
+/* the readings' places: set on the page alone, not in the settings list */
 const PAGE_ONLY = ['gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2', 'mFootL', 'mFootM', 'mFootR', 'pFootL', 'pFootM', 'pFootR',
     'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR'];
 const DESIGN_IDS = ['toro_genuine', 'toro_modern', 'toro_revuelto', 'track', 'mplus', 'mtrack'];
 const placesOf = (style, values) => PLACES[style].filter((k) => Object.keys(item(k).when || {}).every((w) =>
     w === 'style' || [].concat(item(k).when[w]).indexOf(values[w]) >= 0)).map((k) => 'place:' + k);
 
-test('own: the bar across the top - the way out, a tab each, the style in use marked - then the page', () => {
-    const page = Harness.open({ values: { style: 'mplus' } });
-    const order = page.targets().map((t) => t.key);
-    assert.deepStrictEqual(order.slice(0, 8), ['exit', 'tab:cluster', 'tab:general', 'tab:toro', 'tab:msport', 'tab:mplus', 'tab:mtrack', 'tab:logs'],
-        'the controller\'s knob: out, the tabs, then the page');
-    assert.deepStrictEqual(order.slice(8), ['show'].concat(placesOf('mplus', page.values), DESIGN_IDS.map((d) => 'design:' + d)));
-    /* the page is the whole screen: 1600 x 600 of its own units */
-    assert.deepStrictEqual([page.shot().w, page.shot().h], [1600, 600]);
-    page.targets().forEach((t) => {
-        assert.ok(t.x >= 0 && t.y >= 0 && t.x + t.w <= 1600 && t.y + t.h <= 600, t.key + ' off the screen');
-        assert.ok(t.w >= 76 && t.h >= 44, t.key + ' is too small for a finger: ' + t.w + ' x ' + t.h);
-    });
-    /* no two places overlap */
-    const T = page.targets();
-    for (let i = 0; i < T.length; i++) for (let j = i + 1; j < T.length; j++) {
-        const a = T[i], b = T[j];
-        assert.ok(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y, a.key + ' overlaps ' + b.key);
+test('the page: the design\'s places, then its cards - and no bar or tabs of its own (the kit\'s and the HMI\'s are there)', () => {
+    for (const own of [true, false]) {
+        const page = Harness.open({ values: { style: 'mplus' }, own });
+        assert.deepStrictEqual(page.targets().map((t) => t.key), placesOf('mplus', page.values).concat(DESIGN_IDS.map((d) => 'design:' + d)));
+        assert.deepStrictEqual([page.shot().w, page.shot().h], [1600, 520]);
+        page.targets().forEach((t) => {
+            assert.ok(t.x >= 0 && t.y >= 0 && t.x + t.w <= 1600 && t.y + t.h <= 520, t.key + ' off the page');
+            assert.ok(t.w >= 76 && t.h >= 44, t.key + ' is too small for a finger: ' + t.w + ' x ' + t.h);
+        });
+        /* no two places overlap */
+        const T = page.targets();
+        for (let i = 0; i < T.length; i++) for (let j = i + 1; j < T.length; j++) {
+            const a = T[i], b = T[j];
+            assert.ok(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y, a.key + ' overlaps ' + b.key);
+        }
     }
-    /* its jobs are on the page: the HMI's bar buttons for them are put away */
-    assert.deepStrictEqual(page.hidden, { BTN_SHOW: true, BTN_DESIGN: true, BTN_CENTRE: true });
-    /* the way out closes the app's screen */
-    page.run('exit');
-    assert.deepStrictEqual(page.closed, ['MAIN']);
+    /* the bar: Cluster on / off, Logs, Settings */
+    assert.deepStrictEqual(spec.screens[0].buttons.map((b) => b[0]), ['BTN_SHOW', 'BTN_LOGS', 'BTN_SETTINGS']);
+    assert.ok(!('fill' in spec.screens[0]) && !('hmi' in spec.screens[0]), 'the kit\'s header and bar round the page');
 });
 
-test('CLUSTER: on / off, a design by its card, and each of its places - one press each', () => {
+test('the page: on / off at the bar, a design by its card, and each of its places - one press each', () => {
     const page = Harness.open({ values: { style: 'track', enabled: false } });
-    page.run('show');
+    page.click('BTN_SHOW');
     assert.strictEqual(page.values.enabled, true);
-    page.run('show');
+    page.click('BTN_SHOW');
     assert.strictEqual(page.values.enabled, false);
     /* a card: its style (and Toro's background) */
     page.run('design:toro_modern');
@@ -129,16 +133,11 @@ test('CLUSTER: on / off, a design by its card, and each of its places - one pres
     const boost = page.values.showBoost;
     page.run('place:showBoost');
     assert.strictEqual(page.values.showBoost, !boost);
-    /* a place with values: its list over the page, the value set marked */
     for (const style of ['track', 'mplus', 'mtrack']) {
         page.run('design:' + style);
         assert.strictEqual(page.values.style, style);
         assert.deepStrictEqual(keys(page, 'place:'), placesOf(style, page.values), style);
     }
-    page.run('design:track');
-    page.run('place:mFootL');
-    const sh = page.sheet();
-    assert.ok(sh && sh.open && sh.open.key === 'mFootL', 'Footer, left: its values to pick from');
     /* a place offered only while another says so: the centre's size, with a picture there */
     page.values.mCentre = 'off';
     page.run('design:mplus'); page.run('design:track');
@@ -148,69 +147,8 @@ test('CLUSTER: on / off, a design by its card, and each of its places - one pres
     assert.ok(keys(page, 'place:').indexOf('place:mCentreSize') >= 0);
 });
 
-test('a tab of settings holds its own style\'s adjustments and nothing of another\'s', () => {
-    for (const style of ['toro', 'track', 'mplus', 'mtrack']) {
-        const page = Harness.open({ values: { style } });
-        for (const tab of TABS.slice(1)) {
-            page.run('tab:' + tab);
-            assert.deepStrictEqual(keys(page, 'set:'), offered(tab, page.values).map((k) => 'set:' + k), style + ' / ' + tab);
-            /* another style's page says so, and offers the way to it */
-            const other = STYLE_OF[tab] && STYLE_OF[tab] !== style;
-            assert.deepStrictEqual(keys(page, 'use:'), other ? ['use:' + STYLE_OF[tab]] : [], style + ' / ' + tab);
-            /* the bar is still there, first */
-            assert.strictEqual(page.targets()[0].key, 'exit');
-        }
-        page.run('tab:cluster');
-        assert.strictEqual(keys(page, 'set:').length, 0);
-    }
-    /* Toro's own are nowhere on an M tab, and the other way round */
-    const page = Harness.open({ values: { style: 'toro' } });
-    page.run('tab:msport');
-    const m = keys(page, 'set:');
-    assert.ok(m.indexOf('set:mCentre') >= 0 && m.indexOf('set:mPanel') >= 0);
-    assert.ok(PAGE_ONLY.every((n) => m.indexOf('set:' + n) < 0), 'the readings\' places are on the CLUSTER page alone');
-    assert.ok(m.every((k) => !/^set:(accent|background|shiftStyle|zoom|tCentre|[pk][A-Z])/.test(k)), m.join(' '));
-    page.run('tab:toro');
-    const t = keys(page, 'set:');
-    assert.ok(t.indexOf('set:accent') >= 0 && t.indexOf('set:tCentre') >= 0);
-    assert.ok(t.every((k) => !/^set:[mpk](Foot|Panel|Pop|Centre|Row)/.test(k)), t.join(' '));
-    /* M Track Mode's tab: its wing and how a row marks its reading (its rows, strips and footer: the CLUSTER page's) - and no other style's */
-    page.run('tab:mtrack');
-    const k = keys(page, 'set:');
-    assert.deepStrictEqual(k, ['kCentre', 'kWing', 'kRowMark'].map((n) => 'set:' + n));
-    /* and none of them is a string of the head unit's settings list */
-    PAGE_ONLY.forEach((n) => assert.ok(item(n).hidden && item(n).page, n));
-    /* "use this style" takes it, and the offer goes */
-    page.run('tab:mplus');
-    page.run('use:mplus');
-    assert.strictEqual(page.values.style, 'mplus');
-    assert.deepStrictEqual(keys(page, 'use:'), []);
-});
-
-test('a row offered only with another setting comes and goes with it', () => {
-    const page = Harness.open({ values: { style: 'toro', background: 'genuine', intro: false, revFlash: 'off' } });
-    page.run('tab:toro');
-    assert.ok(keys(page, 'set:').indexOf('set:nodeColour') < 0);
-    page.settings.set('background', 'modern');
-    assert.ok(keys(page, 'set:').indexOf('set:nodeColour') >= 0 && keys(page, 'set:').indexOf('set:hexTint') >= 0);
-    assert.ok(keys(page, 'set:').indexOf('set:flashColour') < 0, 'no flash: no colour for it');
-    page.run('tab:general');
-    assert.ok(keys(page, 'set:').indexOf('set:introMessage') < 0 && keys(page, 'set:').indexOf('set:flashStyle') < 0);
-    page.settings.set('intro', true);
-    page.settings.set('revFlash', 'both');
-    const g = keys(page, 'set:');
-    assert.ok(g.indexOf('set:introMessage') >= 0 && g.indexOf('set:introSeconds') >= 0 && g.indexOf('set:flashStyle') >= 0);
-});
-
-test('a row pressed: a switch turns, a choice opens its values in the kit\'s own list and takes the one picked', () => {
-    const page = Harness.open({ values: { style: 'track', holiday: false } });
-    page.run('tab:general');
-    page.focus('set:holiday');                       /* (out of view: the controller brings it in) */
-    page.run('set:holiday');
-    assert.strictEqual(page.values.holiday, true);
-    assert.strictEqual(page.sheet(), null, 'a switch needs no list');
-    /* (a footer's place: on the CLUSTER page, its list as a tab's row's) */
-    page.run('tab:cluster');
+test('a place with values: its list over the page, the value set marked; picked, it closes', () => {
+    const page = Harness.open({ values: { style: 'track' } });
     page.run('place:mFootR');
     const sh = page.sheet();
     assert.ok(sh, 'the values, as a list over the page');
@@ -229,50 +167,39 @@ test('a row pressed: a switch turns, a choice opens its values in the kit\'s own
     assert.strictEqual(page.values.mFootL, 'time');
 });
 
-test('a long page of settings scrolls: the controller brings a row into view, a finger drags it, a tap presses', () => {
-    const page = Harness.open({ values: { style: 'toro' } });
-    page.run('tab:general');
-    const rows = offered('general', page.values);
-    assert.ok(rows.length >= 12, 'more rows than the screen holds');
-    const onScreen = (t) => t.y >= 0 && t.y + t.h <= 600;
-    const at = (k) => page.target('set:' + k);
-    assert.ok(onScreen(at(rows[0])) && !onScreen(at(rows[rows.length - 1])), 'the last row starts out of view');
-    /* a row out of view is no place for a finger: it stands well clear of the page */
-    assert.ok(at(rows[rows.length - 1]).y > 2000);
-    /* the controller lands on it (the kit says so): it is brought in, whole */
-    page.focus('set:' + rows[rows.length - 1]);
-    assert.ok(onScreen(at(rows[rows.length - 1])), 'in view: ' + JSON.stringify(at(rows[rows.length - 1])));
-    assert.ok(!onScreen(at(rows[0])), 'the first has gone up out of it');
-    assert.ok(at(rows[0]).y < -2000);
-    page.focus('set:' + rows[0]);
-    assert.ok(onScreen(at(rows[0])));
-    /* a finger: a drag up the list moves it by as much */
-    const y0 = at(rows[3]).y;
-    assert.strictEqual(page.touch(1, 800, 500), true, 'a touch on the list is the page\'s');
-    page.touch(2, 800, 480); page.touch(2, 800, 380); page.touch(3, 800, 380);
-    assert.ok(Math.abs((y0 - at(rows[3]).y) - 120) < 1.5 || !onScreen(at(rows[3])), 'the list followed the finger');
-    const before = JSON.stringify(page.values);
-    assert.strictEqual(JSON.stringify(page.values), before, 'a drag presses nothing');
-    /* a tap presses the row under it */
-    page.focus('set:autoStart');
-    const r = at('autoStart'), was = page.values.autoStart;
-    page.touch(1, r.x + 200, r.y + r.h / 2); page.touch(3, r.x + 200, r.y + r.h / 2);
-    assert.strictEqual(page.values.autoStart, !was);
-    /* the bar is not the list's: a touch there is left to the kit (its places) */
-    assert.strictEqual(page.touch(1, 500, 30), false);
-    /* and on CLUSTER nothing is */
-    page.run('tab:cluster');
-    assert.strictEqual(page.touch(1, 800, 400), false);
+test('Settings, a step at a time: the top, General, and the style in use\'s own - nothing of another style\'s', () => {
+    for (const style of Object.keys(GROUP_OF)) {
+        const page = Harness.open({ values: { style } });
+        assert.deepStrictEqual(listed(page), TOP.map((k) => item(k).label).concat(['General', GROUP_OF[style]]), style);
+        for (const g of ['General', GROUP_OF[style]]) assert.deepStrictEqual(listed(page, g), offered(g, page.values), style + ' / ' + g);
+    }
+    /* the readings' places are set on the page alone */
+    PAGE_ONLY.forEach((n) => assert.ok(item(n).hidden && item(n).page, n));
+    const page = Harness.open({ values: { style: 'track' } });
+    const m = listed(page, 'M Sport');
+    assert.ok(m.indexOf(item('mCentre').label) >= 0 && m.indexOf(item('mPanel').label) >= 0);
+    assert.ok(PAGE_ONLY.every((n) => m.indexOf(item(n).label) < 0 || item(n).group !== 'M Sport'));
+    /* a group opened and gone back from: the top again, on the row it was opened from */
+    const sh = Sheet.listSheet(page.settings, null, {});
+    sh.move(TOP.length);
+    sh.press();
+    assert.strictEqual(sh.group, 'General');
+    sh.back();
+    assert.strictEqual(sh.group, null);
+    assert.strictEqual(sh.focus, TOP.length);
 });
 
-test('pushed left with nothing further left: a settings page goes back to CLUSTER, CLUSTER leaves to the kit', () => {
-    const page = Harness.open({ values: { style: 'toro' } });
-    page.run('tab:toro');
-    assert.strictEqual(page.back(false), false, 'not at the edge: the kit moves the controller left');
-    assert.strictEqual(page.back(true), true, 'at the edge: back to CLUSTER');
-    assert.ok(page.target('show'), 'CLUSTER is showing');
-    assert.strictEqual(page.focused(), 'tab:cluster', 'the controller is put on its tab');
-    assert.strictEqual(page.back(true), false, 'from CLUSTER the kit closes the screen');
+test('a row offered only with another setting comes and goes with it', () => {
+    const page = Harness.open({ values: { style: 'toro', background: 'genuine', intro: false, revFlash: 'off' } });
+    const has = (g, k) => listed(page, g).indexOf(item(k).label) >= 0;
+    assert.ok(!has('Toro', 'nodeColour'));
+    page.settings.set('background', 'modern');
+    assert.ok(has('Toro', 'nodeColour') && has('Toro', 'hexTint'));
+    assert.ok(!has('Toro', 'flashColour'), 'no flash: no colour for it');
+    assert.ok(!has('General', 'introMessage') && !has('General', 'flashStyle'));
+    page.settings.set('intro', true);
+    page.settings.set('revFlash', 'both');
+    assert.ok(has('General', 'introMessage') && has('General', 'introSeconds') && has('General', 'flashStyle'));
 });
 
 test('nothing on the page relies on clipping (the head unit\'s software renderer has none)', () => {
@@ -282,32 +209,30 @@ test('nothing on the page relies on clipping (the head unit\'s software renderer
     try {
         for (const own of [true, false]) {
             const page = Harness.open({ values: { style: 'toro' }, own });
-            if (own) TABS.forEach((t) => { page.run('tab:' + t); page.focus('set:introSeconds'); });
+            page.click('BTN_LOGS');
         }
     } finally { Recorder.prototype.clip = clip; }
     assert.strictEqual(n, 0);
 });
 
-test('without the renderer: the plain page in the HMI\'s own, its bar buttons doing the jobs', () => {
+test('without the renderer: the same page in the HMI\'s own, a place stepping to its next value', () => {
     const page = Harness.open({ values: { style: 'track', enabled: false }, own: false });
-    assert.deepStrictEqual([page.shot().w, page.shot().h], [1600, 520]);
-    assert.deepStrictEqual(page.targets(), [], 'no places: the HMI\'s bar and settings list are used');
-    assert.ok(Object.keys(page.hidden).every((b) => page.hidden[b] === false), 'its bar buttons stay');
     page.click('BTN_SHOW');
     assert.strictEqual(page.values.enabled, true);
-    page.click('BTN_DESIGN');
+    page.run('design:mplus');
     assert.strictEqual(page.values.style, 'mplus');
-    /* the middle steps through this style's own choices */
+    /* no list over the page there: the middle steps through this style's own choices */
     const opts = item('pCentre').options.map((o) => o[0]);
-    const seen = [page.values.pCentre];
-    for (let i = 0; i < opts.length; i++) { page.click('BTN_CENTRE'); seen.push(page.values.pCentre); }
-    assert.deepStrictEqual(seen.slice(1).sort(), opts.slice().sort(), 'every choice, once round');
+    const seen = [];
+    for (let i = 0; i < opts.length; i++) { page.run('place:pCentre'); seen.push(page.values.pCentre); }
+    assert.deepStrictEqual(seen.slice().sort(), opts.slice().sort(), 'every choice, once round');
     assert.strictEqual(page.values.mCentre, 'off', 'M Sport\'s own is untouched');
 });
 
 test('with no cluster service the page still draws, and says so', () => {
     const page = Harness.open({ values: { style: 'toro' }, service: null });
-    assert.ok(page.target('show'));
+    assert.ok(page.shot().words().length > 0);
+    assert.ok(page.target('design:toro_genuine'));
 });
 
 test('the page\'s words fit the head unit\'s string budget (the kit\'s builder checks it: kit/tools/localize.py)', () => {
@@ -332,22 +257,31 @@ test('the page\'s words fit the head unit\'s string budget (the kit\'s builder c
     require('fs').rmSync(path.join(__dirname, '..', 'dist'), { recursive: true, force: true });
 });
 
-test('LOGS: the codes to photograph, three a page, and the whole as a file, as Cluster Layouts\' Logs', () => {
-    const dir = require('fs').mkdtempSync(path.join(require('os').tmpdir(), 'id8-logs-'));
+test('Logs: the codes to photograph, three a page, and the whole as a file, as Cluster Layouts\' Logs', () => {
+    const fs = require('fs');
+    const dir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'id8-logs-'));
     const page = Harness.open({ values: { style: 'toro' }, dataDir: dir });
-    page.run('tab:logs');
-    assert.deepStrictEqual(keys(page, 'logs:'), ['logs:prev', 'logs:next', 'logs:make']);
-    const saved = require('fs').readdirSync(path.join(dir, 'exports'));
+    page.click('BTN_LOGS');
+    assert.deepStrictEqual(page.targets().map((t) => t.key), ['logs:prev', 'logs:next', 'logs:make']);
+    const saved = fs.readdirSync(path.join(dir, 'exports'));
     assert.strictEqual(saved.length, 1);
     assert.match(saved[0], /^cluster-logs-id8-/);
-    const text = require('fs').readFileSync(path.join(dir, 'exports', saved[0]), 'utf8');
+    const text = fs.readFileSync(path.join(dir, 'exports', saved[0]), 'utf8');
     assert.match(text, /^=== AK Cluster ID8 /);
     ['settings', 'service', 'engine unit', 'data now', 'this app\'s log'].forEach((t) => assert.ok(text.indexOf('--- ' + t + ' ---') >= 0, t));
     /* the codes: the same as Cluster Layouts' (CLG1) */
     const Logs = require('../src/car/logs.js');
-    assert.ok(Logs.codes(text).codes.length >= 1);
-    page.run('logs:next');
+    const pages = Math.ceil(Logs.codes(text).codes.length / 3);
+    assert.ok(pages >= 1);
     page.run('logs:make');
-    assert.strictEqual(require('fs').readdirSync(path.join(dir, 'exports')).length, 2, 'made again: another file');
-    page.run('tab:cluster');
+    assert.strictEqual(fs.readdirSync(path.join(dir, 'exports')).length, 2, 'made again: another file');
+    /* Logs pressed again: its next page, past the last back to the page */
+    for (let i = 1; i < pages; i++) { page.click('BTN_LOGS'); assert.ok(page.target('logs:make'), 'page ' + (i + 1)); }
+    page.click('BTN_LOGS');
+    assert.ok(page.target('design:toro_genuine'));
+    /* the controller pushed left on Logs: back to the page; on the page it is the kit's (the screen closes) */
+    page.click('BTN_LOGS');
+    assert.strictEqual(page.back(), true);
+    assert.ok(page.target('design:toro_genuine'));
+    assert.strictEqual(page.back(), false);
 });

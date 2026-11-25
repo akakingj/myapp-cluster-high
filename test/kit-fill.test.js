@@ -1,8 +1,9 @@
 'use strict';
 /*
- * The kit's "fill" page: the app's page alone on the whole iDrive screen
+ * The kit's "fill" page: an app's page alone on the whole iDrive screen
  * (app.json: a canvas screen with "hmi": false and "fill": true), as
- * BeeM-Flash's kit has it. The kit's display is run here against its own
+ * BeeM-Flash's kit has it - and this app's own screen, framed by the kit's
+ * header and bar as AK Cluster Layouts'. The kit's display is run here against its own
  * renderer client writing to a file (what the kit's tooling replays), with
  * a stand-in for the HMI.
  * Run: node --test test/kit-fill.test.js
@@ -55,12 +56,11 @@ const BUTTONS = [['BTN_SHOW', 'Cluster on / off'], ['BTN_DESIGN', 'Design'], ['B
 const FILL = { name: 'MAIN', kind: 'canvas', title: 'Test', hmi: false, fill: true, buttons: BUTTONS };
 const knob = (n) => ({ frontRotaryEncoderOperation: n, frontRotaryEncoderPushButton: 0, frontRotaryEncoderDeflection: 0 });
 
-test('the app asks for it: its one screen is a canvas with "hmi": false and "fill": true', () => {
+test('the app\'s one screen is a canvas in the kit\'s frame (no "fill"): Cluster on / off, Logs, Settings in its bar', () => {
     const s = appSpec.screens[0];
     assert.strictEqual(appSpec.screens.length, 1);
-    assert.deepStrictEqual([s.name, s.kind, s.hmi, s.fill], ['MAIN', 'canvas', false, true]);
-    /* the HMI's bar is kept for where the kit does not run the screen */
-    assert.deepStrictEqual(s.buttons.map((b) => b[0]), ['BTN_SHOW', 'BTN_DESIGN', 'BTN_CENTRE', 'BTN_SETTINGS']);
+    assert.deepStrictEqual([s.name, s.kind, s.hmi, s.fill], ['MAIN', 'canvas', undefined, undefined]);
+    assert.deepStrictEqual(s.buttons.map((b) => b[0]), ['BTN_SHOW', 'BTN_LOGS', 'BTN_SETTINGS']);
 });
 
 test('fill: the page is the whole 1920 x 720 screen - no header, no column - with 80 more rows below its 520', async (t) => {
@@ -161,8 +161,8 @@ test('fill: the controller goes round the page\'s own places; pushed left at the
     assert.deepStrictEqual(x.closed, ['MAIN'], 'the screen closes, as with the HMI\'s back arrow');
 });
 
-test('a screen without "fill" is laid out as before: header, back column, the page between', async (t) => {
-    const x = await ready(make({ name: 'MAIN', kind: 'canvas', title: 'Test', buttons: BUTTONS }));
+test('a screen without "fill" (the app\'s): header, back column, the page between, the bar under it', async (t) => {
+    const x = await ready(make(appSpec.screens[0]));
     t.after(() => stop(x));
     const d = x.d;
     assert.strictEqual(d.fill(), false);
@@ -174,6 +174,9 @@ test('a screen without "fill" is laid out as before: header, back column, the pa
     assert.ok(pl.ox + FULL.src.x * pl.scale >= 84 && pl.oy + FULL.src.y * pl.scale >= FULL.headH, JSON.stringify(pl));
     assert.strictEqual(pl.extra, undefined);
     assert.ok(d._ring().every((p) => !p.tgt));
+    /* the bar: Cluster on / off and Logs; Settings is the header's last tab */
+    assert.deepStrictEqual(d.buttons().map((b) => b.id), ['BTN_SHOW', 'BTN_LOGS']);
+    assert.deepStrictEqual(d._tabList().tabs, ['Settings']);
     /* "fill" needs "hmi": false with it */
     const y = await ready(make({ name: 'MAIN', kind: 'canvas', title: 'Test', fill: true, buttons: BUTTONS }));
     t.after(() => stop(y));

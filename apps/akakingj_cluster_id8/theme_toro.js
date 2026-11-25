@@ -666,7 +666,7 @@
                 function (c) { return String(Math.round(UN.tempIn(c))); }, function (c) { return hot !== null && c >= hot; });
         }
         /*
-         * The turbo gauges' end in the unit shown: GENERAL > Boost gauge up to (one of the car's own gauges: its
+         * The turbo gauges' end in the unit shown: General > Boost gauge up to (one of the car's own gauges: its
          * psi, or its bar), else the style's own 25 psi, 1.7 bar, marked at the start, the middle and the end.
          */
         var turboTop = P.boostBar ? { psi: P.boostPsi, bar: P.boostBar, kpa: P.boostBar * 100 }[UN.press] : null;

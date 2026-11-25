@@ -21,10 +21,10 @@ still stand, except where a newer check says otherwise.
 - Head unit rooted, MGU Store installed, `cluster-render` working (another
   cluster app has drawn on this car, or the Store reports it running).
 - Install **MGU Styles** from the Store (see the README). It is **off**
-  after install: nothing changes until you press the switch on the page's
-  **CLUSTER** tab.
-- To get out at any point: open MGU Styles and press that switch again
-  (*ON THE CLUSTER – press to give BMW's back*). If iDrive is unreachable,
+  after install: nothing changes until you press **Cluster on / off** in the
+  app's bar.
+- To get out at any point: open MGU Styles and press **Cluster on / off**
+  again. If iDrive is unreachable,
   a key-off hands the cluster back; a head-unit restart always does.
 - For anything in the middle (a map, the camera): the car's **Instrument
   cluster > Central display area** on **Map view**.
@@ -33,30 +33,30 @@ still stand, except where a newer check says otherwise.
 
 | # | Do | Look for |
 |---|---|---|
-| C1 | AK 0.18.0: GENERAL → *Engine → Petrol, M car* (or the Car profile app's *Engine → Petrol, M car*) | There is no *Car* row. M Sport and M Track keep their readings clear of the M display's two boxes; *Speedometer up to* on *Automatic* reads to 330 km/h; Redline and Limiter on *From the car*: red from 7,000, the limit 8,000. **Photograph the M display's boxes against the layers** |
-| C2 | AK 0.18.0: update from a version where GENERAL → *Car* was B48, B58, S58 or Plug-in hybrid | The cluster reads as before (the tach's end, red zone, shift point, speedometer, boost gauge and tank that car had), and GENERAL's rows show those figures. **Say which car it was and whether anything changed** |
+| C1 | AK 0.18.0: Settings → General → *Engine → Petrol, M car* (or the Car profile app's *Engine → Petrol, M car*) | There is no *Car* row. M Sport and M Track keep their readings clear of the M display's two boxes; *Speedometer up to* on *Automatic* reads to 330 km/h; Redline and Limiter on *From the car*: red from 7,000, the limit 8,000. **Photograph the M display's boxes against the layers** |
+| C2 | AK 0.18.0: update from a version where Settings → General → *Car* was B48, B58, S58 or Plug-in hybrid | The cluster reads as before (the tach's end, red zone, shift point, speedometer, boost gauge and tank that car had), and General's rows show those figures. **Say which car it was and whether anything changed** |
 | C3 | Toro, in D, then S, then M (manual) | D1 … / S1 … / M1 … beside the gear's figure, the pair a little smaller; *TORO → Gear → The figure alone, as a Lamborghini* shows 1 … as before |
 | C4 | M Track: rows and footer places set to *Gearbox oil temperature*, *Torque*, *Odometer*, *Trip* | TRANS (row), TQ, ODO, TRIP with sensible figures; the gearbox oil climbs slower than the engine oil after a cold start |
 | C5 | M TRACK → *Strip right of the rev counter, left* / *… right*: e.g. gearbox oil and coolant, then *Nothing* | Each strip, its three figures, unit and symbol follow; *Nothing* leaves the place empty. As they come: the oil and the fuel, the fuel strip lit from the bottom up to the level, its lowest piece orange only when nearly empty |
 | C6 | TORO → *Left upper gauge* … *Right lower gauge*: e.g. gearbox oil, intake air, battery voltage, oil pressure | Each gauge relabels (TEMP. CAMBIO, TEMP. ARIA, BATTERIA V, PRESS. OLIO) with its own scale and red end; *Nothing* leaves it empty; *As the style has it* puts the original back. No ESC block right of the gear |
-| C7 | M Track rows or strips / Toro gauges set to *Accelerator pedal*, *Throttle*, *Ignition timing*, engine running | PEDAL and THR follow your foot (0 – 100 %), IGN moves with load (a few degrees to about 40). The CLUSTER tab's *Readings* row names them. **If any stays at dashes, say which** |
+| C7 | M Track rows or strips / Toro gauges set to *Accelerator pedal*, *Throttle*, *Ignition timing*, engine running | PEDAL and THR follow your foot (0 – 100 %), IGN moves with load (a few degrees to about 40). The page's *Readings* row names them. **If any stays at dashes, say which** |
 
 ## Shift now, the cold engine and the Car profile (AK 0.14.0)
 
-With GENERAL's figures, as set there or by the Car profile app.
+With General's figures, as set there or by the Car profile app.
 
 | # | Do | Look for |
 |---|---|---|
-| S1 | Car profile: set *Red light at*, *Engine's top rpm*, *Yellow light at*, *Shift now warning at*, *Gauge goes up to* | Within a few seconds GENERAL shows each as *Redline*, *Limiter*, *Shift lights from*, *Shift now warning at*, *Tach scale* with "Car profile" beside it, and they can't be changed here. *Red light at → Auto* shows *At the limiter* |
+| S1 | Car profile: set *Red light at*, *Engine's top rpm*, *Yellow light at*, *Shift now warning at*, *Gauge goes up to* | Within a few seconds General shows each as *Redline*, *Limiter*, *Shift lights from*, *Shift now warning at*, *Tach scale* with "Car profile" beside it, and they can't be changed here. *Red light at → Auto* shows *At the limiter* |
 | S2 | *Shift now warning at* set (or Auto), rev past it, parked | The speed and the gear blink red, four times a second, in every style; in Toro the shift lights are full at the shift point and flash from there. Under it, nothing blinks |
 | S3 | *Shift now warning at → Off* | Nothing blinks at the shift point; Toro's shift lights flash at the limiter, as before |
-| S4 | Car profile *Cold-engine rev guard → On* (or GENERAL → *Cold engine* on), a cold start | The red field of the rev counter starts low (about the cold rev limit plus 300) and climbs to the redline as the oil reaches *Cold engine: oil warm at*; the shift point (S2) goes with it |
+| S4 | Car profile *Cold-engine rev guard → On* (or Settings → General → *Cold engine* on), a cold start | The red field of the rev counter starts low (about the cold rev limit plus 300) and climbs to the redline as the oil reaches *Cold engine: oil warm at*; the shift point (S2) goes with it |
 
 ## M Track Mode (Beta 7, 0.10.0)
 
 A fourth style: BMW M's track view, rebuilt from one photograph
-(`docs/ref/m-track-reference.jpg`). Choose it on the page's CLUSTER tab
-(◀ ▶ to *M Track Mode*) or under *GENERAL → Style*. It has not been on a
+(`docs/ref/m-track-reference.jpg`). Choose it by its card on the app's page
+or under *Settings → Style*. It has not been on a
 car: a photograph of the cluster with it on is worth more than any line
 below.
 
@@ -67,21 +67,21 @@ below.
 | T3 | Rev gently | The white marker climbs the leaning scale and the band under it fills red, down to its foot. The fine pale strip beside the rail near the top is the red field: it runs from the top of the scale down to your redline (6,750 on the X3 M40i). Level with each numeral there is a tick; the marker is level with 3 at 3,000 |
 | T4 | The four gauge rows, engine warm | Top to bottom: turbo boost (psi or bar), coolant, oil temperature, intake air. On each a **small block joining the rail and the fine line under it** stands at the reading — at the left end for boost at idle, moving right as you accelerate. **Say whether you can read them at a glance.** If not: M TRACK → *Gauge rows: the reading shows as → A bar*, which dims the rail past the mark |
 | T5 | Compare each row with what you know | Coolant near the middle of its row when warm (about 100 °C / 210 °F is the middle figure); oil temperature the same figure as the ladder right of the rev counter shows; intake air a little above the outside temperature when moving. Boost and intake air need the car to supply them: **a row with no mark at all has no reading — say which** (intake air comes from BeeM-Flash or the engine unit, as in the M styles' footer) |
-| T6 | CLUSTER page → *Gauge row 1 … 4*: give a row *Oil pressure*, *Battery voltage*, *Nothing* | The row's figures, unit, symbol and mark change to the reading chosen; *Nothing* leaves the row out and the others stay where they are |
+| T6 | The page → *Gauge row 1 … 4*: give a row *Oil pressure*, *Battery voltage*, *Nothing* | The row's figures, unit, symbol and mark change to the reading chosen; *Nothing* leaves the row out and the others stay where they are |
 | T7 | M TRACK → *Left wing shows* → **Phone map (Waze)**, phone navigating | **As you choose it, the whole style moves about a tenth of the screen to the right** (193 px; the same size, at the same height) - that is meant: it puts the wing's point on the left edge of the car's picture. Then, within a second or two of the map being there, the four rows fade out and **the map fills the left wing, right to its point**, and shows nowhere else: soft at every edge and along the wing's two leaning sides, the M bands and the fine lines still over it, everything right of the black seam - gear, speed, rev counter - as before. Stop navigating: the gauges come back (the style stays where it is until you choose *The four gauges* again). **Say how much of your map you can use like this** |
 | T7a | With the map in the wing: the right edge of the screen | The **fuel ladder** right of the rev counter ends just inside the screen (7 px), all of it showing; the outside temperature at the bottom right is whole. **If the screen's edge or its cut corner takes anything, say what** - and use T7b meanwhile |
 | T7b | M TRACK → *Left wing: how much of it a picture takes* → **The style stays where it is** | The style goes back to where it stands with the gauges and does not move for a picture; the map then starts part way along the wing, on a soft upright edge, with the wing's point plain blue |
 | T8 | *Left wing shows* → **BMW's own map**, then **Turn View camera** | The same wing over BMW's map (open all the time), and over the camera (Turn View switches on by itself, and off again when you leave the setting) |
 | T9 | Drive | The gear is the frame's large letter (P, R, N) or the engaged gear's number; the speed one figure in your units, flush right before *mph* / *km/h*. BMW's head-up display agrees |
 | T10 | Fuel and oil ladders | Fuel lit from the foot to the tank's level (half a tank: two pieces, the last one a shade dimmer). Oil rises from the foot as it warms: its fine line is blue at the foot (cold) and red at the top |
-| T11 | Rev to the limiter, parked | The lit band flashes, and the screen's edges with it (*GENERAL → Limiter flash*) |
-| T12 | CLUSTER page → *Footer, left / middle / right*; GENERAL → *BMW's bottom strip* | As in the M styles: each place takes any reading or nothing; the strip can be trimmed or hidden, BMW's gear letter always left |
+| T11 | Rev to the limiter, parked | The lit band flashes, and the screen's edges with it (*Settings → General → Limiter flash*) |
+| T12 | The page → *Footer, left / middle / right*; Settings → General → *BMW's bottom strip* | As in the M styles: each place takes any reading or nothing; the strip can be trimmed or hidden, BMW's gear letter always left |
 | T13 | An **M car** (if yours is one) | The car may draw two boxes of its own over a cluster app. The lower part of the large gear is under the left one on the car this was measured from; the rev counter's numerals should all be clear of the right one. **Say what the car puts where** |
-| T14 | A diesel: *GENERAL → Engine → Diesel* | The rev counter reads **0 to 6**, seven numerals spread evenly over the same height, red from 4,500 |
+| T14 | A diesel: *Settings → General → Engine → Diesel* | The rev counter reads **0 to 6**, seven numerals spread evenly over the same height, red from 4,500 |
 
 ## Lowered and larger (BETA, 0.10.0)
 
-Off as it comes: *GENERAL → BETA: lower and enlarge the cluster*. It draws
+Off as it comes: *Settings → General → BETA: lower and enlarge the cluster*. It draws
 the whole style further down, into the rows BMW's strip leaves when it is
 hidden, and larger by as much. **Start parked, and start small.** The one
 thing to watch for above all is BMW's **black box in the rev dial**: it
@@ -101,7 +101,7 @@ but no car has run it yet.
 | W8 | An M style, lowered: the speed scale's numerals on the left | They now reach the place the **tyre pressure lamp** lights. If that lamp is on, it is drawn over them - that is expected; say if it is a nuisance |
 | W9 | A map or the camera in the middle, lowered | The picture is where it always is and the same size; the style's window round it is a little larger. Nothing of BMW's own cluster shows at the window's edges - look closely at M Sport Plus with *Centre picture: how much shows → More* and *Fullest* |
 | W10 | M Track Mode at 74 with a map in the wing | The picture begins where it begins, on a soft edge, not a hard line |
-| W11 | The start-up message (*GENERAL → Start-up message*), lowered | The whole style is dimmed behind it, the footer too |
+| W11 | The start-up message (*Settings → General → Start-up message*), lowered | The whole style is dimmed behind it, the footer too |
 | W12 | Set it back to **Off** | Exactly the style as it was, and *BMW's bottom strip* as you had it set |
 | W13 | Lock the car, let it sleep, start again with it lowered | It comes up lowered, with no black box |
 
@@ -129,7 +129,7 @@ map, BMW's own, or the camera). It has not been on a car.
 
 ## The start-up message (0.10.0)
 
-*GENERAL → Start-up message* (on as it comes). One slip in it was put
+*Settings → General → Start-up message* (on as it comes). One slip in it was put
 right in 0.10.0; nothing else about it was changed.
 
 | # | Do | Expect |
@@ -165,7 +165,7 @@ the gear (F1).
 
 | # | Check | Expect |
 |---|---|---|
-| F1 | GENERAL → BMW's bottom strip → *Hide it*, in **COMFORT** | The T of COMFORT is gone: **only BMW's gear letter is left**, on black. **No black box in the rev dial.** Look through the other modes too (SPORT, SPORT PLUS, ECO PRO, ADAPTIVE) and through the gears (P, R, N, D1 …, S, M): the gear letter and its number must be whole, nothing of the mode's name beside them |
+| F1 | Settings → General → BMW's bottom strip → *Hide it*, in **COMFORT** | The T of COMFORT is gone: **only BMW's gear letter is left**, on black. **No black box in the rev dial.** Look through the other modes too (SPORT, SPORT PLUS, ECO PRO, ADAPTIVE) and through the gears (P, R, N, D1 …, S, M): the gear letter and its number must be whole, nothing of the mode's name beside them |
 | F2 | If F1 brings a **black box in the rev dial** | Choose *Hide it, a wider gap left beside the gear* (the gap Beta 4 had, which you have driven), lock the car and let it sleep once, and **say so** — it would mean this car wants more room round the gear than the measured window. If instead a sliver of a long mode name still shows right against the gear, say which mode: the cover already stops one column short of the window, and cannot go further |
 | F3 | TORO → Map opening on (phone map, BMW's map or the camera) → *Map opening: how much shows* → **More**, then **Most** | A dome of the picture fills the inside of the dial, to the band's inner edge; *Most* is larger and sharper-edged than *More*. The band's numbers, the gear, CORSA, the G meter, boost and speed all stay readable — **look at it with a map in daylight colours**. *Standard* is the lens as before. **Say which you keep, and if any figure is hard to read** |
 | F4 | The same with *Fill the screen* larger / smaller and *Nudge up* | The dome moves and scales with the dial; nothing white ends up on the picture |
@@ -182,7 +182,7 @@ most useful thing to send back.
 ## A diesel (0.9.6) — for a diesel car
 
 Never run on a diesel: every line here is a question. Petrol as it comes;
-*GENERAL → Engine → Diesel*.
+*Settings → General → Engine → Diesel*.
 
 | # | Check | Expect |
 |---|---|---|
@@ -208,7 +208,7 @@ thing to send back.
 
 ## Electric range (0.9.2) — for a plug-in hybrid or an electric car
 
-Never run on such a car: every line here is a question. *GENERAL →
+Never run on such a car: every line here is a question. *Settings → General →
 Electric range*: *Automatic* as it comes (on once the car shows it is a
 plug-in hybrid), or chosen.
 
@@ -236,16 +236,16 @@ writes to the car: the app can only read (docs/ENGINE-READINGS.md).
 | E3 | Toro, engine running | Within a second or two the left gauge reads **PRESS. OLIO** with a figure that rises with the revs and agrees with what you would expect warm at idle and on the road. *Readings* says *Engine unit: oil pressure*. **Say what it reads at warm idle and at 3,000 rpm** |
 | E4 | The same, ignition on, engine **not** running (before starting it) | PRESS. TURBO, no oil figure; *Readings* says *read while the engine runs*. The car is not asked with the engine off |
 | E4b | Auto start-stop stops the engine at a light | The gauge stays PRESS. OLIO and falls to about 0; it rises again as the engine restarts. No flicker to PRESS. TURBO |
-| E5 | M Sport, CLUSTER page → Footer left → *Intake air temperature*, middle → *Battery voltage*, engine running | Both show a figure within a few seconds (intake air a little above outside temperature when moving, the battery about 13.5 – 14.8 V with the engine running). **If either stays at `--`, say which**: this car's engine unit does not answer that identifier |
+| E5 | M Sport, The page → Footer left → *Intake air temperature*, middle → *Battery voltage*, engine running | Both show a figure within a few seconds (intake air a little above outside temperature when moving, the battery about 13.5 – 14.8 V with the engine running). **If either stays at `--`, say which**: this car's engine unit does not answer that identifier |
 | E6 | Any style, a few minutes' drive | Nothing else changes: no warning, no message, nothing slower. **If anything at all seems off, say what it was** (a style showing none of these readings asks nothing) |
 | E7 | Key off | The readings go with the cluster; nothing is asked of the car once the engine has stopped |
-| E8 | AK 0.17.0: M Sport, CLUSTER page → footers *Boost target*, *Fuel pressure: high*, *Fuel pressure: low*, engine running | `TGT` near the boost under load and about 0 at idle; `HPFP` some 30 – 60 bar at idle (B58 / B48), rising to some 200 – 350 bar under load; `LPFP` about 5 bar. **If any stays at `--`, say which** |
+| E8 | AK 0.17.0: M Sport, The page → footers *Boost target*, *Fuel pressure: high*, *Fuel pressure: low*, engine running | `TGT` near the boost under load and about 0 at idle; `HPFP` some 30 – 60 bar at idle (B58 / B48), rising to some 200 – 350 bar under load; `LPFP` about 5 bar. **If any stays at `--`, say which** |
 | E9 | AK 0.17.0: footers *Peak boost*, *Peak engine power*, *0-60 mph (0-100 km/h) time*, *Last upshift*; a pull from a stop through two gears | The peaks hold the highest of the drive; the time counts from leaving the stop and stops at 60 mph (100 km/h); SHIFT shows the rpm you changed up at. **Say whether the time agrees with your own reckoning** |
-| E10 | AK 0.17.0: Toro, CLUSTER page → side gauges *Engine power*, *Engine torque*, *Fuel pressure: high*; M Track Mode rows the same | Each a scale (POTENZA, COPPIA, PRESS. RAIL; PWR, TQ, HPFP) whose bar follows the reading; nothing else moves. **Screenshots** |
-| E11 | AK 0.18.0: a plug-in hybrid, M Sport and Toro; each drive mode in turn (Hybrid, Electric, Battery Control, Sport, XtraBoost) | M Sport's mode word as BMW's own cluster names it; Toro's CITTA / STRADA / RECHARGE / SPORT / CORSA. **If a mode shows nothing or the wrong word, photograph the LOGS tab in that mode** |
-| E12 | AK 0.18.0: the fuel gauge (Toro's, M Sport's strip, M Track Mode's), engine running; a diesel too | The same figure as AK Cluster Layouts' fuel at the same moment; on a diesel Toro's says GASOLIO. *GENERAL → Fuel % from → Litres / tank size*: the figure moves to the litres'. **Photograph BMW's own fuel gauge and range with the LOGS tab, and Layouts' fuel if it is on the unit** |
-| E13 | AK 0.18.0: the Car profile app → *Speedometer up to 330 km/h*, *Boost gauge up to 45 psi / 3.0 bar*, *Fuel % from* | M Sport's speedometer to 330; Toro's boost gauge and M Track's boost row end at 3.0 bar (45 psi with psi, numbered 0 15 30 45); each shows on GENERAL as the Car profile's and can't be changed there. **Screenshots** |
-| E14 | AK 0.18.0: the Car profile app → *Boost gauge up to → Auto (the car's Sport Display)*, a drive in Sport | The LOGS tab's readings show `boostMaxCar` (bar): **say what it is, and whether it changes during the drive** (the car's gauge end stays; a peak would grow). Toro's boost gauge ends at the gauge at or over it (a 320i's 200 kPa: 30 psi / 2.0 bar). On a car set to psi, boost reads as BMW's Sport Display does |
+| E10 | AK 0.17.0: Toro, The page → side gauges *Engine power*, *Engine torque*, *Fuel pressure: high*; M Track Mode rows the same | Each a scale (POTENZA, COPPIA, PRESS. RAIL; PWR, TQ, HPFP) whose bar follows the reading; nothing else moves. **Screenshots** |
+| E11 | AK 0.18.0: a plug-in hybrid, M Sport and Toro; each drive mode in turn (Hybrid, Electric, Battery Control, Sport, XtraBoost) | M Sport's mode word as BMW's own cluster names it; Toro's CITTA / STRADA / RECHARGE / SPORT / CORSA. **If a mode shows nothing or the wrong word, photograph Logs in that mode** |
+| E12 | AK 0.18.0: the fuel gauge (Toro's, M Sport's strip, M Track Mode's), engine running; a diesel too | The same figure as AK Cluster Layouts' fuel at the same moment; on a diesel Toro's says GASOLIO. *Settings → General → Fuel % from → Litres / tank size*: the figure moves to the litres'. **Photograph BMW's own fuel gauge and range with Logs, and Layouts' fuel if it is on the unit** |
+| E13 | AK 0.18.0: the Car profile app → *Speedometer up to 330 km/h*, *Boost gauge up to 45 psi / 3.0 bar*, *Fuel % from* | M Sport's speedometer to 330; Toro's boost gauge and M Track's boost row end at 3.0 bar (45 psi with psi, numbered 0 15 30 45); each shows in Settings → General as the Car profile's and can't be changed there. **Screenshots** |
+| E14 | AK 0.18.0: the Car profile app → *Boost gauge up to → Auto (the car's Sport Display)*, a drive in Sport | Logs' readings show `boostMaxCar` (bar): **say what it is, and whether it changes during the drive** (the car's gauge end stays; a peak would grow). Toro's boost gauge ends at the gauge at or over it (a 320i's 200 kPa: 30 psi / 2.0 bar). On a car set to psi, boost reads as BMW's Sport Display does |
 
 ## Beta 4 — what Beta 3's drive asked for
 
@@ -256,19 +256,19 @@ cluster has restarted.
 | # | Check | Expect |
 |---|---|---|
 | B1 | iDrive's menu: move the selector onto MGU Styles | The tile lights up like the others. **If it still does not, say so**: the fix is the icon's plate standing 10 px in from the tile's edge, reasoned from how the menu draws, not seen on the car |
-| B2 | Open MGU Styles | The page fills the **whole screen**: no title above it, no bar of BMW's beside it; a bar of tabs along the top — CLUSTER, GENERAL, TORO, M SPORT, M SPORT PLUS. **If BMW's frame is still round it, say so** (and whether the Store shows *mgu-render* installed) |
-| B3 | Controller: turn through the tabs and rows, press, back. Touch: tap a tab, a row, drag the GENERAL list | Every place can be reached both ways; a row opens its list of values; back on a settings tab returns to CLUSTER, back on CLUSTER leaves the app. A style's tab shows only that style's settings |
-| B4 | GENERAL → BMW's bottom strip → *Show all of it*, then *Trim its top edge* 6, 12 and 18 px | Each trim hides a little more of what shows above the strip's figures; the figures themselves stay whole. **No black box in the rev dial at any of them.** Say which looks right |
+| B2 | AK 0.19.0: open MGU Styles | As AK Cluster Layouts: the header with *Settings*, the page (the design, its places, a card for each design), the bar with *Cluster on / off* and *Logs*. **If it looks different from Cluster Layouts' frame, say so** (and whether the Store shows *mgu-render* installed) |
+| B3 | AK 0.19.0: controller and touch: a card, a place, *Settings* → *General* → a row, back, *Logs*, back | Every place can be reached both ways; a place or a row opens its list of values; Settings lists on / off, Style and Skin, then *General* and the style in use's own only (*Toro*, *M Sport*, *M Sport Plus* or *M Track*); back in a group returns to the list's top; pushed left on Logs returns to the page |
+| B4 | Settings → General → BMW's bottom strip → *Show all of it*, then *Trim its top edge* 6, 12 and 18 px | Each trim hides a little more of what shows above the strip's figures; the figures themselves stay whole. **No black box in the rev dial at any of them.** Say which looks right |
 | B5 | BMW's bottom strip → *Hide it* | BMW's range, clock, street name, driving mode and outside temperature are gone; **only BMW's gear letter is left**, on black. Warning lamps (seat belt and the rest) still show when lit. **No black box in the rev dial.** If a box appears with this setting, go back to *Show all of it* and say so — it would mean this car's gear window is wider than measured |
 | B6 | Look at the top of M Sport's oil strip (`300 °F`) | Nothing over it. (In Beta 3's photographs a black box hid it: that was the cluster's fallback gear box) |
-| B7 | CLUSTER page (M Sport) → Footer, left / middle / right: try *Engine speed*, *Fuel economy*, *Intake air temperature*, *Nothing* | Each place shows what was chosen, with its unit; *Nothing* leaves the place empty. With BMW's strip in view nothing need be told twice. Intake air and battery voltage show `--` unless BeeM-Flash is running and feeding them. **Compare the economy figure with BMW's own trip computer (average consumption) and say if it differs** |
+| B7 | The page (M Sport) → Footer, left / middle / right: try *Engine speed*, *Fuel economy*, *Intake air temperature*, *Nothing* | Each place shows what was chosen, with its unit; *Nothing* leaves the place empty. With BMW's strip in view nothing need be told twice. Intake air and battery voltage show `--` unless BeeM-Flash is running and feeding them. **Compare the economy figure with BMW's own trip computer (average consumption) and say if it differs** |
 | B8 | M SPORT → Footer panel shows → 4WD (or Nothing); The gear's place shows → *Engine speed* and *Nothing* | The panel no longer repeats the driving mode. In the gear's place the revs stand as a figure on the same black bar, or nothing does; BMW's gear letter below is then the only gear |
 | B9 | M SPORT PLUS tab, with M Sport on the cluster | Its settings can be set, and nothing on the cluster changes until *USE THIS STYLE* is pressed. Changing M Sport's footer does not change M Sport Plus's |
 | B10 | Holiday theme on, any style | **The snow falls**: slowly, near flakes larger and faster than far ones, drifting a little. Soft round flakes, no rings. The tree's lights twinkle. Nothing falls over a reading |
 | B11 | Toro: rev to the limiter, parked | The shift lights **fire in bursts**, the screen's edges **flash**, and the whole cluster **shakes** and settles — none of which moved in Beta 3 (they ran on the same clock as the snow). BMW's strip and gear letter do not move |
 | B12 | M Sport: rev to the limiter | The red band flashes (and the edges, if chosen) |
 | B13 | With MGU Styles **off**: phone connected, navigating, Maps on cluster installed | The phone's map shows in the middle of BMW's own cluster. This is Maps on cluster's own job: if it does not show here it cannot show in a style (Central display area on Map view; in Maps on cluster, *Show on: Cluster*) |
-| B14 | M SPORT PLUS on, Centre picture → *Phone map (Waze)*, phone navigating | The middle opens within a second or two and the map shows in a wide band across the centre plate, melting into the plates at both ends, no edge. The page's CLUSTER tab says *Phone map on the cluster*. Stop navigation or unplug the phone: the band closes, the stripes return |
+| B14 | M SPORT PLUS on, Centre picture → *Phone map (Waze)*, phone navigating | The middle opens within a second or two and the map shows in a wide band across the centre plate, melting into the plates at both ends, no edge. The app's page says *Phone map on the cluster*. Stop navigation or unplug the phone: the band closes, the stripes return |
 | B15 | The same in M SPORT | The middle opens as a **V**, wide at the top; the cyan and red lines stay over the map; the speed and the gear have no map behind them |
 | B16 | The same in TORO (Map opening → *Phone map (Waze)*) | A long soft opening behind the dial shows the map; dial, gear and gauges stay over it |
 | B17 | Centre picture → *BMW's own map*, phone map off | The window is open all the time and BMW's own navigation map shows in it. **Say what shows when the car has no map up** |
@@ -282,16 +282,16 @@ useful thing to send back.
 
 | # | Check | Expect |
 |---|---|---|
-| L1 | AK 0.17.0: the LOGS tab, a USB stick plugged in | Three QR codes a page, *Next* to the rest; the line under the title names the file on the stick. **Photograph every page and send the photos** |
+| L1 | AK 0.17.0: *Logs* in the bar, a USB stick plugged in | Three QR codes a page, *Next* (or *Logs* again) to the rest; the line under the title names the file on the stick. **Photograph every page and send the photos** |
 | S0 | AK 0.17.0: Show on the cluster on, key off, then start the car (and once more with only the ignition on, then start) | BMW's own cluster, then about a second after the car is on the whole style at once: **no black screen** between them. **If it still goes black, say for how long, and whether the style then comes in piece by piece** |
-| 1 | Open MGU Styles on iDrive | The CLUSTER tab: the style, its switch, a sketch of the design. Status: *Off – BMW original cluster* |
-| 2 | Press the switch with the ignition off | Status: *Waiting for the car to switch on*. Cluster unchanged |
+| 1 | Open MGU Styles on iDrive | The page: the style, a picture of the design, *Cluster on / off* in the bar. Status: *Off – BMW original cluster* |
+| 2 | Press *Cluster on / off* with the ignition off | Status: *Waiting for the car to switch on*. Cluster unchanged |
 | 3 | Ignition on (engine off), then start | Toro appears within about a second of drive readiness |
 | 4 | Look at the bottom strip (BMW's bottom strip: *Show all of it*) | BMW's strip (location, time, gear, ranges) fully visible. **No black gear box drawn over the style** — if one appears, note it and switch the cluster off on the page |
 | 5 | Look at the corners and warning lights | Tyre-pressure and parking-brake telltales visible; nothing clipped by the glass corners |
 | 6 | Read the pods | Coolant and fuel plausible against BMW's own readings; oil pressure shows `--` (no source yet) |
 | 7 | TORO → Background → Modern, then back | Cluster rebuilds in under a second each time |
-| 8 | GENERAL → Limiter → 6,000, rev gently past 5,800 in P/N | Shift lights fill and the screen edges flash just below 6,000. Set it back to *From the car* |
+| 8 | Settings → General → Limiter → 6,000, rev gently past 5,800 in P/N | Shift lights fill and the screen edges flash just below 6,000. Set it back to *From the car* |
 
 ## Driving
 
@@ -308,7 +308,7 @@ useful thing to send back.
 
 ## M Sport (BMW M View) — rebuilt in Beta 2
 
-GENERAL → Style → M Sport, or step to it with ◀ ▶ on the CLUSTER tab.
+Settings → Style → M Sport, or its card on the app's page.
 For a picture in the middle see *Before you start* and B13 – B18 above
 (M9 – M13 here are from Beta 2 and Beta 3, when the map was asked into the
 panel; the Beta 4 checks replace them).
@@ -338,7 +338,7 @@ is.
 
 ## M Sport Plus — new in Beta 3
 
-GENERAL → Style → M Sport Plus, or step to it with ◀ ▶. Everything in the
+Settings → Style → M Sport Plus, or its card on the app's page. Everything in the
 M Sport table above applies (same dials, figures, strips, footer); these
 are the extra checks. A photo of the whole cluster with a map showing
 would be the most useful thing to send back.
@@ -352,20 +352,20 @@ would be the most useful thing to send back.
 | P5 | Look at the left of the map | It stops short of the speed, the second speed and their units: no figure has map behind it. The gear's black bar stays black |
 | P6 | Centre picture → *Closed* | The plates, their stripes and their lines come back smoothly |
 | P7 | Centre picture → *Next turn, as a card*, with a route | Arrow, distance and instruction at the top of the centre plate; the stripes dim behind them so they read |
-| P8 | ◀ ▶ between M Sport and M Sport Plus | Only the middle changes; dials, numbers and footer do not move (unless their own settings differ) |
+| P8 | The M Sport and M Sport Plus cards on the app's page, in turn | Only the middle changes; dials, numbers and footer do not move (unless their own settings differ) |
 
 ## New in 0.3
 
 | # | Check | Expect |
 |---|---|---|
 | N1 | Open MGU Styles on iDrive | See B2 |
-| N2 | Tap ◀ / ▶ beside the sketch, or turn the controller to them and press | Steps Toro genuine → modern → Revuelto → M Sport → M Sport Plus; the cluster follows within a second |
+| N2 | Tap each design's card on the app's page, or turn the controller to it and press | That design: Toro genuine, modern, Revuelto, M Sport, M Sport Plus, M Track; the cluster follows within a second |
 | N3 | Toro, side gauges | Two slanted bar gauges each side: TEMP. OLIO / PRESS. OLIO (or PRESS. TURBO) left, BENZINA / TEMP. ACQUA right; the red needle sits at the reading shown beside the label |
 | N4 | Rev to the limiter, parked | See B11: Lamborghini shift lights close in from both ends, then fire in bursts with the screen flash; the whole cluster shakes in step and settles when the revs drop. BMW's bottom strip and telltales do not move |
 | N5 | TORO → Shift lights GT3 / single blade, Shake off | Each looks as named; with shake off nothing moves |
 | N6 | Holiday theme on | See B10 |
 | N7 | Start-up message on, then key off and start again | The words show over black for the chosen time, then fade slowly into the cluster. Changing a setting while driving does not bring them back |
-| N8 | Start at every startup off, key off, start again | BMW's own cluster; the switch on the CLUSTER tab brings MGU Styles up for this drive |
+| N8 | Start at every startup off, key off, start again | BMW's own cluster; *Cluster on / off* brings MGU Styles up for this drive |
 
 ## New in 0.4
 
@@ -374,7 +374,7 @@ would be the most useful thing to send back.
 | F1 | Drive with Refresh rate 60 and needles *Glide smoothly* | The dial, speed and gauges move continuously, no steps; a downshift's blip still shows at once. Try 30 and *Jump* to compare |
 | F2 | Side gauges | Left pair reads left to right, right pair right to left; each wedge hangs from its scale, deepest at the high numbers |
 | F3 | Boost under load | Level with the speed, left of the gear: the figure grows a step with each psi; the faint wedge to its right sweeps right to left |
-| F6 | Toro, phone navigating, Map opening → *Phone map (Waze)* | See B16. The CLUSTER tab's *Phone map* row says what it is doing |
+| F6 | Toro, phone navigating, Map opening → *Phone map (Waze)* | See B16. The page's *Phone map* row says what it is doing |
 | F7 | Holiday theme on with a map showing | Snow falls down both sides but keeps off the gauges; nothing of it over the map |
 | F5 | TORO → Rev number at the needle: Bold, filled | The number the needle is passing turns solid in the accent colour; Outline goes back to the hollow look |
 | F4 | G meter in a right-hand bend, then braking | The point moves right in the bend and down under braking; the hardest load stays as a red line for about 3 s, then fades |

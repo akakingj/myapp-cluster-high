@@ -2,7 +2,7 @@
   "id": "akakingj_cluster_id8",
   "title": "AK Cluster ID8",
   "vendor": "MGU-Styles",
-  "version": "0.18.1",
+  "version": "0.19.0",
   "loggingId": "AKC8",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
@@ -21,20 +21,14 @@
       "name": "MAIN",
       "kind": "canvas",
       "title": "AK Cluster ID8",
-      "hmi": false,
-      "fill": true,
       "buttons": [
         [
           "BTN_SHOW",
           "Cluster on / off"
         ],
         [
-          "BTN_DESIGN",
-          "Design"
-        ],
-        [
-          "BTN_CENTRE",
-          "Centre picture"
+          "BTN_LOGS",
+          "Logs"
         ],
         [
           "BTN_SETTINGS",
@@ -116,15 +110,13 @@
       "key": "enabled",
       "label": "Show on the cluster",
       "type": "bool",
-      "default": false,
-      "tab": "general"
+      "default": false
     },
     {
       "key": "autoStart",
       "label": "Start at every startup",
       "type": "bool",
-      "default": true,
-      "tab": "general"
+      "default": true
     },
     {
       "key": "style",
@@ -148,8 +140,7 @@
           "mtrack",
           "M Track Mode (BMW M's track view)"
         ]
-      ],
-      "tab": "general"
+      ]
     },
     {
       "key": "skin",
@@ -166,8 +157,7 @@
           "iDrive 7"
         ]
       ],
-      "profile": "skin",
-      "tab": "general"
+      "profile": "skin"
     },
     {
       "key": "speedUnit",
@@ -185,7 +175,7 @@
           "km/h"
         ]
       ],
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "tempUnit",
@@ -203,7 +193,7 @@
           "Celsius"
         ]
       ],
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "pressUnit",
@@ -229,7 +219,7 @@
           "kPa"
         ]
       ],
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "econUnit",
@@ -260,7 +250,7 @@
           "mpg (US)"
         ]
       ],
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "torqueUnit",
@@ -281,7 +271,7 @@
           "lb-ft"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "torqueUnit"
     },
     {
@@ -303,7 +293,7 @@
           "kW"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "powerUnit"
     },
     {
@@ -321,7 +311,7 @@
           "24-hour"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "clock"
     },
     {
@@ -343,7 +333,7 @@
           "Petrol, M car"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "engine",
       "profileMap": {
         "phev": "petrol"
@@ -368,7 +358,7 @@
           "330 km/h (200 mph)"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "speedMax"
     },
     {
@@ -398,7 +388,7 @@
           "45 psi / 3.0 bar"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "boostMax",
       "profileMap": {
         "0": "auto"
@@ -505,7 +495,7 @@
           "90 L"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "tankLitres"
     },
     {
@@ -523,7 +513,7 @@
           "Litres / tank size"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "fuelFrom"
     },
     {
@@ -641,7 +631,7 @@
           "8,500"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "lightRed",
       "profileMap": {
         "0": "limiter"
@@ -758,7 +748,7 @@
           "9,000"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "redline",
       "profileMap": {
         "0": "auto"
@@ -823,7 +813,7 @@
           "7,500"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "lightStart"
     },
     {
@@ -901,7 +891,7 @@
           "8,500"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "shiftAt",
       "profileMap": {
         "0": "auto"
@@ -922,7 +912,7 @@
           "Off (the red zone where it is set)"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "coldGuard"
     },
     {
@@ -967,7 +957,7 @@
       "when": {
         "coldGuard": "on"
       },
-      "tab": "general",
+      "group": "General",
       "profile": "coldLimit"
     },
     {
@@ -1008,7 +998,7 @@
       "when": {
         "coldGuard": "on"
       },
-      "tab": "general",
+      "group": "General",
       "profile": "warmOil"
     },
     {
@@ -1034,7 +1024,7 @@
           "Off"
         ]
       ],
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "flashStyle",
@@ -1065,7 +1055,7 @@
           "edges"
         ]
       },
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "bottomExtra",
@@ -1103,14 +1093,14 @@
         "48": "hide",
         "74": "hide"
       },
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "signCover",
       "label": "Cover the speed limit sign's edge in BMW's strip",
       "type": "bool",
       "default": false,
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "lower",
@@ -1139,7 +1129,7 @@
           "74 px lower, 11 % larger: to the screen's edge"
         ]
       ],
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "electric",
@@ -1164,7 +1154,7 @@
           "Fully electric: range, charge and battery temperature in place of fuel and oil"
         ]
       ],
-      "tab": "general",
+      "group": "General",
       "profile": "engine",
       "profileMap": {
         "phev": "hybrid",
@@ -1197,7 +1187,7 @@
           "20 a second, the lightest"
         ]
       ],
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "smoothing",
@@ -1218,14 +1208,14 @@
           "Jump to each reading"
         ]
       ],
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "holiday",
       "label": "Holiday theme: falling snow and a Christmas tree",
       "type": "bool",
       "default": false,
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "intro",
@@ -1233,7 +1223,7 @@
       "type": "bool",
       "default": false,
       "reset": 1,
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "introMessage",
@@ -1273,7 +1263,7 @@
       "when": {
         "intro": true
       },
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "introSeconds",
@@ -1301,7 +1291,7 @@
       "when": {
         "intro": true
       },
-      "tab": "general"
+      "group": "General"
     },
     {
       "key": "tCentre",
@@ -1326,7 +1316,7 @@
           "Turn View camera"
         ]
       ],
-      "tab": "toro",
+      "group": "Toro",
       "when": {
         "style": "toro"
       }
@@ -1350,7 +1340,7 @@
           "Most: all of the inside of the dial"
         ]
       ],
-      "tab": "toro",
+      "group": "Toro",
       "when": {
         "style": "toro",
         "tCentre": [
@@ -1382,7 +1372,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "accent",
@@ -1429,7 +1419,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "accentScope",
@@ -1449,7 +1439,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "nodeColour",
@@ -1498,7 +1488,7 @@
         "style": "toro",
         "background": "modern"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "hexTint",
@@ -1527,7 +1517,7 @@
         "style": "toro",
         "background": "modern"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "dialFill",
@@ -1551,7 +1541,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "numeralFill",
@@ -1571,7 +1561,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "gearFill",
@@ -1595,7 +1585,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "gearPlace",
@@ -1619,7 +1609,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "gearShows",
@@ -1639,7 +1629,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "modeLabel",
@@ -1663,7 +1653,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "scaleMaxRpm",
@@ -1698,7 +1688,7 @@
           "m"
         ]
       },
-      "tab": "general",
+      "group": "General",
       "profile": "rpmScale"
     },
     {
@@ -1735,7 +1725,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "shiftY",
@@ -1763,7 +1753,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "shiftStyle",
@@ -1791,7 +1781,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "shake",
@@ -1819,7 +1809,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "flashColour",
@@ -1871,7 +1861,7 @@
           "edges"
         ]
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "showBoost",
@@ -1881,7 +1871,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "showAuxLeft",
@@ -1891,7 +1881,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "electricGauge",
@@ -1928,7 +1918,7 @@
           "bev"
         ]
       },
-      "tab": "toro"
+      "group": "Toro"
     },
     {
       "key": "gaugeL1",
@@ -2016,7 +2006,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro",
+      "group": "Toro",
       "hidden": true,
       "page": true
     },
@@ -2106,7 +2096,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro",
+      "group": "Toro",
       "hidden": true,
       "page": true
     },
@@ -2196,7 +2186,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro",
+      "group": "Toro",
       "hidden": true,
       "page": true
     },
@@ -2286,7 +2276,7 @@
       "when": {
         "style": "toro"
       },
-      "tab": "toro",
+      "group": "Toro",
       "hidden": true,
       "page": true
     },
@@ -2317,7 +2307,7 @@
           "Next turn, as a card"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track"
       }
@@ -2341,7 +2331,7 @@
           "Widest: the car's whole picture, fading out softly at its edges"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track",
         "mCentre": [
@@ -2366,7 +2356,7 @@
           "Keep them over the picture"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track",
         "mCentre": [
@@ -2395,7 +2385,7 @@
           "Nothing (BMW's own gear letter stays below)"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track"
       }
@@ -2415,7 +2405,7 @@
           "One speed only, in the units chosen"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track"
       }
@@ -2567,7 +2557,7 @@
           "Nothing"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track"
       },
@@ -2721,7 +2711,7 @@
           "Nothing"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track"
       },
@@ -2875,7 +2865,7 @@
           "Nothing"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track"
       },
@@ -2905,7 +2895,7 @@
           "Nothing"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track"
       }
@@ -2929,7 +2919,7 @@
           "Stay the same size"
         ]
       ],
-      "tab": "msport",
+      "group": "M Sport",
       "when": {
         "style": "track"
       }
@@ -2961,7 +2951,7 @@
           "Next turn, as a card"
         ]
       ],
-      "tab": "mplus",
+      "group": "M Sport Plus",
       "when": {
         "style": "mplus"
       }
@@ -2989,7 +2979,7 @@
           "Widest: the car's whole picture, fading out softly at its edges"
         ]
       ],
-      "tab": "mplus",
+      "group": "M Sport Plus",
       "when": {
         "style": "mplus",
         "pCentre": [
@@ -3018,7 +3008,7 @@
           "Nothing (BMW's own gear letter stays below)"
         ]
       ],
-      "tab": "mplus",
+      "group": "M Sport Plus",
       "when": {
         "style": "mplus"
       }
@@ -3038,7 +3028,7 @@
           "One speed only, in the units chosen"
         ]
       ],
-      "tab": "mplus",
+      "group": "M Sport Plus",
       "when": {
         "style": "mplus"
       }
@@ -3190,7 +3180,7 @@
           "Nothing"
         ]
       ],
-      "tab": "mplus",
+      "group": "M Sport Plus",
       "when": {
         "style": "mplus"
       },
@@ -3344,7 +3334,7 @@
           "Nothing"
         ]
       ],
-      "tab": "mplus",
+      "group": "M Sport Plus",
       "when": {
         "style": "mplus"
       },
@@ -3498,7 +3488,7 @@
           "Nothing"
         ]
       ],
-      "tab": "mplus",
+      "group": "M Sport Plus",
       "when": {
         "style": "mplus"
       },
@@ -3528,7 +3518,7 @@
           "Nothing"
         ]
       ],
-      "tab": "mplus",
+      "group": "M Sport Plus",
       "when": {
         "style": "mplus"
       }
@@ -3552,7 +3542,7 @@
           "Stay the same size"
         ]
       ],
-      "tab": "mplus",
+      "group": "M Sport Plus",
       "when": {
         "style": "mplus"
       }
@@ -3580,7 +3570,7 @@
           "Turn View camera in place of the gauges"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       }
@@ -3600,7 +3590,7 @@
           "The style stays where it is (the picture starts part way along)"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       }
@@ -3688,7 +3678,7 @@
           "Nothing: the row left out"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       },
@@ -3778,7 +3768,7 @@
           "Nothing: the row left out"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       },
@@ -3868,7 +3858,7 @@
           "Nothing: the row left out"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       },
@@ -3958,7 +3948,7 @@
           "Nothing: the row left out"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       },
@@ -3980,7 +3970,7 @@
           "A bar: the rail past the mark dimmed"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       }
@@ -4068,7 +4058,7 @@
           "Nothing"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       },
@@ -4158,7 +4148,7 @@
           "Nothing"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       },
@@ -4312,7 +4302,7 @@
           "Nothing"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       },
@@ -4466,7 +4456,7 @@
           "Nothing"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       },
@@ -4620,7 +4610,7 @@
           "Nothing"
         ]
       ],
-      "tab": "mtrack",
+      "group": "M Track",
       "when": {
         "style": "mtrack"
       },

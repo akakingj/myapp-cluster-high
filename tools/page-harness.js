@@ -8,11 +8,10 @@
  *
  *   const page = require('./page-harness').open({ values: { style: 'mplus' }, own: true });
  *   page.shot()            the last frame drawn (a kit Recorder: .targets, .words())
- *   page.run('tab:toro')   press a place, as a finger or the controller would
- *   page.touch(1, x, y)    a finger: 1 down, 2 move, 3 up (page px)
- *   page.focus(key)        the controller lands on a place
- *   page.back(edge)        the controller pushed left
- *   page.click('BTN_SHOW') one of the HMI's bar buttons
+ *   page.run('design:mplus')  press a place, as a finger or the controller would
+ *   page.back()            the controller pushed left with nothing further left
+ *   page.click('BTN_LOGS') one of the bar's buttons
+ *   page.settings          the settings store (as the kit's, "when" included: the kit's list reads it)
  *   page.values            the settings as they stand
  */
 const fs = require('fs');
@@ -23,7 +22,6 @@ const ROOT = path.resolve(__dirname, '..');
 const APP = path.join(ROOT, 'apps', 'akakingj_cluster_id8');
 const KIT = path.join(ROOT, 'kit', 'runtime');
 const { Recorder } = require(path.join(KIT, 'record.js'));
-const EXTRA = 80;               /* 720 / 1.2 - 520: the rows "fill" leaves below the page (kit/runtime/display.js) */
 
 /* the app asks the kit to run it: keep what it hands over instead; its other kit modules are the kit's own */
 function loadApp() {
@@ -61,7 +59,7 @@ function open(opts) {
     Object.assign(values, opts.values || {});
 
     let shot = null, frame = null, sheet = null;
-    const listeners = [], handlers = {}, clicks = {}, hidden = {}, closed = [];
+    const listeners = [], handlers = {}, clicks = {}, closed = [];
     const centreKey = () => ({ toro: 'tCentre', track: 'mCentre', mplus: 'pCentre' }[values.style] || 'tCentre');
     function centreInfo() {
         const want = values[centreKey()];
@@ -80,7 +78,7 @@ function open(opts) {
         held: (k) => (opts.held || []).indexOf(k) >= 0,
         set(k, v) { values[k] = v; listeners.slice().forEach((fn) => fn(k, v)); },
         item: (k) => items.find((s) => s.key === k),
-        shown: (s) => !!s && !s.hidden,
+        shown: (s) => !!s && !s.hidden && Object.keys(s.when || {}).every((k) => [].concat(s.when[k]).indexOf(values[k]) >= 0),
         display(k) { const s = this.item(k), o = s && s.options && s.options.find((q) => q[0] === String(values[k])); return o ? o[1] : String(values[k]); },
         cycle() {},
         onChange(fn) { listeners.push(fn); }
@@ -103,27 +101,20 @@ function open(opts) {
         },
         loop(name, hz, fn) { frame = fn; return { kick() { fn(); } }; },
         canvas(w, h) {
-            const r = new Recorder(w, h + (own ? EXTRA : 0), { textScale: own ? 1.2 : 1 });
+            const r = new Recorder(w, h);
             r.own = own;
-            r.extra = own ? EXTRA : 0;
             return r;
         },
         onLayout() {},
-        hideButton(id, hide) { hidden[id] = hide !== false; },
         sheet(sh) { if (!own) return false; sheet = sh; return true; }
     };
-    if (own) {
-        ctx.onTouch = (fn) => { handlers.touch = fn; };
-        ctx.onBack = (fn) => { handlers.back = fn; };
-        ctx.onPageFocus = (fn) => { handlers.focus = fn; };
-        ctx.focus = (key) => { handlers.focused = key; };
-    }
+    if (own) ctx.onBack = (fn) => { handlers.back = fn; };
     loadApp().start(ctx);
     if (!shot) throw new Error('the page drew nothing');
 
     const target = (key) => (shot.targets || []).find((t) => t.key === key);
     return {
-        own, spec, values, settings, EXTRA,
+        own, spec, values, settings,
         shot: () => shot,
         frame: () => frame(),
         targets: () => (shot.targets || []).slice(),
@@ -134,14 +125,12 @@ function open(opts) {
             t.run();
             frame();
         },
-        touch(phase, x, y) { const r = handlers.touch ? handlers.touch(phase, x, y) : false; frame(); return r; },
-        focus(key) { if (handlers.focus) handlers.focus(key); frame(); },
-        back(edge) { const r = handlers.back ? handlers.back(!!edge) : false; frame(); return r; },
+        back() { const r = handlers.back ? handlers.back(true) : false; frame(); return r; },
         click(id) { if (!clicks[id]) throw new Error('no handler for ' + id); clicks[id](); frame(); },
         sheet: () => sheet,
         closeSheet() { const sh = sheet; sheet = null; if (sh && sh.onClose) sh.onClose(); frame(); },
-        hidden, closed, focused: () => handlers.focused
+        closed
     };
 }
 
-module.exports = { open, EXTRA, ROOT, APP, KIT };
+module.exports = { open, ROOT, APP, KIT };

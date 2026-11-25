@@ -472,7 +472,7 @@ function createReader(opts) {
         /*
          * The fuel gauge's figure, as AK Cluster Layouts': the engine unit's own tank level (OBD PID 0x2F,
          * src/car/engine.js) while it answers, else the car's litres over the tank's size. fuelFrom
-         * 'litres' (GENERAL: Fuel % from) keeps to the litres.
+         * 'litres' (General: Fuel % from) keeps to the litres.
          */
         var byLitres = typeof litres === 'number' && tankLitres
             ? Math.max(0, Math.min(100, litres / tankLitres * 100)) : undefined;

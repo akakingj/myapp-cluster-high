@@ -91,10 +91,10 @@ test('the setting: px, 0 - 74, off as it comes; on, it hides the strip and keeps
     assert.strictEqual(Strip.foot(r({})), 646);
 });
 
-test('on the app\'s page: a BETA choice on the general tab, off as it comes, every step one a style can take', () => {
+test('on the app\'s page: a BETA choice in General, off as it comes, every step one a style can take', () => {
     const item = spec.settings.find((s) => s.key === 'lower');
     assert.ok(item, 'the setting is declared');
-    assert.strictEqual(item.tab, 'general');
+    assert.strictEqual(item.group, 'General');
     assert.strictEqual(item.default, '0');
     assert.ok(/^BETA/.test(item.label), 'it says what it is');
     const values = item.options.map((o) => Number(o[0]));

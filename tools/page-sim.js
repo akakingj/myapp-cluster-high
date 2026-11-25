@@ -14,9 +14,10 @@
  * spec has lost, would only show on the car. This does, twice:
  *
  *   gpu   with the Store's renderer (its client writing to a file, as the
- *         kit's own tooling has it): the page must take the whole screen,
- *         and is then worked with the controller and a finger - round its
- *         places, a tab, a row, a list of values, a drag, back, out.
+ *         kit's own tooling has it): the page in the kit's frame (its
+ *         header with Settings, the bar with Cluster on / off and Logs),
+ *         worked with the controller and a finger - round its places, a
+ *         card, a place's values, Settings a step at a time, Logs, back.
  *   soft  without the renderer: the plain page in the HMI's frame, its
  *         jobs done by the HMI's bar buttons.
  *
@@ -160,33 +161,30 @@ async function child(mode) {
 
     if (mode === 'gpu') {
         check(await until(() => d.place && d.gpu && d.gpu.ready && d.gpu.visible, 6000), 'the renderer never showed the page');
-        check(await until(() => has('show'), 4000), 'the page drew no places (' + keys().join(' ') + ')');
-        /* ---- the whole screen */
-        check(d.fill() === true, 'the screen is not a "fill" screen');
+        check(await until(() => has('design:mplus'), 4000), 'the page drew no places (' + keys().join(' ') + ')');
+        /* ---- the kit's frame: its header (Settings its last tab), the page, the bar */
+        check(d.fill() === false, 'the screen is a "fill" screen');
         check(d.own(), 'the kit is not running the screen');
-        const pl = d.place || {};
-        check(pl.x === 0 && pl.y === 0 && pl.w === 1920 && pl.h === 720 && pl.scale === 1.2 && pl.ox === 0 && pl.oy === 0,
-            'the page is not the whole 1920 x 720: ' + JSON.stringify(pl));
-        check(d.headH() === 0 && d.left() === 0, 'the HMI\'s header or back column is still drawn');
-        check(d.barH() === 0, 'the HMI\'s bar is still drawn (' + d.barH() + ' px)');
-        ['BTN_SHOW', 'BTN_DESIGN', 'BTN_CENTRE'].forEach((b) => check(comp(b).props.Visible === 0, 'the HMI\'s own ' + b + ' is not hidden under the page'));
-        /* ---- the bar of tabs and CLUSTER: the switch, the style's own places on its picture, a card for each design */
+        check(d.headH() > 0 && d.barH() > 0, 'the kit\'s header or bar is missing (' + d.headH() + ', ' + d.barH() + ')');
+        check(JSON.stringify(d.buttons().map((b) => b.id)) === '["BTN_SHOW","BTN_LOGS"]', 'the bar is not Cluster on / off and Logs: ' + d.buttons().map((b) => b.id).join(' '));
+        const tl = d._tabList();
+        check(tl.settings === tl.tabs.length - 1 && tl.tabs[tl.settings] === 'Settings', 'Settings is not the header\'s tab: ' + JSON.stringify(tl));
+        /* ---- the page: the style's own places on its picture, a card for each design */
         const DESIGNS = ['toro_genuine', 'toro_modern', 'toro_revuelto', 'track', 'mplus', 'mtrack'];
-        ['exit', 'tab:cluster', 'tab:general', 'tab:toro', 'tab:msport', 'tab:mplus', 'tab:mtrack', 'show', 'place:tCentre']
-            .concat(DESIGNS.map((id) => 'design:' + id)).forEach((key) => check(has(key), 'CLUSTER has no place "' + key + '"'));
-        check(!keys().some((q) => /^place:[pmk][A-Z]/.test(q)), 'Toro\'s CLUSTER shows another style\'s places: ' + keys().join(' '));
-        notes.push('the page on the whole screen, ' + keys().length + ' places on CLUSTER: ' + keys().join(' '));
-        /* ---- the controller: round the places, each heard by the page */
+        ['place:tCentre'].concat(DESIGNS.map((id) => 'design:' + id)).forEach((key) => check(has(key), 'the page has no place "' + key + '"'));
+        check(!keys().some((q) => /^(tab|set|exit|show)/.test(q)), 'the page still has tabs or rows of its own: ' + keys().join(' '));
+        check(!keys().some((q) => /^place:[pmk][A-Z]/.test(q)), 'Toro\'s page shows another style\'s places: ' + keys().join(' '));
+        notes.push('the page in the kit\'s frame, ' + keys().length + ' places: ' + keys().join(' '));
+        /* ---- the controller: round the header, the places and the bar, each heard */
         d._ccu(knob(k));
         turn(1);
-        check(d.focusKey === 'tgt:exit' || /^tgt:/.test(String(d.focusKey)), 'the first turn landed on ' + d.focusKey);
         const seen = [d.focusKey];
         for (let i = 0; i < 16; i++) { turn(1); if (seen.indexOf(d.focusKey) < 0) seen.push(d.focusKey); }
         check(seen.length >= 10, 'the controller reaches only ' + seen.length + ' places: ' + seen.join(' '));
         /* ---- a press on a card: that design on the cluster */
         d.focusPage('design:mplus'); await push();
         check(s.get('style') === 'mplus', 'pressing M Sport Plus\'s card did not choose it (' + s.get('style') + ')');
-        check(await until(() => has('place:pCentre'), 1500), 'CLUSTER does not show M Sport Plus\'s own places (' + keys().join(' ') + ')');
+        check(await until(() => has('place:pCentre'), 1500), 'the page does not show M Sport Plus\'s own places (' + keys().join(' ') + ')');
         d.focusPage('design:toro_modern'); await push();
         check(s.get('style') === 'toro' && s.get('background') === 'modern', 'pressing Toro hex\'s card did not choose it');
         /* ---- a place on the picture: its list, a value picked, into this style's own setting */
@@ -199,79 +197,67 @@ async function child(mode) {
             turn(1);
             d._ccu(knob(k, { frontRotaryEncoderPushButton: 1 })); d._ccu(knob(k));
             await until(() => !d.sheet, 1500);
-            check(s.get('pCentre') !== pc0, 'the centre picked on CLUSTER did not reach M Sport Plus\'s own setting (pCentre ' + s.get('pCentre') + ')');
+            check(s.get('pCentre') !== pc0, 'the centre picked on the page did not reach M Sport Plus\'s own setting (pCentre ' + s.get('pCentre') + ')');
         }
         check(s.get('mCentre') === 'off' && s.get('tCentre') === 'off', 'another style\'s centre changed with it');
-        /* ---- a tab by the controller: M SPORT, its rows, nothing of another style's */
-        d.focusPage('tab:msport'); await push();
-        check(await until(() => has('set:mGear'), 2000), 'M SPORT shows no row for the gear\'s place (' + keys().join(' ') + ')');
-        /* (the footer's three places are on the CLUSTER page, AK 0.17.0) */
-        ['set:mCentre', 'set:mGear', 'set:mPanel', 'set:mPop'].forEach((key) => check(has(key), 'M SPORT has no row "' + key + '"'));
-        ['set:mFootL', 'set:mFootM', 'set:mFootR'].forEach((key) => check(!has(key), 'M SPORT still has a row "' + key + '": it is the CLUSTER page\'s'));
-        check(!keys().some((q) => /^set:(p[A-Z]|t[A-Z]|background|accent)/.test(q)), 'M SPORT shows another style\'s settings: ' + keys().join(' '));
-        check(has('use:track'), 'no "use this style" on the tab of a style that is not on the cluster');
-        /* ---- a row: its values in the kit's own list, one picked with the knob */
-        d.focusPage('set:mGear'); await push();
-        check(await until(() => !!d.sheet, 1500), 'pressing a row opened no list of values');
-        if (d.sheet) {
-            turn(1);
+        /* ---- Settings, a step at a time: the top, then General, then the style in use's own */
+        d._openTab(tl.settings);
+        check(await until(() => !!(d.sheet && d.sheet.settings), 1500), 'the header\'s Settings opened no list');
+        const sh = d.sheet || { rows: () => [] };
+        const labels = () => sh.rows().map((r) => r.label);
+        const to = async (label) => {
+            const i = labels().indexOf(label);
+            if (!check(i >= 0, 'Settings has no row "' + label + '" (' + labels().join(' | ') + ')')) return false;
+            turn(i - sh.focus);
             d._ccu(knob(k, { frontRotaryEncoderPushButton: 1 })); d._ccu(knob(k));
-            await until(() => !d.sheet, 1500);
-            check(!d.sheet, 'the list stayed open after a value was picked');
-            check(s.get('mGear') === 'rpm', 'the value picked did not reach the store (mGear ' + s.get('mGear') + ')');
+            await wait(120);
+            return true;
+        };
+        const top = labels();
+        ['Show on the cluster', 'Style', 'Skin', 'General', 'M Sport Plus'].forEach((l) => check(top.indexOf(l) >= 0, 'the settings\' top has no "' + l + '": ' + top.join(' | ')));
+        check(['Toro', 'M Sport', 'M Track'].every((l) => top.indexOf(l) < 0), 'the settings\' top lists another style\'s: ' + top.join(' | '));
+        if (await to('M Sport Plus')) {
+            check(sh.group === 'M Sport Plus', 'M Sport Plus did not open its list');
+            check(labels().length > 3 && labels().indexOf('Footer, left') < 0, 'M Sport Plus\'s list is not its own adjustments: ' + labels().join(' | '));
+            d._ccu(knob(k, { frontRotaryEncoderDeflection: 10 })); d._ccu(knob(k)); await wait(120);
+            check(sh.group === null && !!d.sheet, 'pushed left in a group did not go back to the top');
         }
-        /* ---- use this style */
-        d.focusPage('use:track'); await push();
-        check(s.get('style') === 'track', '"use this style" did not choose it');
-        /* ---- a finger: a tab, then a long list dragged, then a switch tapped */
-        await tap('tab:general');
-        check(await until(() => has('set:enabled'), 2000), 'a tap on GENERAL did not open it (' + keys().join(' ') + ')');
-        check(has('set:bottomExtra'), 'GENERAL has no row for BMW\'s bottom strip');
-        const row = () => target('set:bottomExtra');
-        const y0 = row() ? row().y : null;
-        d._touch(1, 800, 520); d._touch(2, 800, 495); d._touch(2, 800, 330); d._touch(3, 800, 330);
-        await wait(200);
-        check(row() && y0 !== null && row().y < y0 - 100, 'a finger dragged up the list did not scroll it (' + y0 + ' -> ' + (row() && row().y) + ')');
-        const hol = s.get('holiday');
-        if (check(has('set:holiday'), 'GENERAL has no row for the holiday theme')) {
-            d.focusPage('set:holiday'); await wait(150);            /* the controller brings it into view */
-            const t = target('set:holiday');
-            check(t && t.y > 60 && t.y + t.h <= 600, 'the row the controller is on was not brought into view: ' + JSON.stringify(t && { y: t.y, h: t.h }));
-            await tap('set:holiday');
-            check(s.get('holiday') === !hol, 'a tap on a switch did not turn it');
-        }
-        /* ---- Shift now at: a row of GENERAL's for every car (no Car to choose): off as it comes, a list of values,
-           Auto chosen with the controller */
-        check(s.get('profile') === undefined, 'GENERAL > Car is still there: ' + s.get('profile'));
-        if (check(await until(() => has('set:shiftAt'), 2000), 'GENERAL has no row for Shift now at')) {
+        if (await to('General')) {
+            check(sh.group === 'General', 'General did not open its list');
+            /* a switch: turned at a press */
+            const hol = s.get('holiday');
+            if (await to(spec.settings.filter((q) => q.key === 'holiday')[0].label)) check(s.get('holiday') === !hol, 'a press on a switch did not turn it');
+            /* ---- Shift now at: a row of General's for every car (no Car to choose): off as it comes, a list of values,
+               Auto chosen with the controller */
+            check(s.get('profile') === undefined, 'General > Car is still there: ' + s.get('profile'));
             check(s.get('shiftAt') === 'off', 'Shift now at does not come off: ' + s.get('shiftAt'));
-            d.focusPage('set:shiftAt'); await push();
-            check(await until(() => !!d.sheet, 1500), 'Shift now at opened no list');
-            if (d.sheet) {
+            const shiftLabel = (spec.settings.filter((q) => q.key === 'shiftAt')[0] || {}).label;
+            if (await to(shiftLabel)) {
+                check(!!sh.open, 'Shift now at opened no list');
                 turn(1);
                 d._ccu(knob(k, { frontRotaryEncoderPushButton: 1 })); d._ccu(knob(k));
-                await until(() => !d.sheet, 1500);
+                await wait(120);
                 check(s.get('shiftAt') === 'auto', 'choosing Auto for Shift now at did not reach the store: ' + s.get('shiftAt'));
             }
         }
+        d.closeSheet();
+        await until(() => !d.sheet, 1000);
         /* ---- a value an older version saved: as the store hands it on */
         check(s.get('bottomExtra') === '18', 'a saved "A little" (24) was not carried to the largest trim: ' + JSON.stringify(s.get('bottomExtra')));
-        /* ---- back: a settings tab goes to CLUSTER, CLUSTER leaves the app */
-        d.focusPage('exit');
-        await left();
-        check(await until(() => has('show'), 1500), 'pushed left on a settings tab did not go back to CLUSTER');
-        check(sim.closed.length === 0, 'pushed left on a settings tab closed the screen');
-        d.focusPage('exit');
-        await left();
-        check(sim.closed.indexOf('MAIN') >= 0, 'pushed left on CLUSTER did not leave the app');
-        /* ---- the way out by its own place */
-        sim.closed.length = 0;
-        await tap('exit');
-        check(sim.closed.indexOf('MAIN') >= 0, 'the page\'s own way out did not close the screen');
-        /* ---- on / off */
+        /* ---- Logs: its codes in the page's place; pushed left with nothing further left, the page again; on the page, out */
+        d._click('BTN_LOGS');
+        check(await until(() => has('logs:make'), 2000), 'Logs did not show its codes (' + keys().join(' ') + ')');
+        /* pushed left until nothing is further left (the header's Settings, the bar's first button, the page's places) */
+        const edge = async (done) => { for (let i = 0; i < 6 && !done(); i++) await left(); };
+        await edge(() => has('design:mplus') || sim.closed.length > 0);
+        check(has('design:mplus'), 'pushed left on Logs did not go back to the page');
+        check(sim.closed.length === 0, 'pushed left on Logs closed the screen');
+        await edge(() => sim.closed.length > 0);
+        check(sim.closed.indexOf('MAIN') >= 0, 'pushed left on the page did not leave the app');
+        /* ---- on / off: the bar's */
         const en = s.get('enabled');
-        d.focusPage('show'); await push();
-        check(s.get('enabled') === !en, 'the switch on CLUSTER did not turn the cluster ' + (en ? 'off' : 'on'));
+        d._click('BTN_SHOW'); await wait(150);
+        check(s.get('enabled') === !en, 'the bar\'s Cluster on / off did not turn the cluster ' + (en ? 'off' : 'on'));
     } else {
         /* the plain page: the HMI shows what the app pushes, and its bar does the jobs */
         check(await until(() => sim.pushed > 0, 8000), 'the plain page was never pushed to the HMI');
@@ -279,19 +265,13 @@ async function child(mode) {
         /* (Cold engine on as it comes, as Cluster Layouts', AK 0.17.0) */
         check(s.get('shiftAt') === 'off' && s.get('coldGuard') === 'on', 'a new install does not come with Shift now at off and Cold engine on: ' + s.get('shiftAt') + ' ' + s.get('coldGuard'));
         check(!d.own(), 'the kit says it runs the screen with no renderer there');
-        const en = s.get('enabled'), style0 = s.get('style'), bg0 = s.get('background');
+        const en = s.get('enabled');
         comp('BTN_SHOW').emit('action', {}); await wait(200);
         check(s.get('enabled') === !en, 'the bar\'s Cluster on / off did not switch it');
-        comp('BTN_DESIGN').emit('action', {}); await wait(200);
-        check(s.get('style') !== style0 || s.get('background') !== bg0, 'the bar\'s Design did not step the design');
-        const key = { toro: 'tCentre', track: 'mCentre', mplus: 'pCentre' }[s.get('style')];
-        const c0 = s.get(key);
-        comp('BTN_CENTRE').emit('action', {}); await wait(200);
-        check(s.get(key) !== c0, 'the bar\'s Centre picture did not change this style\'s centre (' + key + ')');
-        ['BTN_SHOW', 'BTN_DESIGN', 'BTN_CENTRE'].forEach((b) => check(comp(b).props.Visible !== 0, 'the HMI\'s ' + b + ' is hidden with no page to do its job'));
-        const before = sim.pushed;
-        await wait(700);
-        check(sim.pushed > before, 'the plain page was not drawn again after the changes');
+        const before0 = sim.pushed;
+        comp('BTN_LOGS').emit('action', {}); await wait(300);
+        check(sim.pushed > before0, 'the bar\'s Logs drew nothing');
+        ['BTN_SHOW', 'BTN_LOGS'].forEach((b) => check(comp(b).props.Visible !== 0, 'the HMI\'s ' + b + ' is hidden with no page to do its job'));
         notes.push('pushed ' + sim.pushed + ' frames to the HMI');
     }
     /* what was saved is what the next start reads */
@@ -332,7 +312,7 @@ function main() {
     cp.execSync('python3 kit/tools/build.py --preview-only ' + ID, { cwd: ROOT, stdio: ['ignore', 'pipe', 'inherit'] });
     console.log('done');
     let failed = 0;
-    [['gpu', 'with the Store\'s renderer: the whole screen, the controller, a finger',
+    [['gpu', 'with the Store\'s renderer: the kit\'s frame, the controller',
       /* as a car that ran Beta 3 has it saved: the old shared centre, "A little" of the strip */
       { enabled: true, style: 'toro', centre: 'camera', bottomExtra: '24' }],
      ['soft', 'without the renderer, a new install: the plain page and the HMI\'s bar', null]

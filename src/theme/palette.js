@@ -308,7 +308,7 @@
         /* Shift now (the Car profile's Shift now warning at): off as it comes (the shift lights flash at the
            limiter), Auto 300 under the red zone, or an rpm (src/engine/state.js shiftPoint); the cold-engine
            guard lowers it and the red zone while the oil is cold */
-        /* the speedometer's top (M Sport, M Sport Plus): 260 or 330 km/h (Automatic: 330 for an M car, GENERAL >
+        /* the speedometer's top (M Sport, M Sport Plus): 260 or 330 km/h (Automatic: 330 for an M car, General >
            Engine "Petrol, M car") */
         s.speedMax = String(settings.speedMax) === '330' ? 330 : String(settings.speedMax) === '260' ? 260
             : settings.engine === 'm' ? 330 : 260;
