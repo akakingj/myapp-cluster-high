@@ -622,7 +622,7 @@
                     var red = o.alt && s.auxIsOil ? o.alt.red : o.red;
                     return {
                         u_frac: clamp01(g.frac), u_dir: o.dir, u_redZone: red,
-                        u_ticks: (o.alt && s.auxIsOil) || !o.ticks ? [0, 0, 0] : o.ticks,
+                        u_ticks: (o.alt && s.auxIsOil) || !o.ticks ? [0, 0, 0, 0] : o.ticks,
                         u_shear: shear, u_on: g.text === '--' ? 0 : 1,
                         u_alarm: g.alarm ? 1 : 0,
                         u_col: GC.primaryWhite, u_hot: HOT, u_needle: GC.corsaRed
@@ -665,21 +665,21 @@
                 function (c) { return String(Math.round(UN.tempIn(c))); }, function (c) { return hot !== null && c >= hot; });
         }
         /*
-         * The turbo gauges' end in the unit shown: GENERAL > Boost gauge up to (its pair in psi, as the car's own
-         * gauge), else the style's own 25 psi, 1.7 bar; their marks the start, the middle and the end.
+         * The turbo gauges' end in the unit shown: GENERAL > Boost gauge up to (one of the car's own gauges: its
+         * psi, or its bar), else the style's own 25 psi, 1.7 bar, marked at the start, the middle and the end.
          */
         var turboTop = P.boostBar ? { psi: P.boostPsi, bar: P.boostBar, kpa: P.boostBar * 100 }[UN.press] : null;
-        /* (set: numbered by its end, 0 10 20 30, 0 15 25 35, each at its place: turboAt) */
+        /* (set: numbered by its end, 0 10 20 30, 0 17.5 35, each at its place: turboAt) */
         var turboTicks = turboTop ? Panel.boostTicks(turboTop, UN.press) : null;
         var turboAt = turboTicks ? turboTicks.map(function (t) { return t.at; }) : null;
-        /* (its ticks: tall ones at its numbers, the small ones about 20 with every number on one - 0 15 25 35: 21) */
+        /* (its ticks: tall ones at its numbers, the small ones about 20 with every number on one - 0 5 10 15: 21) */
         var turboTickU = null;
         if (turboTicks) {
             var cent = turboTicks.map(function (t) { return Math.round(Number(t.str) * 100); });
             var gcd = function (a, b) { return b ? gcd(b, a % b) : a; };
             var parts = cent[cent.length - 1] / cent.reduce(gcd);
             var mid = turboAt.slice(1, -1);
-            turboTickU = [parts * Math.max(1, Math.round(20 / parts)), mid.length > 0 ? mid[0] : -1, mid.length > 1 ? mid[1] : -1];
+            turboTickU = [parts * Math.max(1, Math.round(20 / parts)), mid.length > 0 ? mid[0] : -1, mid.length > 1 ? mid[1] : -1, mid.length > 2 ? mid[2] : -1];
         }
         function turboMarks() {
             if (!turboTicks) return { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press];
@@ -935,7 +935,7 @@
              * faint hanging wedge gauge whose needle sweeps right to left,
              * deepest at the top of the range beside the figure.
              */
-            /* the top of its range, in the unit shown: Boost gauge up to's (its pair in psi), else the car's own up to a
+            /* the top of its range, in the unit shown: Boost gauge up to's (its psi, or its bar), else the car's own up to a
                whole 10 psi, tenth of a bar, 10 kPa */
             var bMaxShown = UN.pressIn(P.boostMaxPsi / 14.503774), bGrain = UN.press === 'psi' ? 10 : UN.pressStep;
             var bTop = turboTop || Math.round(Math.ceil(bMaxShown / bGrain - 1e-9) * bGrain * 100) / 100;

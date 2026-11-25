@@ -22,18 +22,18 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   and M Track keep clear of the M display's two boxes, the speedometer reads to 330 km/h on *Automatic*, and the
   redline and limiter left to the car are an S58's. A plug-in hybrid's eDrive box is kept clear by *Electric range*
   (the Car profile's *Plug-in hybrid* sets it). A car chosen before - B48, B58, S58, Plug-in hybrid - has its figures
-  put in GENERAL's settings once, at the first start, so the cluster reads as it did (in bar a B48's boost gauge
-  ends at 1.5, the others' at 2.0); a boost top saved in psi reads as the pair Toro's gauge ended on.
-- **Boost gauge up to is set in the Car profile app** (not on GENERAL): a pair below, or *Auto* - the car's own
+  put in GENERAL's settings once, at the first start, so the cluster reads as it did (a B48's boost gauge ends
+  at 20 psi, the others' at 30); a boost top saved in psi reads as the gauge at or over it.
+- **Boost gauge up to is set in the Car profile app** (not on GENERAL): a gauge below, or *Auto* - the car's own
   Sport Display's boost gauge end (FES displayMaximumValueBoostPressure, in the car's pressure unit), as the least
-  pair at or over it (within 5 %), kept for the next start; the kind of car's own until the car has sent it.
+  gauge at or over it (within 5 %), kept for the next start; the kind of car's own until the car has sent it.
 - **The Sport Display's boost in the car's pressure unit**: tenths of a psi on a car set to psi (as AK Cluster
   Layouts reads it), hundredths of a bar otherwise; before, a psi car's 20 psi read as 2.0 bar.
-- **Boost gauge up to** is a pair, as the car's own gauge reads it: 1.0 bar or 15 psi, 1.5 or 20, 2.0 or 30, 2.5 or
-  35, 3.0 or 40, 3.5 or 50 - the end in the unit shown. Every boost gauge ends there where it is set: Toro's wedge,
-  its PRESS. TURBO gauges and M Track's boost row (the frame's own 1.9 bar, 28 psi on *Automatic*), their numbers
-  by the end: 0 5 10 15, 0 10 20, 0 10 20 30, 0 15 25 35, 0 20 40, 0 25 50 psi; 0.0 0.5 1.0, 0.0 0.5 1.0 1.5,
-  0.0 1.0 2.0, 0.0 1.5 2.5, 0.0 1.0 2.0 3.0, 0.0 1.5 2.5 3.5 bar (kPa a hundredfold), a mark at each: the PRESS. TURBO
+- **Boost gauge up to** is one of the car's own gauges: 15, 20 or 30 psi (in bar 2.0, in kPa 200) or 45 psi (3.0
+  bar, 300 kPa) - the end in the unit shown. Every boost gauge ends there where it is set: Toro's wedge,
+  its PRESS. TURBO gauges and M Track's boost row (the frame's own 1.9 bar, 28 psi on *Automatic*), numbered as the
+  car's: 0 5 10 15, 0 10 20, 0 10 20 30, 0 15 30 45 psi; 0.0 1.0 2.0, 0.0 1.0 2.0 3.0 bar; 0 100
+  200, 0 100 200 300 kPa, a mark at each: the PRESS. TURBO
   gauge's tall ticks, the M Track row's rail cut there; an M Track strip given boost has its end, half and 0.
 - **A plug-in hybrid's drive modes on the cluster.** The mode word now names what BMW's own cluster does on a plug-in
   hybrid (*HYBRID*, *HYBRID ECO PRO*, *HYBRID COMFORT*, *ELECTRIC*, *ELECTRIC INDIVIDUAL*, *BATTERY CONTROL*, *SPORT*,

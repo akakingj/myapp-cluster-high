@@ -188,7 +188,7 @@ function start(host, deps) {
         var top = Panel.snapBoost(raw.boostMaxCar);
         if (!top || top === boostCarTop) return;
         boostCarTop = top;
-        log.info('vehicle: the Sport Display\'s boost gauge ends at ' + raw.boostMaxCar.toFixed(2) + ' bar: ' + top + ' bar');
+        log.info('vehicle: the Sport Display\'s boost gauge ends at ' + raw.boostMaxCar.toFixed(2) + ' bar: the ' + top + ' psi gauge');
         saveVehicle({ boostMaxCar: raw.boostMaxCar });
         if (boostFromCar) reconfigure();
     }
@@ -286,7 +286,7 @@ function start(host, deps) {
             autoElectric = settings.electric === 'auto';
             if (autoElectric) settings = Object.assign({}, settings, { electric: electricOf(settings, phevFound) });
             /* (Boost gauge up to, set in the Car profile: From the car's Sport Display - its own gauge's end as one of
-               the pairs, once the car has sent it (kept for the next start); until then the kind of car's own) */
+               the gauges, once the car has sent it (kept for the next start); until then the kind of car's own) */
             boostFromCar = settings.boostMax === 'auto';
             if (boostFromCar && boostCarTop) settings = Object.assign({}, settings, { boostMax: boostCarTop });
             applyFeedMode();

@@ -114,7 +114,7 @@
                      'power', 'torque', 'hpfp', 'lpfp', 'fuel', 'off'];
     /* the four as they come: the frame's - or, in an electric car, what it has instead */
     var ROW_HOME = { frame: ['boost', 'coolant', 'oil', 'iat'], bev: ['charge', 'hvtemp', 'off', 'off'] };
-    /* u: the units shown (units.js); boostBar: GENERAL > Boost gauge up to, bar, and boostPsi its pair in psi (null: the
+    /* u: the units shown (units.js); boostBar: GENERAL > Boost gauge up to's end in bar, and boostPsi in psi (null: the
        frame's own 1.9 bar, 28 psi) */
     function rowScales(u, boostBar, boostPsi) {
         var celsius = u.temp === 'c';
@@ -127,8 +127,8 @@
                      lo: celsius ? lo : loF, hi: celsius ? hi : hiF,
                      show: function (v) { return celsius ? v : c2f(v); }, cold: cold, hot: hot };
         }
-        /* Boost gauge up to set: its end in the unit (in psi the pair's), numbered by it (Panel.boostTicks: 0 10 20 30,
-           0 15 25 35), each at its place (marksAt) */
+        /* Boost gauge up to set: its end in the unit, numbered as the car's own gauge (Panel.boostTicks: 0 10 20 30,
+           0 17.5 35), each at its place (marksAt) */
         function boostSet(bar, psi) {
             var p = u.press, end = p === 'psi' ? psi : p === 'kpa' ? bar * 100 : bar, t = Panel.boostTicks(end, p);
             return { key: 'boostBar', icon: 'u', unit: u.labels.press, lo: 0, hi: end,
@@ -437,7 +437,7 @@
            number, the rail's ends the first's and the last's) */
         var bRow = rowOf.map(function (sc) { return !!(sc && sc.marksAt); }).indexOf(true);
         var bAt = bRow < 0 ? [] : rowOf[bRow].marksAt.slice(1, -1);
-        var bcut = [bRow, bAt.length > 0 ? bAt[0] : -1, bAt.length > 1 ? bAt[1] : -1];
+        var bcut = [bRow, 0, 1, 2].map(function (v, j) { return j ? (bAt.length >= j ? bAt[j - 1] : -1) : v; });
         if (rowOn.some(function (v) { return v; })) {
             shape('rows', 12, 'mtrows', box(276, R.y0 - 3, 546, T.rowTop(R.n - 1) + 12), function (s) {
                 var fade = rowsShown(s);

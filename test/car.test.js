@@ -51,28 +51,27 @@ test('the figures: GENERAL\'s, the kind of car\'s own where left to the car; the
     assert.deepStrictEqual(fig('mCarS58', { engine: 'm' }), [8000, 8000, 7000, null, null, 330]);
     assert.deepStrictEqual(fig('mCarS58', { engine: 'm', speedMax: '260' }).slice(5), [260]);
     assert.deepStrictEqual(fig('hybrid'), [6500, 8000, 6000, null, null, 260]);
-    /* the boost gauge's top in bar (Automatic: the kind's own), the tank */
-    const p = Panel.profileFor('carprofile', { tankLitres: '52', boostMax: '2.5' });
-    assert.deepStrictEqual([p.tankLitres, p.boostBar, p.boostPsi, p.boostMaxPsi], [52, 2.5, 35, 35], 'a pair, as the car\'s own gauge: 2.5 bar or 35 psi');
-    assert.deepStrictEqual(Panel.BOOST_PSI, { 1: 15, 1.5: 20, 2: 30, 2.5: 35, 3: 40, 3.5: 50 });
+    /* the boost gauge's top in psi and its bar (Automatic: the kind's own), the tank */
+    const p = Panel.profileFor('carprofile', { tankLitres: '52', boostMax: '45' });
+    assert.deepStrictEqual([p.tankLitres, p.boostBar, p.boostPsi, p.boostMaxPsi], [52, 3, 45, 45], 'the car\'s own 45 psi gauge: 3.0 bar');
+    assert.deepStrictEqual(['15', '20', '30'].map((v) => Panel.profileFor('carprofile', { boostMax: v }).boostBar), [2, 2, 2], 'in bar 2.0');
+    assert.strictEqual(Panel.profileFor('carprofile', { boostMax: '2.5' }).boostPsi, null, 'no gauge ends there: the kind\'s own');
+    assert.deepStrictEqual(Panel.BOOST_BAR, { 15: 2, 20: 2, 30: 2, 45: 3 });
     const a = Panel.profileFor('mCarS58', { boostMax: 'auto' });
     assert.deepStrictEqual([a.boostBar, a.boostPsi, a.boostMaxPsi], [null, null, 26]);
     assert.strictEqual(item('tankLitres').profile, 'tankLitres');
     assert.strictEqual(item('speedMax').profile, 'speedMax');
     assert.strictEqual(item('boostMax').profile, 'boostMax');
-    /* every boost top the Car profile gives is one of this app's (its numbers: 2 bar as "2.0") */
+    /* every boost top the Car profile gives is one of this app's */
     const own = item('boostMax').options.map((o) => o[0]);
-    [1.0, 1.5, 2.0, 2.5, 3.0, 3.5].forEach((v) => {
-        const m = item('boostMax').profileMap[v];
-        assert.ok(own.indexOf(m !== undefined ? m : String(v)) >= 0, v + ' bar');
-    });
+    [15, 20, 30, 45].forEach((v) => assert.ok(own.indexOf(String(v)) >= 0, v + ' psi'));
 });
 
 test('a car chosen under GENERAL > Car before it went keeps its figures: moved into GENERAL\'s own once', () => {
     const was = (car, extra) => Panel.figuresOfCar(Object.assign({ profile: car }, extra || {}));
     assert.deepStrictEqual(was('b58'), { rpmLimiter: '7500', rpmRedline: '6500', shiftAt: '7000', shiftFrom: 'auto', scaleMaxRpm: '8000',
-        speedMax: '260', boostMax: '2.0', tankLitres: '60' });
-    assert.strictEqual(was('b48').boostMax, '1.5', 'the boost gauge\'s end as Toro drew it: 20 psi');
+        speedMax: '260', boostMax: '30', tankLitres: '60' });
+    assert.strictEqual(was('b48').boostMax, '20', 'the boost gauge\'s end as Toro drew it: 20 psi');
     assert.strictEqual(was('mCarS58').engine, 'm');
     assert.strictEqual(was('mCarS58', { engine: 'diesel' }).engine, undefined, 'a diesel stays one');
     assert.deepStrictEqual(was('hybrid'), { electric: 'hybrid' });
@@ -88,9 +87,10 @@ test('a car chosen under GENERAL > Car before it went keeps its figures: moved i
     }
     const S = Palette.resolve(was('b48'), Panel.profile('carprofile'));
     assert.deepStrictEqual([S.rpmLimiter, S.scaleMaxRpm, S.rpmRedline, S.shiftAtRpm, S.speedMax], [7000, 7000, 6000, 6500, 260]);
-    /* an old boost top in psi reads as the pair Toro's gauge ended on (22 psi drew to 30) */
-    assert.strictEqual(item('boostMax').aliases['22'], '2.0');
-    assert.strictEqual(item('boostMax').aliases['20'], '1.5');
+    /* an old boost top in psi reads as the gauge at or over it (22 psi to 30); one a gauge ends at stays */
+    assert.strictEqual(item('boostMax').aliases['22'], '30');
+    assert.strictEqual(item('boostMax').aliases['40'], '45');
+    assert.strictEqual(item('boostMax').aliases['20'], undefined);
 });
 
 test('the gear with its programme: D1, S1, M1 from MDrive.dataDisplayGearbox; P, R, N as they are', () => {
@@ -144,10 +144,10 @@ test('the move happens once, through the kit\'s own settings: saved, and the nex
         const S = settingsClass(dir), file = path.join(dir, 'settings.json');
         fs.writeFileSync(file, JSON.stringify({ profile: 'mCarS58', rpmRedline: 'auto', boostMax: '22' }));
         let s = new S(spec.settings);
-        assert.strictEqual(s.get('boostMax'), '2.0', 'an old boost top in psi, read as its pair');
+        assert.strictEqual(s.get('boostMax'), '30', 'an old boost top in psi, read as the gauge over it');
         const moved = Panel.moveCarFigures(s);
         assert.strictEqual(moved.engine, 'm');
-        assert.deepStrictEqual([s.get('engine'), s.get('rpmRedline'), s.get('rpmLimiter'), s.get('speedMax'), s.get('boostMax')], ['m', '7000', '8000', '330', '2.0']);
+        assert.deepStrictEqual([s.get('engine'), s.get('rpmRedline'), s.get('rpmLimiter'), s.get('speedMax'), s.get('boostMax')], ['m', '7000', '8000', '330', '30']);
         /* the next start: saved as moved; a later choice of the owner's stays */
         s = new S(spec.settings);
         assert.deepStrictEqual([s.get('engine'), s.get('rpmRedline'), s.values._carMoved], ['m', '7000', 1]);
@@ -175,21 +175,20 @@ test('the Sport Display\'s boost and its gauge\'s end in the car\'s pressure uni
     sport(150, 200);
     x = r.raw(1000, 59);
     assert.deepStrictEqual([+(x.boostBar * 14.503774).toFixed(1), +(x.boostMaxCar * 14.503774).toFixed(1)], [15, 20]);
-    assert.strictEqual(Panel.snapBoost(x.boostMaxCar), '1.5', '20 psi: the 1.5 bar / 20 psi pair');
+    assert.strictEqual(Panel.snapBoost(x.boostMaxCar), '20', 'the 20 psi gauge');
     /* a figure no gauge ends at is not taken */
     sport(150, 30);
     assert.strictEqual(+(r.raw(1000, 59).boostMaxCar * 14.503774).toFixed(1), 20);
     assert.ok(Vehicle.SIGNALS[VEH].statusNewCurrentUnitsStatusExt);
-    /* the least pair at or over it */
-    assert.deepStrictEqual([1.16, 2, 3.9, undefined].map(Panel.snapBoost), ['1.5', '2.0', '3.5', null]);
-    /* each pair's numbers by its end's figure, the same in each unit */
+    /* the least gauge at or over it, within 5 % */
+    assert.deepStrictEqual([1.16, 2.5, 3.9, undefined].map(Panel.snapBoost), ['20', '45', '45', null]);
+    /* each gauge's numbers as the car's own */
     const ticks = (e, u) => Panel.boostTicks(e, u).map((t) => t.str).join(' ');
-    assert.deepStrictEqual([15, 20, 30, 35, 40, 50].map((e) => ticks(e, 'psi')), ['0 5 10 15', '0 10 20', '0 10 20 30', '0 15 25 35', '0 20 40', '0 25 50']);
-    assert.deepStrictEqual([1, 1.5, 2, 2.5, 3, 3.5].map((e) => ticks(e, 'bar')), ['0.0 0.5 1.0', '0.0 0.5 1.0 1.5', '0.0 1.0 2.0', '0.0 1.5 2.5', '0.0 1.0 2.0 3.0', '0.0 1.5 2.5 3.5']);
-    assert.deepStrictEqual([100, 250, 350].map((e) => ticks(e, 'kpa')), ['0 50 100', '0 150 250', '0 150 250 350']);
-    assert.deepStrictEqual(Panel.boostTicks(35, 'psi').map((t) => +t.at.toFixed(3)), [0, 0.429, 0.714, 1]);
-    /* a car's own gauge ends in its unit land on their pairs: 200 kPa; 15 / 20 / 30 / 35 / 40 / 50 psi */
-    assert.deepStrictEqual([2, ...[15, 20, 30, 35, 40, 50].map((p) => p / 14.503774)].map(Panel.snapBoost), ['2.0', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5']);
+    assert.deepStrictEqual([15, 20, 30, 45].map((e) => ticks(e, 'psi')), ['0 5 10 15', '0 10 20', '0 10 20 30', '0 15 30 45']);
+    assert.deepStrictEqual([2, 3].map((e) => ticks(e, 'bar')), ['0.0 1.0 2.0', '0.0 1.0 2.0 3.0']);
+    assert.deepStrictEqual([200, 300].map((e) => ticks(e, 'kpa')), ['0 100 200', '0 100 200 300']);
+    /* a car's own gauge ends in its unit: 200 kPa, 2.0 / 3.0 bar; 15 / 20 / 30 / 45 psi */
+    assert.deepStrictEqual([2, 3, ...[15, 20, 30, 45].map((p) => p / 14.503774)].map(Panel.snapBoost), ['30', '45', '15', '20', '30', '45']);
     /* the setting: from the car as it comes, the Car profile's alone (not on GENERAL), its Auto as from the car */
     const it = item('boostMax');
     assert.deepStrictEqual([it.default, it.hidden, it.profileMap['0'], it.options[0][1]], ['auto', true, 'auto', 'From the car\'s Sport Display']);

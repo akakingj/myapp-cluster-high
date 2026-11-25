@@ -150,13 +150,15 @@ function profile(id) {
 }
 
 var PSI_PER_BAR = 14.503774;
-/* Boost gauge up to: each end a pair, as the car's own gauge reads it in psi (0 5 10 15, or 0 10 20 30) */
-var BOOST_PSI = { 1: 15, 1.5: 20, 2: 30, 2.5: 35, 3: 40, 3.5: 50 };
-var BOOST_TICKS = { 10: [0, 5, 10], 15: [0, 5, 10, 15], 20: [0, 10, 20], 25: [0, 15, 25], 30: [0, 10, 20, 30], 35: [0, 15, 25, 35], 40: [0, 20, 40], 50: [0, 25, 50] };
+/* Boost gauge up to: the car's own boost gauges, each by its end in psi, and its end in bar - 2.0 up to 30 psi, 3.0 at 45
+   (kPa a hundredfold) */
+var BOOST_BAR = { 15: 2, 20: 2, 30: 2, 45: 3 };
+var BOOST_TICKS = { 15: [0, 5, 10, 15], 20: [0, 10, 20], 30: [0, 10, 20, 30], 45: [0, 15, 30, 45] };
 /*
- * A boost scale's numbers by its end's figure (psi as it is, bar x 10, kPa / 10): 15 0 5 10 15, 20 0 10 20, 30 0 10 20 30,
- * 35 0 15 25 35, 40 0 20 40, 50 0 25 50; 10 0 5 10, 25 0 15 25 - in bar 0.0 1.5 2.5 3.5, in kPa 0 150 250 350. Any
- * other end: 0, its middle and it. end in the unit. [{ at 0..1, str }]. (AK Cluster Layouts' and M Vitals' the same.)
+ * A boost scale's numbers as the car's own gauges number them, by the end's figure (psi as it is, bar x 10, kPa / 10):
+ * 0 5 10 15, 0 10 20, 0 10 20 30, 0 15 30 45 psi; 0.0 1.0 2.0, 0.0 1.0 2.0 3.0 bar; 0 100 200,
+ * 0 100 200 300 kPa. Any other end: 0, its middle and it. end in the unit. [{ at 0..1, str }]. (AK Cluster Layouts' and
+ * M Vitals' the same.)
  */
 function boostTicks(end, unit) {
     var per = unit === 'bar' ? 10 : unit === 'kpa' ? 0.1 : 1, f = Math.round(end * per), dec = unit === 'bar' ? 1 : 0;
@@ -165,27 +167,27 @@ function boostTicks(end, unit) {
     return at.map(function (v) { return { at: v / end, str: v.toFixed(whole(v) ? dec : dec + 1) }; });
 }
 
-/* The car's Sport Display's boost gauge end (bar) as one of Boost gauge up to's pairs, its setting's value: the least at
-   or over it, within 5 % (a car set to psi ends at 15 psi, 1.034 bar: the 1.0 bar / 15 psi pair; null: none) */
+/* The car's Sport Display's boost gauge end (bar) as one of Boost gauge up to's gauges, its setting's value (psi): the
+   least at or over it, within 5 % (200 kPa, 29 psi: 30; null: none) */
 function snapBoost(bar) {
     if (!(typeof bar === 'number' && bar > 0)) return null;
-    var ends = Object.keys(BOOST_PSI).map(Number).sort(function (a, b) { return a - b; });
-    for (var i = 0; i < ends.length; i++) if (ends[i] * 1.05 >= bar) return ends[i].toFixed(1);
-    return '3.5';
+    var ends = [15, 20, 30, 45];
+    for (var i = 0; i < ends.length; i++) if (ends[i] * 1.05 >= bar * PSI_PER_BAR) return String(ends[i]);
+    return '45';
 }
 
-/* The profile for a car with GENERAL's tank and boost gauge (each set there or by the Car profile app): boostBar,
-   Boost gauge up to in bar, and boostPsi its pair (both null on Automatic: the kind's own, boostMaxPsi) */
+/* The profile for a car with GENERAL's tank and boost gauge (each set there or by the Car profile app): boostPsi, Boost
+   gauge up to's end in psi, and boostBar its end in bar (both null on Automatic: the kind's own, boostMaxPsi) */
 function profileFor(id, settings) {
     var p = profile(id);
     if (!settings) return p;
     var num = function (v, lo, hi, d) { v = Number(v); return v >= lo && v <= hi ? v : d; };
     var out = {}, k;
     for (k in p) if (Object.prototype.hasOwnProperty.call(p, k)) out[k] = p[k];
-    var bar = num(settings.boostMax, 0.5, 4, null);
-    out.boostBar = bar;
-    out.boostPsi = bar ? BOOST_PSI[bar] || Math.round(bar * PSI_PER_BAR) : null;
-    out.boostMaxPsi = bar ? out.boostPsi : p.boostMaxPsi;
+    var psi = BOOST_BAR[Number(settings.boostMax)] ? Number(settings.boostMax) : null;
+    out.boostPsi = psi;
+    out.boostBar = psi ? BOOST_BAR[psi] : null;
+    out.boostMaxPsi = psi || p.boostMaxPsi;
     out.tankLitres = num(settings.tankLitres, 20, 120, p.tankLitres);
     return out;
 }
@@ -195,13 +197,13 @@ function profileFor(id, settings) {
  * GENERAL's settings now hold (app/entry.js moves them across once). null for Car profile values or nothing chosen.
  */
 var CAR_FIGURES = {
-    /* (the boost gauge's end as Toro drew it: 20 psi or 1.5 bar for a B48, 30 psi or 2.0 bar for the others) */
+    /* (the boost gauge's end as Toro drew it in psi: 20 for a B48, 30 for the others) */
     b48: { rpmLimiter: '7000', rpmRedline: '6000', shiftAt: '6500', shiftFrom: 'auto', scaleMaxRpm: '7000', speedMax: '260',
-           boostMax: '1.5', tankLitres: '59' },
+           boostMax: '20', tankLitres: '59' },
     b58: { rpmLimiter: '7500', rpmRedline: '6500', shiftAt: '7000', shiftFrom: 'auto', scaleMaxRpm: '8000', speedMax: '260',
-           boostMax: '2.0', tankLitres: '60' },
+           boostMax: '30', tankLitres: '60' },
     mCarS58: { engine: 'm', rpmLimiter: '8000', rpmRedline: '7000', shiftAt: '7500', shiftFrom: '6500', scaleMaxRpm: '8000',
-               speedMax: '330', boostMax: '2.0', tankLitres: '59' },
+               speedMax: '330', boostMax: '30', tankLitres: '59' },
     hybrid: { electric: 'hybrid' }
 };
 function figuresOfCar(saved) {
@@ -291,7 +293,7 @@ return {
     moveCarFigures: moveCarFigures,
     PSI_PER_BAR: PSI_PER_BAR,
     snapBoost: snapBoost,
-    BOOST_PSI: BOOST_PSI,
+    BOOST_BAR: BOOST_BAR,
     boostTicks: boostTicks,
     keepClear: keepClear,
     inCutCorner: inCutCorner,
