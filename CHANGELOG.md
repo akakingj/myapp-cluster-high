@@ -22,8 +22,8 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   **M Sport**, **M Sport Plus** or **M Track**; another style's once it is chosen). **Logs** shows its codes in the
   page's place; pressed again, the next page, and past the last the page again. The page's own tabs, its way out and
   the bar's *Design* and *Centre picture* are gone: a design is its card, the centre picture its place.
-- **No *Start at every startup*, as AK Cluster Layouts.** On stays on at every start until it is turned off; off stays
-  off.
+- **Show on the cluster as AK Cluster Layouts': *On* or *Off (stock cluster)*, and no *Start at every startup*.** On
+  stays on at every start until it is turned off; off stays off. A switch saved before is carried over as it was.
 - **The KOMBI's warning lights along the glass's sides** are kept clear as the tyre pressure and parking brake lights
   were: brakes, ABS and DSC on the left, Auto Hold and steering on the right, each as its shape (a round symbol, Auto
   Hold's words), placed from BMW's guide to the G-series cluster (TE18-0859) and a photo of a G20's cluster. Every

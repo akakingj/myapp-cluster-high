@@ -471,7 +471,7 @@ async function main() {
     const extra = process.env.CAR_SIM_SETTINGS ? JSON.parse(process.env.CAR_SIM_SETTINGS) : {};
     /* (the start-up message, which a new install shows for its first ten seconds, is off here so that
        what is read off the cluster is the cluster: CAR_SIM_SETTINGS='{"intro":true}' runs with it) */
-    const settings = { enabled: true, style: THEME, background: process.env.CAR_SIM_BG || 'genuine', intro: false };
+    const settings = { enabled: 'on', style: THEME, background: process.env.CAR_SIM_BG || 'genuine', intro: false };
     if (DIESEL) settings.engine = 'diesel';
     settings[CENTRE_KEY[THEME]] = CENTRE;
     const data = installHeadUnit(Object.assign(settings, extra));

@@ -120,11 +120,11 @@ test('the page: the design\'s places, then its cards - and no bar or tabs of its
 });
 
 test('the page: on / off at the bar, a design by its card, and each of its places - one press each', () => {
-    const page = Harness.open({ values: { style: 'track', enabled: false } });
+    const page = Harness.open({ values: { style: 'track', enabled: 'off' } });
     page.click('BTN_SHOW');
-    assert.strictEqual(page.values.enabled, true);
+    assert.strictEqual(page.values.enabled, 'on');
     page.click('BTN_SHOW');
-    assert.strictEqual(page.values.enabled, false);
+    assert.strictEqual(page.values.enabled, 'off');
     /* a card: its style (and Toro's background) */
     page.run('design:toro_modern');
     assert.deepStrictEqual([page.values.style, page.values.background], ['toro', 'modern']);
@@ -216,9 +216,9 @@ test('nothing on the page relies on clipping (the head unit\'s software renderer
 });
 
 test('without the renderer: the same page in the HMI\'s own, a place stepping to its next value', () => {
-    const page = Harness.open({ values: { style: 'track', enabled: false }, own: false });
+    const page = Harness.open({ values: { style: 'track', enabled: 'off' }, own: false });
     page.click('BTN_SHOW');
-    assert.strictEqual(page.values.enabled, true);
+    assert.strictEqual(page.values.enabled, 'on');
     page.run('design:mplus');
     assert.strictEqual(page.values.style, 'mplus');
     /* no list over the page there: the middle steps through this style's own choices */

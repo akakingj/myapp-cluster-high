@@ -340,7 +340,7 @@ mgu.run({
             else tab = 'cluster';
             refresh();
         }
-        function toggleShown() { settings.set('enabled', settings.get('enabled') !== true); refresh(); }
+        function toggleShown() { settings.set('enabled', settings.get('enabled') === 'on' ? 'off' : 'on'); refresh(); }
         function useDesign(d) {
             settings.set('style', d.style);
             if (d.background) settings.set('background', d.background);
@@ -395,7 +395,7 @@ mgu.run({
         function render() {
             const status = background ? background.status()
                 : 'The cluster service did not start - see Logs';
-            const on = settings.get('enabled') === true;
+            const on = settings.get('enabled') === 'on';
             const st = style();
             const track = st === 'track' || st === 'mplus';      /* either M View style */
             const wing = st === 'mtrack';                        /* M Track Mode: its picture is in its left wing */

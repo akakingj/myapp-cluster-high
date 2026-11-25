@@ -242,7 +242,8 @@ async function child(mode) {
         }
         d.closeSheet();
         await until(() => !d.sheet, 1000);
-        /* ---- a value an older version saved: as the store hands it on */
+        /* ---- values an older version saved: as the store hands them on (on / off was a switch) */
+        check(s.get('enabled') === 'on', 'a saved switch (true) was not carried to "On": ' + JSON.stringify(s.get('enabled')));
         check(s.get('bottomExtra') === '18', 'a saved "A little" (24) was not carried to the largest trim: ' + JSON.stringify(s.get('bottomExtra')));
         /* ---- Logs: its codes in the page's place; pushed left with nothing further left, the page again; on the page, out */
         d._click('BTN_LOGS');
@@ -257,7 +258,7 @@ async function child(mode) {
         /* ---- on / off: the bar's */
         const en = s.get('enabled');
         d._click('BTN_SHOW'); await wait(150);
-        check(s.get('enabled') === !en, 'the bar\'s Cluster on / off did not turn the cluster ' + (en ? 'off' : 'on'));
+        check(s.get('enabled') === (en === 'on' ? 'off' : 'on'), 'the bar\'s Cluster on / off did not turn the cluster ' + (en === 'on' ? 'off' : 'on'));
     } else {
         /* the plain page: the HMI shows what the app pushes, and its bar does the jobs */
         check(await until(() => sim.pushed > 0, 8000), 'the plain page was never pushed to the HMI');
@@ -267,7 +268,7 @@ async function child(mode) {
         check(!d.own(), 'the kit says it runs the screen with no renderer there');
         const en = s.get('enabled');
         comp('BTN_SHOW').emit('action', {}); await wait(200);
-        check(s.get('enabled') === !en, 'the bar\'s Cluster on / off did not switch it');
+        check(s.get('enabled') === (en === 'on' ? 'off' : 'on'), 'the bar\'s Cluster on / off did not switch it');
         const before0 = sim.pushed;
         comp('BTN_LOGS').emit('action', {}); await wait(300);
         check(sim.pushed > before0, 'the bar\'s Logs drew nothing');

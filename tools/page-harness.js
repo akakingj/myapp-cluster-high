@@ -55,7 +55,7 @@ function open(opts) {
     const items = spec.settings || [];
     const values = {};
     items.forEach((s) => { values[s.key] = s.default; });
-    values.enabled = true;
+    values.enabled = 'on';
     Object.assign(values, opts.values || {});
 
     let shot = null, frame = null, sheet = null;
@@ -95,7 +95,7 @@ function open(opts) {
         },
         settings,
         background: opts.service === null ? null : {
-            status: () => opts.status || (values.enabled ? 'On the cluster' : 'Off - BMW original cluster'),
+            status: () => opts.status || (values.enabled === 'on' ? 'On the cluster' : 'Off - BMW original cluster'),
             centre: centreInfo,
             feed: () => (mStyle() ? 'BeeM-Flash: 9 channels' : 'BeeM-Flash: oil pressure, G')
         },

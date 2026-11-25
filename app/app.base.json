@@ -42,8 +42,22 @@
     {
       "key": "enabled",
       "label": "Show on the cluster",
-      "type": "bool",
-      "default": false
+      "type": "choice",
+      "default": "off",
+      "options": [
+        [
+          "on",
+          "On"
+        ],
+        [
+          "off",
+          "Off (stock cluster)"
+        ]
+      ],
+      "aliases": {
+        "true": "on",
+        "false": "off"
+      }
     },
     {
       "key": "style",
