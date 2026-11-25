@@ -114,8 +114,9 @@
                      'power', 'torque', 'hpfp', 'lpfp', 'fuel', 'off'];
     /* the four as they come: the frame's - or, in an electric car, what it has instead */
     var ROW_HOME = { frame: ['boost', 'coolant', 'oil', 'iat'], bev: ['charge', 'hvtemp', 'off', 'off'] };
-    /* u: the units shown (units.js); boostBar: GENERAL > Boost gauge up to, bar (null: the frame's own 1.9 bar, 28 psi) */
-    function rowScales(u, boostBar) {
+    /* u: the units shown (units.js); boostBar: GENERAL > Boost gauge up to, bar, and boostPsi its pair in psi (null: the
+       frame's own 1.9 bar, 28 psi) */
+    function rowScales(u, boostBar, boostPsi) {
         var celsius = u.temp === 'c';
         function unitScale(key, tag, unit, hi, show) {
             return { key: key, icon: null, tag: tag, unit: unit, marks: ['0', String(hi / 2), String(hi)], lo: 0, hi: hi,
@@ -136,8 +137,8 @@
         }
         return {
             boost: boostBar
-                ? press('boostBar', 'u', boostBar, ['0.0', (boostBar / 2).toFixed(1), boostBar.toFixed(1)], Math.round(boostBar * PSI_PER_BAR),
-                        ['0', String(Math.round(boostBar * PSI_PER_BAR / 2)), String(Math.round(boostBar * PSI_PER_BAR))])
+                ? press('boostBar', 'u', boostBar, ['0.0', (boostBar / 2).toFixed(boostBar * 5 % 1 ? 2 : 1), boostBar.toFixed(1)], boostPsi,
+                        ['0', String(boostPsi / 2), String(boostPsi)])
                 : press('boostBar', 'u', 1.9, ['0.0', '0.9', '1.9'], 28, ['0', '14', '28']),
             /* the frame's line turns red for the last eighth: from about 122 C */
             coolant: temp('coolantC', 'w', 70, 130, ['70', '100', '130'], ['160', '210', '260'], 160, 260, null, 122),
@@ -411,7 +412,7 @@
         });
 
         /* ------------------------------------------------------- the gauge rows */
-        var R = T.ROWS, SCALES = rowScales(S.u, P.boostBar);
+        var R = T.ROWS, SCALES = rowScales(S.u, P.boostBar, P.boostPsi);
         var rowOf = S.rows.map(function (kind) { return kind === 'off' ? null : SCALES[kind]; });
         /* a reading along its row's rail: 0..1, or -1 with nothing to show */
         function rowValue(sc, s, i) {

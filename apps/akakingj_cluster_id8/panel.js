@@ -151,8 +151,10 @@ function profile(id) {
 }
 
 var PSI_PER_BAR = 14.503774;
+/* Boost gauge up to: each end a pair, as the car's own gauge reads it in psi (0 5 10 15, or 0 10 20 30) */
+var BOOST_PSI = { 1: 15, 1.5: 20, 2: 30, 2.5: 35, 3: 40, 3.5: 50 };
 /* The profile for a car with GENERAL's tank and boost gauge (each set there or by the Car profile app): boostBar,
-   Boost gauge up to in bar (null on Automatic: the kind's own, boostMaxPsi) */
+   Boost gauge up to in bar, and boostPsi its pair (both null on Automatic: the kind's own, boostMaxPsi) */
 function profileFor(id, settings) {
     var p = profile(id);
     if (!settings) return p;
@@ -161,8 +163,8 @@ function profileFor(id, settings) {
     for (k in p) if (Object.prototype.hasOwnProperty.call(p, k)) out[k] = p[k];
     var bar = num(settings.boostMax, 0.5, 4, null);
     out.boostBar = bar;
-    /* (in whole psi, as the choices name it: 1.4 bar is a 20 psi gauge) */
-    out.boostMaxPsi = bar ? Math.round(bar * PSI_PER_BAR) : p.boostMaxPsi;
+    out.boostPsi = bar ? BOOST_PSI[bar] || Math.round(bar * PSI_PER_BAR) : null;
+    out.boostMaxPsi = bar ? out.boostPsi : p.boostMaxPsi;
     out.tankLitres = num(settings.tankLitres, 20, 120, p.tankLitres);
     return out;
 }
@@ -172,12 +174,13 @@ function profileFor(id, settings) {
  * GENERAL's settings now hold (app/entry.js moves them across once). null for Car profile values or nothing chosen.
  */
 var CAR_FIGURES = {
+    /* (the boost gauge's end as Toro drew it: 20 psi or 1.5 bar for a B48, 30 psi or 2.0 bar for the others) */
     b48: { rpmLimiter: '7000', rpmRedline: '6000', shiftAt: '6500', shiftFrom: 'auto', scaleMaxRpm: '7000', speedMax: '260',
-           boostMax: '1.4', tankLitres: '59' },
+           boostMax: '1.5', tankLitres: '59' },
     b58: { rpmLimiter: '7500', rpmRedline: '6500', shiftAt: '7000', shiftFrom: 'auto', scaleMaxRpm: '8000', speedMax: '260',
-           boostMax: '1.5', tankLitres: '60' },
+           boostMax: '2.0', tankLitres: '60' },
     mCarS58: { engine: 'm', rpmLimiter: '8000', rpmRedline: '7000', shiftAt: '7500', shiftFrom: '6500', scaleMaxRpm: '8000',
-               speedMax: '330', boostMax: '1.8', tankLitres: '59' },
+               speedMax: '330', boostMax: '2.0', tankLitres: '59' },
     hybrid: { electric: 'hybrid' }
 };
 function figuresOfCar(saved) {
@@ -266,6 +269,7 @@ return {
     figuresOfCar: figuresOfCar,
     moveCarFigures: moveCarFigures,
     PSI_PER_BAR: PSI_PER_BAR,
+    BOOST_PSI: BOOST_PSI,
     keepClear: keepClear,
     inCutCorner: inCutCorner,
     violations: violations

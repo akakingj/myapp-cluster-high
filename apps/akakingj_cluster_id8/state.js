@@ -180,7 +180,8 @@
         var auxPress = auxIsOil
             ? pod(U.press === 'psi' ? oilP * PSI_PER_BAR / 140 : oilP / 10, 2, rpm > 1200 && oilP < 1.0,
                   U.pressText(oilP, true), LIT)
-            : pod(boostBar * PSI_PER_BAR / 25, 2, 0, U.pressText(boostBar), LIT);
+            : pod(profile && profile.boostBar ? (U.press === 'psi' ? boostBar * PSI_PER_BAR / profile.boostPsi : boostBar / profile.boostBar)
+                  : boostBar * PSI_PER_BAR / 25, 2, 0, U.pressText(boostBar), LIT);
 
         /* ---- readouts ---- */
         var odoText = dash;

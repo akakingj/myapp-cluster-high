@@ -663,6 +663,16 @@
             return numPod(key, lo, hi, function (c) { return c; },
                 function (c) { return String(Math.round(UN.tempIn(c))); }, function (c) { return hot !== null && c >= hot; });
         }
+        /*
+         * The turbo gauges' end in the unit shown: GENERAL > Boost gauge up to (its pair in psi, as the car's own
+         * gauge), else the style's own 25 psi, 1.7 bar; their marks the start, the middle and the end.
+         */
+        var turboTop = P.boostBar ? { psi: P.boostPsi, bar: P.boostBar, kpa: P.boostBar * 100 }[UN.press] : null;
+        function turboMarks() {
+            if (!turboTop) return { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press];
+            var fig = function (v) { return UN.press === 'bar' ? v.toFixed(v * 10 % 1 ? 2 : 1) : String(+v.toFixed(1)); };
+            return ['0', fig(turboTop / 2), fig(turboTop)];
+        }
         function pressPod(key, hiBar, oil) {
             var hi = { psi: oil ? 140 : 25, bar: hiBar, kpa: hiBar * 100 }[UN.press];
             return numPod(key, 0, hi, UN.pressIn, function (x, bar) { return UN.pressText(bar, oil); },
@@ -679,14 +689,15 @@
         /* the fuel's name in Italian, as the car's own gauge names its fuel: petrol (benzina) or diesel (gasolio) */
         var FUEL_WORD = S.engine === 'diesel' ? 'GASOLIO' : 'BENZINA';
         function gaugeKind(kind) {
-            var P3 = { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press];
+            var P3 = turboMarks();
             var O3 = { psi: ['0', '70', '140'], bar: ['0', '5', '10'], kpa: ['0', '500', '1000'] }[UN.press];
             switch (kind) {
             case 'fuel': return { icon: 0, label: FUEL_WORD, key: 'fuel', marks: ['0', '50', '100'], red: [0, 0.12] };
             case 'coolant': return { icon: 1, label: 'TEMP. ACQUA', key: 'coolant', marks: tLabels([50, 90, 130]), red: [0.81, 1] };
             case 'oil': return { icon: 2, label: 'TEMP. OLIO', key: 'oilTemp', marks: tLabels([50, 110, 170]), red: [0.83, 1] };
             case 'oilp': return { icon: 2, label: 'PRESS. OLIO', pod: pressPod('oilBar', 10, true), marks: O3, red: [0, 0.08] };
-            case 'boost': return { icon: null, label: 'PRESS. TURBO', pod: pressPod('boostBar', 1.7, false), marks: P3, red: [0.86, 1] };
+            case 'boost': return { icon: null, label: 'PRESS. TURBO', pod: turboTop ? numPod('boostBar', 0, turboTop, UN.pressIn, function (x, bar) { return UN.pressText(bar, false); },
+                                                                               function () { return false; }) : pressPod('boostBar', 1.7, false), marks: P3, red: [0.86, 1] };
             case 'gearbox': return { icon: null, label: 'TEMP. CAMBIO', pod: tempPod('gearboxC', 40, 130, 120),
                                      marks: tLabels([40, 85, 130]), red: [0.89, 1] };
             case 'iat': return { icon: null, label: 'TEMP. ARIA', pod: tempPod('iatC', -20, 60, null),
@@ -812,7 +823,7 @@
             if (!S.showAuxLeft) return;
             gaugeOr('oilP', 'auxPress', RECTS.L2, {
                 side: 'left', icon: 2, label: 'PRESS. TURBO', key: 'auxPress', dir: 1,
-                marks: { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press], red: [0.86, 1],
+                marks: turboMarks(), red: [0.86, 1],
                 alt: { label: 'PRESS. OLIO', marks: { psi: ['0', '70', '140'], bar: ['0', '5', '10'], kpa: ['0', '500', '1000'] }[UN.press],
                        red: [0, 0.08] }
             });
@@ -912,9 +923,10 @@
              * faint hanging wedge gauge whose needle sweeps right to left,
              * deepest at the top of the range beside the figure.
              */
-            /* the top of its range, in the unit shown: a whole 10 psi, tenth of a bar, 10 kPa */
+            /* the top of its range, in the unit shown: Boost gauge up to's (its pair in psi), else the car's own up to a
+               whole 10 psi, tenth of a bar, 10 kPa */
             var bMaxShown = UN.pressIn(P.boostMaxPsi / 14.503774), bGrain = UN.press === 'psi' ? 10 : UN.pressStep;
-            var bTop = Math.round(Math.ceil(bMaxShown / bGrain - 1e-9) * bGrain * 100) / 100;
+            var bTop = turboTop || Math.round(Math.ceil(bMaxShown / bGrain - 1e-9) * bGrain * 100) / 100;
             var bSteps = Math.round(bTop / UN.pressStep);
             var bShown = function (s) { return Math.max(0, s.boostPsi); };     /* in the pressure unit shown */
             var base = sp.y + G.gs(92);              /* the speed's own baseline */

@@ -53,15 +53,16 @@ test('the figures: GENERAL\'s, the kind of car\'s own where left to the car; the
     assert.deepStrictEqual(fig('hybrid'), [6500, 8000, 6000, null, null, 260]);
     /* the boost gauge's top in bar (Automatic: the kind's own), the tank */
     const p = Panel.profileFor('carprofile', { tankLitres: '52', boostMax: '2.5' });
-    assert.deepStrictEqual([p.tankLitres, p.boostBar, p.boostMaxPsi], [52, 2.5, 36]);
+    assert.deepStrictEqual([p.tankLitres, p.boostBar, p.boostPsi, p.boostMaxPsi], [52, 2.5, 35, 35], 'a pair, as the car\'s own gauge: 2.5 bar or 35 psi');
+    assert.deepStrictEqual(Panel.BOOST_PSI, { 1: 15, 1.5: 20, 2: 30, 2.5: 35, 3: 40, 3.5: 50 });
     const a = Panel.profileFor('mCarS58', { boostMax: 'auto' });
-    assert.deepStrictEqual([a.boostBar, a.boostMaxPsi], [null, 26]);
+    assert.deepStrictEqual([a.boostBar, a.boostPsi, a.boostMaxPsi], [null, null, 26]);
     assert.strictEqual(item('tankLitres').profile, 'tankLitres');
     assert.strictEqual(item('speedMax').profile, 'speedMax');
     assert.strictEqual(item('boostMax').profile, 'boostMax');
     /* every boost top the Car profile gives is one of this app's (its numbers: 2 bar as "2.0") */
     const own = item('boostMax').options.map((o) => o[0]);
-    [1.0, 1.2, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.5, 2.8, 3.0, 3.5].forEach((v) => {
+    [1.0, 1.5, 2.0, 2.5, 3.0, 3.5].forEach((v) => {
         const m = item('boostMax').profileMap[v];
         assert.ok(own.indexOf(m !== undefined ? m : String(v)) >= 0, v + ' bar');
     });
@@ -70,7 +71,8 @@ test('the figures: GENERAL\'s, the kind of car\'s own where left to the car; the
 test('a car chosen under GENERAL > Car before it went keeps its figures: moved into GENERAL\'s own once', () => {
     const was = (car, extra) => Panel.figuresOfCar(Object.assign({ profile: car }, extra || {}));
     assert.deepStrictEqual(was('b58'), { rpmLimiter: '7500', rpmRedline: '6500', shiftAt: '7000', shiftFrom: 'auto', scaleMaxRpm: '8000',
-        speedMax: '260', boostMax: '1.5', tankLitres: '60' });
+        speedMax: '260', boostMax: '2.0', tankLitres: '60' });
+    assert.strictEqual(was('b48').boostMax, '1.5', 'the boost gauge\'s end as Toro drew it: 20 psi');
     assert.strictEqual(was('mCarS58').engine, 'm');
     assert.strictEqual(was('mCarS58', { engine: 'diesel' }).engine, undefined, 'a diesel stays one');
     assert.deepStrictEqual(was('hybrid'), { electric: 'hybrid' });
@@ -86,8 +88,9 @@ test('a car chosen under GENERAL > Car before it went keeps its figures: moved i
     }
     const S = Palette.resolve(was('b48'), Panel.profile('carprofile'));
     assert.deepStrictEqual([S.rpmLimiter, S.scaleMaxRpm, S.rpmRedline, S.shiftAtRpm, S.speedMax], [7000, 7000, 6000, 6500, 260]);
-    /* an old boost top in psi reads as the nearest in bar */
-    assert.strictEqual(item('boostMax').aliases['22'], '1.5');
+    /* an old boost top in psi reads as the pair Toro's gauge ended on (22 psi drew to 30) */
+    assert.strictEqual(item('boostMax').aliases['22'], '2.0');
+    assert.strictEqual(item('boostMax').aliases['20'], '1.5');
 });
 
 test('the gear with its programme: D1, S1, M1 from MDrive.dataDisplayGearbox; P, R, N as they are', () => {
@@ -141,10 +144,10 @@ test('the move happens once, through the kit\'s own settings: saved, and the nex
         const S = settingsClass(dir), file = path.join(dir, 'settings.json');
         fs.writeFileSync(file, JSON.stringify({ profile: 'mCarS58', rpmRedline: 'auto', boostMax: '22' }));
         let s = new S(spec.settings);
-        assert.strictEqual(s.get('boostMax'), '1.5', 'an old boost top in psi, read as bar');
+        assert.strictEqual(s.get('boostMax'), '2.0', 'an old boost top in psi, read as its pair');
         const moved = Panel.moveCarFigures(s);
         assert.strictEqual(moved.engine, 'm');
-        assert.deepStrictEqual([s.get('engine'), s.get('rpmRedline'), s.get('rpmLimiter'), s.get('speedMax'), s.get('boostMax')], ['m', '7000', '8000', '330', '1.8']);
+        assert.deepStrictEqual([s.get('engine'), s.get('rpmRedline'), s.get('rpmLimiter'), s.get('speedMax'), s.get('boostMax')], ['m', '7000', '8000', '330', '2.0']);
         /* the next start: saved as moved; a later choice of the owner's stays */
         s = new S(spec.settings);
         assert.deepStrictEqual([s.get('engine'), s.get('rpmRedline'), s.values._carMoved], ['m', '7000', 1]);
