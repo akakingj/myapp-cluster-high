@@ -127,6 +127,15 @@
                      lo: celsius ? lo : loF, hi: celsius ? hi : hiF,
                      show: function (v) { return celsius ? v : c2f(v); }, cold: cold, hot: hot };
         }
+        /* Boost gauge up to set: its end in the unit (in psi the pair's), numbered as the car's own gauge, 0 10 20 30,
+           each at its place (marksAt) */
+        function boostSet(bar, psi) {
+            /* (a row's numbers a third of it apart at the least: its figures stand close) */
+            var p = u.press, end = p === 'psi' ? psi : p === 'kpa' ? bar * 100 : bar, t = Panel.boostTicks(end, p, 0.3);
+            return { key: 'boostBar', icon: 'u', unit: u.labels.press, lo: 0, hi: end,
+                     marks: t.map(function (x) { return x.str; }), marksAt: t.map(function (x) { return x.at; }),
+                     show: function (v) { return p === 'psi' ? v * PSI_PER_BAR : p === 'kpa' ? v * 100 : v; } };
+        }
         /* (kPa: the bar's scale a hundredfold) */
         function press(key, icon, hiBar, marksBar, hiPsi, marksPsi) {
             var p = u.press;
@@ -136,10 +145,7 @@
                      show: function (v) { return p === 'psi' ? v * PSI_PER_BAR : p === 'kpa' ? v * 100 : v; } };
         }
         return {
-            boost: boostBar
-                ? press('boostBar', 'u', boostBar, ['0.0', (boostBar / 2).toFixed(boostBar * 5 % 1 ? 2 : 1), boostBar.toFixed(1)], boostPsi,
-                        ['0', String(boostPsi / 2), String(boostPsi)])
-                : press('boostBar', 'u', 1.9, ['0.0', '0.9', '1.9'], 28, ['0', '14', '28']),
+            boost: boostBar ? boostSet(boostBar, boostPsi) : press('boostBar', 'u', 1.9, ['0.0', '0.9', '1.9'], 28, ['0', '14', '28']),
             /* the frame's line turns red for the last eighth: from about 122 C */
             coolant: temp('coolantC', 'w', 70, 130, ['70', '100', '130'], ['160', '210', '260'], 160, 260, null, 122),
             /* ... and the oil's is blue up to about 66 C and red from about 134 C */
@@ -444,11 +450,18 @@
                 var top = T.rowTop(i), base = top + R.labelDy;
                 /* a row's three figures, a layer of their own just their size (snug, above): the first by
                    its pen (as the frame sets them), the others by their ink */
+                /* (a boost scale numbered as the car's own gauge: its figures between the first and the last by where
+                   they stand, sc.marksAt) */
+                var X0 = R.labelX[0], X2 = R.labelX[2];
                 snug(shown ? 'rowLabels_' + shown : 'rowLabels', 30,
                     { face: 'mn', size: fig(R.labelH), align: 'left', color: K.label, alpha: rowsShown },
-                    [{ str: sc.marks[0], x: R.labelX[0], y: base, pen: true },
-                     { str: sc.marks[1], x: R.labelX[1], y: base, ink: 'c' },
-                     { str: sc.marks[2], x: R.labelX[2], y: base, ink: 'r' }]);
+                    sc.marksAt ? sc.marks.map(function (m, j) {
+                        var last = j === sc.marks.length - 1;
+                        return j === 0 ? { str: m, x: X0, y: base, pen: true }
+                            : { str: m, x: last ? X2 : X0 + sc.marksAt[j] * (X2 - X0), y: base, ink: last ? 'r' : 'c' };
+                    }) : [{ str: sc.marks[0], x: R.labelX[0], y: base, pen: true },
+                          { str: sc.marks[1], x: R.labelX[1], y: base, ink: 'c' },
+                          { str: sc.marks[2], x: R.labelX[2], y: base, ink: 'r' }]);
                 shown++;
                 /* (the degree sign's units are set a little smaller than the words, as the frame's are) */
                 (sc.unitFace ? unitsX : units).push({ str: sc.unit, x: R.unitX, y: top + R.unitDy, ink: 'r',
@@ -545,7 +558,11 @@
             }
             var sc = SCALES[kind];
             if (!sc) return null;
-            return { temp: sc.unit === S.u.labels.temp, marks: sc.marks.slice().reverse(), unit: sc.unit, unitFace: sc.unitFace,
+            /* (a strip's three numbers stand at its top, middle and foot: a boost scale numbered at its places (marksAt)
+               gives its end, its middle and 0 there) */
+            var half = sc.hi / 2, halfText = S.u.press === 'bar' ? half.toFixed(half * 10 % 1 ? 2 : 1) : String(+half.toFixed(1));
+            var marks3 = sc.marksAt ? [sc.marks[0], halfText, sc.marks[sc.marks.length - 1]] : sc.marks;
+            return { temp: sc.unit === S.u.labels.temp, marks: marks3.slice().reverse(), unit: sc.unit, unitFace: sc.unitFace,
                      mt: sc.icon, tag: sc.tag,
                      frac: function (s) { var v = num(s, sc.key); return v === null ? null : (sc.show(v) - sc.lo) / (sc.hi - sc.lo); } };
         }

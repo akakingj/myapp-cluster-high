@@ -152,6 +152,22 @@ function profile(id) {
 var PSI_PER_BAR = 14.503774;
 /* Boost gauge up to: each end a pair, as the car's own gauge reads it in psi (0 5 10 15, or 0 10 20 30) */
 var BOOST_PSI = { 1: 15, 1.5: 20, 2: 30, 2.5: 35, 3: 40, 3.5: 50 };
+/*
+ * A boost scale's numbers, evenly apart: the end divided in 3 (four numbers) where the step is a whole figure (psi
+ * and kPa whole, bar to a tenth), else in 4, 2 or 5 - each number at least a quarter of the scale from the next (bar's
+ * and kPa's wider figures three tenths) - else in 2 with a decimal more: 0 5 10 15, 0 5 10 15 20, 0 10 20 30,
+ * 0 10 20 30 40, 0 25 50; 0.0 1.0 2.0 3.0. end in the unit. [{ at 0..1, str }]. (AK Cluster Layouts' and M Vitals' the same.)
+ */
+function boostTicks(end, unit, roomer) {
+    /* (roomer: a narrower scale's own least share between two numbers) */
+    var dec = unit === 'bar' ? 1 : 0, room = roomer || (unit === 'psi' ? 0.25 : 0.3), i, k = 2, out = [];
+    var whole = function (v) { return Math.abs(v * Math.pow(10, dec) - Math.round(v * Math.pow(10, dec))) < 1e-6; };
+    [5, 2, 4, 3].forEach(function (n) { if (whole(end / n) && 1 / n >= room - 1e-9) k = n; });
+    /* (each with the decimals it needs: 0 17.5 35, 0.0 1.25 2.5) */
+    for (i = 0; i <= k; i++) out.push({ at: i / k, str: (i * end / k).toFixed(whole(i * end / k) ? dec : dec + 1) });
+    return out;
+}
+
 /* The profile for a car with GENERAL's tank and boost gauge (each set there or by the Car profile app): boostBar,
    Boost gauge up to in bar, and boostPsi its pair (both null on Automatic: the kind's own, boostMaxPsi) */
 function profileFor(id, settings) {
@@ -269,6 +285,7 @@ return {
     moveCarFigures: moveCarFigures,
     PSI_PER_BAR: PSI_PER_BAR,
     BOOST_PSI: BOOST_PSI,
+    boostTicks: boostTicks,
     keepClear: keepClear,
     inCutCorner: inCutCorner,
     violations: violations

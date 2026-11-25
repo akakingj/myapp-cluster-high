@@ -26,8 +26,9 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   ends at 1.5, the others' at 2.0); a boost top saved in psi reads as the pair Toro's gauge ended on.
 - **Boost gauge up to** is a pair, as the car's own gauge reads it: 1.0 bar or 15 psi, 1.5 or 20, 2.0 or 30, 2.5 or
   35, 3.0 or 40, 3.5 or 50 - the end in the unit shown. Every boost gauge ends there where it is set: Toro's wedge,
-  its PRESS. TURBO gauges (0, the middle and the end on them) and M Track's boost row (the frame's own 1.9 bar,
-  28 psi on *Automatic*).
+  its PRESS. TURBO gauges and M Track's boost row (the frame's own 1.9 bar, 28 psi on *Automatic*), their numbers
+  evenly apart, four where the step is whole (0 10 20 30; 0 5 10 15 20; 0 25 50; 0 17.5 35); an M Track strip
+  given boost has its end, half and 0.
 - **A plug-in hybrid's drive modes on the cluster.** The mode word now names what BMW's own cluster does on a plug-in
   hybrid (*HYBRID*, *HYBRID ECO PRO*, *HYBRID COMFORT*, *ELECTRIC*, *ELECTRIC INDIVIDUAL*, *BATTERY CONTROL*, *SPORT*,
   *SPORT INDIVIDUAL*, *XTRABOOST*), whether the car sends it by name or by number; Toro names them as the Revuelto
