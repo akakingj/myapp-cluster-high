@@ -833,7 +833,8 @@
             win = { x: MAP_WINDOW.x, y: MAP_WINDOW.y, w: MAP_WINDOW.w,
                     h: Math.min(MAP_WINDOW.h, Math.ceil(Y(field[3])) - MAP_WINDOW.y) };
         }
-        var tree = [1776, 352, 136, 172];
+        /* (below the KOMBI's steering light: Panel.TELLTALES) */
+        var tree = [1776, 380, 136, 172];
         if (S.lower > 0) {
             /* lowered: the window is no wider than the picture, and the tree goes with the rev
                scale it stands beside - or is left out, where that carries it off the screen */

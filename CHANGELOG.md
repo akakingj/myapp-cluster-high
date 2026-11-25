@@ -13,6 +13,14 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.18.1
+
+- **The KOMBI's warning lights along the glass's sides** are kept clear as the tyre pressure and parking brake lights
+  were: brakes, ABS and DSC on the left, Auto Hold and steering on the right, each as its shape (a round symbol, Auto
+  Hold's words), placed from BMW's guide to the G-series cluster (TE18-0859) and a photo of a G20's cluster. Every
+  style was clear of them already but M Sport's holiday tree, now a little lower. The lane departure light is not
+  among them yet: the guide puts it on the "180" of BMW's own M view, so its place waits for a photo of it lit.
+
 ## AK 0.18.0
 
 - **No Car to choose on GENERAL; its figures are GENERAL's, as AK Cluster Layouts has them.** The tach scale, redline,

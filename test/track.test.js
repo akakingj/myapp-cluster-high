@@ -416,8 +416,9 @@ test('no readout stands where the picture shows', () => {
 /* ---------------------------------------------------------- the car's rules */
 
 test('M: nothing below the cut, nothing off the panel, nothing under a factory box', () => {
-    /* what the car lays over us is decoration's to lose, never a reading's */
-    const DECOR = /^(back|plates[LCR]|centreLines|flash|snow\d)$/;
+    /* what the car lays over us is decoration's to lose, never a reading's (the reference frame's own lamps, drawn
+       for the fixture alone, stand where the car's own do) */
+    const DECOR = /^(back|plates[LCR]|centreLines|flash|snow\d|lamp[A-Z]\w*)$/;
     for (const style of M_STYLES) for (const id of Object.keys(Panel.PROFILES)) {
         const zones = Panel.keepClear(id).filter((z) => z.id !== 'bottomStrip');
         const t = build({ style, profile: id, mFixture: true, holiday: true, clock12: true, mPop: 'on' });

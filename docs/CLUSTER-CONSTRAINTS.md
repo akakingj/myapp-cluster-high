@@ -131,6 +131,8 @@ the simulated car holds every rectangle the renderer is ever sent to it.
 | Top-right corner | triangle `(1650,0)-(1920,200)-(1920,0)` | all | same |
 | Tyre telltale | ~`40,260` | all | KOMBI draws over us |
 | Parking brake telltale | ~`1840,245` | all | KOMBI draws over us |
+| Brakes, ABS, DSC telltales | round, ~`94,248`, `80,366`, `73,424` | all | KOMBI draws over us (BMW's guide TE18-0859, unverified) |
+| Auto Hold, steering telltales | `1784,228 100x38`; round ~`1888,349` | all | KOMBI draws over us (Auto Hold: a G20's photo) |
 | eDrive box | `1770,170 150x95` | hybrids | KOMBI draws over us |
 | M box A | `793,289 246x92` | M cars | KOMBI draws over us |
 | M box B | `1223,328 171x78` | M cars | KOMBI draws over us |

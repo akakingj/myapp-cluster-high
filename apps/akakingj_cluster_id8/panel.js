@@ -88,11 +88,25 @@ var CAMERA = { x: 720, y: 0, w: 480, h: 128 };
 var TURN_ARROWS = [{ id: 'turnL', x: 675, y: 88, w: 84, h: 80, name: 'Turn signal, left' },
                    { id: 'turnR', x: 1136, y: 84, w: 86, h: 75, name: 'Turn signal, right' }];
 
-/* Telltales the KOMBI draws over us, whatever we put there. */
+/*
+ * Telltales the KOMBI draws over us, whatever we put there. The tyre pressure and parking brake lights measured on the
+ * car (a calibration grid, 2026-11-14); the others along the glass's sides placed from BMW's guide to the G-series
+ * cluster (TE18-0859, its lights laid on those two and the turn arrows) and a photo of a G20's cluster (Auto Hold),
+ * each as its shape: a round symbol about 46 px (two crossed rectangles, 4 px to spare), Auto Hold's words. Auto
+ * Hold is lit while it holds, the rest on a fault. Not here: the lane departure light (lit whenever that assistant is
+ * on), placed by the guide at about x 163, y 207 - on the "180" of BMW's own M view, which M Sport draws as BMW does,
+ * so its place waits for a photo of it lit on the car.
+ */
+function roundLight(id, x, y, name) {
+    return [{ id: id, x: x - 27, y: y - 15, w: 54, h: 30, name: name }, { id: id + '2', x: x - 15, y: y - 27, w: 30, h: 54, name: name }];
+}
 var TELLTALES = [
     { id: 'tyre', x: 40, y: 260, w: 96, h: 96, name: 'Tyre pressure warning' },
-    { id: 'parkBrake', x: 1840, y: 245, w: 80, h: 96, name: 'Parking brake' }
-];
+    { id: 'parkBrake', x: 1840, y: 245, w: 80, h: 96, name: 'Parking brake' },
+    { id: 'autoHold', x: 1784, y: 228, w: 100, h: 38, name: 'Auto Hold' }
+].concat(roundLight('brakes', 94, 248, 'Brake system'),
+    roundLight('abs', 80, 366, 'ABS'), roundLight('dsc', 73, 424, 'Dynamic Stability Control'),
+    roundLight('steering', 1888, 349, 'Steering system'));
 
 /*
  * The KOMBI's fallback gear box, as it shows on this car (measured off a
