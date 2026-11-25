@@ -24,7 +24,10 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   `DID F42F`, then `OBD 2F`; a diesel too: it is a standard PID), asked every 10 s while a fuel gauge or place is
   shown and the engine runs, kept a minute; otherwise, and before the engine has answered, the car's litres over the
   tank's size. *GENERAL → Fuel % from*, as Layouts' setting: *Engine unit (OBD tank level)* (as it comes) or
-  *Litres / tank size*, which never asks.
+  *Litres / tank size*, which never asks. The Car profile app's *Fuel % from* (Car profile 1.7.4) sets it for this
+  app and Layouts at once.
+- **Fuel tank size takes every size the Car profile app gives** (42, 46, 66, 69, 83, 85 and 90 L as well): before,
+  one of those set there was left at this app's own.
 - **Toro's fuel gauge says GASOLIO on a diesel** (BENZINA on a petrol car).
 - **LOGS** carry the litres in the tank as the car gives them and the engine unit's level, beside the fuel gauge's
   percentage and which of the two it is.

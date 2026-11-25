@@ -104,3 +104,11 @@ test('the fuel gauge as AK Cluster Layouts\': the engine unit\'s tank level whil
     const it = item('fuelFrom');
     assert.deepStrictEqual([it.label, it.default, it.options.map((o) => o[0])], ['Fuel % from', 'engine', ['engine', 'litres']]);
 });
+
+test('the Car profile\'s fuel settings land: every tank size it can give, and Fuel % from', () => {
+    /* (the Car profile app's steps for Fuel tank size, akakingj/myapp-id7 apps/car_profile/app.json) */
+    const CAR_PROFILE_TANKS = [40, 42, 46, 50, 52, 55, 57, 59, 60, 63, 65, 66, 68, 69, 70, 74, 80, 83, 85, 90];
+    const own = item('tankLitres').options.map((o) => o[0]);
+    assert.deepStrictEqual(CAR_PROFILE_TANKS.map(String).filter((v) => own.indexOf(v) < 0), []);
+    assert.strictEqual(item('fuelFrom').profile, 'fuelFrom');
+});
