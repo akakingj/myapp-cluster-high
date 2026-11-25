@@ -290,17 +290,6 @@ const W = 1600;
 
 mgu.run({
     background(bg) {
-        /*
-         * "Start at every startup" off: each start of the head unit begins
-         * with BMW's own cluster, and Show on cluster brings ours up for
-         * that drive only.
-         */
-        try {
-            if (bg.settings.get('autoStart') === false && bg.settings.get('enabled') === true) {
-                bg.settings.set('enabled', false);
-                bg.log.info('start at every startup is off: BMW original until turned on');
-            }
-        } catch (e) { bg.log.warn('autoStart: ' + e); }
         /* (a car chosen under General > Car before it went: its figures into General's, once) */
         try { Panel.moveCarFigures(bg.settings, bg.log); } catch (e) { bg.log.warn('car figures: ' + e); }
         try {
@@ -438,7 +427,6 @@ mgu.run({
 
             if (page === 'logs') { drawLogs(cv, label, fitLabel, tgt, top, ch); return done(); }
 
-            const auto = settings.get('autoStart') !== false;
             const di = designIndex(settings.get('style'), settings.get('background'));
             const D = DESIGNS[di];
             const PW = Previews.W, PH = Previews.H, TW = Previews.TW, TH = Previews.TH;
@@ -465,8 +453,7 @@ mgu.run({
             if (y + 18 < cardsY - 8) {
                 const tv = centre ? centre.turnView : '-';      /* (most of Turn View's lines name it already) */
                 fitLabel(tr('Phone map') + ': ' + tr(centre ? centre.waze : '-') + '   ·   ' + (/^Turn View/.test(tv) ? tr(tv) : 'Turn View: ' + tr(tv)), BX, y, 18, PW, DIM, { done: true });
-                if (y + 42 < cardsY - 8) fitLabel(tr('Readings') + ': ' + tr(feed || '-') + '   ·   ' + tr(!on ? 'Off: BMW\'s own cluster.'
-                    : auto ? 'On at every start.' : 'On for this drive; BMW\'s own at the next start.'), BX, y + 26, 18, PW, FAINT, { done: true });
+                if (y + 42 < cardsY - 8) fitLabel(tr('Readings') + ': ' + tr(feed || '-') + '   ·   ' + tr(on ? 'On at every start.' : 'Off: BMW\'s own cluster.'), BX, y + 26, 18, PW, FAINT, { done: true });
             }
 
             /* ---- right: the design, its state, and what each of its places shows ---- */

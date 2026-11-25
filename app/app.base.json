@@ -46,12 +46,6 @@
       "default": false
     },
     {
-      "key": "autoStart",
-      "label": "Start at every startup",
-      "type": "bool",
-      "default": true
-    },
-    {
       "key": "style",
       "label": "Style",
       "type": "choice",

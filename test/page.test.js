@@ -19,7 +19,7 @@ const { Recorder } = require(path.join(Harness.KIT, 'record.js'));
 const spec = require('../app/app.base.json');
 
 const Sheet = require(path.join(Harness.KIT, 'sheet.js'));
-const TOP = ['enabled', 'autoStart', 'style', 'skin'];
+const TOP = ['enabled', 'style', 'skin'];
 const GROUP_STYLE = { General: null, Toro: 'toro', 'M Sport': 'track', 'M Sport Plus': 'mplus', 'M Track': 'mtrack' };
 const GROUP_OF = { toro: 'Toro', track: 'M Sport', mplus: 'M Sport Plus', mtrack: 'M Track' };
 const item = (k) => spec.settings.find((s) => s.key === k);

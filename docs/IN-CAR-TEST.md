@@ -365,7 +365,6 @@ would be the most useful thing to send back.
 | N5 | TORO → Shift lights GT3 / single blade, Shake off | Each looks as named; with shake off nothing moves |
 | N6 | Holiday theme on | See B10 |
 | N7 | Start-up message on, then key off and start again | The words show over black for the chosen time, then fade slowly into the cluster. Changing a setting while driving does not bring them back |
-| N8 | Start at every startup off, key off, start again | BMW's own cluster; *Cluster on / off* brings MGU Styles up for this drive |
 
 ## New in 0.4
 

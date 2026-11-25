@@ -93,8 +93,8 @@ Everything is set in the app on iDrive — nothing on the cluster. Its page
 (as AK Cluster Layouts'): the style on the cluster, what each of its places
 shows, and a card for each design to tap. Its bar: **Cluster on / off**,
 **Logs** and **Settings**. Settings goes a step at a time, as the head
-unit's own: on / off, start with the car, the style and the skin at the
-top, then **General**, then the style in use's own (**Toro**, **M Sport**,
+unit's own: on / off (kept from one start to the next), the style and the
+skin at the top, then **General**, then the style in use's own (**Toro**, **M Sport**,
 **M Sport Plus** or **M Track**; another style's appear once it is chosen).
 
 - **General**: units, the car's figures - tach scale, redline, limiter,
