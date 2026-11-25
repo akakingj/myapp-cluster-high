@@ -412,6 +412,7 @@
         'uniform vec3 u_hot;',
         'uniform vec3 u_needle;',
         'uniform float u_alpha;',     /* the whole gauge's strength, the needle aside (0: 1) */
+        'uniform vec3 u_ticks;',      /* x: its small ticks (0: 20) - y, z: its tall ones between the ends (0: one at the middle; -1: none) */
         'void main() {',
         '  float k = u_size.y / 100.0;',
         '  vec2 p = px() / k;',
@@ -425,8 +426,11 @@
         '',
         /* the scale line and its ticks */
         '  float line = cov((abs(p.y - 52.0) - 0.75) * k) * inX;',
-        '  float tx = abs(fract(f * 20.0 + 0.5) - 0.5) * (x1 - x0) / 20.0;',
-        '  float major = step(abs(fract(f * 2.0 + 0.5) - 0.5) * (x1 - x0) / 2.0, 1.2);',
+        '  float nt = u_ticks.x > 0.0 ? u_ticks.x : 20.0;',
+        '  float tx = abs(fract(f * nt + 0.5) - 0.5) * (x1 - x0) / nt;',
+        /* the tall ones: at the ends and at the scale's numbers between them (u_ticks y, z), else at its middle */
+        '  float mid = u_ticks.x > 0.0 ? min(abs(f - u_ticks.y), abs(f - u_ticks.z)) : abs(f - 0.5);',
+        '  float major = step(min(min(f, 1.0 - f), mid) * (x1 - x0), 1.2);',
         '  float tickH = mix(5.0, 11.0, major);',
         '  float tick = cov((tx - mix(0.7, 1.0, major)) * k) * step(52.0 - tickH, p.y) * step(p.y, 52.0) * inX;',
         '',

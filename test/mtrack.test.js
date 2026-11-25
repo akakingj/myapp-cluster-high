@@ -432,6 +432,28 @@ test('the four rows as they come are the frame\'s: boost, coolant, oil, intake a
     });
 });
 
+test('Boost gauge up to set: the boost row numbered by it, its rail cut at its numbers between the ends', () => {
+    const cut = (cfg) => { const t = build(cfg); return t.layers.find((L) => L.id === 'rows').uniforms(state(t, RAW), 0).u_bcut.map((v) => +v.toFixed(3)); };
+    assert.deepStrictEqual(cut({ units: 'imperial', boostMax: '1.0' }), [0, 0.333, 0.667], '0 5 10 15: three pieces');
+    assert.deepStrictEqual(cut({ units: 'imperial', boostMax: '1.5' }), [0, 0.5, -1], '0 10 20: two');
+    assert.deepStrictEqual(cut({ units: 'imperial', boostMax: '2.5' }), [0, 0.429, 0.714], '0 15 25 35');
+    assert.deepStrictEqual(cut({ units: 'metric', boostMax: '2.5' }), [0, 0.6, -1], '0.0 1.5 2.5');
+    assert.deepStrictEqual(cut({ units: 'metric' }), [-1, -1, -1], 'its own scale: the frame\'s four pieces');
+});
+
+test('Toro\'s PRESS. TURBO gauge set to Boost gauge up to: a tall tick at each of its numbers, every number on a small one', () => {
+    const ticks = (cfg) => {
+        const t = build(Object.assign({ style: 'toro', gaugeL1: 'boost' }, cfg)), st = state(t, RAW);
+        return t.layers.filter((L) => L.shader === 'hgauge' && /^bar_/.test(L.id)).map((L) => L.uniforms(st, 0).u_ticks)
+            .filter((u) => u[0] > 0).map((u) => u.map((v) => +v.toFixed(3)));
+    };
+    assert.deepStrictEqual(ticks({ units: 'imperial', boostMax: '1.0' }), [[21, 0.333, 0.667]], '0 5 10 15');
+    assert.deepStrictEqual(ticks({ units: 'imperial', boostMax: '1.5' }), [[20, 0.5, -1]], '0 10 20');
+    assert.deepStrictEqual(ticks({ units: 'imperial', boostMax: '2.5' }), [[21, 0.429, 0.714]], '0 15 25 35: a small tick each 5/3 psi');
+    assert.deepStrictEqual(ticks({ units: 'metric', boostMax: '2.5' }), [[20, 0.6, -1]], '0.0 1.5 2.5');
+    assert.deepStrictEqual(ticks({ units: 'imperial' }), [], 'its own scale: as it was');
+});
+
 test('a row\'s mark stands at its reading, clamped to the rail, and is not there with nothing to read', () => {
     const t = build({ units: 'metric' }), L = layer(t, 'rows');
     const at = (raw) => L.uniforms(state(t, raw), 0).u_val;

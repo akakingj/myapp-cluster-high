@@ -182,6 +182,12 @@ test('the Sport Display\'s boost and its gauge\'s end in the car\'s pressure uni
     assert.ok(Vehicle.SIGNALS[VEH].statusNewCurrentUnitsStatusExt);
     /* the least pair at or over it */
     assert.deepStrictEqual([1.16, 2, 3.9, undefined].map(Panel.snapBoost), ['1.5', '2.0', '3.5', null]);
+    /* each pair's numbers by its end's figure, the same in each unit */
+    const ticks = (e, u) => Panel.boostTicks(e, u).map((t) => t.str).join(' ');
+    assert.deepStrictEqual([15, 20, 30, 35, 40, 50].map((e) => ticks(e, 'psi')), ['0 5 10 15', '0 10 20', '0 10 20 30', '0 15 25 35', '0 20 40', '0 25 50']);
+    assert.deepStrictEqual([1, 1.5, 2, 2.5, 3, 3.5].map((e) => ticks(e, 'bar')), ['0.0 0.5 1.0', '0.0 0.5 1.0 1.5', '0.0 1.0 2.0', '0.0 1.5 2.5', '0.0 1.0 2.0 3.0', '0.0 1.5 2.5 3.5']);
+    assert.deepStrictEqual([100, 250, 350].map((e) => ticks(e, 'kpa')), ['0 50 100', '0 150 250', '0 150 250 350']);
+    assert.deepStrictEqual(Panel.boostTicks(35, 'psi').map((t) => +t.at.toFixed(3)), [0, 0.429, 0.714, 1]);
     /* a car's own gauge ends in its unit land on their pairs: 200 kPa; 15 / 20 / 30 / 35 / 40 / 50 psi */
     assert.deepStrictEqual([2, ...[15, 20, 30, 35, 40, 50].map((p) => p / 14.503774)].map(Panel.snapBoost), ['2.0', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5']);
     /* the setting: from the car as it comes, the Car profile's alone (not on GENERAL), its Auto as from the car */

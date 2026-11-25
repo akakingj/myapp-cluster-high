@@ -623,6 +623,7 @@
                     var red = o.alt && s.auxIsOil ? o.alt.red : o.red;
                     return {
                         u_frac: clamp01(g.frac), u_dir: o.dir, u_redZone: red,
+                        u_ticks: (o.alt && s.auxIsOil) || !o.ticks ? [0, 0, 0] : o.ticks,
                         u_shear: shear, u_on: g.text === '--' ? 0 : 1,
                         u_alarm: g.alarm ? 1 : 0,
                         u_col: GC.primaryWhite, u_hot: HOT, u_needle: GC.corsaRed
@@ -669,9 +670,18 @@
          * gauge), else the style's own 25 psi, 1.7 bar; their marks the start, the middle and the end.
          */
         var turboTop = P.boostBar ? { psi: P.boostPsi, bar: P.boostBar, kpa: P.boostBar * 100 }[UN.press] : null;
-        /* (set: numbered as the car's own gauge, 0 10 20 30, each at its place: turboAt) */
+        /* (set: numbered by its end, 0 10 20 30, 0 15 25 35, each at its place: turboAt) */
         var turboTicks = turboTop ? Panel.boostTicks(turboTop, UN.press) : null;
         var turboAt = turboTicks ? turboTicks.map(function (t) { return t.at; }) : null;
+        /* (its ticks: tall ones at its numbers, the small ones about 20 with every number on one - 0 15 25 35: 21) */
+        var turboTickU = null;
+        if (turboTicks) {
+            var cent = turboTicks.map(function (t) { return Math.round(Number(t.str) * 100); });
+            var gcd = function (a, b) { return b ? gcd(b, a % b) : a; };
+            var parts = cent[cent.length - 1] / cent.reduce(gcd);
+            var mid = turboAt.slice(1, -1);
+            turboTickU = [parts * Math.max(1, Math.round(20 / parts)), mid.length > 0 ? mid[0] : -1, mid.length > 1 ? mid[1] : -1];
+        }
         function turboMarks() {
             if (!turboTicks) return { psi: ['0', '12', '25'], bar: ['0', '0.8', '1.7'], kpa: ['0', '85', '170'] }[UN.press];
             return turboTicks.map(function (t) { return t.str; });
@@ -699,7 +709,7 @@
             case 'coolant': return { icon: 1, label: 'TEMP. ACQUA', key: 'coolant', marks: tLabels([50, 90, 130]), red: [0.81, 1] };
             case 'oil': return { icon: 2, label: 'TEMP. OLIO', key: 'oilTemp', marks: tLabels([50, 110, 170]), red: [0.83, 1] };
             case 'oilp': return { icon: 2, label: 'PRESS. OLIO', pod: pressPod('oilBar', 10, true), marks: O3, red: [0, 0.08] };
-            case 'boost': return { icon: null, label: 'PRESS. TURBO', marksAt: turboAt, pod: turboTop ? numPod('boostBar', 0, turboTop, UN.pressIn, function (x, bar) { return UN.pressText(bar, false); },
+            case 'boost': return { icon: null, label: 'PRESS. TURBO', marksAt: turboAt, ticks: turboTickU, pod: turboTop ? numPod('boostBar', 0, turboTop, UN.pressIn, function (x, bar) { return UN.pressText(bar, false); },
                                                                                function () { return false; }) : pressPod('boostBar', 1.7, false), marks: P3, red: [0.86, 1] };
             case 'gearbox': return { icon: null, label: 'TEMP. CAMBIO', pod: tempPod('gearboxC', 40, 130, 120),
                                      marks: tLabels([40, 85, 130]), red: [0.89, 1] };
@@ -826,7 +836,7 @@
             if (!S.showAuxLeft) return;
             gaugeOr('oilP', 'auxPress', RECTS.L2, {
                 side: 'left', icon: 2, label: 'PRESS. TURBO', key: 'auxPress', dir: 1,
-                marks: turboMarks(), marksAt: turboAt, red: [0.86, 1],
+                marks: turboMarks(), marksAt: turboAt, ticks: turboTickU, red: [0.86, 1],
                 alt: { label: 'PRESS. OLIO', marks: { psi: ['0', '70', '140'], bar: ['0', '5', '10'], kpa: ['0', '500', '1000'] }[UN.press],
                        red: [0, 0.08] }
             });

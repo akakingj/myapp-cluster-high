@@ -210,6 +210,7 @@
         'uniform vec3 u_ink;',       /* the fine line */
         'uniform vec3 u_coldCol;',
         'uniform vec3 u_hotCol;',
+        'uniform vec3 u_bcut;',      /* x: the boost row set to Boost gauge up to (-1: none); its rail cut at its numbers between the ends instead, y and z (0..1; -1: none) */
         'float pick(vec4 v, float i) { return i < 0.5 ? v.x : (i < 1.5 ? v.y : (i < 2.5 ? v.z : v.w)); }',
         'void main() {',
         '  vec2 p = art();',
@@ -221,8 +222,9 @@
         '  float val = pick(u_val, i), cold = pick(u_cold, i), hot = pick(u_hot, i);',
         '  float ends = max(' + n(R.xs) + ' - xr, xr - ' + n(R.xe) + ') * COSK;',
         '',
-        /* the rail, cut in four */
+        /* the rail, cut in four (the boost row: at its numbers) */
         '  float cut = ' + least(R.cuts.map(function (x) { return 'abs(xr - ' + n(x) + ')'; })) + ';',
+        '  if (abs(i - u_bcut.x) < 0.5) cut = min(abs(xr - ' + n(R.xs) + ' - u_bcut.y * ' + n(R.xe - R.xs) + '), abs(xr - ' + n(R.xs) + ' - u_bcut.z * ' + n(R.xe - R.xs) + '));',
         '  float dRail = max(max(-dy, dy - ' + n(R.railH) + '), max(ends, (' + n(R.cutW / 2) + ' - cut) * COSK));',
         /* the fine line, with a break where its colour changes */
         '  float dLine = max(max(' + n(R.lineDy) + ' - dy, dy - ' + n(R.lineDy + R.lineH) + '), ends);',

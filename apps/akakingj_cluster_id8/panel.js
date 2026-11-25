@@ -153,20 +153,17 @@ function profile(id) {
 var PSI_PER_BAR = 14.503774;
 /* Boost gauge up to: each end a pair, as the car's own gauge reads it in psi (0 5 10 15, or 0 10 20 30) */
 var BOOST_PSI = { 1: 15, 1.5: 20, 2: 30, 2.5: 35, 3: 40, 3.5: 50 };
+var BOOST_TICKS = { 10: [0, 5, 10], 15: [0, 5, 10, 15], 20: [0, 10, 20], 25: [0, 15, 25], 30: [0, 10, 20, 30], 35: [0, 15, 25, 35], 40: [0, 20, 40], 50: [0, 25, 50] };
 /*
- * A boost scale's numbers, evenly apart: the end divided in 3 (four numbers) where the step is a whole figure (psi
- * and kPa whole, bar to a tenth), else in 4, 2 or 5 - each number at least a quarter of the scale from the next (bar's
- * and kPa's wider figures three tenths) - else in 2 with a decimal more: 0 5 10 15, 0 5 10 15 20, 0 10 20 30,
- * 0 10 20 30 40, 0 25 50; 0.0 1.0 2.0 3.0. end in the unit. [{ at 0..1, str }]. (AK Cluster Layouts' and M Vitals' the same.)
+ * A boost scale's numbers by its end's figure (psi as it is, bar x 10, kPa / 10): 15 0 5 10 15, 20 0 10 20, 30 0 10 20 30,
+ * 35 0 15 25 35, 40 0 20 40, 50 0 25 50; 10 0 5 10, 25 0 15 25 - in bar 0.0 1.5 2.5 3.5, in kPa 0 150 250 350. Any
+ * other end: 0, its middle and it. end in the unit. [{ at 0..1, str }]. (AK Cluster Layouts' and M Vitals' the same.)
  */
-function boostTicks(end, unit, roomer) {
-    /* (roomer: a narrower scale's own least share between two numbers) */
-    var dec = unit === 'bar' ? 1 : 0, room = roomer || (unit === 'psi' ? 0.25 : 0.3), i, k = 2, out = [];
+function boostTicks(end, unit) {
+    var per = unit === 'bar' ? 10 : unit === 'kpa' ? 0.1 : 1, f = Math.round(end * per), dec = unit === 'bar' ? 1 : 0;
+    var at = Math.abs(end * per - f) < 1e-6 && BOOST_TICKS[f] ? BOOST_TICKS[f].map(function (v) { return v / per; }) : [0, end / 2, end];
     var whole = function (v) { return Math.abs(v * Math.pow(10, dec) - Math.round(v * Math.pow(10, dec))) < 1e-6; };
-    [5, 2, 4, 3].forEach(function (n) { if (whole(end / n) && 1 / n >= room - 1e-9) k = n; });
-    /* (each with the decimals it needs: 0 17.5 35, 0.0 1.25 2.5) */
-    for (i = 0; i <= k; i++) out.push({ at: i / k, str: (i * end / k).toFixed(whole(i * end / k) ? dec : dec + 1) });
-    return out;
+    return at.map(function (v) { return { at: v / end, str: v.toFixed(whole(v) ? dec : dec + 1) }; });
 }
 
 /* The car's Sport Display's boost gauge end (bar) as one of Boost gauge up to's pairs, its setting's value: the least at

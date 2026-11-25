@@ -127,11 +127,10 @@
                      lo: celsius ? lo : loF, hi: celsius ? hi : hiF,
                      show: function (v) { return celsius ? v : c2f(v); }, cold: cold, hot: hot };
         }
-        /* Boost gauge up to set: its end in the unit (in psi the pair's), numbered as the car's own gauge, 0 10 20 30,
-           each at its place (marksAt) */
+        /* Boost gauge up to set: its end in the unit (in psi the pair's), numbered by it (Panel.boostTicks: 0 10 20 30,
+           0 15 25 35), each at its place (marksAt) */
         function boostSet(bar, psi) {
-            /* (a row's numbers a third of it apart at the least: its figures stand close) */
-            var p = u.press, end = p === 'psi' ? psi : p === 'kpa' ? bar * 100 : bar, t = Panel.boostTicks(end, p, 0.3);
+            var p = u.press, end = p === 'psi' ? psi : p === 'kpa' ? bar * 100 : bar, t = Panel.boostTicks(end, p);
             return { key: 'boostBar', icon: 'u', unit: u.labels.press, lo: 0, hi: end,
                      marks: t.map(function (x) { return x.str; }), marksAt: t.map(function (x) { return x.at; }),
                      show: function (v) { return p === 'psi' ? v * PSI_PER_BAR : p === 'kpa' ? v * 100 : v; } };
@@ -434,13 +433,18 @@
         var rowCold = rowOf.map(function (sc) { return Math.max(0, zoneAt(sc, sc && sc.cold, 0)); });
         var rowHot = rowOf.map(function (sc) { return zoneAt(sc, sc && sc.hot, 2); });
         var rowOn = rowOf.map(function (sc) { return sc ? 1 : 0; });
+        /* (the boost row numbered by Boost gauge up to: its rail cut at its numbers between the ends - a mark for each
+           number, the rail's ends the first's and the last's) */
+        var bRow = rowOf.map(function (sc) { return !!(sc && sc.marksAt); }).indexOf(true);
+        var bAt = bRow < 0 ? [] : rowOf[bRow].marksAt.slice(1, -1);
+        var bcut = [bRow, bAt.length > 0 ? bAt[0] : -1, bAt.length > 1 ? bAt[1] : -1];
         if (rowOn.some(function (v) { return v; })) {
             shape('rows', 12, 'mtrows', box(276, R.y0 - 3, 546, T.rowTop(R.n - 1) + 12), function (s) {
                 var fade = rowsShown(s);
                 if (!(fade > 0.004)) return null;
                 return { u_val: rowOf.map(function (sc, i) { return rowValue(sc, s, i); }),
                          u_cold: rowCold, u_hot: rowHot, u_on: rowOn, u_fade: fade,
-                         u_fill: S.rowMark === 'fill' ? 1 : 0,
+                         u_fill: S.rowMark === 'fill' ? 1 : 0, u_bcut: bcut,
                          u_lit: K.rail, u_dim: K.railDim, u_ink: K.line, u_coldCol: K.cold, u_hotCol: K.hot };
             });
             var units = [], unitsX = [], icons = [], tags = [], shown = 0;
