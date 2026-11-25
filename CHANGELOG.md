@@ -26,7 +26,7 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   ends at 1.5, the others' at 2.0); a boost top saved in psi reads as the pair Toro's gauge ended on.
 - **Boost gauge up to is set in the Car profile app** (not on GENERAL): a pair below, or *Auto* - the car's own
   Sport Display's boost gauge end (FES displayMaximumValueBoostPressure, in the car's pressure unit), as the least
-  pair at or over it, kept for the next start; the kind of car's own until the car has sent it.
+  pair at or over it (within 5 %), kept for the next start; the kind of car's own until the car has sent it.
 - **The Sport Display's boost in the car's pressure unit**: tenths of a psi on a car set to psi (as AK Cluster
   Layouts reads it), hundredths of a bar otherwise; before, a psi car's 20 psi read as 2.0 bar.
 - **Boost gauge up to** is a pair, as the car's own gauge reads it: 1.0 bar or 15 psi, 1.5 or 20, 2.0 or 30, 2.5 or

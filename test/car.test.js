@@ -175,12 +175,15 @@ test('the Sport Display\'s boost and its gauge\'s end in the car\'s pressure uni
     sport(150, 200);
     x = r.raw(1000, 59);
     assert.deepStrictEqual([+(x.boostBar * 14.503774).toFixed(1), +(x.boostMaxCar * 14.503774).toFixed(1)], [15, 20]);
+    assert.strictEqual(Panel.snapBoost(x.boostMaxCar), '1.5', '20 psi: the 1.5 bar / 20 psi pair');
     /* a figure no gauge ends at is not taken */
     sport(150, 30);
     assert.strictEqual(+(r.raw(1000, 59).boostMaxCar * 14.503774).toFixed(1), 20);
     assert.ok(Vehicle.SIGNALS[VEH].statusNewCurrentUnitsStatusExt);
     /* the least pair at or over it */
-    assert.deepStrictEqual([1.16, 1.38, 2, 2.07, 3.9, undefined].map(Panel.snapBoost), ['1.5', '1.5', '2.0', '2.5', '3.5', null]);
+    assert.deepStrictEqual([1.16, 2, 3.9, undefined].map(Panel.snapBoost), ['1.5', '2.0', '3.5', null]);
+    /* a car's own gauge ends in its unit land on their pairs: 200 kPa; 15 / 20 / 30 / 35 / 40 / 50 psi */
+    assert.deepStrictEqual([2, ...[15, 20, 30, 35, 40, 50].map((p) => p / 14.503774)].map(Panel.snapBoost), ['2.0', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5']);
     /* the setting: from the car as it comes, the Car profile's alone (not on GENERAL), its Auto as from the car */
     const it = item('boostMax');
     assert.deepStrictEqual([it.default, it.hidden, it.profileMap['0'], it.options[0][1]], ['auto', true, 'auto', 'From the car\'s Sport Display']);

@@ -170,11 +170,11 @@ function boostTicks(end, unit, roomer) {
 }
 
 /* The car's Sport Display's boost gauge end (bar) as one of Boost gauge up to's pairs, its setting's value: the least at
-   or over it (null: none) */
+   or over it, within 5 % (a car set to psi ends at 15 psi, 1.034 bar: the 1.0 bar / 15 psi pair; null: none) */
 function snapBoost(bar) {
     if (!(typeof bar === 'number' && bar > 0)) return null;
     var ends = Object.keys(BOOST_PSI).map(Number).sort(function (a, b) { return a - b; });
-    for (var i = 0; i < ends.length; i++) if (ends[i] >= bar - 0.02) return ends[i].toFixed(1);
+    for (var i = 0; i < ends.length; i++) if (ends[i] * 1.05 >= bar) return ends[i].toFixed(1);
     return '3.5';
 }
 
