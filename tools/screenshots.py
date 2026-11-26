@@ -179,38 +179,30 @@ SHEETS = [
       ("2WD", "", DRIVE + M + "&mPanel=2wd"),
       ("The driving mode", "BMW's own name for it", DRIVE + M + "&mPanel=mode&drive=SPORT"),
       ("Nothing", "", DRIVE + M + "&mPanel=off")]),
-    ("strip", "BMW's bottom strip: how much of it shows",
+    ("strip", "BMW's bottom strip: On or Off",
      "The foot of the panel, all 720 rows, with a stand-in for the car's own strip under the style (hatched: "
      "the rows between a style and the strip's figures, where the rest of BMW's own cluster shows on the "
-     "car). The setting trims those rows by 6, 12 or 18 px, or hides the strip: all of it but BMW's own "
-     "gear letter, which has to stay in view (cover it and the cluster draws a black box in the rev dial). "
-     "The driving mode is written towards the gear, so a long name ends right beside it: Hide it covers to "
-     "one column short of the gear's window, and the wider gap is what it left open up to Beta 5.",
+     "car). On trims those rows by 18 px; Off hides the strip: all of it but BMW's own gear letter, which has "
+     "to stay in view (cover it and the cluster draws a black box in the rev dial).",
      1, 1280, FOOT,
-     [("Show all of it", "the style ends at row 646, as the car's strip begins", DRIVE + M + STRIP + "&bottomExtra=0"),
-      ("Trim its top edge: 6 px", "", DRIVE + M + STRIP + "&bottomExtra=6"),
-      ("Trim its top edge: 12 px", "", DRIVE + M + STRIP + "&bottomExtra=12"),
-      ("Trim its top edge: 18 px", "the most a trim can be: the row above the gear's own", DRIVE + M + STRIP + "&bottomExtra=18"),
-      ("Hide it, a wider gap left beside the gear", "as up to Beta 5: the end of a long mode name shows "
-       "(here the T of COMFORT)", DRIVE + M + STRIP + "&bottomExtra=hideWide"),
-      ("Hide it", "BMW's gear letter is all that is left; warning lamps still show over the covers",
+     [("On", "18 px trimmed: the row above the gear's own", DRIVE + M + STRIP + "&bottomExtra=18"),
+      ("Off", "BMW's gear letter is all that is left; warning lamps still show over the covers",
        DRIVE + M + STRIP + "&bottomExtra=hide"),
-      ("Hide it, in Toro", "the same rule in every style", DRIVE + STRIP + "&bottomExtra=hide")]),
+      ("Off, in Toro", "the same rule in every style", DRIVE + STRIP + "&bottomExtra=hide")]),
     ("lowered", "BETA: the cluster lowered, and larger by as much",
-     "With BMW's strip hidden, the rows it stood in hold nothing but black (left). Lowered (right) the whole "
-     "style is drawn into them: its foot that many rows further down and all of it larger by the same amount, "
-     "about the top of the screen's middle - the same picture, bigger. The M styles go to the screen's edge, "
-     "74 px; Toro goes 58, where it stands at the size its brief drew it. BMW's gear letter stays where it is: "
-     "nothing is ever drawn in its columns. All 720 rows are shown, over a stand-in for the car's strip.",
+     "With BMW's strip hidden, the rows it stood in hold nothing but black (left). Lowered 20 px (right) the "
+     "whole style is drawn into them: its foot 20 rows further down and all of it 3 % larger, about the top of "
+     "the screen's middle - the same picture, bigger. BMW's gear letter stays where it is: nothing is ever "
+     "drawn in its columns. All 720 rows are shown, over a stand-in for the car's strip.",
      2, 944, (0, 0, 1920, 720),
      [("Toro, the strip hidden", "", DRIVE + STRIP + "&bottomExtra=hide"),
-      ("Toro, 58 px lower: 9 % larger", "its speed beside BMW's gear letter", DRIVE + STRIP + "&lower=58"),
+      ("Toro, 20 px lower: 3 % larger", "", DRIVE + STRIP + "&lower=20"),
       ("M Sport, the strip hidden", "", DRIVE + M + STRIP + "&bottomExtra=hide"),
-      ("M Sport, 74 px lower: 11 % larger", "the footer on the screen's last rows", DRIVE + M + STRIP + "&lower=74"),
+      ("M Sport, 20 px lower: 3 % larger", "", DRIVE + M + STRIP + "&lower=20"),
       ("M Sport Plus, the strip hidden", "the fullest picture", DRIVE + MP + STRIP + MAP + "&centreSize=most&bottomExtra=hide"),
-      ("M Sport Plus, 74 px lower", "the picture is the car's: it stays the size it is", DRIVE + MP + STRIP + MAP + "&centreSize=most&lower=74"),
+      ("M Sport Plus, 20 px lower", "the picture is the car's: it stays the size it is", DRIVE + MP + STRIP + MAP + "&centreSize=most&lower=20"),
       ("M Track Mode, the strip hidden", "", DRIVE + MT + STRIP + "&bottomExtra=hide"),
-      ("M Track Mode, 74 px lower", "", DRIVE + MT + STRIP + "&lower=74")]),
+      ("M Track Mode, 20 px lower", "", DRIVE + MT + STRIP + "&lower=20")]),
     ("toro-opening", "Toro: how much of the picture shows",
      "The opening behind the dial in its three sizes, over a map by night and by day. The larger two are the "
      "inside of the dial: they stop short of the band, so its numbers keep the dark they are drawn on, and "

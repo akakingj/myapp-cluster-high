@@ -86,20 +86,21 @@ the whole style further down, into the rows BMW's strip leaves when it is
 hidden, and larger by as much. **Start parked, and start small.** The one
 thing to watch for above all is BMW's **black box in the rev dial**: it
 means something of ours stood over the gear's window. The option is built
-never to do that (it keeps to the columns *Hide it* already drives on),
-but no car has run it yet.
+never to do that (it keeps to the columns *Off* drives on). From AK 0.19.1 it
+offers 20 px only: on a car (2026-11-26) 40 px and more cut the top of
+M Sport's speedometer (its 260) and brought Toro's boost reading under the
+seat belt light.
 
 | # | Do | Expect |
 |---|---|---|
 | W1 | Any style on the cluster. *BETA: lower and enlarge the cluster* → **20 px lower** | Within half a second the style is a little larger and reaches further down. BMW's strip is gone but for its **gear letter**, which stands where it always does. **No black box** in the rev dial |
 | W2 | The top of the style | Where it was: only the foot has moved. Nothing is stretched - circles are still circles |
-| W3 | **40**, then **58**, then **74 px lower** | Larger each time (6, 9, 11 %). M Sport, M Sport Plus and M Track Mode go to the screen's edge at 74; **Toro stops at 58** and looks the same at 74 |
-| W4 | Shift through P R N D S and M1 … at the largest setting | BMW's gear letter changes in its place and is never covered or cut. Still no black box |
-| W5 | Toro at 58: the speed, bottom right | It stands just left of BMW's gear letter, and its unit (MPH or KM/H) does not touch the letter |
-| W6 | Toro at 58, at the rev limiter with *Shake the screen* on **Hard** | The whole instrument shakes; BMW's gear letter does not, and nothing jumps over it. The red flash takes in the whole instrument, with a black gap where the gear letter is |
-| W7 | An M style at 74: the footer (time, range, outside temperature) | All of it on the screen, on its last rows. Say if the screen's own edge cuts any figure |
-| W8 | An M style, lowered: the speed scale's numerals on the left | They now reach the place the **tyre pressure lamp** lights. If that lamp is on, it is drawn over them - that is expected; say if it is a nuisance |
-| W9 | A map or the camera in the middle, lowered | The picture is where it always is and the same size; the style's window round it is a little larger. Nothing of BMW's own cluster shows at the window's edges - look closely at M Sport Plus with *Centre picture: how much shows → More* and *Fullest* |
+| W3 | Shift through P R N D S and M1 … at 20 px | BMW's gear letter changes in its place and is never covered or cut. Still no black box |
+| W4 | Toro at 20: the speed, bottom right | It stands just left of BMW's gear letter, and its unit (MPH or KM/H) does not touch the letter |
+| W5 | Toro at 20, at the rev limiter with *Shake the screen* on **Hard** | The whole instrument shakes; BMW's gear letter does not, and nothing jumps over it. The red flash takes in the whole instrument, with a black gap where the gear letter is |
+| W6 | An M style at 20: the footer (time, range, outside temperature) and the speedometer's top (260) | All of it on the screen. Say if anything is cut |
+| W7 | An M style, lowered: the speed scale's numerals on the left | They now reach the place the **tyre pressure lamp** lights. If that lamp is on, it is drawn over them - that is expected; say if it is a nuisance |
+| W8 | A map or the camera in the middle, lowered | The picture is where it always is and the same size; the style's window round it is a little larger. Nothing of BMW's own cluster shows at the window's edges - look closely at M Sport Plus with *Centre picture: how much shows → More* and *Fullest* |
 | W10 | M Track Mode at 74 with a map in the wing | The picture begins where it begins, on a soft edge, not a hard line |
 | W11 | The start-up message (*Settings → General → Start-up message*), lowered | The whole style is dimmed behind it, the footer too |
 | W12 | Set it back to **Off** | Exactly the style as it was, and *BMW's bottom strip* as you had it set |
@@ -258,8 +259,8 @@ cluster has restarted.
 | B1 | iDrive's menu: move the selector onto MGU Styles | The tile lights up like the others. **If it still does not, say so**: the fix is the icon's plate standing 10 px in from the tile's edge, reasoned from how the menu draws, not seen on the car |
 | B2 | AK 0.19.0: open MGU Styles | As AK Cluster Layouts: the header with *Settings*, the page (the design, its places, a card for each design), the bar with *Cluster on / off* and *Logs*. **If it looks different from Cluster Layouts' frame, say so** (and whether the Store shows *mgu-render* installed) |
 | B3 | AK 0.19.0: controller and touch: a card, a place, *Settings* → *General* → a row, back, *Logs*, back | Every place can be reached both ways; a place or a row opens its list of values; Settings lists on / off, Style and Skin, then *General* and the style in use's own only (*Toro*, *M Sport*, *M Sport Plus* or *M Track*); back in a group returns to the list's top; pushed left on Logs returns to the page |
-| B4 | Settings → General → BMW's bottom strip → *Show all of it*, then *Trim its top edge* 6, 12 and 18 px | Each trim hides a little more of what shows above the strip's figures; the figures themselves stay whole. **No black box in the rev dial at any of them.** Say which looks right |
-| B5 | BMW's bottom strip → *Hide it* | BMW's range, clock, street name, driving mode and outside temperature are gone; **only BMW's gear letter is left**, on black. Warning lamps (seat belt and the rest) still show when lit. **No black box in the rev dial.** If a box appears with this setting, go back to *Show all of it* and say so — it would mean this car's gear window is wider than measured |
+| B4 | Settings → General → BMW's bottom strip → *On* | The strip's figures show whole, with nothing of BMW's own dials above them. **No black box in the rev dial** |
+| B5 | BMW's bottom strip → *Off* | BMW's range, clock, street name, driving mode and outside temperature are gone; **only BMW's gear letter is left**, on black. Warning lamps (seat belt and the rest) still show when lit. **No black box in the rev dial.** If a box appears with this setting, go back to *On* and say so — it would mean this car's gear window is wider than measured |
 | B6 | Look at the top of M Sport's oil strip (`300 °F`) | Nothing over it. (In Beta 3's photographs a black box hid it: that was the cluster's fallback gear box) |
 | B7 | The page (M Sport) → Footer, left / middle / right: try *Engine speed*, *Fuel economy*, *Intake air temperature*, *Nothing* | Each place shows what was chosen, with its unit; *Nothing* leaves the place empty. With BMW's strip in view nothing need be told twice. Intake air and battery voltage show `--` unless BeeM-Flash is running and feeding them. **Compare the economy figure with BMW's own trip computer (average consumption) and say if it differs** |
 | B8 | M SPORT → Footer panel shows → 4WD (or Nothing); The gear's place shows → *Engine speed* and *Nothing* | The panel no longer repeats the driving mode. In the gear's place the revs stand as a figure on the same black bar, or nothing does; BMW's gear letter below is then the only gear |

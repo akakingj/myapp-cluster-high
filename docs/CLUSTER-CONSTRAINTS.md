@@ -77,19 +77,17 @@ style, set by *BMW's bottom strip*):
 
 | Setting | What is drawn below `y = 646` |
 |---|---|
-| Show all of it (default) | nothing: every style ends at 646 |
-| Trim its top edge: 6, 12 or 18 px | the style's background runs on that far, right across, fading to black. 18 covers rows 646-663 and stops a row short of the gear's window: **no trim can reach it** (`STRIP_TRIM_MAX`) |
-| Hide it, a wider gap left beside the gear | the trim at its most, and from `y = 664` to the screen's edge two plain black covers, `x 0-1340` and `x 1500-1920` (`GEAR_KEEP_WIDE`: the gear's window with 45 and 38 px to spare). What *Hide it* was up to Beta 5, and the gap that has been driven on this car. The end of a long mode name shows in it |
-| Hide it | the same with the left cover run on to **`x 1384`: one column short of the gear's window**, as the trim is one row short of it (`GEAR_KEEP`, `x 1384-1500`). The columns between are never drawn on, so **BMW's own gear letter stays**; it is all that is left of the strip. Not yet driven: if a box appears, the wider gap is the answer, and the measurement above does not hold for this car |
+| On (default) | the style's background runs on 18 px, right across, fading to black: rows 646-663, a row short of the gear's window: **no trim can reach it** (`STRIP_TRIM_MAX`). Less (0, 6, 12 px, offered up to AK 0.19.0) left pieces of BMW's own dials at the sides on a car |
+| Off | the same, and from `y = 664` to the screen's edge two plain black covers, the left one run on to **`x 1384`: one column short of the gear's window**, as the trim is one row short of it (`GEAR_KEEP`, `x 1384-1500`). The columns between are never drawn on, so **BMW's own gear letter stays**; it is all that is left of the strip. (The wider gap of up to Beta 5, `GEAR_KEEP_WIDE`, `x 0-1340`, showed the end of a long mode name, the T of COMFORT.) |
 
 The covers and the backgrounds are marked `still`, so the limiter's shake
 (§9) never carries one over the gear. `test/strip.test.js` holds every
-value, including the ones older versions saved (24 becomes 18; 48 and 74
-become *hide*), to the rule in every style; and the simulated car
+value, including the ones older versions saved (0, 6, 12 and 24 become 18;
+48, 74 and hideWide become *hide*), to the rule in every style; and the simulated car
 (`tools/car-sim.js`) holds every rectangle the renderer is ever given — a
 new layer, or one the shake has moved — against the window, and reports
 how near anything came (1 px above, 1 px to its left, 38 px to its right
-with *Hide it*). The shake moves a layer down by 5 px at its hardest, so
+with *Off*). The shake moves a layer down by 5 px at its hardest, so
 the lowest it carries anything is `y = 651`, 14 rows above the window.
 
 Everything else of ours — every reading, line and figure — still ends at

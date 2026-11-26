@@ -18,12 +18,14 @@
      * (docs/CLUSTER-CONSTRAINTS.md section 2: measured by others on their
      * cars, and seen on this one.)
      *
-     * So the setting ("bottomExtra", its name from when it was a height):
+     * So the setting ("bottomExtra", its name from when it was a height),
+     * On (18) or Off (hide) in the app's menu:
      *
-     *   0, 6, 12, 18   trim: the style's background runs that many px below
-     *                  y 646, right across. 18 ends on the row above the
-     *                  gear's window, so no trim can reach it.
-     *   hide           the trim at its most, and from there down to the
+     *   18             On: the style's background runs 18 px below y 646,
+     *                  right across, ending on the row above the gear's
+     *                  window. (0, 6 and 12 trim less: pieces of BMW's own
+     *                  dials showed at the sides on a car, 2026-11-26.)
+     *   hide           Off: the trim at its most, and from there down to the
      *                  screen's edge two plain covers, one each side of the
      *                  columns kept open for the gear (Panel.GEAR_KEEP: the
      *                  left cover ends a column short of the gear's
@@ -32,11 +34,12 @@
      *                  all that is left of the strip.
      *   hideWide       the same with a wider gap left of the gear
      *                  (Panel.GEAR_KEEP_WIDE, x 1340): what "hide" was up
-     *                  to Beta 5, and proven on this car. The end of a
-     *                  long mode name shows in it ("COMFORT": its T).
+     *                  to Beta 5. The end of a long mode name shows in it
+     *                  ("COMFORT": its T).
      *
-     * Values an earlier version saved: 24 ("a little") is the largest trim,
-     * 48 and 74 are hide.
+     * Values an earlier version saved go to On or Off when the settings are
+     * loaded (app.json aliases: 0, 6, 12 and 24 to 18; 48, 74 and hideWide
+     * to hide); resolve() still reads them all.
      */
     var HIDE = 'hide';
     var HIDE_WIDE = 'hideWide';
@@ -91,7 +94,10 @@
      * drawn into them: `d` px further down and larger by as much,
      * (646 + d) / 646, about the top of the screen's middle - so its top
      * stays where it is, its foot goes d rows lower, and it is the same
-     * picture, only bigger. Off as it comes; it hides the strip itself
+     * picture, only bigger. Off as it comes, and the menu offers 20 px
+     * (further cut M Sport's 260 and brought Toro's boost reading under the
+     * seat belt light on a car, 2026-11-26; saved 40, 58 and 74 go to 20);
+     * it hides the strip itself
      * (src/theme/palette.js), and a style goes only as far as it has room
      * for (its own most: Toro's side gauges reach the screen's edges
      * first).

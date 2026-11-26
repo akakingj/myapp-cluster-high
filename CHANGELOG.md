@@ -13,6 +13,16 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.19.1
+
+- **BMW's bottom strip is On or Off, as AK Cluster Layouts'.** *On* (as it comes) shows the strip with 18 px trimmed
+  off its top edge; *Off* hides it but BMW's gear letter. A test on a car (photos, 2026-11-26): the trims of 6 and
+  12 px left pieces of BMW's own dials at the sides, and the wider gap beside the gear showed the T of COMFORT. A
+  choice saved before goes to *On* (show all of it, any trim) or *Off* (either way to hide it).
+- **BETA: lower and enlarge the cluster offers Off and 20 px (3 % larger).** On the same car 40 px and more cut the top
+  of M Sport's speedometer (its 260) and brought Toro's boost reading under the seat belt light. A saved 40, 58 or 74
+  goes to 20.
+
 ## AK 0.19.0
 
 - **The app's menu, as AK Cluster Layouts'.** The page sits in the kit's frame: its header, with *Settings*, and the

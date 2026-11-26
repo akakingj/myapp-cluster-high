@@ -2,7 +2,7 @@
   "id": "akakingj_cluster_id8",
   "title": "AK Cluster ID8",
   "vendor": "MGU-Styles",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "loggingId": "AKC8",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
@@ -1005,34 +1005,22 @@
       "default": "18",
       "options": [
         [
-          "0",
-          "Show all of it"
-        ],
-        [
-          "6",
-          "Trim its top edge: 6 px"
-        ],
-        [
-          "12",
-          "Trim its top edge: 12 px"
-        ],
-        [
           "18",
-          "Trim its top edge: 18 px"
-        ],
-        [
-          "hideWide",
-          "Hide it, a wider gap left beside the gear"
+          "On"
         ],
         [
           "hide",
-          "Hide it (BMW's own gear letter stays)"
+          "Off"
         ]
       ],
       "aliases": {
+        "0": "18",
+        "6": "18",
+        "12": "18",
         "24": "18",
         "48": "hide",
-        "74": "hide"
+        "74": "hide",
+        "hideWide": "hide"
       },
       "group": "General"
     },
@@ -1056,20 +1044,13 @@
         [
           "20",
           "20 px lower, 3 % larger (BMW's strip hidden)"
-        ],
-        [
-          "40",
-          "40 px lower, 6 % larger (BMW's strip hidden)"
-        ],
-        [
-          "58",
-          "58 px lower, 9 % larger (as far as Toro goes)"
-        ],
-        [
-          "74",
-          "74 px lower, 11 % larger: to the screen's edge"
         ]
       ],
+      "aliases": {
+        "40": "20",
+        "58": "20",
+        "74": "20"
+      },
       "group": "General"
     },
     {

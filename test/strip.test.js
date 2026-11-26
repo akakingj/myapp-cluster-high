@@ -27,8 +27,8 @@ const VALUES = offered.concat([0, 6, 12, 18, 24, 48, 74, 'hide', 'hideWide', tru
 /* the two ways to hide it, and the columns each leaves open for the gear */
 const HIDES = [['hide', Panel.GEAR_KEEP], ['hideWide', Panel.GEAR_KEEP_WIDE]];
 
-test('the setting: trims that stop above the gear, and "hide"', () => {
-    assert.deepStrictEqual(offered, ['0', '6', '12', '18', 'hideWide', 'hide']);
+test('the setting: On (the trim at 18, above the gear) and Off ("hide")', () => {
+    assert.deepStrictEqual(offered, ['18', 'hide']);
     assert.strictEqual(Panel.STRIP_TRIM_MAX, 18);
     for (const v of VALUES) {
         const r = Strip.resolve(v);
@@ -46,9 +46,10 @@ test('the setting: trims that stop above the gear, and "hide"', () => {
     assert.deepStrictEqual(Strip.resolve('24'), { trim: 18, hide: false, wide: false });
     assert.deepStrictEqual(Strip.resolve('48'), { trim: 18, hide: true, wide: false });
     assert.deepStrictEqual(Strip.resolve('74'), { trim: 18, hide: true, wide: false });
-    /* and the app's own settings carry them over when they are loaded */
+    /* and the app's own settings carry them over when they are loaded: the trims to On, the ways to hide it to Off */
     const item = spec.settings.find((s) => s.key === 'bottomExtra');
-    assert.deepStrictEqual(item.aliases, { 24: '18', 48: 'hide', 74: 'hide' });
+    assert.deepStrictEqual(item.aliases, { 0: '18', 6: '18', 12: '18', 24: '18', 48: 'hide', 74: 'hide', hideWide: 'hide' });
+    assert.deepStrictEqual(item.options.map((o) => o[1]), ['On', 'Off']);
 });
 
 test('no layer of any style, for any value, reaches into the gear\'s window', () => {

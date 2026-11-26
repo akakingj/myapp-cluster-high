@@ -91,7 +91,7 @@ test('the setting: px, 0 - 74, off as it comes; on, it hides the strip and keeps
     assert.strictEqual(Strip.foot(r({})), 646);
 });
 
-test('on the app\'s page: a BETA choice in General, off as it comes, every step one a style can take', () => {
+test('on the app\'s page: a BETA choice in General, off as it comes, or 20 px (each style has room for it)', () => {
     const item = spec.settings.find((s) => s.key === 'lower');
     assert.ok(item, 'the setting is declared');
     assert.strictEqual(item.group, 'General');
@@ -101,8 +101,10 @@ test('on the app\'s page: a BETA choice in General, off as it comes, every step 
     assert.strictEqual(values[0], 0);
     assert.deepStrictEqual(values.slice().sort((a, b) => a - b), values, 'in order');
     assert.ok(values.every((v) => Number.isInteger(v) && v >= 0 && v <= Strip.LOWER_MOST));
-    assert.ok(values.indexOf(Strip.LOWER_MOST) >= 0, 'to the screen\'s edge is offered');
-    assert.ok(values.indexOf(Toro.LOWER_MOST) >= 0, 'and Toro\'s own most');
+    /* 40 and more cut M Sport's 260 at the speedometer's top and bring Toro's boost readout under the belt light (a car,
+       2026-11-26): Off and 20 only, and a value saved before goes to 20 */
+    assert.deepStrictEqual(values, [0, 20]);
+    assert.deepStrictEqual(item.aliases, { 40: '20', 58: '20', 74: '20' });
     /* each step says how far and how much larger, and the figures are right */
     item.options.slice(1).forEach((o) => {
         const m = /^(\d+) px lower, (\d+) % larger/.exec(o[1]);

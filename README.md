@@ -106,7 +106,7 @@ from one start to the next), the style and the skin at the top, then **General**
   app sets it for both apps), the limiter flash
   (past the shift point the shift lights flash and the speed and the gear blink red, in every style), the
   **cold engine** guard (the shift point and the red zone lower while the oil is cold),
-  BMW's bottom strip (show, trim or hide it), **electric range** for
+  BMW's bottom strip (on or off), **electric range** for
   plug-in hybrids and fully electric cars (*Automatic* as it comes: on once
   the car shows it is a plug-in hybrid - its drive modes, or eDrive Live
   sharing its battery's power - as Cluster Layouts finds one; *Car → Plug-in
@@ -283,13 +283,10 @@ it sets is shown here with "Car profile" beside it and changed there:
 | Cold-engine rev guard, Cold rev limit, Oil is warm at | Cold engine: lower the shift point and red zone, Cold engine: shift point with the oil at 30 °C, Cold engine: oil warm at (as Cluster Layouts names them) |
 | Engine, the units, the clock, the skin | the same |
 
-## Trimming or hiding BMW's bottom strip
+## Showing or hiding BMW's bottom strip
 
 BMW's own cluster keeps a strip along the bottom of the screen: range,
-clock, street name, driving mode, gear and outside temperature. As it
-comes, MGU Styles trims 18 px off its top edge, so nothing of BMW's own
-cluster shows between the style and the strip's figures. To show more of
-it, or less:
+clock, street name, driving mode, gear and outside temperature.
 
 1. Open the app from iDrive's menu.
 2. Press **Settings**, then **General**.
@@ -298,10 +295,8 @@ it, or less:
 
 | Choice | What you get |
 |---|---|
-| **Show all of it** | The strip as BMW draws it |
-| **Trim its top edge: 6 px / 12 px / 18 px** | The style runs a little further down and covers that much of the strip's top edge. The app comes with 18, the most a trim can be |
-| **Hide it (BMW's own gear letter stays)** | Everything in the strip is covered in black except BMW's gear letter |
-| **Hide it, a wider gap left beside the gear** | The same, with more room left open around the gear letter. The end of a long driving-mode name (the T of COMFORT) shows in that gap |
+| **On** (as it comes) | The strip, with 18 px trimmed off its top edge so nothing of BMW's own cluster shows between the style and the strip's figures |
+| **Off** | Everything in the strip is covered in black except BMW's gear letter |
 
 The change shows on the cluster within about half a second, for every
 style. Nothing is set on the cluster itself.
@@ -320,7 +315,7 @@ the app's page → *Footer, left / middle / right* (time, range,
 outside temperature and more), and in Settings → M Sport or M Sport Plus
 *The gear's place shows* if you would rather not see the gear twice.
 
-![BMW's bottom strip at each setting](docs/screenshots/strip.png)
+![BMW's bottom strip On and Off](docs/screenshots/strip.png)
 
 ### BETA: lower and enlarge the cluster
 
@@ -328,20 +323,18 @@ With the strip hidden, the rows it stood in are plain black. This option
 draws the whole style into them — lower, and larger by the same amount:
 
 1. Open the app, press **Settings**, then **General**.
-2. Press **BETA: lower and enlarge the cluster** and pick an amount:
-   **20, 40, 58 or 74 px lower** (3, 6, 9 or 11 % larger). **Off** puts it
-   back exactly as it was.
+2. Press **BETA: lower and enlarge the cluster** and pick **20 px lower,
+   3 % larger**. **Off** puts it back exactly as it was.
 
 It hides BMW's strip for you; **BMW's gear letter stays**, and nothing is
 ever drawn over it. The top of the style stays where it is and nothing is
-stretched: it is the same picture, bigger. The M styles go to the screen's
-edge at 74; **Toro goes 58** (any further and its side gauges would leave
-the screen), so 74 looks the same as 58 there.
+stretched: it is the same picture, bigger. Further than 20 px is not
+offered: on a car, 40 px and more cut the top of M Sport's speedometer
+(its 260) and brought Toro's boost reading under the seat belt light.
 
-![Each style with the strip hidden, and lowered as far as it goes](docs/screenshots/lowered.png)
+![Each style with the strip hidden, and lowered 20 px](docs/screenshots/lowered.png)
 
-**It is a BETA and has not been on a car yet.** Try it parked first, start
-with 20, and look at the rev dial: if BMW's **black box** appears there,
+**It is a BETA.** Try it parked first and look at the rev dial: if BMW's **black box** appears there,
 set the option back to **Off**, lock the car and let it sleep once — and
 please report it with your car, the style and the amount. Two things are
 expected and are not faults: lowered, an M style's speed numbers reach the
@@ -352,10 +345,10 @@ or camera picture in the middle stays the size the car draws it.
 
 ### If a black box appears in the rev dial
 
-It should not: the app never covers the gear letter. If you see one after
-choosing *Hide it*, choose *Hide it, a wider gap left beside the gear*,
-lock the car and let it sleep once (the box can stay until the cluster
-restarts) — and please report it, with your car and model year.
+It should not: the app never covers the gear letter. If you see one with
+*BMW's bottom strip* set to *Off*, set it to *On*, lock the car and let it
+sleep once (the box can stay until the cluster restarts) — and please
+report it, with your car and model year.
 
 ## Is it still as smooth?
 
