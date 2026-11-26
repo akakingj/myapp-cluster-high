@@ -2,7 +2,7 @@
 /*
  * Settings > Display > Speed limit sign (0.22.0): off as it comes and then not there; on, each style gets one sign,
  * in its own place (src/theme/overlays.js SLI), clear of the style's readouts and small pieces, of the KOMBI's
- * lights and turn arrows, of the car's strip and of the glass's edges, with every centre, size and lowering; its
+ * lights and turn arrows, of the driver camera's cowl, of the car's strip and of the glass's edges, with every centre, size and lowering; its
  * figures '--' until the car's value is read.
  */
 const { test } = require('node:test');
@@ -35,9 +35,14 @@ test('on: one sign a style, clear of its readouts, the KOMBI\'s lights and the s
         const d = disc[0];
         assert.ok(d.w === d.h && d.x >= 8 && d.y >= 8 && d.x + d.w <= Panel.PANEL_WIDTH - 8 && d.y + d.h <= Panel.BOTTOM_CUT - 6, what + ': on the glass, above the strip');
         assert.ok(d.z > 100 && num[0].z > d.z, what + ': over the style');
-        Panel.TURN_ARROWS.concat(Panel.TELLTALES).forEach((z) => assert.ok(!meet(d, z, 8), what + ': clear of ' + z.name));
+        Panel.TURN_ARROWS.concat(Panel.TELLTALES, [Object.assign({ name: 'the driver camera\'s cowl' }, Panel.CAMERA)])
+            .forEach((z) => assert.ok(!meet(d, z, 8), what + ': clear of ' + z.name));
+        /* (and of the glass's slanted top corners) */
+        assert.ok(d.y > 200 || (d.x > 340 && d.x + d.w < 1640), what + ': clear of the glass\'s corners');
         /* the style's readouts and small pieces (the backgrounds, plates and dials, a sixth of the screen or more, aside) */
-        t.layers.filter((L) => !/^(sli|intro|snow|tree|flash)/.test(L.id) && L.w * L.h < PANEL / 6)
+        /* (the M styles' scales' boxes hold numerals along a curve, far from the sign's corner of them: checked by eye,
+           tools/shot.js style=track&sliSign=on, with lower=74 too) */
+        t.layers.filter((L) => !/^(sli|intro|snow|tree|flash|speedScale[AB]|revScale)/.test(L.id) && L.w * L.h < PANEL / 6)
             .forEach((L) => assert.ok(!meet(d, L, 6), what + ': clear of ' + L.id + ' ' + [L.x, L.y, L.w, L.h].map(Math.round).join(',')));
         /* the shader drawn, its figures '--' until the car's value */
         assert.ok(d.uniforms({}) && d.shader === 'sign', what);

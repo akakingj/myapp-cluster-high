@@ -37,15 +37,17 @@
      * light disc, the limit in figures - in each style's room. BMW's own speed limit sign is drawn under the
      * apps' layers (the owner, 2026-11-26: gone under AK Cluster Layouts), so it is gone under any style. Each style's
      * place [x, y, r] (its centre and radius), picked off the styles as drawn: Toro's empty upper left, above the oil
-     * gauges and clear of the KOMBI's lights; the M styles' top middle, between BMW's turn arrows and above the
-     * plates (test/sli.test.js keeps each clear of the style's pieces). The figures: state.speedLimit, which nothing
+     * gauges and clear of the KOMBI's lights; the M styles' lower left, above the M mark and the clock, under the
+     * speed's scale, near BMW's own place (0.22.0 had them top middle, under the driver camera's cowl, Panel.CAMERA, where the glass
+     * shows nothing: the owner). test/sli.test.js keeps each clear of the style's pieces, the KOMBI's lights, the
+     * turn arrows and the camera's cowl. The figures: state.speedLimit, which nothing
      * reads yet ('--': the car's value comes once AK Cluster Info's Driving assistant check has shown which it is).
      */
     var SLI = {
         toro: { at: [320, 300, 46], face: 'display' },
-        track: { at: [955, 54, 42], face: 'mb' },
-        mplus: { at: [955, 54, 42], face: 'mb' },
-        mtrack: { at: [955, 54, 42], face: 'mb' }
+        track: { at: [140, 490, 42], face: 'mb' },
+        mplus: { at: [140, 490, 42], face: 'mb' },
+        mtrack: { at: [140, 490, 42], face: 'mb' }
     };
     function sliText(st) {
         var v = st && st.speedLimit;
@@ -195,7 +197,10 @@
 
         var sign = S.sliSign && SLI[theme.id];
         if (sign) {
-            var cx = sign.at[0], cy = sign.at[1], r = sign.at[2];
+            /* (a lowered style, Display > Lower and enlarge the cluster: the sign goes where its place goes, at its own
+               size, kept on the glass - the M styles' lower left would leave it) */
+            var at = Strip.lowerRect([sign.at[0], sign.at[1], 0, 0], S.lower || 0), r = sign.at[2];
+            var cx = Math.round(Math.max(r + 8, Math.min(Panel.PANEL_WIDTH - 8 - r, at[0]))), cy = Math.round(at[1]);
             layers.push({
                 id: 'sliDisc', z: 190, shader: 'sign', still: true,
                 x: cx - r, y: cy - r, w: 2 * r, h: 2 * r,

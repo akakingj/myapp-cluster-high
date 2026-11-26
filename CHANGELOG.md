@@ -13,6 +13,13 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.23.1
+
+- **The speed limit sign in sight on the M styles.** 0.22.0 put it top middle on M Sport, M Sport Plus and M Track,
+  under the driver camera's cowl (`Panel.CAMERA`), where the glass shows nothing. Now lower left, above the M mark
+  and the clock and under the speed's scale, near BMW's own place. With *Lower and enlarge the cluster* it goes where
+  its place goes, at its own size, kept on the glass. `test/sli.test.js` holds it clear of the camera's cowl too.
+
 ## AK 0.23.0
 
 - **Start on the cluster with the car** (Settings, under Show on the cluster; or the Car profile's *Start on the
