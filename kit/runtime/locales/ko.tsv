@@ -2450,8 +2450,6 @@ Whole screen	화면 전체
 Across the top	위쪽 가로
 BMW's bottom strip	BMW 하단바
 Cover the speed limit sign's edge in BMW's strip	하단바의 제한속도 표지 가장자리 가리기
-BETA: lower and enlarge the cluster	베타: 계기판을 내리고 키우기
-20 px lower, 3 % larger (BMW's strip hidden)	20 px 아래, 3 % 크게 (BMW 하단바 숨김)
 Plug-in hybrid: electric range as well as the fuel's	플러그인 하이브리드: 연료 주행거리와 전기 주행거리
 Fully electric: range, charge and battery temperature in place of fuel and oil	전기차: 연료·오일 대신 주행거리, 충전량, 배터리 온도
 Refresh rate	화면 갱신 속도
@@ -2632,8 +2630,6 @@ Readings	값
 : the style on the cluster now.	: 지금 계기판에 쓰는 스타일.
 : its own settings, kept for when it is chosen.	: 이 스타일의 설정, 고를 때 적용.
 For every style: the car, units, the limiter, BMW's strip, extras.	모든 스타일 공통: 차량, 단위, 리미터, BMW 하단바, 기타.
-BMW strip hidden	BMW 하단바 숨김
-px lower (BETA)	px 아래 (베타)
 Closed	닫힘
 BMW map	BMW 지도
 Camera	카메라

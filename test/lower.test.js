@@ -91,28 +91,9 @@ test('the setting: px, 0 - 74, off as it comes; on, it hides the strip and keeps
     assert.strictEqual(Strip.foot(r({})), 646);
 });
 
-test('on the app\'s page: a BETA choice in General, off as it comes, or 20 px (each style has room for it)', () => {
-    const item = spec.settings.find((s) => s.key === 'lower');
-    assert.ok(item, 'the setting is declared');
-    assert.strictEqual(item.group, 'General');
-    assert.strictEqual(item.default, '0');
-    assert.ok(/^BETA/.test(item.label), 'it says what it is');
-    const values = item.options.map((o) => Number(o[0]));
-    assert.strictEqual(values[0], 0);
-    assert.deepStrictEqual(values.slice().sort((a, b) => a - b), values, 'in order');
-    assert.ok(values.every((v) => Number.isInteger(v) && v >= 0 && v <= Strip.LOWER_MOST));
-    /* 40 and more cut M Sport's 260 at the speedometer's top and bring Toro's boost readout under the belt light (a car,
-       2026-11-26): Off and 20 only, and a value saved before goes to 20 */
-    assert.deepStrictEqual(values, [0, 20]);
-    assert.deepStrictEqual(item.aliases, { 40: '20', 58: '20', 74: '20' });
-    /* each step says how far and how much larger, and the figures are right */
-    item.options.slice(1).forEach((o) => {
-        const m = /^(\d+) px lower, (\d+) % larger/.exec(o[1]);
-        assert.ok(m, o[1]);
-        assert.strictEqual(Number(m[1]), Number(o[0]));
-        assert.strictEqual(Number(m[2]), Math.round((Strip.lowerScale(Number(o[0])) - 1) * 100), o[1]);
-    });
-    /* no other setting of the cluster is on the cluster: this one is on iDrive like the rest */
+test('not in the app\'s settings (AK 0.19.1): every style at its own size on the car', () => {
+    assert.ok(!spec.settings.some((s) => s.key === 'lower'), 'the setting is gone');
+    /* the styles still say how far each could go (the previews and the tests below draw it) */
     for (const st of STYLES) assert.strictEqual(Themes.lowerMost(st), MOST[st], st);
 });
 

@@ -19,9 +19,10 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   off its top edge; *Off* hides it but BMW's gear letter. A test on a car (photos, 2026-11-26): the trims of 6 and
   12 px left pieces of BMW's own dials at the sides, and the wider gap beside the gear showed the T of COMFORT. A
   choice saved before goes to *On* (show all of it, any trim) or *Off* (either way to hide it).
-- **BETA: lower and enlarge the cluster offers Off and 20 px (3 % larger).** On the same car 40 px and more cut the top
-  of M Sport's speedometer (its 260) and brought Toro's boost reading under the seat belt light. A saved 40, 58 or 74
-  goes to 20.
+- **BETA: lower and enlarge the cluster is gone from Settings.** On the same car 40 px and more cut the top of M Sport's
+  speedometer (its 260) and brought Toro's boost reading under the seat belt light, and 20 px (3 % larger) is hardly
+  told apart from *BMW's bottom strip: Off*, which hides the strip as well. A saved choice is not read any more: every
+  style is drawn at its own size.
 
 ## AK 0.19.0
 

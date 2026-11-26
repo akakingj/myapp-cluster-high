@@ -178,7 +178,6 @@ in.
 
 | Option (off as it comes) | What it adds |
 |---|---|
-| **BETA: lower and enlarge the cluster** | The same layers and two or three more (the covers; the flash and the start-up veil in three pieces when they show), each larger by the scale, squared: at its most, 8 % more to draw for Toro (58 px), 20 – 22 % for the M styles (74 px). Nothing more on the wire. Lowered to its most, M Sport draws in 83.1 ms against 76.9 for M Sport as it came in 0.9.1 |
 | Holiday theme | Three layers (two of snow, the tree); the snow's place is sent 30 times a second |
 | Start-up message | Four layers for its ten seconds; not drawn after |
 | A picture in the middle | The same layers, and no more to draw: the glass and the plates work out the window instead of being whole. (The 5 – 7 ms that "with a map" adds in the table above is the preview's stand-in picture, not the style.) In M Track Mode the gauge rows are not drawn then |

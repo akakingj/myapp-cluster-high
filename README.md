@@ -317,32 +317,6 @@ outside temperature and more), and in Settings → M Sport or M Sport Plus
 
 ![BMW's bottom strip On and Off](docs/screenshots/strip.png)
 
-### BETA: lower and enlarge the cluster
-
-With the strip hidden, the rows it stood in are plain black. This option
-draws the whole style into them — lower, and larger by the same amount:
-
-1. Open the app, press **Settings**, then **General**.
-2. Press **BETA: lower and enlarge the cluster** and pick **20 px lower,
-   3 % larger**. **Off** puts it back exactly as it was.
-
-It hides BMW's strip for you; **BMW's gear letter stays**, and nothing is
-ever drawn over it. The top of the style stays where it is and nothing is
-stretched: it is the same picture, bigger. Further than 20 px is not
-offered: on a car, 40 px and more cut the top of M Sport's speedometer
-(its 260) and brought Toro's boost reading under the seat belt light.
-
-![Each style with the strip hidden, and lowered 20 px](docs/screenshots/lowered.png)
-
-**It is a BETA.** Try it parked first and look at the rev dial: if BMW's **black box** appears there,
-set the option back to **Off**, lock the car and let it sleep once — and
-please report it with your car, the style and the amount. Two things are
-expected and are not faults: lowered, an M style's speed numbers reach the
-place the tyre pressure lamp lights (the lamp shows over them), and the map
-or camera picture in the middle stays the size the car draws it.
-
-(The pictures are the app's own preview, not photographs of a car.)
-
 ### If a black box appears in the rev dial
 
 It should not: the app never covers the gear letter. If you see one with

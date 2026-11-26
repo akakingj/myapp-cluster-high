@@ -79,37 +79,6 @@ below.
 | T13 | An **M car** (if yours is one) | The car may draw two boxes of its own over a cluster app. The lower part of the large gear is under the left one on the car this was measured from; the rev counter's numerals should all be clear of the right one. **Say what the car puts where** |
 | T14 | A diesel: *Settings → General → Engine → Diesel* | The rev counter reads **0 to 6**, seven numerals spread evenly over the same height, red from 4,500 |
 
-## Lowered and larger (BETA, 0.10.0)
-
-Off as it comes: *Settings → General → BETA: lower and enlarge the cluster*. It draws
-the whole style further down, into the rows BMW's strip leaves when it is
-hidden, and larger by as much. **Start parked, and start small.** The one
-thing to watch for above all is BMW's **black box in the rev dial**: it
-means something of ours stood over the gear's window. The option is built
-never to do that (it keeps to the columns *Off* drives on). From AK 0.19.1 it
-offers 20 px only: on a car (2026-11-26) 40 px and more cut the top of
-M Sport's speedometer (its 260) and brought Toro's boost reading under the
-seat belt light.
-
-| # | Do | Expect |
-|---|---|---|
-| W1 | Any style on the cluster. *BETA: lower and enlarge the cluster* → **20 px lower** | Within half a second the style is a little larger and reaches further down. BMW's strip is gone but for its **gear letter**, which stands where it always does. **No black box** in the rev dial |
-| W2 | The top of the style | Where it was: only the foot has moved. Nothing is stretched - circles are still circles |
-| W3 | Shift through P R N D S and M1 … at 20 px | BMW's gear letter changes in its place and is never covered or cut. Still no black box |
-| W4 | Toro at 20: the speed, bottom right | It stands just left of BMW's gear letter, and its unit (MPH or KM/H) does not touch the letter |
-| W5 | Toro at 20, at the rev limiter with *Shake the screen* on **Hard** | The whole instrument shakes; BMW's gear letter does not, and nothing jumps over it. The red flash takes in the whole instrument, with a black gap where the gear letter is |
-| W6 | An M style at 20: the footer (time, range, outside temperature) and the speedometer's top (260) | All of it on the screen. Say if anything is cut |
-| W7 | An M style, lowered: the speed scale's numerals on the left | They now reach the place the **tyre pressure lamp** lights. If that lamp is on, it is drawn over them - that is expected; say if it is a nuisance |
-| W8 | A map or the camera in the middle, lowered | The picture is where it always is and the same size; the style's window round it is a little larger. Nothing of BMW's own cluster shows at the window's edges - look closely at M Sport Plus with *Centre picture: how much shows → More* and *Fullest* |
-| W10 | M Track Mode at 74 with a map in the wing | The picture begins where it begins, on a soft edge, not a hard line |
-| W11 | The start-up message (*Settings → General → Start-up message*), lowered | The whole style is dimmed behind it, the footer too |
-| W12 | Set it back to **Off** | Exactly the style as it was, and *BMW's bottom strip* as you had it set |
-| W13 | Lock the car, let it sleep, start again with it lowered | It comes up lowered, with no black box |
-
-If the black box ever appears: set the option to **Off**, note which style
-and amount, and report it. It can stay until the cluster has restarted
-(lock the car and let it sleep).
-
 ## The widest picture, M Sport and M Sport Plus (0.10.0)
 
 Off as it comes: *M SPORT* or *M SPORT PLUS → Centre picture: how much

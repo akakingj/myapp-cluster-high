@@ -317,8 +317,6 @@ mgu.run({
         /* set by the Car profile app (the kit's Settings.held): shown with its value, changed there */
         const held = (key) => !!(settings.held && settings.held(key));
         const style = () => (STYLE_NAME[settings.get('style')] ? settings.get('style') : 'toro');
-        /* BETA: how many px lower a style is drawn (0: as it comes) - what was asked, as far as the style goes */
-        const lowered = (st) => Math.max(0, Math.min(Math.round(Number(settings.get('lower')) || 0), Theme.lowerMost(st || style())));
         /* the setting a style keeps what shows in its middle under, and what it may be */
         const centreKey = (st) => Theme.keyFor(st || style(), 'centre');
         const centreOptions = (st) => ((settings.item(centreKey(st)) || {}).options || []).map((o) => o[0]);
@@ -459,7 +457,7 @@ mgu.run({
             /* ---- right: the design, its state, and what each of its places shows ---- */
             const RX = 664, RW = W - 24 - RX;
             fitLabel(D.name, RX, top + 40, 34, RW - 300, INK, { font: SK7 ? undefined : 'bold' });
-            label(lowered(st) ? tr('BMW strip hidden') + ': ' + lowered(st) + ' ' + tr('px lower (BETA)') : tr(status), RX + RW, top + 40, 18,
+            label(tr(status), RX + RW, top + 40, 18,
                 statusColour(status), { align: 'right', font: SK7 ? undefined : 'bold', done: true });
             fitLabel(D.sub, RX, top + 68, 18, RW, DIM);
             const keys = (PLACES[st] || []).map((k) => settings.item(k)).filter((s) => s && offered(s, true));

@@ -94,10 +94,11 @@
      * drawn into them: `d` px further down and larger by as much,
      * (646 + d) / 646, about the top of the screen's middle - so its top
      * stays where it is, its foot goes d rows lower, and it is the same
-     * picture, only bigger. Off as it comes, and the menu offers 20 px
-     * (further cut M Sport's 260 and brought Toro's boost reading under the
-     * seat belt light on a car, 2026-11-26; saved 40, 58 and 74 go to 20);
-     * it hides the strip itself
+     * picture, only bigger. Not in the app's settings from AK 0.19.1 (on a
+     * car, 2026-11-26, 40 px and more cut M Sport's 260 and brought Toro's
+     * boost reading under the seat belt light, and 20 px was hardly told
+     * apart from the strip hidden): S.lower is 0 there; the previews and
+     * tests still draw it. It hides the strip itself
      * (src/theme/palette.js), and a style goes only as far as it has room
      * for (its own most: Toro's side gauges reach the screen's edges
      * first).

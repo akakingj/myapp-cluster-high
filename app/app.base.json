@@ -1032,28 +1032,6 @@
       "group": "General"
     },
     {
-      "key": "lower",
-      "label": "BETA: lower and enlarge the cluster",
-      "type": "choice",
-      "default": "0",
-      "options": [
-        [
-          "0",
-          "Off"
-        ],
-        [
-          "20",
-          "20 px lower, 3 % larger (BMW's strip hidden)"
-        ]
-      ],
-      "aliases": {
-        "40": "20",
-        "58": "20",
-        "74": "20"
-      },
-      "group": "General"
-    },
-    {
       "key": "electric",
       "label": "Electric range",
       "type": "choice",
