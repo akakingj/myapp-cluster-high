@@ -17,6 +17,11 @@
  * file of its own and no app in layouts.json, never steps aside: this one
  * waits for it whenever layouts.json is fresh.
  *
+ * Settings > Start on the cluster with the car (the Car profile's choice, or each
+ * app's own): the app chosen says auto in its file and keeps the cluster from
+ * the other whichever came up first (0.23.0: the lighter Layouts came up first
+ * at every start, and this one, also on, waited).
+ *
  * Node 8.
  */
 
@@ -45,8 +50,9 @@ function create(opts) {
         try { fs.chmodSync(tmp, 420); } catch (e) { /* the mode given above */ }
         fs.renameSync(tmp, f);
     }
-    /* this app is on the cluster (since: when it came up, by the wall clock): said again at most once a second */
-    function mark(t, since) {
+    /* this app is on the cluster (since: when it came up, by the wall clock; auto: started with the car): said again
+       at most once a second */
+    function mark(t, since, auto) {
         if (t - markedAt < MARK_MS) return;
         markedAt = t;
         try {
@@ -57,7 +63,7 @@ function create(opts) {
                 madeDir = true;
             }
             write(file, { app: app, at: Date.now() });
-            write(own, { app: app, since: typeof since === 'number' ? since : Date.now(), at: Date.now() });
+            write(own, { app: app, since: typeof since === 'number' ? since : Date.now(), auto: !!auto, at: Date.now() });
         } catch (e) { /* no tmpfs there: nothing shared */ }
     }
 
@@ -68,15 +74,18 @@ function create(opts) {
         } catch (e) { return null; }      /* none, or one in the making: no one */
     }
     /* Cluster Layouts is on the cluster and keeps it from this one (since: when this one came up, null while it
-       waits); looked at twice a second */
-    var lookedFor;
-    function othersShowing(t, since) {
-        if (t - lookedAt < LOOK_MS && t >= lookedAt && lookedFor === since) return other;
-        lookedAt = t; lookedFor = since;
+       waits; auto: this one is started with the car - then only a Layouts also started with it, and up first, keeps
+       it, and a Layouts that is keeps it from this one when it is not); looked at twice a second */
+    var lookedFor, lookedAuto;
+    function othersShowing(t, since, auto) {
+        auto = !!auto;
+        if (t - lookedAt < LOOK_MS && t >= lookedAt && lookedFor === since && lookedAuto === auto) return other;
+        lookedAt = t; lookedFor = since; lookedAuto = auto;
         var v = read(theirs);
         if (v) {
-            var at = typeof v.since === 'number' ? v.since : Infinity;
-            other = since === null || since === undefined || at < since || (at === since && otherId < app);
+            var at = typeof v.since === 'number' ? v.since : Infinity, theirsAuto = v.auto === true;
+            other = theirsAuto !== auto ? theirsAuto
+                : since === null || since === undefined || at < since || (at === since && otherId < app);
         } else {
             /* an older Cluster Layouts: no file of its own, no app in layouts.json */
             var l = read(file);

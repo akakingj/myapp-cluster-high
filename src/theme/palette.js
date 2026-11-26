@@ -67,6 +67,7 @@
         mode: 'CORSA',
         modeLabel: 'lamborghini',  /* lamborghini | bmw | fixed */
         enabled: false,            /* off until turned on: installing never takes the cluster */
+        autoStart: false,          /* Start on the cluster with the car (src/car/presence.js, app/entry.js) */
         clock12: false,
         secondaryGlyph: null,     /* the small glyph beside the gear; off */
         shiftLights: true,
@@ -396,6 +397,7 @@
         if (['modern', 'revuelto'].indexOf(s.background) < 0) s.background = 'genuine';
         if (['lamborghini', 'bmw', 'fixed'].indexOf(s.modeLabel) < 0) s.modeLabel = 'lamborghini';
         s.enabled = s.enabled === true || s.enabled === 'on';
+        s.autoStart = s.autoStart === true || s.autoStart === 'on';
         s.clock12 = s.clock12 === true || s.clock12 === '12';
         /* the units shown: speed, temperature, pressure, fuel economy (units.js) */
         s.u = Units.of(settings);

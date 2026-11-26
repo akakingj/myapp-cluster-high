@@ -274,6 +274,7 @@ function start(host, deps) {
     var running = false;        /* our layers are up */
     var upSince = null;         /* when they went up (the wall clock): Cluster Layouts and this one take turns by it */
     var wantSince = 0;          /* since when the style has been wanted, not yet up (SHOW_SETTLE_MS) */
+    var lastCar = null;         /* the car's state last frame (Start on the cluster with the car: its waking) */
     var stopped = false;
     var timer = null, settleTimer = null;
     var status = 'Starting';
@@ -466,7 +467,12 @@ function start(host, deps) {
             var car = carState(raw);
             var enabled = theme && theme.settings.enabled;
             /* AK Cluster Layouts on the cluster: this one steps aside while it is */
-            var yielded = !!enabled && presence.othersShowing(now(), running ? upSince : null);
+            var auto = !!(theme && theme.settings.autoStart);
+            var yielded = !!enabled && presence.othersShowing(now(), running ? upSince : null, auto);
+            /* Start on the cluster with the car: Show on the cluster on again as the car wakes (the head unit up all
+               the while; at its own start app/entry.js does it) */
+            if (car !== 'off' && lastCar === 'off' && auto && !enabled && host.showOn) host.showOn('the car on');
+            lastCar = car;
 
             var want = enabled && !yielded && connected && !!driver &&
                 (car === 'on' || (car === 'starting' && running));
@@ -524,7 +530,7 @@ function start(host, deps) {
             } catch (e) { log.warn('engine: ' + e); }
 
             if (running) {
-                presence.mark(now(), upSince);
+                presence.mark(now(), upSince, auto);
                 var st = State.present(raw, profile, theme.settings);
                 if (hasCentre) st.centre = centre.state();
                 st.sinceOn = onAt ? (now() - onAt) / 1000 : -1;

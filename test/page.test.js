@@ -19,7 +19,7 @@ const { Recorder } = require(path.join(Harness.KIT, 'record.js'));
 const spec = require('../app/app.base.json');
 
 const Sheet = require(path.join(Harness.KIT, 'sheet.js'));
-const TOP = ['enabled', 'style'];
+const TOP = ['enabled', 'autoStart', 'style'];
 /* the groups every style has, as Cluster Layouts' sections and in their order, then each style's own */
 const SHARED = ['Display', 'Readouts and gauges', 'Red zone and shift', 'Units and clock', 'Car'];
 const GROUP_STYLE = { Display: null, 'Readouts and gauges': null, 'Red zone and shift': null, 'Units and clock': null, Car: null,

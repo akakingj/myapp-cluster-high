@@ -85,6 +85,17 @@ function settingsOf(settings, spec) {
     return out;
 }
 
+/*
+ * Settings > Start on the cluster with the car (the Car profile's Start on the cluster: AK Cluster Layouts, this one or
+ * none; else this app's own): Show on the cluster turned on - at the app's start (each start of the head unit), when
+ * it is chosen and as the car wakes - and this one keeps the cluster from AK Cluster Layouts (src/car/presence.js).
+ */
+function showOn(bg, why) {
+    if (bg.settings.get('autoStart') !== 'on' || bg.settings.get('enabled') === 'on') return;
+    bg.settings.set('enabled', 'on');
+    bg.log.info('start on the cluster with the car: Show on the cluster on (' + why + ')');
+}
+
 /* What the service needs from the head unit, from the kit's background context. */
 function hostFor(bg) {
     return {
@@ -94,6 +105,8 @@ function hostFor(bg) {
         },
         settings: () => settingsOf(bg.settings, bg.spec),
         dataDir: bg.dataDir,
+        /* Start on the cluster with the car: Show on the cluster turned on (src/car/main.js, as the car wakes) */
+        showOn: (why) => showOn(bg, why),
         onSettingsChanged: (fn) => bg.settings.onChange(fn),
         /*
          * The car's diagnostic link, for the readings the bus does not carry
@@ -311,6 +324,10 @@ mgu.run({
         try { Panel.moveCarFigures(bg.settings, bg.log); } catch (e) { bg.log.warn('car figures: ' + e); }
         try { Panel.moveElectric(bg.settings, bg.log); } catch (e) { bg.log.warn('electric range: ' + e); }
         try { Panel.moveEconAuto(bg.settings, bg.log); } catch (e) { bg.log.warn('fuel economy unit: ' + e); }
+        try {
+            showOn(bg, 'start');
+            bg.settings.onChange((k) => { if (k === 'autoStart') showOn(bg, 'chosen'); });
+        } catch (e) { bg.log.warn('start with the car: ' + e); }
         try {
             const svc = Service.start(hostFor(bg), { appId: bg.spec.id,
                 font: KitFonts ? (text) => KitFonts.get('label', 36, text) : undefined });

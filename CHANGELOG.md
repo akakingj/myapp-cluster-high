@@ -13,6 +13,15 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.23.0
+
+- **Start on the cluster with the car** (Settings, under Show on the cluster; or the Car profile's *Start on the
+  cluster*: AK Cluster Layouts, AK Cluster ID8 or none). With both apps on, the one that came up first kept the
+  cluster, and at every start that was the lighter Layouts: ID8 waited. Now the app chosen to start with the car
+  keeps the cluster from the other whichever came up first (`src/car/presence.js`: its file says `auto`; Layouts
+  0.62.0 the same), and its *Show on the cluster* is turned on at the app's start, as the car wakes and when it is
+  chosen. Off as it comes; with neither chosen, the one up first as before.
+
 ## AK 0.22.0
 
 - **Settings > Display > Speed limit sign** (off as it comes). BMW's own speed limit sign is drawn under the

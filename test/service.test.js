@@ -36,8 +36,11 @@ function harness(t, initial, centre, more) {
         log: { info: m => logs.push(m), warn: m => logs.push('WARN ' + m) },
         settings: () => values,
         onSettingsChanged(fn) { changed = fn; },
-        subscribe(sig, cb) { onValue = cb; calls.signals = sig; }
+        subscribe(sig, cb) { onValue = cb; calls.signals = sig; },
+        /* (Start on the cluster with the car: app/entry.js's, Show on the cluster turned on) */
+        showOn(why) { shownOn.push(why); values = Object.assign({}, values, { enabled: 'on' }); if (changed) changed(); }
     };
+    const shownOn = [];
     /* taking turns with the AK Cluster apps (presence.js): no one else, unless a test says */
     const presence = { other: false, marks: 0, othersShowing() { return this.other; }, mark() { this.marks++; } };
     /* (shown at once here: the wait before the style goes up, SHOW_SETTLE_MS, has a test of its own) */
@@ -46,7 +49,7 @@ function harness(t, initial, centre, more) {
     const svc = Main.start(host, deps);
     t.after(() => svc.stop());   /* a failed assertion must not leave a timer running */
     return {
-        calls, logs, svc, on, presence,
+        calls, logs, svc, on, presence, shownOn,
         send: (s, f, v) => onValue(s, f, v),
         tick: ms => { clock += ms; },
         rpm: v => onValue(CDS, 'statusEngineSpeed2', { actualValueRPMEngineCrankshaft: v * 4 }),
@@ -148,6 +151,36 @@ test('presence.js: its mark carries its id, and only another app\'s fresh mark c
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('Start on the cluster with the car: Show on the cluster turned on as the car wakes, and its mark says so', { timeout: 10000 }, async (t) => {
+    const h = harness(t, { enabled: false, autoStart: 'on' });
+    const auto = [];
+    h.presence.othersShowing = function (tt, since, a) { auto.push(a); return this.other; };
+    h.presence.mark = function (tt, since, a) { this.marks++; auto.push(a); };
+    h.on.ready();
+    h.condition('WOHNEN');                     /* parked: off */
+    await wait(320);
+    assert.deepStrictEqual(h.shownOn, [], 'not while the car is off');
+    h.condition('FAHREN');
+    h.rpm(2000);
+    await wait(320);
+    assert.deepStrictEqual(h.shownOn, ['the car on'], 'asked once as the car woke');
+    await wait(400);
+    assert.strictEqual(h.svc.status(), 'On the cluster');
+    assert.ok(h.presence.marks > 0 && auto.length && auto.every((a) => a === true), 'up, and its mark says it is started with the car');
+});
+
+test('Start on the cluster with the car off: Show on the cluster left as it is', { timeout: 10000 }, async (t) => {
+    const h = harness(t, { enabled: false });
+    h.on.ready();
+    h.condition('WOHNEN');
+    await wait(320);
+    h.condition('FAHREN');
+    h.rpm(2000);
+    await wait(400);
+    assert.deepStrictEqual(h.shownOn, []);
+    assert.strictEqual(h.svc.status(), 'Off - BMW original cluster');
+});
+
 test('presence.js: AK Cluster Layouts and this one take turns, the one up first keeping the cluster', () => {
     const fs = require('fs'), os = require('os'), path = require('path');
     const Presence = require('../src/car/presence.js');
@@ -172,6 +205,18 @@ test('presence.js: AK Cluster Layouts and this one take turns, the one up first 
         fs.rmSync(path.join(dir, 'akakingj_cluster_layouts.json'));
         fs.writeFileSync(path.join(dir, 'layouts.json'), JSON.stringify({ centre: 'info', at: Date.now() }));
         assert.strictEqual(p.othersShowing(4000, now - 1000), true);
+        /* Start on the cluster with the car: the one chosen keeps the cluster, whichever came up first */
+        const lay = (since, auto) => fs.writeFileSync(path.join(dir, 'akakingj_cluster_layouts.json'),
+            JSON.stringify({ app: 'akakingj_cluster_layouts', since, auto, at: Date.now() }));
+        lay(now - 5000, false);
+        assert.strictEqual(p.othersShowing(10000, null, true), false, 'chosen: it comes up over Layouts, up first');
+        assert.strictEqual(p.othersShowing(11000, now - 1000, true), false, 'chosen: it keeps the cluster');
+        lay(now, true);
+        assert.strictEqual(p.othersShowing(12000, now - 1000, false), true, 'Layouts chosen: it steps aside, up first');
+        assert.strictEqual(p.othersShowing(13000, now - 1000, true), false, 'both chosen: the one up first');
+        p.mark(14000, now - 1000, true);
+        assert.strictEqual(JSON.parse(fs.readFileSync(path.join(dir, 'akakingj_cluster_id8.json'), 'utf8')).auto, true, 'its file says so');
+        fs.rmSync(path.join(dir, 'akakingj_cluster_layouts.json'));
         /* its own layouts.json mark (Centre's) does not count */
         p.mark(9000, now - 1000);
         assert.strictEqual(p.othersShowing(5000, now - 1000), false);
