@@ -44,7 +44,7 @@ test('on: one sign a style, clear of its readouts, the KOMBI\'s lights and the s
            sign stands under the lines, between the range and the footer's panel, as the owner marked it; checked by
            eye, tools/shot.js style=track&sliSign=on, with lower=74 too; a lowered style's black covers over BMW's hidden
            strip, stripL / stripR, are backgrounds; M Track's footer middle, footM, is a box to x 788 for text that
-           ends by about x 680 at its longest - ODO 999,999 km - against the sign's left edge at 709) */
+           ends by about x 680 at its longest - ODO 999,999 km - against the sign's left edge at 693) */
         t.layers.filter((L) => !/^(sli|intro|snow|tree|flash|rails$|strip[LR]?$|footM(Unit)?$)/.test(L.id) && L.w * L.h < PANEL / 6)
             .forEach((L) => assert.ok(!meet(d, L, 6), what + ': clear of ' + L.id + ' ' + [L.x, L.y, L.w, L.h].map(Math.round).join(',')));
         /* the shader drawn, its figures '--' until the car's value */

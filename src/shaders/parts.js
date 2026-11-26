@@ -633,7 +633,7 @@
         '  float r = min(c.x, c.y) - 1.0;',
         '  float l = length(p - c);',
         '  float a = cov(l - r);',
-        '  float face = cov(l - r * 0.8);',
+        '  float face = cov(l - r * 0.84);',
         '  vec3 col = mix(u_ring, u_face * (1.0 - 0.1 * p.y / u_size.y), face);',
         '  gl_FragColor = vec4(col, a);',
         '}'

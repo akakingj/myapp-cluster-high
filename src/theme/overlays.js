@@ -37,18 +37,21 @@
      * light disc, the limit in figures - in each style's room. BMW's own speed limit sign is drawn under the
      * apps' layers (the owner, 2026-11-26: gone under AK Cluster Layouts), so it is gone under any style. Each style's
      * place [x, y, r] (its centre and radius), where the owner marked them (2026-11-26): Toro's inside the rev dial's
-     * foot, over the speed and inside the 7 and 8; the M styles' at the left dial's foot, under its lines, between the
-     * range and the footer's panel (smaller: the room there is 76 px high). 0.22.0 had the M styles' top middle,
+     * foot, over the speed and inside the 7 and 8; the M styles' at the left dial's foot, between the range and the
+     * footer's panel, over the dial's foot lines (the owner: the sign may lie over the style's lines, not its readings;
+     * it is opaque and over every layer), as large as Toro's. fig: the figures' size against the radius, as large as
+     * three of the face's figures fit the disc (the owner: too small to read at a glance; 14 - 18 px tall at first,
+     * now about 26 - 29). 0.22.0 had the M styles' top middle,
      * under the driver camera's cowl (Panel.CAMERA), where the glass shows nothing. test/sli.test.js keeps each
      * clear of the style's pieces, the KOMBI's lights, the turn arrows and the camera's cowl, lowered too. The
      * figures: state.speedLimit, which nothing reads yet ('--': the car's value comes once AK Cluster Info's Driving
      * assistant check has shown which it is).
      */
     var SLI = {
-        toro: { at: [1235, 490, 42], face: 'display' },
-        track: { at: [728, 603, 36], face: 'mb' },
-        mplus: { at: [728, 603, 36], face: 'mb' },
-        mtrack: { at: [743, 580, 34], face: 'mb' }
+        toro: { at: [1235, 490, 42], face: 'display', fig: 0.85 },
+        track: { at: [722, 598, 42], face: 'mb', fig: 0.95 },
+        mplus: { at: [722, 598, 42], face: 'mb', fig: 0.95 },
+        mtrack: { at: [735, 598, 42], face: 'mb', fig: 0.95 }
     };
     function sliText(st) {
         var v = st && st.speedLimit;
@@ -207,8 +210,8 @@
                 x: cx - r, y: cy - r, w: 2 * r, h: 2 * r,
                 uniforms: function () { return { u_ring: [0.88, 0.19, 0.23], u_face: [0.957, 0.957, 0.949] }; }
             });
-            var fs = r * 0.62;
-            TL.txt('sliNum', 191, { x: cx - r * 0.74, y: cy - r * 0.5, w: r * 1.48, h: r },
+            var fs = r * (sign.fig || 0.62);
+            TL.txt('sliNum', 191, { x: cx - r * 0.84, y: cy - r * 0.8, w: r * 1.68, h: r * 1.6 },
                 { face: sign.face, size: fs, align: 'centre', x: cx, y: cy + fs * 0.36, color: [0.08, 0.08, 0.08] }, sliText);
         }
 
