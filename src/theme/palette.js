@@ -143,6 +143,9 @@
          * as much as it has room for. src/theme/strip.js.
          */
         lower: 0,
+        /* Settings > Display > BMW's bottom strip: set it yourself (false: `lower` kept and not used; null, the
+           previews' and tests': `lower` as given) */
+        lowerSet: null,
         /*
          * The opening a hosted picture shows through. It is not
          * re-rendered: the map (or the camera) is drawn where the cluster
@@ -380,7 +383,8 @@
         var strip = Strip.resolve(s.bottomExtra);
         /* lowered, a style stands where the strip is: the strip is hidden for it (with the gap
            beside the gear the owner chose, if one was chosen) */
-        s.lower = Strip.lowerPx(s.lower);
+        /* (Settings > Display > BMW's bottom strip: set it yourself - off, the value under it is kept and not used) */
+        s.lower = s.lowerSet === false ? 0 : Strip.lowerPx(s.lower);
         if (s.lower > 0 && !strip.hide) strip = Strip.resolve(Strip.HIDE);
         s.bottomExtra = strip.trim;        /* px below the cut, right across: never as far as the gear */
         s.stripHide = strip.hide;          /* and the rest of the strip covered, the gear left open */

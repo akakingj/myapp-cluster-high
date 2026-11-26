@@ -91,9 +91,19 @@ test('the setting: px, 0 - 74, off as it comes; on, it hides the strip and keeps
     assert.strictEqual(Strip.foot(r({})), 646);
 });
 
-test('not in the app\'s settings (AK 0.19.1): every style at its own size on the car', () => {
-    assert.ok(!spec.settings.some((s) => s.key === 'lower'), 'the setting is gone');
-    /* the styles still say how far each could go (the previews and the tests below draw it) */
+test('in Settings > Display under BMW\'s bottom strip, behind "set it yourself": off as it comes, then 20 - 74 px', () => {
+    const r = (s) => Palette.resolve(s, P), at = (k) => spec.settings.findIndex((s) => s.key === k);
+    const set = spec.settings[at('lowerSet')], lower = spec.settings[at('lower')];
+    assert.deepStrictEqual([at('lowerSet'), at('lower')], [at('bottomExtra') + 1, at('bottomExtra') + 2], 'right under BMW\'s bottom strip');
+    assert.deepStrictEqual([set.type, set.default, set.group, lower.group], ['bool', false, 'Display', 'Display']);
+    assert.deepStrictEqual(lower.options.map((o) => o[0]), ['20', '40', '58', '74']);
+    assert.deepStrictEqual(lower.when, { lowerSet: true });
+    /* off, the value under it is kept and not used; on, it is */
+    assert.strictEqual(r({ lowerSet: false, lower: '40' }).lower, 0);
+    assert.strictEqual(r({ lowerSet: true, lower: '40' }).lower, 40);
+    assert.strictEqual(r({ lowerSet: true, lower: '40', bottomExtra: '18' }).stripHide, true, 'on, the strip hidden');
+    assert.strictEqual(r({ lowerSet: false, lower: '40', bottomExtra: '18' }).stripHide, false);
+    /* the styles say how far each can go */
     for (const st of STYLES) assert.strictEqual(Themes.lowerMost(st), MOST[st], st);
 });
 

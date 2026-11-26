@@ -101,7 +101,9 @@ style's appear once it is chosen).
 - **Display**: **Style in Sport** and **Style in ECO PRO** (as Layouts' *Layout in Sport* / *in ECO PRO*: a design
   of its own for every Sport mode - Sport+, Individual, a plug-in hybrid's Sport and XtraBoost - and for ECO PRO and a
   plug-in hybrid's Electric, or *Same as Style*; the cluster changes once the mode has held 1.5 s, and in that mode a
-  card on the page picks that mode's design), BMW's bottom strip (on or off), the speed limit sign's edge, the refresh
+  card on the page picks that mode's design), BMW's bottom strip (on or off) and under it *set it yourself* - the
+  cluster lowered and enlarged: 20 px and 3 %, 40 px and 6 %, 58 px and 9 % (as far as Toro goes) or 74 px and 11 %,
+  BMW's strip hidden - the speed limit sign's edge, the refresh
   rate and the needles between the car's updates, the holiday theme, the start-up message, the skin.
 - **Start-up words** (the last row of Settings): the start-up message in your own words, typed on the head unit's own
   keyboard, Korean on a Korean car; OK makes them the message (*Your own words*). Letters the message's face has not,

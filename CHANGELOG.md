@@ -13,6 +13,14 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.20.2
+
+- **Lower and enlarge the cluster again, set by hand.** Settings → Display: under *BMW's bottom strip* (On / Off, as
+  it is) **BMW's bottom strip: set it yourself** (off as it comes), and with it on **Lower and enlarge the cluster**:
+  20 px lower and 3 % larger, 40 px and 6 %, 58 px and 9 % (as far as Toro goes) or 74 px and 11 % (to the screen's
+  edge), BMW's strip hidden for it, the gear letter left open as ever. Off, the value chosen is kept and not used. On
+  a car 40 px and more cut M Sport's 260 and brought Toro's boost reading under the seat belt light.
+
 ## AK 0.20.1
 
 - **Cover the speed limit sign's edge in BMW's strip no longer cuts the clock.** Its patch began at x 440, over the

@@ -44,6 +44,7 @@ Korean letters on the cluster were checked drawn here, not on a cluster.
 | K6 | AK Cluster Layouts on the cluster, then *Show on the cluster* on here | This app waits: *Waiting: AK Cluster Layouts is on the cluster*. Turn Layouts off: this one comes up. Then turn Layouts on while this one shows: Layouts waits (*Waiting: AK Cluster ID8 is on the cluster* on its page), the cluster does not change |
 | K7 | Toro, a left bend, then braking | The G meter's dot goes right in the bend and up braking (as the driver is pushed) |
 | K8 | Car profile: *Oil is too hot at* 110, *G-force circle up to* 2.0 | Settings → Readouts and gauges shows both held by the Car profile; Toro's oil gauge red from 110; the G meter's dot moves three quarters as far for the same load (2.0 g against 1.5 as it comes) |
+| K10 | Settings → Display → *BMW's bottom strip: set it yourself* on, then *Lower and enlarge the cluster* 20, 40, 58, 74 (each style) | BMW's strip hidden, the style that much lower and larger, BMW's gear letter clear; off again, as before. **Note where a figure meets a lamp or the screen's edge** |
 | K9 | A plug-in hybrid, before the car has sent its electric range (or with it never sent) | Toro's ELETTRICO figure and an EV footer read *~NN*, the charge's share of *Electric range when full*; once the car's own comes, the figure without ~ |
 
 ## Cars, the gear, more readings, the strips and gauges (AK 0.15.0)
