@@ -227,11 +227,13 @@ test('every drive mode by its own name (Sport+, Individual, ECO PRO+ ...), the s
         r.receive('de.bmw.infotainment.drivingexcitement.FES', 'statusFESVehicleDynamicSwitchHMI', FES(v), 1000);
         return State.present(r.raw(1100, 60), Panel.profile('carprofile'), { modeLabel: style }).modeLabel;
     };
-    const PETROL = ['ECO_PRO_EFFICIENT', 'COMFORT', 'SPORT_DYNAMIC', 'SPORT_EXPERT', 'SPORT_INDIVIDUAL', 'ECO_PRO_INDIVIDUAL'];
-    assert.deepStrictEqual(PETROL.map((v) => label(v, 'lamborghini')), ['CITTA', 'STRADA', 'SPORT', 'CORSA', 'EGO', 'EGO']);
-    assert.deepStrictEqual(PETROL.map((v) => label(v, 'bmw')), ['ECO PRO', 'COMFORT', 'SPORT', 'SPORT+', 'SPORT INDIVIDUAL', 'ECO PRO INDIVIDUAL']);
-    const PHEV = ['PHEV_ELECTRIC_STANDARD', 'PHEV_HYBRID_ECO', 'PHEV_HYBRID_STANDARD', 'PHEV_SPORT_STANDARD', 'PHEV_SPORT_PLUS', 'PHEV_SPORT_INDIVIDUAL'];
-    assert.deepStrictEqual(PHEV.map((v) => label(v, 'lamborghini')), ['CITTA', 'CITTA', 'STRADA', 'SPORT', 'CORSA', 'EGO']);
+    const PETROL = ['ECO_PRO_EFFICIENT', 'COMFORT', 'SPORT_DYNAMIC', 'SPORT_EXPERT', 'SPORT_INDIVIDUAL', 'ECO_PRO_INDIVIDUAL', 'COMFORT_INDIVIDUAL'];
+    assert.deepStrictEqual(PETROL.map((v) => label(v, 'lamborghini')), ['CITTA', 'STRADA', 'SPORT', 'CORSA', 'SPORT EGO', 'CITTA EGO', 'STRADA EGO']);
+    assert.deepStrictEqual(PETROL.map((v) => label(v, 'bmw')), ['ECO PRO', 'COMFORT', 'SPORT', 'SPORT+', 'SPORT INDIVIDUAL', 'ECO PRO INDIVIDUAL', 'COMFORT INDIVIDUAL']);
+    const PHEV = ['PHEV_ELECTRIC_STANDARD', 'PHEV_ELECTRIC_INDIVIDUAL', 'PHEV_HYBRID_ECO', 'PHEV_HYBRID_STANDARD', 'PHEV_SPORT_STANDARD', 'PHEV_SPORT_PLUS', 'PHEV_SPORT_INDIVIDUAL'];
+    assert.deepStrictEqual(PHEV.map((v) => label(v, 'lamborghini')), ['CITTA', 'CITTA EGO', 'CITTA', 'STRADA', 'SPORT', 'CORSA', 'SPORT EGO']);
+    /* no EGO alone */
+    assert.ok(!PETROL.concat(PHEV).some((v) => label(v, 'lamborghini') === 'EGO'));
 });
 
 test('the drive mode from the HMI\'s switch field first: the Sport Display\'s only while that one has said nothing for a minute', () => {

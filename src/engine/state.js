@@ -25,17 +25,18 @@
 
     /*
      * BMW's driving modes by the names Lamborghini gives its own: CITTA (the city, gently), STRADA (the road),
-     * SPORT, CORSA (the track) and EGO (the driver's own set-up). A plug-in hybrid's take the same as a petrol
-     * car's of the same kind (its Sport SPORT, its Hybrid STRADA, its Electric CITTA), and its Battery Control
-     * RECHARGE, as the Revuelto names charging the battery. 'bmw' shows BMW's own name; 'fixed' always shows
-     * the mode setting's text.
+     * SPORT and CORSA (the track); an Individual mode is its kind's with EGO after it (Lamborghini's name for the
+     * driver's own set-up): STRADA EGO, CITTA EGO, SPORT EGO. A plug-in hybrid's take the same as a petrol car's of
+     * the same kind (its Sport SPORT, its Hybrid STRADA, its Electric CITTA), and its Battery Control RECHARGE, as
+     * the Revuelto names charging the battery. 'bmw' shows BMW's own name; 'fixed' always shows the mode setting's
+     * text.
      */
     /* (a plug-in hybrid's own names, src/car/vehicle.js phevNameOf; a petrol car's, driveModeOf) */
-    var LAMBO = { ECO_PRO: 'CITTA', ECO_PRO_PLUS: 'CITTA', ECO_PRO_INDIVIDUAL: 'EGO',
-                  COMFORT: 'STRADA', COMFORT_PLUS: 'STRADA', COMFORT_INDIVIDUAL: 'EGO', ADAPTIVE: 'STRADA',
-                  SPORT: 'SPORT', SPORT_INDIVIDUAL: 'EGO', SPORT_PLUS: 'CORSA', TRACK: 'CORSA',
-                  PHEV_SPORT: 'SPORT', PHEV_SPORT_INDIVIDUAL: 'EGO', HYBRID: 'STRADA', HYBRID_ECO_PRO: 'CITTA',
-                  HYBRID_COMFORT: 'STRADA', ELECTRIC: 'CITTA', ELECTRIC_INDIVIDUAL: 'EGO', BATTERY_CONTROL: 'RECHARGE',
+    var LAMBO = { ECO_PRO: 'CITTA', ECO_PRO_PLUS: 'CITTA', ECO_PRO_INDIVIDUAL: 'CITTA EGO',
+                  COMFORT: 'STRADA', COMFORT_PLUS: 'STRADA', COMFORT_INDIVIDUAL: 'STRADA EGO', ADAPTIVE: 'STRADA',
+                  SPORT: 'SPORT', SPORT_INDIVIDUAL: 'SPORT EGO', SPORT_PLUS: 'CORSA', TRACK: 'CORSA',
+                  PHEV_SPORT: 'SPORT', PHEV_SPORT_INDIVIDUAL: 'SPORT EGO', HYBRID: 'STRADA', HYBRID_ECO_PRO: 'CITTA',
+                  HYBRID_COMFORT: 'STRADA', ELECTRIC: 'CITTA', ELECTRIC_INDIVIDUAL: 'CITTA EGO', BATTERY_CONTROL: 'RECHARGE',
                   XTRABOOST: 'CORSA' };
     var BMW = { ECO_PRO: 'ECO PRO', ECO_PRO_PLUS: 'ECO PRO+', ECO_PRO_INDIVIDUAL: 'ECO PRO INDIVIDUAL',
                 COMFORT: 'COMFORT', COMFORT_PLUS: 'COMFORT+', COMFORT_INDIVIDUAL: 'COMFORT INDIVIDUAL', ADAPTIVE: 'ADAPTIVE',

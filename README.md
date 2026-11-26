@@ -129,8 +129,8 @@ style's appear once it is chosen).
   colours, the gear (Toro: D1, S1, M1).
   Toro's **Mode name**: the drive mode by Lamborghini's names - *CITTA* (ECO PRO, a plug-in hybrid's Electric and
   Hybrid ECO PRO), *STRADA* (Comfort, Adaptive, a plug-in hybrid's Hybrid), *SPORT*, *CORSA* (Sport+, XtraBoost),
-  *EGO* (every Individual), *RECHARGE* (Battery Control) - a plug-in hybrid's taking the name of the petrol car's of
-  its kind; or BMW's own, each mode by its own name (*SPORT+*, *SPORT INDIVIDUAL*, *ECO PRO INDIVIDUAL* ...).
+  an Individual its kind's with *EGO* after it (*STRADA EGO*, *CITTA EGO*, *SPORT EGO*), *RECHARGE* (Battery
+  Control) - a plug-in hybrid's taking the name of the petrol car's of its kind; or BMW's own, each mode by its own name (*SPORT+*, *SPORT INDIVIDUAL*, *ECO PRO INDIVIDUAL* ...).
 - **Logs** (AK 0.17.0): the app's state and logs as QR codes to photograph and send with a problem, three a page
   (Logs again: the next page), and as a file on a USB stick - the same codes as AK Cluster Layouts' Logs (`python3 tools/decode_logs.py
   photo1.jpg photo2.jpg ...` puts them back together).

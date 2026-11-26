@@ -25,9 +25,12 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   INDIVIDUAL* ...). The mode is read from the HMI's switch field, the one BMW's cluster names, first; the Sport
   Display's only while that has said nothing for a minute (as Cluster Layouts reads it): the two could disagree and the
   last one won.
-- **Toro's mode names are Lamborghini's five, and a plug-in hybrid's the same as a petrol car's of their kind.**
+- **Toro's mode names are Lamborghini's, and a plug-in hybrid's the same as a petrol car's of their kind.**
   *CITTA* (ECO PRO, Electric, Hybrid ECO PRO), *STRADA* (Comfort, Adaptive, Hybrid), *SPORT*, *CORSA* (Sport+,
-  XtraBoost), *EGO* (every Individual: Lamborghini's own set-up), *RECHARGE* (Battery Control). ECO PRO was STRADA.
+  XtraBoost), *RECHARGE* (Battery Control); an Individual mode its kind's with Lamborghini's EGO (the driver's own
+  set-up) after it: *STRADA EGO* (Comfort Individual), *CITTA EGO* (ECO PRO and Electric Individual), *SPORT EGO*
+  (Sport Individual), set smaller to RECHARGE's width where longer, clear of the dial's inner edge. ECO PRO was
+  STRADA.
 - **Cluster on / off under the design's picture again**, as AK Cluster Layouts' under its cards: the status's dot and
   what a press does, the same as the bar's *Cluster on / off*.
 - **The start-up message in your own words, typed.** Settings → **Start-up words** opens the head unit's own keyboard

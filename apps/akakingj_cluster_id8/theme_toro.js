@@ -537,8 +537,14 @@
               } },
             gearShown);
 
+        /* (a name longer than RECHARGE - STRADA EGO - set smaller to RECHARGE's width, clear of the dial's inner edge) */
+        var modeSize = G.gs(26) / 0.70, modeRoom = Text.measure(atlas, 'label', 'RECHARGE', modeSize, 1.5);
         txt('corsa', 24, { x: G.gx(B.corsa.cx) - 100, y: G.gy(B.corsa.cy) - 28, w: 200, h: 50 },
-            { face: 'label', size: G.gs(26) / 0.70, align: 'centre',
+            { face: 'label', align: 'centre',
+              size: function (s) {
+                  var w = Text.measure(atlas, 'label', s.modeLabel || S.mode, modeSize, 1.5);
+                  return w > modeRoom ? modeSize * modeRoom / w : modeSize;
+              },
               x: G.gx(B.corsa.cx), y: G.gy(B.corsa.cy) + G.gs(13),
               color: keyCol, tracking: 1.5 },
             function (s) { return s.modeLabel || S.mode; });
