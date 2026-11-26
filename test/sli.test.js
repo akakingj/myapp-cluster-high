@@ -33,16 +33,19 @@ test('on: one sign a style, clear of its readouts, the KOMBI\'s lights and the s
         assert.strictEqual(disc.length, 1, what);
         assert.strictEqual(num.length, 1, what);
         const d = disc[0];
-        assert.ok(d.w === d.h && d.x >= 8 && d.y >= 8 && d.x + d.w <= Panel.PANEL_WIDTH - 8 && d.y + d.h <= Panel.BOTTOM_CUT - 6, what + ': on the glass, above the strip');
+        assert.ok(d.w === d.h && d.x >= 8 && d.y >= 8 && d.x + d.w <= Panel.PANEL_WIDTH - 8 && d.y + d.h <= Panel.BOTTOM_CUT + (t.settings.lower || 0) - 6, what + ': on the glass, above the strip (a lowered style\'s foot)');
         assert.ok(d.z > 100 && num[0].z > d.z, what + ': over the style');
         Panel.TURN_ARROWS.concat(Panel.TELLTALES, [Object.assign({ name: 'the driver camera\'s cowl' }, Panel.CAMERA)])
             .forEach((z) => assert.ok(!meet(d, z, 8), what + ': clear of ' + z.name));
         /* (and of the glass's slanted top corners) */
         assert.ok(d.y > 200 || (d.x > 340 && d.x + d.w < 1640), what + ': clear of the glass\'s corners');
         /* the style's readouts and small pieces (the backgrounds, plates and dials, a sixth of the screen or more, aside) */
-        /* (the M styles' scales' boxes hold numerals along a curve, far from the sign's corner of them: checked by eye,
-           tools/shot.js style=track&sliSign=on, with lower=74 too) */
-        t.layers.filter((L) => !/^(sli|intro|snow|tree|flash|speedScale[AB]|revScale)/.test(L.id) && L.w * L.h < PANEL / 6)
+        /* (M Sport's and M Sport Plus's rails: the dials' foot lines across the screen, their box down to y 580 - the
+           sign stands under the lines, between the range and the footer's panel, as the owner marked it; checked by
+           eye, tools/shot.js style=track&sliSign=on, with lower=74 too; a lowered style's black covers over BMW's hidden
+           strip, stripL / stripR, are backgrounds; M Track's footer middle, footM, is a box to x 788 for text that
+           ends by about x 680 at its longest - ODO 999,999 km - against the sign's left edge at 709) */
+        t.layers.filter((L) => !/^(sli|intro|snow|tree|flash|rails$|strip[LR]?$|footM(Unit)?$)/.test(L.id) && L.w * L.h < PANEL / 6)
             .forEach((L) => assert.ok(!meet(d, L, 6), what + ': clear of ' + L.id + ' ' + [L.x, L.y, L.w, L.h].map(Math.round).join(',')));
         /* the shader drawn, its figures '--' until the car's value */
         assert.ok(d.uniforms({}) && d.shader === 'sign', what);

@@ -37,18 +37,19 @@
      * Settings > Display > Speed limit sign (0.22.0, off as it comes): a round sign of our own - a red ring round a
      * light disc, the limit in figures - in each style's room. BMW's own speed limit sign is drawn under the
      * apps' layers (the owner, 2026-11-26: gone under AK Cluster Layouts), so it is gone under any style. Each style's
-     * place [x, y, r] (its centre and radius), picked off the styles as drawn: Toro's empty upper left, above the oil
-     * gauges and clear of the KOMBI's lights; the M styles' lower left, above the M mark and the clock, under the
-     * speed's scale, near BMW's own place (0.22.0 had them top middle, under the driver camera's cowl, Panel.CAMERA, where the glass
-     * shows nothing: the owner). test/sli.test.js keeps each clear of the style's pieces, the KOMBI's lights, the
-     * turn arrows and the camera's cowl. The figures: state.speedLimit, which nothing
-     * reads yet ('--': the car's value comes once AK Cluster Info's Driving assistant check has shown which it is).
+     * place [x, y, r] (its centre and radius), where the owner marked them (2026-11-26): Toro's inside the rev dial's
+     * foot, over the speed and inside the 7 and 8; the M styles' at the left dial's foot, under its lines, between the
+     * range and the footer's panel (smaller: the room there is 76 px high). 0.22.0 had the M styles' top middle,
+     * under the driver camera's cowl (Panel.CAMERA), where the glass shows nothing. test/sli.test.js keeps each
+     * clear of the style's pieces, the KOMBI's lights, the turn arrows and the camera's cowl, lowered too. The
+     * figures: state.speedLimit, which nothing reads yet ('--': the car's value comes once AK Cluster Info's Driving
+     * assistant check has shown which it is).
      */
     var SLI = {
-        toro: { at: [320, 300, 46], face: 'display' },
-        track: { at: [140, 490, 42], face: 'mb' },
-        mplus: { at: [140, 490, 42], face: 'mb' },
-        mtrack: { at: [140, 490, 42], face: 'mb' }
+        toro: { at: [1235, 490, 42], face: 'display' },
+        track: { at: [728, 603, 36], face: 'mb' },
+        mplus: { at: [728, 603, 36], face: 'mb' },
+        mtrack: { at: [743, 580, 34], face: 'mb' }
     };
     function sliText(st) {
         var v = st && st.speedLimit;

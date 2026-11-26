@@ -15,10 +15,12 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
 
 ## AK 0.23.1
 
-- **The speed limit sign in sight on the M styles.** 0.22.0 put it top middle on M Sport, M Sport Plus and M Track,
-  under the driver camera's cowl (`Panel.CAMERA`), where the glass shows nothing. Now lower left, above the M mark
-  and the clock and under the speed's scale, near BMW's own place. With *Lower and enlarge the cluster* it goes where
-  its place goes, at its own size, kept on the glass. `test/sli.test.js` holds it clear of the camera's cowl too.
+- **The speed limit sign where the owner marked it, and in sight.** 0.22.0 put it top middle on M Sport, M Sport
+  Plus and M Track, under the driver camera's cowl (`Panel.CAMERA`), where the glass shows nothing. Now: Toro, inside
+  the rev dial's foot, over the speed and inside the 7 and 8; the M styles, at the left dial's foot under its lines,
+  between the range and the footer's panel (a little smaller there: 72 px, M Track 68 px). With *Lower and enlarge
+  the cluster* it goes where its place goes, at its own size. `test/sli.test.js` holds it clear of the camera's cowl
+  too, lowered as well.
 
 ## AK 0.23.0
 
