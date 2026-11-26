@@ -48,7 +48,8 @@
      * assistant check has shown which it is).
      */
     var SLI = {
-        toro: { at: [1235, 490, 42], face: 'display', fig: 0.85 },
+        /* (Gear position right puts the gear where the sign is: the sign then goes to the mirror place, 0.23.4) */
+        toro: { at: [1235, 490, 42], gearRight: [685, 490], face: 'display', fig: 0.85 },
         track: { at: [722, 598, 42], face: 'mb', fig: 0.95 },
         mplus: { at: [722, 598, 42], face: 'mb', fig: 0.95 },
         mtrack: { at: [735, 598, 42], face: 'mb', fig: 0.95 }
@@ -203,7 +204,8 @@
         if (sign) {
             /* (a lowered style, Display > Lower and enlarge the cluster: the sign goes where its place goes, at its own
                size, kept on the glass - the M styles' lower left would leave it) */
-            var at = Strip.lowerRect([sign.at[0], sign.at[1], 0, 0], S.lower || 0), r = sign.at[2];
+            var place = (S.gearPlace === 'right' && sign.gearRight) || sign.at;
+            var at = Strip.lowerRect([place[0], place[1], 0, 0], S.lower || 0), r = sign.at[2];
             var cx = Math.round(Math.max(r + 8, Math.min(Panel.PANEL_WIDTH - 8 - r, at[0]))), cy = Math.round(at[1]);
             layers.push({
                 id: 'sliDisc', z: 190, shader: 'sign', still: true,

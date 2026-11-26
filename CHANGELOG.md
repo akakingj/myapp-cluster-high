@@ -13,6 +13,13 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.23.4
+
+- **Toro's speed limit sign no longer sits on the gear.** With *Gear position* on the right, the gear stands where
+  the sign was (inside the 7 and 8, over the speed), so the sign covered it. The sign now goes to the mirror place on
+  the left of the dial's foot whenever the gear is on the right; with the gear in the middle or on the left it stays
+  where it was (`src/theme/overlays.js` SLI toro.gearRight; `test/sli.test.js` checks each gear position).
+
 ## AK 0.23.3
 
 - **Settings offers the style on the cluster now.** With *Style in Sport* or *Style in ECO PRO* putting another style

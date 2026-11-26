@@ -14,7 +14,10 @@ const atlas = require('../assets/fonts/atlas.json');
 
 const STYLES = ['toro', 'track', 'mplus', 'mtrack'];
 const CASES = [{}, { centre: 'waze' }, { centre: 'camera', centreSize: 'full' }, { centre: 'map', centreSize: 'more' },
-    { bottomExtra: 'hide' }, { lowerSet: true, lower: '74', bottomExtra: 'hide' }, { holiday: true, intro: true }];
+    { bottomExtra: 'hide' }, { lowerSet: true, lower: '74', bottomExtra: 'hide' }, { holiday: true, intro: true },
+    /* (Toro's gear at a corner, Gear position: right sat on the sign, 0.23.4) */
+    { gearPlace: 'right' }, { gearPlace: 'left' }, { gearPlace: 'right', centre: 'map', centreSize: 'most' },
+    { gearPlace: 'right', lowerSet: true, lower: '74' }];
 const PANEL = Panel.PANEL_WIDTH * Panel.PANEL_HEIGHT;
 const meet = (a, b, gap) => a.x - gap < b.x + b.w && a.x + a.w + gap > b.x && a.y - gap < b.y + b.h && a.y + a.h + gap > b.y;
 
