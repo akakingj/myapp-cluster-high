@@ -1521,70 +1521,35 @@
       "profile": "fuelFrom"
     },
     {
-      "key": "eFull",
+      "key": "eFullKm",
       "label": "Electric range when full (until the car's own is found)",
-      "type": "choice",
-      "default": "31",
-      "options": [
-        [
-          "20",
-          "20 mi"
-        ],
-        [
-          "22",
-          "22 mi"
-        ],
-        [
-          "24",
-          "24 mi"
-        ],
-        [
-          "26",
-          "26 mi"
-        ],
-        [
-          "28",
-          "28 mi"
-        ],
-        [
-          "30",
-          "30 mi"
-        ],
-        [
-          "31",
-          "31 mi"
-        ],
-        [
-          "32",
-          "32 mi"
-        ],
-        [
-          "34",
-          "34 mi"
-        ],
-        [
-          "36",
-          "36 mi"
-        ],
-        [
-          "38",
-          "38 mi"
-        ],
-        [
-          "40",
-          "40 mi"
-        ],
-        [
-          "45",
-          "45 mi"
-        ],
-        [
-          "50",
-          "50 mi"
-        ]
+      "type": "number",
+      "unit": "km",
+      "unitBy": "speedUnit",
+      "units": {
+        "mph": {
+          "unit": "mi",
+          "mul": 0.621371
+        }
+      },
+      "default": 50,
+      "steps": [
+        30,
+        35,
+        40,
+        45,
+        50,
+        55,
+        60,
+        65,
+        70,
+        75,
+        80,
+        90,
+        100
       ],
       "group": "Car",
-      "profile": "eFull"
+      "profile": "eFullKm"
     },
     {
       "key": "tCentre",

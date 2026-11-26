@@ -124,7 +124,7 @@ style's appear once it is chosen).
   **CHARGE** in green below 0 while the battery takes the regeneration, from eDrive Live's battery power; the rev
   counter again in SPORT, XTRABOOST and with the lever in S or M. **Fuel tank size** and **Fuel % from** (as Cluster
   Layouts' fuel gauge: the engine unit's own tank level while the engine runs, otherwise the car's litres over the
-  tank's size; or the litres always). **Electric range when full** (miles): a plug-in hybrid's electric range from its
+  tank's size; or the litres always). **Electric range when full** (km, in miles with mph): a plug-in hybrid's electric range from its
   charge while the car gives none, and its battery gauge against it.
 
   What the Car profile app sets (units, clock, engine, the rev figures, the too-hot figures, the G meter, the tank, the

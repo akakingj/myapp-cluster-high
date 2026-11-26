@@ -80,7 +80,21 @@ function open(opts) {
         set(k, v) { values[k] = v; listeners.slice().forEach((fn) => fn(k, v)); },
         item: (k) => items.find((s) => s.key === k),
         shown: (s) => !!s && !s.hidden && Object.keys(s.when || {}).every((k) => [].concat(s.when[k]).indexOf(values[k]) >= 0),
-        display(k) { const s = this.item(k), o = s && s.options && s.options.find((q) => q[0] === String(values[k])); return o ? o[1] : String(values[k]); },
+        /* a value's text as the kit gives it (mgu.js Settings.numberText, display: "labels", "unit", "unitBy") */
+        numberText(s, v) {
+            if (s.labels && s.labels[String(v)] !== undefined) return s.labels[String(v)];
+            const u = s.unitBy && s.units ? s.units[values[s.unitBy]] : null;
+            if (u && typeof v === 'number') return Math.round(v * (u.mul || 1) + (u.add || 0)) + ' ' + u.unit;
+            return String(v) + (s.unit ? ' ' + s.unit : '');
+        },
+        display(k) {
+            const s = this.item(k), v = values[k];
+            if (!s) return String(v);
+            if (s.type === 'choice') { const o = (s.options || []).find((q) => q[0] === v); return o ? o[1] : String(v); }
+            if (s.type === 'number') return this.numberText(s, v) + (s.markDefault && v === s.default ? ' (default)' : '');
+            if (s.type === 'bool') return v ? 'On' : 'Off';
+            return String(v);
+        },
         cycle() {},
         onChange(fn) { listeners.push(fn); }
     };

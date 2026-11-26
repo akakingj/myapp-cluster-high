@@ -44,8 +44,8 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   Readouts and gauges: *Toro: G meter size* (1.0 - 2.0 g, 1.2 as it was), *Oil / Coolant / Gearbox is too hot at* (130,
   118, 115 C as Layouts': Toro's gauges and its oil and coolant figures, M Track Mode's rows and M Sport's oil strip
   red from them - they were 150 / 115 / 120, 134 / 122 / 120 and 138 C - and the oil blue up to *Oil is warm at*, 80 C,
-  where M Track and M Sport had 66 and 61). Car: *Electric range when full* (31 mi as Layouts'): a plug-in hybrid's
-  battery gauge against it (it was 80 km) and its range estimated from the charge while the car gives none.
+  where M Track and M Sport had 66 and 61). Car: *Electric range when full* (50 km as Layouts', in miles with mph:
+  31 mi): a plug-in hybrid's battery gauge against it (it was 80 km) and its range estimated from the charge while the car gives none.
 - **Toro's G meter's dot moves as the driver feels the load**, as Layouts' G meter and the G-Force app: right in a left
   bend, up braking, down accelerating (it went with the car's acceleration, the other way).
 - **The start-up message in your own words, typed.** Settings → **Start-up words** opens the head unit's own keyboard

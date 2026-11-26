@@ -404,13 +404,16 @@ test('electric range: a plug-in hybrid has it beside the fuel\'s, an electric ca
     const none = State.present({ rangeKm: 400, fuelPct: 50 }, P, { electric: 'bev' });
     assert.deepStrictEqual([none.rangeText, none.info.erange, none.pods.battery.text, none.pods.fuel.text], ['--', '--', '--', '--']);
     /* a range with no charge reported: the bar is the range against a full battery's */
-    /* (a full battery's range: Car > Electric range when full, 31 mi as it comes, as AK Cluster Layouts) */
+    /* (a full battery's range: Car > Electric range when full, 50 km as it comes, as AK Cluster Layouts) */
     const noSoc = State.present({ evRangeKm: 40 }, P, { electric: 'hybrid' });
-    assert.ok(Math.abs(noSoc.pods.battery.frac - 40 / (31 * 1.609344)) < 1e-9);
-    assert.ok(Math.abs(State.present({ evRangeKm: 40 }, P, { electric: 'hybrid', eFull: 50 }).pods.battery.frac - 40 / (50 * 1.609344)) < 1e-9);
-    /* the charge with no range from the car: the range estimated from it, as Layouts does */
-    const est = State.present({ socPct: 50 }, P, { electric: 'hybrid', eFull: 30 });
-    assert.deepStrictEqual([est.info.erange, est.pods.battery.text], ['15', '15']);
+    assert.ok(Math.abs(noSoc.pods.battery.frac - 40 / 50) < 1e-9);
+    assert.ok(Math.abs(State.present({ evRangeKm: 40 }, P, { electric: 'hybrid', eFullKm: 80 }).pods.battery.frac - 0.5) < 1e-9);
+    /* the charge with no range from the car: the range estimated from it, as Layouts does (in the units shown) */
+    const est = State.present({ socPct: 50 }, P, { electric: 'hybrid', eFullKm: 60, units: 'metric' });
+    assert.deepStrictEqual([est.info.erange, est.pods.battery.text], ['30', '30']);
+    /* kept in km, shown in miles with mph (the kit's numberText: "unitBy") */
+    const ef = require('../app/app.base.json').settings.find((x) => x.key === 'eFullKm');
+    assert.deepStrictEqual([ef.unit, ef.unitBy, ef.units.mph.unit, ef.profile, ef.default], ['km', 'speedUnit', 'mi', 'eFullKm', 50]);
     /* low: it warns */
     assert.ok(State.present({ evRangeKm: 5, socPct: 8 }, P, { electric: 'bev' }).pods.battery.alarm);
 });

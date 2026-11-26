@@ -328,8 +328,8 @@
         s.hotGearbox = clampNum(settings.hotGearbox, 60, 150, 115);
         /* Toro's G meter: the g its outer edge stands for (the Car profile's G-force circle up to) */
         s.gScale = clampNum(settings.gScale, 0.5, 3, 1.2);
-        /* a plug-in hybrid's electric range with a full battery, miles: the estimate while the car gives none */
-        s.eFull = clampNum(settings.eFull, 10, 100, 31);
+        /* a plug-in hybrid's electric range with a full battery, km: the estimate while the car gives none */
+        s.eFullKm = clampNum(settings.eFullKm, 10, 200, 50);
         s.redFromScale = settings.redFromScale === undefined ? null
             : settings.redFromScale;
         /* Where the warning starts. Default: a breath before the limiter. */

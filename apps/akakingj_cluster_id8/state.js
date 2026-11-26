@@ -141,9 +141,9 @@
         var electric = opts.electric === 'hybrid' || opts.electric === 'bev' ? opts.electric : 'off';
         var power = powerPct(raw, electric);
         var soc = electric !== 'off' && has(raw.socPct) ? raw.socPct : null;
-        /* a plug-in hybrid's range with a full battery (Car > Electric range when full, miles; as AK Cluster Layouts):
+        /* a plug-in hybrid's range with a full battery (Car > Electric range when full, km; as AK Cluster Layouts):
            the car's own range, else the charge's share of that, as Layouts estimates it */
-        var EV_FULL_KM = electric === 'bev' ? 500 : (has(opts.eFull) ? Number(opts.eFull) : 31) * 1.609344;
+        var EV_FULL_KM = electric === 'bev' ? 500 : has(opts.eFullKm) ? Number(opts.eFullKm) : 50;
         var evKm = electric !== 'off' && has(raw.evRangeKm) ? raw.evRangeKm
             : electric === 'hybrid' && soc !== null ? Math.max(0, soc) / 100 * EV_FULL_KM : null;
         var evText = evKm === null ? dash : String(Math.round(U.distIn(evKm)));
