@@ -56,11 +56,11 @@ const SKINS = {
         bg: '#030304', panelTop: '#0b0b0d', panelBottom: '#060607', panelEdge: '#2c2b2f',
         tab: '#f4f3f2', track: '#4b4a50', tick: '#8f8d92', text: '#f4f3f2', dim: '#b5b3b4',
         accent: '#ff570c', accent2: '#ff8a4c', ok: '#e6e5e8', warn: '#ffb020', crit: '#f32d2e', cold: '#7fd1ff',
-        glow: '#ff570c40', stripes: ['#ff570c'], oil: '#f32d2e', bar: '#cfced3', sel: '#ff570c', selText: '#ffffff',
+        glow: '#ff570c40', stripes: ['#ff570c'], oil: '#f32d2e', bar: '#cfced3', hang: '#ff570c', sel: '#ff570c', selText: '#ffffff',
         marker: '#f32d2e', needle: '#f32d2e',
         ramp: ['#8e8d92', '#c9c8cc', '#f2f2f4'],
         hotRamp: ['#8e8d92', '#b4b3b7', '#dcdbde', '#f0eff2', '#f32d2e'],
-        line: '#545154', focusTop: '#743008', focusBottom: '#361303',
+        line: '#545154', silver: ['#f6f6f8', '#c9c8cd', '#8d8c92'], focusTop: '#743008', focusBottom: '#361303',
     },
 };
 

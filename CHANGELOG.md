@@ -13,6 +13,18 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.21.0
+
+- **The iDrive 7 skin now matches AK Cluster Layouts'.** With *Skin* on *iDrive 7* (Settings > Display, or the Car
+  profile), the kit's own parts drew the classic shapes in the skin's colours. Now, as in Layouts: the header and
+  the bottom bar flat, in normal case, with the orange focus gradient and the bevelled silver line under the header;
+  panels without cards; bars as silver slanted rails with a red marker; the settings split into the list on the left
+  and a read-only preview of the focused row on the right (a group's settings, a setting's values with the saved one
+  marked). The kit's skin code is Layouts' (`kit/runtime/themes.js`, `gauges.js`, `sheet.js`, `display.js`).
+  The Classic skin draws exactly as before.
+- **A group in the settings says how many settings it holds** under its name (*7 settings*; Korean *설정 7개*), as in
+  Layouts.
+
 ## AK 0.20.3
 
 - **The gearbox oil is read from the gearbox unit when the car gives none.** Toro's TEMP. CAMBIO (and any place set
