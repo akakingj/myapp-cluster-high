@@ -519,13 +519,15 @@
        black, so nothing marks where ours ends and BMW's begins (the layer
        starts at the panel's top-left: px() is the panel's own) */
     var FOOT_FADE = '  if (u_foot.y > 0.5) col *= 1.0 - smoothstep(u_foot.x, u_foot.x + u_foot.y, px().y);';
+    /* with the strip in view: nothing over its driving mode below y 658 (x 1196 - 1424, Panel.STRIP_NOTCH) */
+    var FOOT_NOTCH = '  if (u_foot.z > 0.5 && px().y > 658.0 && px().x > 1196.0 && px().x < 1424.0) { col = vec3(0.0); a = 0.0; }';
     function backSrc(winSrc) {
         return [
             HEAD,
             'uniform float u_open;',     /* 0..1: how far the hosted picture's window is open */
             'uniform vec3 u_bg;',
             'uniform vec3 u_bgLift;',    /* the faint lift towards the middle */
-            'uniform vec2 u_foot;',      /* where the car's bottom strip starts (panel y), and how far past it this runs */
+            'uniform vec3 u_foot;',      /* where the car's bottom strip starts (panel y), how far past it this runs, 1: the strip in view */
             winSrc,
             'void main() {',
             '  vec2 p = art();',
@@ -534,6 +536,7 @@
             FOOT_FADE,
             '  float a = 1.0;',
             '  if (u_open > 0.001) a = 1.0 - u_open * reveal(p);',
+            FOOT_NOTCH,
             '  gl_FragColor = vec4(col, a);',
             '}'
         ].join('\n');
@@ -853,7 +856,7 @@
             'uniform float u_open;',
             'uniform vec3 u_bg;',
             'uniform vec3 u_bgLift;',
-            'uniform vec2 u_foot;',
+            'uniform vec3 u_foot;',
             SLOT_SRC,
             names.map(function (id) { return chain('pp' + id, PL.PLATES[id].v, PL.PLATES[id].r, true); }).join('\n'),
             'void main() {',
@@ -871,6 +874,7 @@
             '    float dPlate = ' + under + ';',
             '    a = 1.0 - ac(' + hole + ') * inSlot(p);',
             '  }',
+            FOOT_NOTCH,
             '  gl_FragColor = vec4(col, a);',
             '}'
         ].join('\n');
@@ -883,7 +887,7 @@
         'uniform float u_open;',
         'uniform vec3 u_bg;',
         'uniform vec3 u_bgLift;',
-        'uniform vec2 u_foot;'
+        'uniform vec3 u_foot;'
     ].concat(MOST_UNIFORMS, [
         SLOT_SRC,
         'float smoother(float t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }',
@@ -895,6 +899,7 @@
         FOOT_FADE,
         '  float a = 1.0;',
         '  if (u_open > 0.001) a = 1.0 - u_open * most(p) * inSlot(p);',
+        FOOT_NOTCH,
         '  gl_FragColor = vec4(col, a);',
         '}'
     ]).join('\n');

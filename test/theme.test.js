@@ -724,8 +724,8 @@ test('each of the four side gauges can be given a reading or nothing; auto keeps
     const t = Theme.build(atlas, 'carprofile', set);
     assert.deepStrictEqual(ids(t), ['bar_gL1', 'bar_gL2', 'bar_gR1']);
     /* (the fuel gauge given another reading: the tank's level is not asked for) */
-    const NONE = { boostTarget: false, hpfp: false, lpfp: false, tank: false };
-    assert.deepStrictEqual(t.shows, Object.assign({ oil: false, boost: true, iat: true, volts: true, pedal: false, throttle: false, timing: false }, NONE));
+    const NONE = { boostTarget: false, hpfp: false, lpfp: false, tank: false, gearbox: false };
+    assert.deepStrictEqual(t.shows, Object.assign({ oil: false, boost: true, iat: true, volts: true, pedal: false, throttle: false, timing: false }, NONE, { gearbox: true }));
     assert.deepStrictEqual(Theme.build(atlas, 'carprofile', { gaugeR1: 'oilp', gaugeR2: 'volts', showAuxLeft: false, showBoost: false }).shows,
         Object.assign({ oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false }, NONE));
     /* the fuel gauge in its own place, or given to another: asked for */

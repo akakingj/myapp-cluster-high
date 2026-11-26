@@ -42,7 +42,7 @@
         'uniform vec4 u_hole;',          /* x, y, w, h of the map opening */
         'uniform vec3 u_holeOpen;',      /* open 0..1, feather px, corner cut px */
         'uniform vec4 u_holeDisc;',      /* a larger opening's round limit: centre, radius, fade (radius 0: none) */
-        'uniform vec2 u_foot;',          /* where the car's bottom strip starts (y), and how far past it this runs */
+        'uniform vec3 u_foot;',          /* where the car's bottom strip starts (y), how far past it this runs, 1: the strip in view */
         '',
         /* Which cell p falls in: xy local offset from its centre, zw cell id. */
         'vec4 hexCell(vec2 p, float s) {',
@@ -185,6 +185,8 @@
         /* over the car's bottom strip it goes down to the strip's own
            black, so nothing marks where ours ends and BMW's begins */
         '  if (u_foot.y > 0.5) col *= 1.0 - smoothstep(u_foot.x, u_foot.x + u_foot.y, p.y);',
+        /* with the strip in view: nothing over its driving mode below y 658 (x 1196 - 1424, Panel.STRIP_NOTCH) */
+        '  if (u_foot.z > 0.5 && p.y > 658.0 && p.x > 1196.0 && p.x < 1424.0) { col = vec3(0.0); a = 0.0; }',
         '  gl_FragColor = vec4(max(col, vec3(0.0)) * a, a);',
         '}'
     ].join('\n');

@@ -103,6 +103,10 @@ TRACK = {
 # without the fonts: the same bytes as the whole bake.
 MARKS = {"mk": ("@mk", "~", 0.0)}
 MARKED = ("display", "label", "mb", "mn", "ms", "mw")
+# Symbols with a spot of their own: a hole the legacy faces' places leave in
+# the frozen block (packed, never drawn: 106 x 106 from x 872, y 229), so
+# nothing packed moves for them. (face, glyph, the cell's top left corner)
+SPOTS = [("mt", "g", (878, 235))]            # M Track Mode: the gearbox oil (tools/mglyphs.py icon_gearbox)
 
 
 def mark_glyph(ch):
@@ -259,6 +263,24 @@ def add_marks(atlas, meta, free):
     return packed[1]
 
 
+def add_spots(atlas, meta):
+    """SPOTS drawn at their places, each checked empty first: no glyph's cell over it, no pixel in it."""
+    for face, ch, (x, y) in SPOTS:
+        if ch in meta[face]["glyphs"]:
+            continue
+        cell, m = drawn_glyph(face, ch)
+        h, w = cell.shape
+        if y + h > atlas.shape[0] or x + w > atlas.shape[1] or atlas[y:y + h, x:x + w].any():
+            sys.exit("the spot for %s %r is not empty" % (face, ch))
+        for f, fm in meta.items():
+            for c, gm in fm["glyphs"].items():
+                if gm.get("tw") and not (gm["u"] + gm["tw"] <= x or x + w <= gm["u"] or gm["v"] + gm["th"] <= y or y + h <= gm["v"]):
+                    sys.exit("the spot for %s %r is under %s %r" % (face, ch, f, c))
+        atlas[y:y + h, x:x + w] = cell
+        m["u"], m["v"], m["tw"], m["th"] = x, y, w, h
+        meta[face]["glyphs"][ch] = m
+
+
 def write(atlas, meta, rows):
     size = atlas.shape[0]
     Image.fromarray(atlas, "L").save(OUT / "atlas.png", optimize=True)
@@ -275,17 +297,19 @@ def write(atlas, meta, rows):
 
 
 def marks_only():
-    """--marks: the marks added to the atlas as it stands (no fonts needed). M
-    Track Mode's faces are the last packed: the free row is under their last
-    shelf, as the whole bake has it."""
+    """--marks: the marks and the spots added to the atlas as it stands (no
+    fonts needed), each only if it is not there yet. M Track Mode's faces are
+    the last packed: the free row is under their last shelf, as the whole bake
+    has it."""
     meta = json.loads((OUT / "atlas.json").read_text())["faces"]
-    if any("~" in meta[f]["glyphs"] for f in MARKED):
-        sys.exit("the atlas has the marks already")
     atlas = np.array(Image.open(OUT / "atlas.png").convert("L"))
     cells = [g for f in TRACK for g in meta[f]["glyphs"].values() if g.get("th")]
     last = max(g["v"] for g in cells)
     free = last + max(g["th"] for g in cells if g["v"] == last) + 1
-    write(atlas, meta, add_marks(atlas, meta, free))
+    if not any("~" in meta[f]["glyphs"] for f in MARKED):
+        add_marks(atlas, meta, free)
+    add_spots(atlas, meta)
+    write(atlas, meta, max(g["v"] + g["th"] + 1 for f in meta.values() for g in f["glyphs"].values() if g.get("th") and g["v"] >= free))
 
 
 def main():
@@ -322,7 +346,9 @@ def main():
     cells = [c for c in old_cells if c[0] not in LEGACY] + new_cells + track_cells
     atlas = np.zeros((size, size), dtype=np.uint8)
     put(atlas, meta, cells, placed)
-    write(atlas, meta, add_marks(atlas, meta, packed[1]))
+    rows = add_marks(atlas, meta, packed[1])
+    add_spots(atlas, meta)
+    write(atlas, meta, rows)
 
 
 if __name__ == "__main__":

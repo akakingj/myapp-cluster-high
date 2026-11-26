@@ -13,6 +13,19 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.20.3
+
+- **The gearbox oil is read from the gearbox unit when the car gives none.** Toro's TEMP. CAMBIO (and any place set
+  to the gearbox oil) showed dashes on a car whose BasicDataSet sends no gearbox temperature; the app now asks the
+  gearbox unit (EGS `0x18`, `DID 6000`, as AK Cluster Layouts) every 5 s while the reading is shown and the car has
+  given none for a minute. A diesel is asked it too: it is the gearbox's, not the engine's.
+- **A two-line driving mode is no longer cut at the top.** With BMW's bottom strip On, the background ran 18 px over
+  the strip right across and hid the top of *ECO PRO* above *INDIVIDUAL* (any Individual mode). Over the driving mode
+  and the gear (x 1196 - 1424) it now stops at y 658, as AK Cluster Layouts' band does; at the sides it still runs to
+  664. With the strip Off nothing changes.
+- **M Track Mode's gearbox oil has a symbol of its own.** A row or strip set to the gearbox oil shows a thermometer
+  before a cog in place of the word TRANS.
+
 ## AK 0.20.2
 
 - **Lower and enlarge the cluster again, set by hand.** Settings → Display: under *BMW's bottom strip* (On / Off, as

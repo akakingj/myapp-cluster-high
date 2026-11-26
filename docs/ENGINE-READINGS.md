@@ -18,8 +18,10 @@ at, whether it is on the head unit or not (AK 0.13.0).
   sessions, resets, clearing faults, security access, writes, routines —
   before a request leaves the head unit. Nothing in MGU Styles could write
   to the car if it tried.
-- **One unit:** the engine unit (DME, address `0x12`). One request at a
-  time, each waiting at most 0.6 s.
+- **One unit at a time:** the engine unit (DME, address `0x12`) - and for
+  the **gearbox oil's temperature**, while the car's own BasicDataSet gives
+  none for a minute, the gearbox's unit (EGS, address `0x18`), as AK Cluster
+  Layouts reads it. One request at a time, each waiting at most 0.6 s.
 - **Only with the engine running**, a style on the cluster and the car
   on. Never parked, where requests would keep the car's networks awake;
   never with the ignition on and the engine off, which is when a control
@@ -94,6 +96,7 @@ OBD identifiers are OBD-II service 01 PIDs (SAE J1979), a public standard;
 | | `OBD 0E` | 1 byte × 0.5 − 64, degrees before top dead centre | SAE J1979; cauliflowermossgrape/idrive7-apps `apps/live_data/std.js`, `apps/live_data/useful.js` |
 | Fuel tank level, the engine unit's own fill | `DID F42F` | 1 byte × 100 / 255, % | SAE J1979 (PID 2F); eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
 | | `OBD 2F` | 1 byte × 100 / 255, % | SAE J1979; eroobeeroo/idrive7-cluster-info `apps/cluster_layouts/app.json` |
+| Gearbox oil temperature (the gearbox unit, EGS `0x18`, ZF 8HP) | `DID 6000` | 1 byte − 40, °C | cauliflowermossgrape/idrive7-apps `apps/zf8hp/catalog.js` (`_GETRIEBEOELTEMPERATUR`), `apps/car_vitals/app.json` (read on a G22) |
 
 (Read at ALMSTRA/idv7lol `58e2418`, cauliflowermossgrape/idrive7-apps
 `a948390`, ZEKAI-Design/ID7-Cluster-Themes `8a4f72f`, eroobeeroo/idrive7-cluster-info
@@ -107,7 +110,7 @@ number outside the plausible range is not shown: oil pressure 0 – 20 bar
 over ambient, intake air −45 – 150 °C, battery 5 – 18 V, the pedal and the
 throttle −2 – 102 % (shown 0 – 100 %), the ignition angle −40 – 70 °, the boost
 target 20 – 400 kPa absolute (600 by the standard forms), the fuel rail 0 – 500 bar,
-the supply 0.5 – 8 bar (15 over the manifold), the tank 0 – 101 % (shown 0 – 100 %).
+the supply 0.5 – 8 bar (15 over the manifold), the tank 0 – 101 % (shown 0 – 100 %), the gearbox oil −40 – 160 °C.
 
 **Oil pressure** is the absolute reading less the engine unit's own
 ambient pressure — what the pump makes — as both upstream projects compute
@@ -148,6 +151,8 @@ What a diesel is asked, each from the table above:
 - **Accelerator pedal**: `OBD 49`. **Throttle**: `OBD 11`. **Ignition
   angle**: `OBD 0E` (a diesel has none to give).
 - **Fuel tank level**: `DID F42F`, then `OBD 2F`.
+- **Gearbox oil temperature**: `DID 6000`, asked of the gearbox unit
+  (EGS `0x18`), not the engine unit: the same as for a petrol car.
 
 Everything else is as for a petrol car: only while the engine runs, only
 what a style shows, one request at a time. Changing *Engine* drops what was read and starts

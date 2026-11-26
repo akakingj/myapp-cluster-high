@@ -445,7 +445,7 @@ test('BeeM-Flash off: its feed is never looked for, and the engine unit is asked
     h.rpm(1500);
     await wait(300);
     assert.strictEqual(lastTick(engine).allowed, true, 'running: asked');
-    assert.deepStrictEqual(lastTick(engine).needs, { oil: true, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, boost: true },
+    assert.deepStrictEqual(lastTick(engine).needs, { oil: true, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, boost: true },
         'Toro shows oil pressure and boost, and the Sport Display has sent no boost');
     /* what it reads reaches the gauges; BeeM-Flash's figures do not */
     const raw = h.svc.reader.raw(1000000);
@@ -569,14 +569,14 @@ test('the car\'s own boost comes first; an M style asks for what its footer hold
     /* M Sport, its footer holding intake air and the battery */
     h.change({ style: 'track', mFootL: 'iat', mFootR: 'volts' });
     await wait(800);
-    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: true, volts: true, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, boost: false });
+    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: true, volts: true, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, boost: false });
     h.change({ mFootM: 'boost' });
     await wait(800);
     assert.strictEqual(lastTick(engine).needs.boost, false, 'boost in the footer, and the car still sends its own');
     /* M Sport as it comes: of the engine unit's, only the tank's level for the fuel strip is asked for */
     h.change({ mFootL: 'time', mFootM: 'range', mFootR: 'outside' });
     await wait(800);
-    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, boost: false });
+    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, boost: false });
     /* GENERAL: Fuel % from: Litres / tank size - not asked for that either */
     h.change({ fuelFrom: 'litres' });
     await wait(800);

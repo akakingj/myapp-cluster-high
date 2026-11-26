@@ -323,6 +323,7 @@ function createReader(opts) {
         v[key] = { value: value, at: now };
     }
     var hmiModeAt = -Infinity;      /* when the HMI's switch field last named a mode */
+    var gearboxBusAt = -Infinity;   /* when the car's own BasicDataSet last gave the gearbox oil */
     function modes(value, now) {
         put('driveMode', driveModeOf(value), now);
         put('phevMode', phevModeOf(value), now);
@@ -393,7 +394,7 @@ function createReader(opts) {
         } else if (service === 'de.bmw.infrastructure.analytics.BasicDataSet' && field === 'basicDataSet') {
             /* the gearbox oil (Cluster Layouts' gearboxTemp: raw - 48, 255 no value) */
             var gb = value && value.valueTemperatureTransmissionOil;
-            if (typeof gb === 'number' && gb !== 255 && gb - 48 > -40 && gb - 48 < 160) put('gearboxC', gb - 48, now);
+            if (typeof gb === 'number' && gb !== 255 && gb - 48 > -40 && gb - 48 < 160) { put('gearboxC', gb - 48, now); gearboxBusAt = now; }
         } else if (service === 'de.bmw.infotainment.drivingexcitement.FES' && field === 'statusActualValueTorque2') {
             /* the crankshaft's torque: 0.5 Nm a step, 0 at 2047, 4095 and up no value; engine braking counts as 0 */
             var tqr = value && value.actualValueTorqueCrankshaft;
@@ -478,7 +479,8 @@ function createReader(opts) {
        feed, src/car/feed.js, where a host turns one on); a plug-in hybrid's
        battery power and its limits (kW), from eDrive Live (src/car/providers.js).
        They age out like any other, so a source that stops leaves dashes, not a number. */
-    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg', 'boostTargetBar', 'hpfpBar', 'lpfpBar', 'tankPct', 'kw', 'kwOut', 'kwIn'];
+    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg', 'boostTargetBar', 'hpfpBar', 'lpfpBar', 'tankPct', 'kw', 'kwOut', 'kwIn',
+               'gearboxC'];
     function setFeed(key, value, now) {
         if (FED.indexOf(key) >= 0 && typeof value === 'number' && isFinite(value)) {
             put(key, value, now || Date.now());
@@ -579,7 +581,9 @@ function createReader(opts) {
         receive: receive, raw: raw,
         setBoostBar: setBoostBar, hasBusBoost: hasBusBoost,
         setOilPressureBar: setOilPressureBar, setAccel: setAccel,
-        setFeed: setFeed
+        setFeed: setFeed,
+        /* whether the car's BasicDataSet has given the gearbox oil within ms (else the gearbox unit is asked: src/car/engine.js) */
+        hasBusGearbox: function (now, ms) { return now - gearboxBusAt <= ms; }
     };
 }
 

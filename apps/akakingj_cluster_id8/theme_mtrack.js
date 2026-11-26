@@ -153,9 +153,8 @@
             coolant: temp('coolantC', 'w', 70, 130, ['70', '100', '130'], ['160', '210', '260'], 160, 260, null, num(Z.hotCoolant, 122)),
             /* ... and the oil's blue up to Oil is warm at and red from Oil is too hot at (the frame's: 66 and 134 C) */
             oil: temp('oilC', 'o', 50, 150, ['50', '100', '150'], ['120', '210', '300'], 120, 300, num(Z.warmOil, 66), num(Z.hotOil, 134.5)),
-            /* the gearbox oil: no symbol of the frame's for it, so its word (tag) stands in the symbol's place */
-            gearbox: Object.assign(temp('gearboxC', null, 40, 130, ['40', '85', '130'], ['100', '185', '270'], 100, 270, null, num(Z.hotGearbox, 120)),
-                                   { tag: 'TRANS' }),
+            /* the gearbox oil: not in the frame, drawn to match - a thermometer before a cog (tools/mglyphs.py icon_gearbox) */
+            gearbox: temp('gearboxC', 'g', 40, 130, ['40', '85', '130'], ['100', '185', '270'], 100, 270, null, num(Z.hotGearbox, 120)),
             iat: temp('iatC', 'a', -20, 50, ['-20', '15', '50'], ['0', '60', '120'], 0, 120, null, null),
             oilp: press('oilBar', 'p', 10, ['0', '5', '10'], 140, ['0', '70', '140']),
             volts: { key: 'volts', icon: 'v', unit: 'v', marks: ['10', '13', '16'], lo: 10, hi: 16,
@@ -402,7 +401,7 @@
         shape('back', 1, 'mtback',
             { x: 0, y: 0, w: Panel.PANEL_WIDTH, h: Panel.BOTTOM_CUT + S.bottomExtra },
             function (s) {
-                return { u_open: openOf(s), u_winX: WIN_X, u_bg: K.bg, u_hair: K.hairOut, u_foot: [Panel.BOTTOM_CUT, S.bottomExtra] };
+                return { u_open: openOf(s), u_winX: WIN_X, u_bg: K.bg, u_hair: K.hairOut, u_foot: Strip.footU(S) };
             },
             { belowCut: true, still: true });
         /* BMW's bottom strip hidden: plain covers either side of its gear */

@@ -96,7 +96,7 @@ test('hide: the strip is covered each side of the gear, in black, by layers that
             const back = theme.layers.find((L) => L.id === 'bg' || L.id === 'back');
             assert.strictEqual(back.y + back.h, top);
             assert.strictEqual(back.still, true);
-            assert.deepStrictEqual(back.uniforms({}).u_foot, [Panel.BOTTOM_CUT, Panel.STRIP_TRIM_MAX]);
+            assert.deepStrictEqual(back.uniforms({}).u_foot, [Panel.BOTTOM_CUT, Panel.STRIP_TRIM_MAX, 0], 'hidden: no notch, the trim right across');
             /* nothing else below the cut */
             theme.layers.forEach((L) => {
                 if (L === back || covers.indexOf(L) >= 0) return;
@@ -156,6 +156,38 @@ test('show and trim: no covers, the background alone, as far as asked', () => {
     assert.strictEqual(Palette.resolve({ bottomExtra: 'hide' }, Panel.profile('carprofile')).stripWide, false);
     assert.strictEqual(Palette.resolve({ bottomExtra: 'hideWide' }, Panel.profile('carprofile')).stripWide, true);
     assert.strictEqual(Palette.resolve({ bottomExtra: '18' }, Panel.profile('carprofile')).stripWide, false);
+});
+
+test('with the strip in view the background stops short over the driving mode, as Cluster Layouts\' band', () => {
+    /* a two-line mode ("ECO PRO" over "INDIVIDUAL") has its first line's tops at about y 660: the trim to 664 cut them
+       (a photo of the car, 2026-11-26); Layouts' band stops at 658 over x 1196 - 1424 */
+    const N = Panel.STRIP_NOTCH;
+    assert.deepStrictEqual([N.x, N.x + N.w, N.y], [1196, 1424, 658]);
+    assert.ok(N.y < 660 && N.y > Panel.BOTTOM_CUT);
+    assert.ok(N.x + N.w > Panel.GEAR_TRIGGER_WINDOW.x, 'right up to the gear');
+    for (const style of STYLES.concat(['mtrack'])) {
+        const on = Themes.build(atlas, 'carprofile', { style, bottomExtra: '18' });
+        const back = on.layers.find((L) => L.id === 'bg' || L.id === 'back');
+        assert.deepStrictEqual(back.uniforms({}).u_foot, [Panel.BOTTOM_CUT, Panel.STRIP_TRIM_MAX, 1], style);
+        const off = Themes.build(atlas, 'carprofile', { style, bottomExtra: 'hide' });
+        assert.strictEqual(off.layers.find((L) => L.id === 'bg' || L.id === 'back').uniforms({}).u_foot[2], 0, style);
+    }
+    /* every background that runs past the cut leaves the notch open, at the panel's own numbers */
+    const all = Object.assign({}, require('../src/shaders/core.js'), require('../src/shaders/mcluster.js'), require('../src/shaders/tcluster.js'));
+    const feet = Object.keys(all).filter((k) => typeof all[k] === 'string' && /u_foot/.test(all[k]));
+    assert.deepStrictEqual(feet.sort(), ['bg', 'mback', 'mbackFull', 'mbackWide', 'mpback', 'mpbackMost', 'mpbackWide', 'mtback']);
+    const f = (v) => v.toFixed(1);
+    for (const k of feet) {
+        const src = all[k];
+        assert.match(src, /uniform vec3 u_foot;/, k);
+        const line = src.split('\n').find((l) => /u_foot\.z > 0\.5/.test(l));
+        assert.ok(line, k + ' has the notch');
+        for (const v of [N.y, N.x, N.x + N.w]) assert.ok(line.includes(f(v)), k + ': ' + v);
+        assert.match(line, /col = vec3\(0\.0\); a = 0\.0;/, k + ': clear there, whichever way it is blended');
+        /* and it is the last word before the colour goes out */
+        const lines = src.split('\n'), i = lines.indexOf(line);
+        assert.match(lines[i + 1], /gl_FragColor/, k);
+    }
 });
 
 test('the fallback box this car draws is on record, and is what the old setting covered', () => {

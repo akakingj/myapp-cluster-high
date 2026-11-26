@@ -509,12 +509,12 @@ test('each row can be given any reading, or left out: its figures, unit, symbol 
     assert.ok(Math.abs(u.u_val[0] - 0.42) < 1e-9 && Math.abs(u.u_val[1] - (14.1 - 10) / 6) < 1e-9 && u.u_val[2] === -1 &&
         Math.abs(u.u_val[3] - 0.78) < 1e-9);
     /* the engine unit is asked only for what a row or the footer shows */
-    const NONE = { boostTarget: false, hpfp: false, lpfp: false, tank: true };
+    const NONE = { boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false };
     assert.deepStrictEqual(t.shows, Object.assign({ oil: true, boost: false, iat: false, volts: true, pedal: false, throttle: false, timing: false }, NONE));
     assert.deepStrictEqual(build().shows, Object.assign({ oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false }, NONE));
     assert.deepStrictEqual(build({ kRow1: 'off', kRow4: 'off', kFootR: 'iat' }).shows, Object.assign({ oil: false, boost: false, iat: true, volts: false, pedal: false, throttle: false, timing: false }, NONE));
     assert.deepStrictEqual(build({ kRow1: 'hpfp', kRow2: 'power', kFootL: 'boostTarget', kFootM: 'boostPeak' }).shows,
-        { oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false, boostTarget: true, hpfp: true, lpfp: false, tank: true });
+        { oil: false, boost: true, iat: true, volts: false, pedal: false, throttle: false, timing: false, boostTarget: true, hpfp: true, lpfp: false, tank: true, gearbox: false });
     /* all four left out: no rows at all */
     const none = build({ kRow1: 'off', kRow2: 'off', kRow3: 'off', kRow4: 'off' });
     assert.ok(!none.layers.some((L) => /^row/.test(L.id)));
@@ -925,14 +925,21 @@ test('the holiday dressing keeps off the instruments', () => {
 /* ------------------------------------------------------------ the glyphs */
 
 test('the atlas: the track style\'s symbols, gear letters and signs are in it, after everything that was there', () => {
-    assert.deepStrictEqual(Object.keys(atlas.faces.mt.glyphs).sort(), 'acehmopuvw'.replace('e', '').split('').sort());
+    assert.deepStrictEqual(Object.keys(atlas.faces.mt.glyphs).sort(), 'acghmopuvw'.split('').sort());
     assert.deepStrictEqual(Object.keys(atlas.faces.mx.glyphs).sort(), ['%', 'V']);
     /* packed under every face that was there before: none of those moved to make room */
     const added = ['mt', 'mg', 'mx'];
+    /* (the gearbox oil's symbol has a spot of its own in the frozen block: tools/bake-atlas.py SPOTS) */
+    const g = atlas.faces.mt.glyphs.g;
+    assert.deepStrictEqual([g.u, g.v], [878, 235]);
+    for (const [face, f] of Object.entries(atlas.faces)) for (const [ch, o] of Object.entries(f.glyphs)) {
+        if (!o.tw || (face === 'mt' && ch === 'g')) continue;
+        assert.ok(o.u + o.tw <= g.u || g.u + g.tw <= o.u || o.v + o.th <= g.v || g.v + g.th <= o.v, face + ' ' + ch + ' under the gearbox symbol');
+    }
     let lowestOld = 0, highestNew = Infinity;
     for (const [face, f] of Object.entries(atlas.faces)) {
         for (const [ch, g] of Object.entries(f.glyphs)) {
-            if (!g.tw || ch === '~') continue;     // (the marks: under these, below)
+            if (!g.tw || ch === '~' || (face === 'mt' && ch === 'g')) continue;     // (the marks: under these, below; the spot: above)
             if (added.indexOf(face) >= 0) highestNew = Math.min(highestNew, g.v);
             else lowestOld = Math.max(lowestOld, g.v + g.th);
             assert.ok(g.u + g.tw <= atlas.size && g.v + g.th <= atlas.size, face + ': a glyph off the atlas');
@@ -940,7 +947,7 @@ test('the atlas: the track style\'s symbols, gear letters and signs are in it, a
     }
     assert.ok(highestNew >= lowestOld, `the new faces start at row ${highestNew}, the old end at ${lowestOld}`);
     /* "~" (an estimate's mark): one cell under those, named in the upright faces that set figures, not the start-up words' */
-    const lowestTrack = Math.max(...added.map((f) => Math.max(...Object.values(atlas.faces[f].glyphs).filter((g) => g.tw).map((g) => g.v + g.th))));
+    const lowestTrack = Math.max(...added.map((f) => Math.max(...Object.entries(atlas.faces[f].glyphs).filter(([ch, g]) => g.tw && !(f === 'mt' && ch === 'g')).map(([, g]) => g.v + g.th))));
     const marks = ['display', 'label', 'mb', 'mn', 'ms', 'mw'].map((f) => atlas.faces[f].glyphs['~']);
     marks.forEach((g) => assert.deepStrictEqual(g, marks[0]));
     assert.ok(marks[0].tw > 0 && marks[0].v >= lowestTrack && marks[0].v + marks[0].th <= atlas.size);
@@ -1017,7 +1024,7 @@ test('the two strips can show any reading a row can, the fuel, or nothing: its f
     assert.strictEqual(layer(t, 'oilStrip').uniforms(st, 0).u_kind, 1, 'a temperature: red where hot, blue where cold');
     assert.strictEqual(saysAll(t, 'stripLabels', st), '1308540' + '13010070');
     assert.strictEqual(says(t, 'oilUnit', st) + says(t, 'fuelUnit', st), '°C°C');
-    assert.strictEqual(says(t, 'oilIcon', st), 'TRANS');
+    assert.strictEqual(says(t, 'oilIcon', st), 'g', 'the gearbox oil: the cog, as its row has it');
     /* a reading that is not a temperature is plain, and the fuel moves to wherever it is asked for */
     const b = build({ units: 'metric', stripL: 'fuel', stripR: 'boost' }), sb = state(b, RAW);
     assert.deepStrictEqual([layer(b, 'oilStrip').uniforms(sb, 0).u_kind, layer(b, 'fuelStrip').uniforms(sb, 0).u_kind], [0, 2]);

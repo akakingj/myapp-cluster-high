@@ -68,6 +68,15 @@ var GEAR_KEEP_WIDE = { x: 1340, w: 160 };                          /* 1340 - 150
  * gear's window. A setting, off as it comes.
  */
 var SIGN_PATCH = { x: 462, y: BOTTOM_CUT, w: 68, h: 30 };          /* 462 - 530, 646 - 676 */
+/*
+ * With the strip in view, the trim stops short over the driving mode and
+ * the gear: x 1196 - 1424 it runs only to y 658. A two-line mode ("ECO PRO"
+ * over "INDIVIDUAL") has its first line's tops at about y 660, and the trim
+ * to 664 cut them (a photo of the car, 2026-11-26). The left end is the E
+ * of ELECTRIC INDIVIDUAL, the longest name; the same notch as AK Cluster
+ * Layouts' (BG_NOTCH, to 662 clipped the tops there, 2026-11-09).
+ */
+var STRIP_NOTCH = { x: 1196, w: 228, y: 658 };                     /* 1196 - 1424, 646 - 658 */
 
 /* The glass is cut on a diagonal at the top corners: nothing there is seen. */
 var CORNER_LEFT = [{ x: 0, y: 0 }, { x: 325, y: 0 }, { x: 0, y: 190 }];
@@ -345,6 +354,7 @@ return {
     GEAR_KEEP: GEAR_KEEP,
     GEAR_KEEP_WIDE: GEAR_KEEP_WIDE,
     SIGN_PATCH: SIGN_PATCH,
+    STRIP_NOTCH: STRIP_NOTCH,
     CORNER_LEFT: CORNER_LEFT,
     CORNER_RIGHT: CORNER_RIGHT,
     CAMERA: CAMERA,

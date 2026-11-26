@@ -444,6 +444,7 @@ function start(host, deps) {
                     reader.setFeed('timingDeg', ev.timingDeg, now());
                     reader.setFeed('boostTargetBar', ev.boostTargetBar, now());
                     reader.setFeed('hpfpBar', ev.hpfpBar, now());
+                    reader.setFeed('gearboxC', ev.gearboxC, now());
                     reader.setFeed('lpfpBar', ev.lpfpBar, now());
                     reader.setFeed('tankPct', ev.tankPct, now());
                 }
@@ -505,7 +506,9 @@ function start(host, deps) {
                       boostTarget: !!shows.boostTarget, hpfp: !!shows.hpfp, lpfp: !!shows.lpfp,
                       /* the tank's level, unless General: Fuel % from keeps to the car's litres */
                       tank: !!shows.tank && fuelFrom() === 'engine',
-                      boost: !!shows.boost && !reader.hasBusBoost(now(), BUS_BOOST_MS) };
+                      boost: !!shows.boost && !reader.hasBusBoost(now(), BUS_BOOST_MS),
+                      /* the gearbox oil, from the gearbox unit while the car's BasicDataSet gives none (a minute) */
+                      gearbox: !!shows.gearbox && !reader.hasBusGearbox(now(), 60000) };
             var runs = typeof raw.rpm === 'number' && raw.rpm >= ENGINE_RUNS_RPM;
             if (runs) engineRanAt = now();
             /* running, or stopped at a light with drive readiness still on (a plug-in hybrid or an electric

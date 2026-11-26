@@ -321,7 +321,7 @@
             { x: 0, y: 0, w: Panel.PANEL_WIDTH, h: Panel.BOTTOM_CUT + S.bottomExtra },
             function (s) {
                 return padded({ u_open: openOf(s), u_bg: K.bg, u_bgLift: K.bgLift,
-                                u_foot: [Panel.BOTTOM_CUT, S.bottomExtra] });
+                                u_foot: Strip.footU(S) });
             },
             /* belowCut: the glass may run a little way over the car's own
                bottom strip (S.bottomExtra: never as far as the gear) */

@@ -103,7 +103,7 @@
         'uniform float u_open;',     /* 0..1: how far the hosted picture's window is open */
         'uniform vec3 u_bg;',
         'uniform vec3 u_hair;',      /* the light of a fine line out on the black, at full strength */
-        'uniform vec2 u_foot;',      /* where the car's bottom strip starts (panel y), and how far past it this runs */
+        'uniform vec3 u_foot;',      /* where the car's bottom strip starts (panel y), how far past it this runs, 1: the strip in view */
         REVEAL,
         'void main() {',
         '  vec2 p = art();',
@@ -112,6 +112,8 @@
         '  if (u_foot.y > 0.5) col *= 1.0 - smoothstep(u_foot.x, u_foot.x + u_foot.y, px().y);',
         '  float a = 1.0;',
         '  if (u_open > 0.001) a = 1.0 - u_open * reveal(p);',
+        /* with the strip in view: nothing over its driving mode below y 658 (x 1196 - 1424, Panel.STRIP_NOTCH) */
+        '  if (u_foot.z > 0.5 && px().y > 658.0 && px().x > 1196.0 && px().x < 1424.0) { col = vec3(0.0); a = 0.0; }',
         '  gl_FragColor = vec4(col, a);',
         '}'
     ].join('\n');

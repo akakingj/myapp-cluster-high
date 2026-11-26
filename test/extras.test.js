@@ -562,3 +562,18 @@ test('too hot and warm, as AK Cluster Layouts and the Car profile have them: Tor
     assert.deepStrictEqual(zone({}).map((v) => +v.toFixed(2)), [y(130), y(80)].map((v) => +v.toFixed(2)));
     assert.deepStrictEqual(zone({ hotOil: '140', warmOil: '60' }).map((v) => +v.toFixed(2)), [y(140), y(60)].map((v) => +v.toFixed(2)));
 });
+
+test('the gearbox oil: the car\'s BasicDataSet, else the gearbox unit (asked only while the bus has given none for a minute)', () => {
+    const Vehicle = require('../src/car/vehicle.js');
+    const r = Vehicle.createReader();
+    assert.strictEqual(r.hasBusGearbox(1000, 60000), false, 'nothing yet: the gearbox unit is asked');
+    r.setFeed('gearboxC', 70, 1000);
+    assert.strictEqual(r.raw(1000).gearboxC, 70, 'the gearbox unit\'s');
+    assert.strictEqual(r.hasBusGearbox(1000, 60000), false, 'a value read by us is not the bus\'s');
+    r.receive('de.bmw.infrastructure.analytics.BasicDataSet', 'basicDataSet', { valueTemperatureTransmissionOil: 48 + 85 }, 2000);
+    assert.strictEqual(r.raw(2000).gearboxC, 85);
+    assert.strictEqual(r.hasBusGearbox(2000 + 59000, 60000), true);
+    assert.strictEqual(r.hasBusGearbox(2000 + 61000, 60000), false, 'quiet for a minute: asked again');
+    /* a style showing it wants it */
+    assert.strictEqual(require('../src/theme/readings.js').shows(['gearbox']).gearbox, true);
+});

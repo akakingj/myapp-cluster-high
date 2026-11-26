@@ -126,6 +126,10 @@
         return [cx + (r[0] - cx) * k, r[1] * k, r[2] * k, r[3] * k];
     }
     /* where a lowered style's foot is: nothing of it is drawn at or below this row */
+    /* a background's u_foot: where the strip starts, how far past it the background runs, and 1 where the strip is
+       in view (the background then stops short over the driving mode: Panel.STRIP_NOTCH, the shaders' FOOT_NOTCH) */
+    function footU(S) { return [Panel.BOTTOM_CUT, S.bottomExtra, S.stripHide ? 0 : 1]; }
+
     function foot(S) { return Panel.BOTTOM_CUT + (S && S.lower > 0 ? S.lower : 0); }
     /*
      * What nothing of ours may be laid over once layers go below the cut:
@@ -172,5 +176,5 @@
 
     return { resolve: resolve, layers: layers, keep: keep, overGear: overGear, HIDE: HIDE, HIDE_WIDE: HIDE_WIDE,
              LOWER_MOST: LOWER_MOST, lowerPx: lowerPx, lowerScale: lowerScale, lowerFit: lowerFit, lowerRect: lowerRect,
-             foot: foot, gearGuard: gearGuard, clearOfGear: clearOfGear, spread: spread };
+             foot: foot, footU: footU, gearGuard: gearGuard, clearOfGear: clearOfGear, spread: spread };
 }));

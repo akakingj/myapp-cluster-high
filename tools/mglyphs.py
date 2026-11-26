@@ -564,6 +564,24 @@ def icon_m_track():
     return k, g, 68, 26
 
 
+def icon_gearbox():
+    """the gearbox oil's temperature (not in the frame): a thermometer before a cog, as the drive
+    battery's temperature stands before its cell: box 42x28"""
+    k = _icon(42, 28)
+    cx, cy, ro, rb, rh = 27.6, 14.0, 12.4, 9.4, 3.9
+    g = k.disc(cx, cy, rb)
+    for i in range(8):                          # eight teeth, flat-topped, a little narrower outside
+        a = math.radians(i * 45.0 + 22.5)
+        ca, sa = math.cos(a), math.sin(a)
+        def at(r, w):
+            return (cx + r * ca - w * sa, cy + r * sa + w * ca)
+        g |= k.poly([at(rb - 1.0, -2.6), at(ro, -1.9), at(ro, 1.9), at(rb - 1.0, 2.6)])
+    g &= ~k.disc(cx, cy, rh)                     # the hub's hole
+    halo = k.rrect(1.6, 0.0, 9.4, 20.0, 1.6) | k.disc(5.5, 21.6, 4.5)
+    g = (g & ~halo) | _thermo(k, 3.2, 7.8, 2.4, 20.0, 21.6, 3.3, (6.6, 10.6, 14.6), 11.0, 1.8)
+    return k, g, 42, 28
+
+
 TRACK_ICONS = {
     # glyph -> (maker, what it is)
     "u": (icon_turbo, "turbocharger: boost"),
@@ -575,6 +593,8 @@ TRACK_ICONS = {
     "c": (icon_charge, "a drive battery's charge"),
     "h": (icon_cell_temp, "a drive battery's temperature"),
     "m": (icon_m_track, "the outlined M mark"),
+    # (in a spot of its own in the atlas, not in M Track Mode's block: tools/bake-atlas.py SPOTS)
+    "g": (icon_gearbox, "the gearbox oil's temperature"),
 }
 
 

@@ -27,8 +27,8 @@
 
     /* what a reading needs read from the engine unit (src/car/engine.js: its needs), for a style's shows */
     var NEEDS = { oilp: 'oil', iat: 'iat', volts: 'volts', boost: 'boost', boostPeak: 'boost', boostTarget: 'boostTarget',
-                  pedal: 'pedal', throttle: 'throttle', timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp', fuel: 'tank' };
-    var ASKED = ['oil', 'boost', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp', 'tank'];
+                  pedal: 'pedal', throttle: 'throttle', timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp', fuel: 'tank', gearbox: 'gearbox' };
+    var ASKED = ['oil', 'boost', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp', 'tank', 'gearbox'];
     function shows(kinds) {
         var out = {};
         ASKED.forEach(function (k) { out[k] = false; });

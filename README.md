@@ -152,7 +152,9 @@ Layouts').
   engine power and this drive's peak, torque, oil temperature and pressure, coolant, gearbox oil, intake air, pedal,
   throttle, ignition timing, the fuel rail's and the supply's pressures, the battery's voltage, the fuel, a drive
   battery's charge, temperature and power, the electric range, the trip computer, the odometer, the 0-60 mph
-  (0-100 km/h) time and the last upshift's rpm; a gauge, row or strip any of them that has a scale.
+  (0-100 km/h) time and the last upshift's rpm; a gauge, row or strip any of them that has a scale. The gearbox
+  oil is the car's own while it gives one, otherwise the gearbox unit's (as AK Cluster Layouts reads it), asked only
+  while it is shown.
   **km/h only** in an M style: *Settings → Units and clock → Speed unit → km/h*, then in the
   style's own settings *Second speed underneath → One speed only* (the M View
   otherwise shows mph and km/h together).
@@ -314,7 +316,7 @@ clock, street name, driving mode, gear and outside temperature.
 
 | Choice | What you get |
 |---|---|
-| **On** (as it comes) | The strip, with 18 px trimmed off its top edge so nothing of BMW's own cluster shows between the style and the strip's figures |
+| **On** (as it comes) | The strip, with 18 px trimmed off its top edge so nothing of BMW's own cluster shows between the style and the strip's figures; over the driving mode only 12 px, so a two-line mode (*ECO PRO* over *INDIVIDUAL*) keeps its first line whole |
 | **Off** | Everything in the strip is covered in black except BMW's gear letter |
 
 The change shows on the cluster within about half a second, for every

@@ -198,7 +198,7 @@
                 return {
                     u_hole: S.hole, u_holeOpen: [open, S.holeFeather, S.holeChamfer],
                     u_holeDisc: holeDisc,
-                    u_foot: [Panel.BOTTOM_CUT, S.bottomExtra],
+                    u_foot: Strip.footU(S),
                     u_black: GC.screenBlack, u_blue: GC.screenBlueBlack,
                     u_lower: GC.lowerField, u_line: GC.geometricLine,
                     u_hex: S.hexagons, u_hexSize: S.hexSize, u_facets: S.facets, u_rev: S.revuelto,

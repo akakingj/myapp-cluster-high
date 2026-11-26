@@ -12,7 +12,9 @@
  *     refuses everything but UDS 22 (ReadDataByIdentifier) and OBD 01 / 09
  *     before a request leaves the head unit. Nothing here could write to the
  *     car if it tried.
- *   - One request at a time, to one unit: the engine unit, 0x12.
+ *   - One request at a time: to the engine unit, 0x12 - and for the gearbox
+ *     oil (when the car's own BasicDataSet gives none), the gearbox's unit,
+ *     EGS 0x18, as AK Cluster Layouts reads it.
  *   - Only while the service says so (tick's `allowed`, src/car/main.js):
  *     our layers up, the car on, THE ENGINE RUNNING (or stopped by auto
  *     start-stop with the car still in drive readiness; a plug-in hybrid or an
@@ -40,9 +42,11 @@
  */
 
 var DME = 0x12;
+var EGS = 0x18;               /* the gearbox's own unit (ZF 8HP) */
 var WAIT_MS = 600;            /* how long one request waits for its answer */
 
 function c(o) { o.ecu = DME; o.timeoutMs = WAIT_MS; if (o.at === undefined) o.at = 0; return o; }
+function g(o) { c(o); o.ecu = EGS; return o; }
 
 var CANDIDATES = {
     /* oil pressure, absolute, hPa */
@@ -115,6 +119,11 @@ var CANDIDATES = {
         c({ did: '59FA', bytes: 1, signed: true, factor: 0.75, min: -40, max: 70 }),
         c({ obd: '0E', bytes: 1, factor: 0.5, offset: -64, min: -40, max: 63.5 })
     ],
+    /* the gearbox oil's temperature, C: the gearbox unit's (ZF 8HP _GETRIEBEOELTEMPERATUR, + 40; as AK Cluster Layouts
+       and Transmission Config read it) */
+    gearboxT: [
+        g({ did: '6000', bytes: 1, factor: 1, offset: -40, min: -40, max: 160 })
+    ],
     /* the fuel tank's level, the engine unit's own fill in % (as AK Cluster Layouts and Live Data read it) */
     tank: [
         c({ did: 'F42F', bytes: 1, factor: 100 / 255, min: 0, max: 101 }),
@@ -132,10 +141,11 @@ var CANDIDATES = {
  */
 function isStandard(x) { return !!x.obd || /^F4/i.test(String(x.did)); }
 var STANDARD = {};
-Object.keys(CANDIDATES).forEach(function (name) { STANDARD[name] = CANDIDATES[name].filter(isStandard); });
+/* (the gearbox's unit is the same whatever the engine: its own identifier stands for a diesel too) */
+Object.keys(CANDIDATES).forEach(function (name) { STANDARD[name] = name === 'gearboxT' ? CANDIDATES[name] : CANDIDATES[name].filter(isStandard); });
 /* the candidates each reading is read through, first to last (boost and oil are taken over a second one) */
 var LISTS = { boost: 'boostAbs', boostTarget: 'boostTarget', oil: 'oilAbs', iat: 'iat', volts: 'volts', pedal: 'pedal', throttle: 'throttle',
-              timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp', tank: 'tank' };
+              timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp', tank: 'tank', gearbox: 'gearboxT' };
 
 /*
  * The readings: how often each is asked while it is shown, and how long a
@@ -154,9 +164,11 @@ var READINGS = {
     hpfp: { everyMs: 1000, keepMs: 5000, words: 'high fuel pressure' },
     lpfp: { everyMs: 2000, keepMs: 9000, words: 'low fuel pressure' },
     /* (AK Cluster Layouts' own: every 10 s, kept a minute) */
-    tank: { everyMs: 10000, keepMs: 60000, words: 'fuel tank level' }
+    tank: { everyMs: 10000, keepMs: 60000, words: 'fuel tank level' },
+    /* (AK Cluster Layouts' own: every 10 s for the slow ones) */
+    gearbox: { everyMs: 5000, keepMs: 21000, words: 'gearbox oil', unit: 'gearbox unit' }
 };
-var ORDER = ['boost', 'oil', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp', 'tank'];
+var ORDER = ['boost', 'oil', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp', 'tank', 'gearbox'];
 var SLOW_MS = 60000;          /* ambient pressure and the barometer: once a minute */
 var MISS_LIMIT = 3;           /* answers missed in a row before a reading goes quiet */
 var RETRY_MS = 60000;         /* ... and is then asked this often */
@@ -270,6 +282,7 @@ function create(opts) {
         hpfp: function (rd) { return rd.value(nameOf('hpfp'), list('hpfp')); },
         lpfp: function (rd) { return rd.value(nameOf('lpfp'), list('lpfp')); },
         tank: function (rd) { return rd.value(nameOf('tank'), list('tank')).then(pct); },
+        gearbox: function (rd) { return rd.value(nameOf('gearboxT'), list('gearboxT')); },
         boostTarget: function (rd, now) {
             var first = now - baro.at > SLOW_MS ? rd.value(nameOf('baro'), list('baro')) : Promise.resolve(null);
             return Promise.resolve(first).then(function (b) {
@@ -317,14 +330,14 @@ function create(opts) {
                 job.next = t + READINGS[job.key].everyMs;
                 if (job.told !== true) {
                     job.told = true;
-                    log.info('engine: ' + READINGS[job.key].words + ' from the engine unit (' + source(job.key) + ')');
+                    log.info('engine: ' + READINGS[job.key].words + ' from the ' + (READINGS[job.key].unit || 'engine unit') + ' (' + source(job.key) + ')');
                 }
             } else {
                 job.misses++;
                 job.next = t + (job.misses >= MISS_LIMIT ? RETRY_MS : READINGS[job.key].everyMs);
                 if (job.misses === MISS_LIMIT && job.told !== false) {
                     job.told = false;
-                    log.info('engine: no ' + READINGS[job.key].words + ' from the engine unit; asked again every minute');
+                    log.info('engine: no ' + READINGS[job.key].words + ' from the ' + (READINGS[job.key].unit || 'engine unit') + '; asked again every minute');
                 }
             }
         }).catch(function (e) {
@@ -339,7 +352,7 @@ function create(opts) {
 
     return {
         /*
-         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost, pedal, throttle, timing, boostTarget, hpfp, lpfp, tank },
+         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost, pedal, throttle, timing, boostTarget, hpfp, lpfp, tank, gearbox },
          * diesel }.
          * allowed is the service's whole say-so (see the top of this file);
          * needs is what the style on the cluster is showing; diesel is the
@@ -377,7 +390,8 @@ function create(opts) {
             function fresh(k) { var j = jobs[k]; return known(j.value) && now - j.at <= READINGS[k].keepMs ? j.value : undefined; }
             return { oilBar: fresh('oil'), iatC: fresh('iat'), batteryV: fresh('volts'), boostBar: fresh('boost'),
                      pedalPct: fresh('pedal'), throttlePct: fresh('throttle'), timingDeg: fresh('timing'),
-                     boostTargetBar: fresh('boostTarget'), hpfpBar: fresh('hpfp'), lpfpBar: fresh('lpfp'), tankPct: fresh('tank') };
+                     boostTargetBar: fresh('boostTarget'), hpfpBar: fresh('hpfp'), lpfpBar: fresh('lpfp'), tankPct: fresh('tank'),
+                     gearboxC: fresh('gearbox') };
         },
         /* for the app's page: { state, have: [words], missing: [words] } */
         info: function (needs, now) {

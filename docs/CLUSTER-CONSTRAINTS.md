@@ -77,7 +77,7 @@ style, set by *BMW's bottom strip*):
 
 | Setting | What is drawn below `y = 646` |
 |---|---|
-| On (default) | the style's background runs on 18 px, right across, fading to black: rows 646-663, a row short of the gear's window: **no trim can reach it** (`STRIP_TRIM_MAX`). Less (0, 6, 12 px, offered up to AK 0.19.0) left pieces of BMW's own dials at the sides on a car |
+| On (default) | the style's background runs on 18 px, right across, fading to black: rows 646-663, a row short of the gear's window: **no trim can reach it** (`STRIP_TRIM_MAX`). Less (0, 6, 12 px, offered up to AK 0.19.0) left pieces of BMW's own dials at the sides on a car. Over the driving mode and the gear (x 1196 - 1424, `STRIP_NOTCH`) it stops at 658, clear there below it: a two-line mode's first line has its tops at about 660, and the trim to 664 cut them (a photo of the car, 2026-11-26) |
 | Off | the same, and from `y = 664` to the screen's edge two plain black covers, the left one run on to **`x 1384`: one column short of the gear's window**, as the trim is one row short of it (`GEAR_KEEP`, `x 1384-1500`). The columns between are never drawn on, so **BMW's own gear letter stays**; it is all that is left of the strip. (The wider gap of up to Beta 5, `GEAR_KEEP_WIDE`, `x 0-1340`, showed the end of a long mode name, the T of COMFORT.) |
 
 The covers and the backgrounds are marked `still`, so the limiter's shake
