@@ -328,7 +328,7 @@
         s.hotCoolant = clampNum(settings.hotCoolant, 80, 150, 118);
         s.hotGearbox = clampNum(settings.hotGearbox, 60, 150, 115);
         /* Toro's G meter: the g its outer edge stands for (the Car profile's G-force circle up to) */
-        s.gScale = clampNum(settings.gScale, 0.5, 3, 1.2);
+        s.gScale = clampNum(settings.gScale, 0.5, 3, 1.5);
         /* a plug-in hybrid's electric range with a full battery, km: the estimate while the car gives none */
         s.eFullKm = clampNum(settings.eFullKm, 10, 200, 50);
         s.redFromScale = settings.redFromScale === undefined ? null

@@ -41,11 +41,14 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   is on the cluster*. Each also keeps a file of its own with when it came up (presence.js); an older Layouts, with
   none, is waited for as before.
 - **The Car profile's G meter size, too-hot figures and electric range when full, as Layouts follows them.**
-  Readouts and gauges: *Toro: G meter size* (1.0 - 2.0 g, 1.2 as it was), *Oil / Coolant / Gearbox is too hot at* (130,
+  Readouts and gauges: *Toro: G meter size* (1.0 - 2.0 g; 1.5 as it comes, as Layouts', G-Force's and M Vitals' - it was 1.2), *Oil / Coolant / Gearbox is too hot at* (130,
   118, 115 C as Layouts': Toro's gauges and its oil and coolant figures, M Track Mode's rows and M Sport's oil strip
   red from them - they were 150 / 115 / 120, 134 / 122 / 120 and 138 C - and the oil blue up to *Oil is warm at*, 80 C,
   where M Track and M Sport had 66 and 61). Car: *Electric range when full* (50 km as Layouts', in miles with mph:
-  31 mi): a plug-in hybrid's battery gauge against it (it was 80 km) and its range estimated from the charge while the car gives none.
+  31 mi): a plug-in hybrid's battery gauge against it (it was 80 km) and its range estimated from the charge while the car gives none,
+  shown with "~" before it (~39) as Layouts shows an estimate: the atlas has the mark now, one cell under M Track
+  Mode's faces, named in every upright face that sets figures (tools/bake-atlas.py MARKS; `--marks` adds it to the
+  atlas as it stands, without the fonts, the same bytes as the whole bake).
 - **Toro's G meter's dot moves as the driver feels the load**, as Layouts' G meter and the G-Force app: right in a left
   bend, up braking, down accelerating (it went with the car's acceleration, the other way).
 - **The start-up message in your own words, typed.** Settings → **Start-up words** opens the head unit's own keyboard

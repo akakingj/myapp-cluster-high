@@ -125,7 +125,8 @@ style's appear once it is chosen).
   counter again in SPORT, XTRABOOST and with the lever in S or M. **Fuel tank size** and **Fuel % from** (as Cluster
   Layouts' fuel gauge: the engine unit's own tank level while the engine runs, otherwise the car's litres over the
   tank's size; or the litres always). **Electric range when full** (km, in miles with mph): a plug-in hybrid's electric range from its
-  charge while the car gives none, and its battery gauge against it.
+  charge while the car gives none (shown with "~" before it, as Layouts shows an estimate), and its battery gauge
+  against it.
 
   What the Car profile app sets (units, clock, engine, the rev figures, the too-hot figures, the G meter, the tank, the
   electric range) is set there for both apps.

@@ -289,12 +289,13 @@ test('the G meter: as the driver feels it - a right-hand bend reads to the left,
     assert.ok(right.gX < -0.49 && right.gY > 0.29);
     const ahead = State.present({ rpm: 2000, gLat: 0.4, gLon: 0.2 }, P, {});
     assert.ok(ahead.gX > 0.39 && ahead.gY < -0.19, 'a left bend, accelerating: right and down');
-    for (const [v, want] of [[undefined, 1.2], ['2', 2], ['1.5', 1.5]]) {
+    for (const [v, want] of [[undefined, 1.5], ['2', 2], ['1.2', 1.2]]) {
         const tg = Toro.build(atlas, 'carprofile', { gScale: v });
         assert.strictEqual(find(tg, 'gforce').uniforms(Object.assign({}, right, { now: 0 })).u_max, want);
     }
     const gs = require('../app/app.base.json').settings.find((x) => x.key === 'gScale');
     assert.strictEqual(gs.profile, 'gMax');
+    assert.strictEqual(gs.default, '1.5', 'as Layouts\', G-Force\'s and M Vitals\'');
     for (const g of ['1', '1.2', '1.5', '2']) assert.ok(gs.options.some((o) => o[0] === gs.profileMap[g]), g);
     const th = Toro.build(atlas, 'carprofile', {});
     const L = (id) => find(th, id).uniforms(Object.assign(right, { now: 0 }));
@@ -410,7 +411,7 @@ test('electric range: a plug-in hybrid has it beside the fuel\'s, an electric ca
     assert.ok(Math.abs(State.present({ evRangeKm: 40 }, P, { electric: 'hybrid', eFullKm: 80 }).pods.battery.frac - 0.5) < 1e-9);
     /* the charge with no range from the car: the range estimated from it, as Layouts does (in the units shown) */
     const est = State.present({ socPct: 50 }, P, { electric: 'hybrid', eFullKm: 60, units: 'metric' });
-    assert.deepStrictEqual([est.info.erange, est.pods.battery.text], ['30', '30']);
+    assert.deepStrictEqual([est.info.erange, est.pods.battery.text], ['~30', '~30'], 'an estimate: ~ before it, as Layouts');
     /* kept in km, shown in miles with mph (the kit's numberText: "unitBy") */
     const ef = require('../app/app.base.json').settings.find((x) => x.key === 'eFullKm');
     assert.deepStrictEqual([ef.unit, ef.unitBy, ef.units.mph.unit, ef.profile, ef.default], ['km', 'speedUnit', 'mi', 'eFullKm', 50]);

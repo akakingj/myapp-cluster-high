@@ -931,14 +931,20 @@ test('the atlas: the track style\'s symbols, gear letters and signs are in it, a
     const added = ['mt', 'mg', 'mx'];
     let lowestOld = 0, highestNew = Infinity;
     for (const [face, f] of Object.entries(atlas.faces)) {
-        for (const g of Object.values(f.glyphs)) {
-            if (!g.tw) continue;
+        for (const [ch, g] of Object.entries(f.glyphs)) {
+            if (!g.tw || ch === '~') continue;     // (the marks: under these, below)
             if (added.indexOf(face) >= 0) highestNew = Math.min(highestNew, g.v);
             else lowestOld = Math.max(lowestOld, g.v + g.th);
             assert.ok(g.u + g.tw <= atlas.size && g.v + g.th <= atlas.size, face + ': a glyph off the atlas');
         }
     }
     assert.ok(highestNew >= lowestOld, `the new faces start at row ${highestNew}, the old end at ${lowestOld}`);
+    /* "~" (an estimate's mark): one cell under those, named in the upright faces that set figures, not the start-up words' */
+    const lowestTrack = Math.max(...added.map((f) => Math.max(...Object.values(atlas.faces[f].glyphs).filter((g) => g.tw).map((g) => g.v + g.th))));
+    const marks = ['display', 'label', 'mb', 'mn', 'ms', 'mw'].map((f) => atlas.faces[f].glyphs['~']);
+    marks.forEach((g) => assert.deepStrictEqual(g, marks[0]));
+    assert.ok(marks[0].tw > 0 && marks[0].v >= lowestTrack && marks[0].v + marks[0].th <= atlas.size);
+    ['lambo', 'dial', 'gear'].forEach((f) => assert.strictEqual(atlas.faces[f].glyphs['~'], undefined, f));
     /* the symbols a row or a strip draws are all there */
     for (const sc of Object.values(MTrack.rowScales(Units.of({ units: 'metric' })))) assert.ok(sc.icon ? atlas.faces.mt.glyphs[sc.icon].tw > 0 : !!sc.tag);
 });

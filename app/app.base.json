@@ -349,7 +349,7 @@
       "key": "gScale",
       "label": "Toro: G meter size",
       "type": "choice",
-      "default": "1.2",
+      "default": "1.5",
       "options": [
         [
           "1",

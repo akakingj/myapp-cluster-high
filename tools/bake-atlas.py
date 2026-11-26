@@ -95,6 +95,35 @@ TRACK = {
 }
 
 
+# Marks, packed after M Track Mode's, so nothing above moves: drawn here, one
+# cell each, and named in every upright face that sets figures (not the
+# start-up words' own, "lambo") - "~" before an
+# estimate (the electric range worked out from the charge, as Cluster Layouts
+# shows it). `--marks` adds them to the atlas as it stands, for a machine
+# without the fonts: the same bytes as the whole bake.
+MARKS = {"mk": ("@mk", "~", 0.0)}
+MARKED = ("display", "label", "mb", "mn", "ms", "mw")
+
+
+def mark_glyph(ch):
+    """A mark of this file's own hand: "~", a stroke one period of a sine wave
+    long, about the figures' middle height."""
+    em = RASTER * SUPER
+    pad = (PAD + 2) * DOWN * SUPER
+    adv, x0, x1, mid, amp, stroke = 0.62, 0.07, 0.55, 0.36, 0.07, 0.09
+    w, h = int(em * adv) + pad * 2, int(em * 1.2) + pad * 2
+    ox, oy = pad, int(h - pad - em * 0.1)
+    img = Image.new("L", (w, h), 0)
+    d = ImageDraw.Draw(img)
+    pts = [(ox + em * (x0 + (x1 - x0) * i / 96.0),
+            oy - em * (mid + amp * math.sin(2 * math.pi * i / 96.0))) for i in range(97)]
+    r = em * stroke / 2
+    d.line(pts, fill=255, width=int(round(em * stroke)), joint="curve")
+    for (x, y) in (pts[0], pts[-1]):
+        d.ellipse((x - r, y - r, x + r, y + r), fill=255)
+    return cell_from_image(img, ox, oy, adv)
+
+
 def glyph_sdf(path, ch, slant_deg):
     """Rasterise one glyph (optionally sheared about its baseline) and return
     (sdf cell, metrics). Metrics come from the drawn pixels, not the font's
@@ -159,6 +188,8 @@ def cell_from_image(img, ox, oy, advance):
 def drawn_glyph(face, ch):
     """A glyph of tools/mglyphs.py: a figure of the M View's own hand, or one
     of its symbols."""
+    if face == "mk":
+        return mark_glyph(ch)
     import mglyphs
     assert mglyphs.EM == RASTER * SUPER
     if face == "mi":
@@ -172,65 +203,39 @@ def drawn_glyph(face, ch):
     return cell_from_image(img, ox, oy, adv)
 
 
-def main():
-    if not FONTS.is_dir():
-        sys.exit("run tools/fetch-fonts.sh first")
-    OUT.mkdir(parents=True, exist_ok=True)
+def bake(faces):
+    cells, meta = [], {}
+    for face, (fname, chars, slant) in faces.items():
+        path = FONTS / fname
+        meta[face] = {"source": fname, "slant": slant, "glyphs": {}}
+        for ch in chars:
+            if fname.startswith("@"):
+                cell, m = drawn_glyph(fname[1:], ch)
+            else:
+                cell, m = glyph_sdf(path, ch, slant)
+            if cell is not None:
+                cells.append((face, ch, cell))
+            meta[face]["glyphs"][ch] = m
+    cells.sort(key=lambda c: -c[2].shape[0])
+    return cells, meta
 
-    def bake(faces):
-        cells, meta = [], {}
-        for face, (fname, chars, slant) in faces.items():
-            path = FONTS / fname
-            meta[face] = {"source": fname, "slant": slant, "glyphs": {}}
-            for ch in chars:
-                if fname.startswith("@"):
-                    cell, m = drawn_glyph(fname[1:], ch)
-                else:
-                    cell, m = glyph_sdf(path, ch, slant)
-                if cell is not None:
-                    cells.append((face, ch, cell))
-                meta[face]["glyphs"][ch] = m
-        cells.sort(key=lambda c: -c[2].shape[0])
-        return cells, meta
 
-    def pack(cells, size, y0):
-        """shelves of cells from row y0 down -> ({(face, ch): (x, y)}, next free row) or None"""
-        placed, x, y, shelf = {}, 1, y0, 0
-        for face, ch, cell in cells:
-            ch_h, ch_w = cell.shape
-            if x + ch_w + 1 > size:
-                x, y, shelf = 1, y + shelf + 1, 0
-            if y + ch_h + 1 > size:
-                return None
-            placed[(face, ch)] = (x, y)
-            x += ch_w + 1
-            shelf = max(shelf, ch_h)
-        return placed, y + shelf + 1
+def pack(cells, size, y0):
+    """shelves of cells from row y0 down -> ({(face, ch): (x, y)}, next free row) or None"""
+    placed, x, y, shelf = {}, 1, y0, 0
+    for face, ch, cell in cells:
+        ch_h, ch_w = cell.shape
+        if x + ch_w + 1 > size:
+            x, y, shelf = 1, y + shelf + 1, 0
+        if y + ch_h + 1 > size:
+            return None
+        placed[(face, ch)] = (x, y)
+        x += ch_w + 1
+        shelf = max(shelf, ch_h)
+    return placed, y + shelf + 1
 
-    size = FROZEN_SIZE
-    old_cells, meta = bake(FROZEN)
-    packed = pack(old_cells, size, 1)
-    if packed is None:
-        sys.exit("the frozen faces no longer fit %d: the fonts have changed" % size)
-    placed, free = packed
-    new_cells, new_meta = bake(ADDED)
-    packed = pack(new_cells, size, free)
-    if packed is None:
-        sys.exit("the added faces do not fit under the frozen block (from row %d of %d)" % (free, size))
-    placed.update(packed[0])
-    meta.update(new_meta)
-    track_cells, track_meta = bake(TRACK)
-    free = packed[1]
-    packed = pack(track_cells, size, free)
-    if packed is None:
-        sys.exit("M Track Mode's faces do not fit under the others (from row %d of %d)" % (free, size))
-    placed.update(packed[0])
-    meta.update(track_meta)
-    for face in LEGACY:
-        del meta[face]
 
-    cells = [c for c in old_cells if c[0] not in LEGACY] + new_cells + track_cells
-    atlas = np.zeros((size, size), dtype=np.uint8)
+def put(atlas, meta, cells, placed):
     for face, ch, cell in cells:
         x, y = placed[(face, ch)]
         ch_h, ch_w = cell.shape
@@ -238,6 +243,24 @@ def main():
         g = meta[face]["glyphs"][ch]
         g["u"], g["v"], g["tw"], g["th"] = x, y, ch_w, ch_h
 
+
+def add_marks(atlas, meta, free):
+    """MARKS packed from row `free`, each named in the MARKED faces (their own
+    face is not kept). Returns the next free row."""
+    size = atlas.shape[0]
+    cells, mk_meta = bake(MARKS)
+    packed = pack(cells, size, free)
+    if packed is None:
+        sys.exit("the marks do not fit under the others (from row %d of %d)" % (free, size))
+    put(atlas, mk_meta, cells, packed[0])
+    for face in MARKED:
+        for g in mk_meta.values():
+            meta[face]["glyphs"].update({ch: dict(m) for ch, m in g["glyphs"].items()})
+    return packed[1]
+
+
+def write(atlas, meta, rows):
+    size = atlas.shape[0]
     Image.fromarray(atlas, "L").save(OUT / "atlas.png", optimize=True)
     with gzip.GzipFile(str(OUT / "atlas.r8.gz"), "wb", compresslevel=9, mtime=0) as f:
         f.write(atlas.tobytes())
@@ -245,10 +268,61 @@ def main():
         {"size": size, "spread": SPREAD, "emPx": RASTER // DOWN, "faces": meta},
         separators=(",", ":"), sort_keys=True))
     used = int((atlas > 0).sum()) / (size * size) * 100
-    print("atlas %dx%d  %d glyphs  %.0f%% covered  rows used %d  png %d KB  r8.gz %d KB"
-          % (size, size, len(cells), used, packed[1],
+    print("atlas %dx%d  %.0f%% covered  rows used %d  png %d KB  r8.gz %d KB"
+          % (size, size, used, rows,
              (OUT / "atlas.png").stat().st_size // 1024,
              (OUT / "atlas.r8.gz").stat().st_size // 1024))
+
+
+def marks_only():
+    """--marks: the marks added to the atlas as it stands (no fonts needed). M
+    Track Mode's faces are the last packed: the free row is under their last
+    shelf, as the whole bake has it."""
+    meta = json.loads((OUT / "atlas.json").read_text())["faces"]
+    if any("~" in meta[f]["glyphs"] for f in MARKED):
+        sys.exit("the atlas has the marks already")
+    atlas = np.array(Image.open(OUT / "atlas.png").convert("L"))
+    cells = [g for f in TRACK for g in meta[f]["glyphs"].values() if g.get("th")]
+    last = max(g["v"] for g in cells)
+    free = last + max(g["th"] for g in cells if g["v"] == last) + 1
+    write(atlas, meta, add_marks(atlas, meta, free))
+
+
+def main():
+    if "--marks" in sys.argv[1:]:
+        return marks_only()
+    if not FONTS.is_dir():
+        sys.exit("run tools/fetch-fonts.sh first")
+    OUT.mkdir(parents=True, exist_ok=True)
+
+    size = FROZEN_SIZE
+    old_cells, meta = bake(FROZEN)
+    packed = pack(old_cells, size, 1)
+    if packed is None:
+        sys.exit("the frozen faces no longer fit %d: the fonts have changed" % size)
+    placed, free = packed
+
+    new_cells, new_meta = bake(ADDED)
+    packed = pack(new_cells, size, free)
+    if packed is None:
+        sys.exit("the added faces do not fit under the frozen block (from row %d of %d)" % (free, size))
+    placed.update(packed[0])
+    meta.update(new_meta)
+
+    track_cells, track_meta = bake(TRACK)
+    free = packed[1]
+    packed = pack(track_cells, size, free)
+    if packed is None:
+        sys.exit("M Track Mode's faces do not fit under the others (from row %d of %d)" % (free, size))
+    placed.update(packed[0])
+    meta.update(track_meta)
+
+    for face in LEGACY:
+        del meta[face]
+    cells = [c for c in old_cells if c[0] not in LEGACY] + new_cells + track_cells
+    atlas = np.zeros((size, size), dtype=np.uint8)
+    put(atlas, meta, cells, placed)
+    write(atlas, meta, add_marks(atlas, meta, packed[1]))
 
 
 if __name__ == "__main__":

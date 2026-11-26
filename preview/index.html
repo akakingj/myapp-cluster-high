@@ -169,6 +169,8 @@
       /* electric=hybrid|bev: a battery to show (the simulated car has none of its own) */
       if (cfg.electric === 'hybrid') { rawNow.evRangeKm = 43; rawNow.socPct = 78; }
       if (cfg.electric === 'bev') { rawNow.evRangeKm = 310; rawNow.socPct = 64; rawNow.hvTempC = 26; }
+      /* evEst=1: no range from the car - the one worked out from the charge, with its "~" */
+      if (params.get('evEst') === '1') rawNow = Object.assign({}, rawNow, { evRangeKm: undefined });
       /* phev=electric|hybrid|sport: the plug-in hybrid's mode, with kw=K (the battery's power, - charging)
          and pedal=P: its Power % in the rev counter's place (src/engine/state.js powerPct) */
       if (params.get('phev')) {

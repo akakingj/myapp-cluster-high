@@ -880,7 +880,7 @@
                 if (!s.gOk) return null;
                 var pk = peakOf(s);
                 return { u_g: [s.gX, s.gY], u_peak: [pk.x, pk.y], u_peakA: pk.a,
-                         u_max: S.gScale || 1.2, u_col: GC.primaryWhite, u_acc: GC.corsaRed };
+                         u_max: S.gScale || 1.5, u_col: GC.primaryWhite, u_acc: GC.corsaRed };
             }
         });
         /* Four readings around it, one per direction, from the same vector. */

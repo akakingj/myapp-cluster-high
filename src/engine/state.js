@@ -143,9 +143,11 @@
         /* a plug-in hybrid's range with a full battery (Car > Electric range when full, km; as AK Cluster Layouts):
            the car's own range, else the charge's share of that, as Layouts estimates it */
         var EV_FULL_KM = electric === 'bev' ? 500 : has(opts.eFullKm) ? Number(opts.eFullKm) : 50;
-        var evKm = electric !== 'off' && has(raw.evRangeKm) ? raw.evRangeKm
+        var evOwn = electric !== 'off' && has(raw.evRangeKm);
+        var evKm = evOwn ? raw.evRangeKm
             : electric === 'hybrid' && soc !== null ? Math.max(0, soc) / 100 * EV_FULL_KM : null;
-        var evText = evKm === null ? dash : String(Math.round(U.distIn(evKm)));
+        /* (an estimate with "~" before it, as Layouts shows one) */
+        var evText = evKm === null ? dash : (evOwn ? '' : '~') + Math.round(U.distIn(evKm));
         if (electric === 'bev') fuel = soc === null ? undefined : soc;
         /* the battery as a gauge: the bar is its charge (or, with no charge
            reported, the range against a full one's), the figure the range */
