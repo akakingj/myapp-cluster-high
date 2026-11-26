@@ -292,6 +292,7 @@ mgu.run({
     background(bg) {
         /* (a car chosen under General > Car before it went: its figures into General's, once) */
         try { Panel.moveCarFigures(bg.settings, bg.log); } catch (e) { bg.log.warn('car figures: ' + e); }
+        try { Panel.moveElectric(bg.settings, bg.log); } catch (e) { bg.log.warn('electric range: ' + e); }
         try {
             const svc = Service.start(hostFor(bg), { appId: bg.spec.id });
             bg.log.info('cluster service started');

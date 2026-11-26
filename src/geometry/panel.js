@@ -142,7 +142,7 @@ var PROFILES = {
         gearCount: 8, gearbox: 'ZF 8HP / DCT', boost: true, boostMaxPsi: 26, tankLitres: 59,
         extraZones: [M_BOX_A, M_BOX_B]
     },
-    /* a plug-in hybrid: as Cluster Layouts' Vehicle, its electric side from General: Electric range */
+    /* a plug-in hybrid: Car > Engine Plug-in hybrid (or Auto, found from the car), as Cluster Layouts' */
     hybrid: {
         id: 'hybrid', name: 'Plug-in hybrid (eDrive)', engine: 'B46/B58 PHEV', cylinders: 4, aspiration: 'turbo',
         rpmMax: 7000, rpmRedline: 6000, rpmLimiter: 6500,
@@ -152,8 +152,8 @@ var PROFILES = {
 
 var DEFAULT_PROFILE = 'carprofile';
 
-/* The kind of car for the settings: General > Engine "Petrol, M car", else a plug-in hybrid (Electric range, as
-   main.js has worked it out), else a car. */
+/* The kind of car for the settings: Car > Engine "Petrol, M car", else a plug-in hybrid (its electric side, as
+   main.js has worked it out from Engine), else a car. */
 function kindOf(settings) {
     if (settings && settings.engine === 'm') return 'mCarS58';
     return settings && settings.electric === 'hybrid' ? 'hybrid' : 'carprofile';
@@ -218,7 +218,7 @@ var CAR_FIGURES = {
            boostMax: '30', tankLitres: '60' },
     mCarS58: { engine: 'm', rpmLimiter: '8000', rpmRedline: '7000', shiftAt: '7500', shiftFrom: '6500', scaleMaxRpm: '8000',
                speedMax: '330', boostMax: '30', tankLitres: '59' },
-    hybrid: { electric: 'hybrid' }
+    hybrid: { engine: 'phev' }
 };
 function figuresOfCar(saved) {
     var car = saved && ({ x3m40i: 'b48', custom: 'carprofile' }[saved.profile] || saved.profile);
@@ -226,9 +226,8 @@ function figuresOfCar(saved) {
     if (!f) return null;
     var out = {}, k;
     for (k in f) if (Object.prototype.hasOwnProperty.call(f, k)) out[k] = f[k];
-    /* (a diesel stays one; a plug-in hybrid's Electric range set by hand stays as set) */
+    /* (a diesel stays one) */
     if (out.engine && saved.engine === 'diesel') delete out.engine;
-    if (out.electric && saved.electric && saved.electric !== 'auto') delete out.electric;
     return out;
 }
 /*
@@ -236,6 +235,22 @@ function figuresOfCar(saved) {
  * the app starts (app/entry.js), so the cluster reads as it did. settings: the kit's (values as saved). Nothing for
  * a new install, nor for Car profile values: General's already.
  */
+/*
+ * General > Electric range went in AK 0.19.1 (a plug-in hybrid is Car > Engine's, as Cluster Layouts' and the Car
+ * profile's): a saved Plug-in hybrid on a petrol car becomes Engine Plug-in hybrid, once. Returns whether it moved.
+ */
+function moveElectric(settings, log) {
+    var v = settings.values || {};
+    if (v._electricMoved) return false;
+    var moved = v.electric === 'hybrid' && (v.engine === undefined || v.engine === 'petrol');
+    if (moved) {
+        settings.set('engine', 'phev');
+        if (log) log.info('Electric range: Plug-in hybrid is Engine: Plug-in hybrid now');
+    }
+    settings.set('_electricMoved', 1);
+    return moved;
+}
+
 function moveCarFigures(settings, log) {
     var v = settings.values || {};
     if (v._carMoved || v.profile === undefined) return null;
@@ -305,6 +320,7 @@ return {
     kindOf: kindOf,
     figuresOfCar: figuresOfCar,
     moveCarFigures: moveCarFigures,
+    moveElectric: moveElectric,
     PSI_PER_BAR: PSI_PER_BAR,
     snapBoost: snapBoost,
     BOOST_BAR: BOOST_BAR,

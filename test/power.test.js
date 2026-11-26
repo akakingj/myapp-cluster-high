@@ -148,18 +148,20 @@ test('each style\'s rev counter: Power % on its marks, the 0 a quarter up, CHARG
     }
 });
 
-test('Electric range on Automatic: a plug-in hybrid found by its drive modes, kept; a petrol car stays one', { timeout: 15000 }, async (t) => {
+test('Engine on Auto: a plug-in hybrid found by its drive modes, kept; a petrol car stays one', { timeout: 15000 }, async (t) => {
     const Main = require('../src/car/main.js');
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-    const spec = require('../app/app.base.json'), item = spec.settings.find((s) => s.key === 'electric');
-    assert.strictEqual(item.default, 'auto');
-    assert.strictEqual(item.options[0][0], 'auto');
-    assert.deepStrictEqual(item.profileMap, { phev: 'hybrid', petrol: 'off', m: 'off', diesel: 'off' }, 'a Car profile set to a plug-in hybrid says so itself');
+    const spec = require('../app/app.base.json'), item = spec.settings.find((s) => s.key === 'engine');
+    assert.ok(!spec.settings.some((s) => s.key === 'electric'), 'Electric range went: a plug-in hybrid is Engine\'s');
+    /* the Car profile's Engine, value for value, as Cluster Layouts' */
+    assert.deepStrictEqual(item.options.map((o) => o[0]), ['auto', 'diesel', 'petrol', 'm', 'phev']);
+    assert.strictEqual(item.profile, 'engine');
+    assert.strictEqual(item.profileMap, undefined);
     function run(dir, modes) {
         const logs = [], cr = { on() {}, asset: () => 1, effect: () => 1, uniform() {}, bind() {}, set() {}, drop() {}, pixels() {}, close() {} };
         let onValue = null, clock = 1000000;
         const host = { dataDir: dir, log: { info: (m) => logs.push(m), warn: (m) => logs.push('WARN ' + m) },
-                       settings: () => ({ profile: 'carprofile', enabled: true, electric: 'auto' }), onSettingsChanged() {},
+                       settings: () => ({ profile: 'carprofile', enabled: true, engine: 'auto' }), onSettingsChanged() {},
                        subscribe(sig, cb) { onValue = cb; } };
         const providers = { tick: () => ({}), sharing: () => false, release() {} };
         const svc = Main.start(host, { cr, now: () => clock, providers, presence: { othersShowing: () => false, mark() {} } });
@@ -182,15 +184,12 @@ test('Electric range on Automatic: a plug-in hybrid found by its drive modes, ke
     fs.rmSync(dir, { recursive: true, force: true }); fs.rmSync(dir2, { recursive: true, force: true });
 });
 
-test('Electric range on Automatic: a plug-in hybrid once the car shows it is one; the Car profile\'s Engine sets it, as Cluster Layouts\' Vehicle', () => {
+test('Engine: Plug-in hybrid has the electric side, Auto once the car shows it is one, the others none', () => {
     const Main = require('../src/car/main.js');
-    assert.strictEqual(Main.electricOf({ electric: 'auto' }, false), 'off');
-    assert.strictEqual(Main.electricOf({ electric: 'auto' }, true), 'hybrid', 'found by the car itself');
-    /* chosen by hand (or by the Car profile's Engine: Plug-in hybrid, a petrol car, an M car): as chosen */
-    assert.strictEqual(Main.electricOf({ electric: 'off' }, true), 'off');
-    assert.strictEqual(Main.electricOf({ electric: 'bev' }, false), 'bev');
-    const e = require('../app/app.base.json').settings.find((s) => s.key === 'electric');
-    assert.deepStrictEqual([e.profile, e.profileMap.phev, e.profileMap.m], ['engine', 'hybrid', 'off']);
+    assert.strictEqual(Main.electricOf({ engine: 'auto' }, false), 'off');
+    assert.strictEqual(Main.electricOf({ engine: 'auto' }, true), 'hybrid', 'found by the car itself');
+    assert.strictEqual(Main.electricOf({ engine: 'phev' }, false), 'hybrid');
+    for (const e of ['petrol', 'diesel', 'm']) assert.strictEqual(Main.electricOf({ engine: e }, true), 'off', e);
 });
 
 test('a plug-in hybrid\'s drive mode named as BMW\'s cluster names it (and Toro as the Revuelto), by name or by number', () => {

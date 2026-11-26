@@ -19,8 +19,11 @@ const { Recorder } = require(path.join(Harness.KIT, 'record.js'));
 const spec = require('../app/app.base.json');
 
 const Sheet = require(path.join(Harness.KIT, 'sheet.js'));
-const TOP = ['enabled', 'style', 'skin'];
-const GROUP_STYLE = { General: null, Toro: 'toro', 'M Sport': 'track', 'M Sport Plus': 'mplus', 'M Track': 'mtrack' };
+const TOP = ['enabled', 'style'];
+/* the groups every style has, as Cluster Layouts' sections and in their order, then each style's own */
+const SHARED = ['Display', 'Readouts and gauges', 'Red zone and shift', 'Units and clock', 'Car'];
+const GROUP_STYLE = { Display: null, 'Readouts and gauges': null, 'Red zone and shift': null, 'Units and clock': null, Car: null,
+    Toro: 'toro', 'M Sport': 'track', 'M Sport Plus': 'mplus', 'M Track': 'mtrack' };
 const GROUP_OF = { toro: 'Toro', track: 'M Sport', mplus: 'M Sport Plus', mtrack: 'M Track' };
 const item = (k) => spec.settings.find((s) => s.key === k);
 const keys = (page, prefix) => page.targets().map((t) => t.key).filter((k) => k.indexOf(prefix) === 0);
@@ -34,12 +37,12 @@ function listed(page, group) {
 const offered = (group, values) => spec.settings.filter((s) => s.group === group && !s.hidden && Object.keys(s.when || {}).every((k) =>
     [].concat(s.when[k]).indexOf(values[k]) >= 0)).map((s) => s.label);
 
-test('the settings: on / off, the style and the skin on top, then General and a group each style keeps its own under', () => {
+test('the settings: on / off and the style on top, then Cluster Layouts\' sections and a group each style keeps its own under', () => {
     assert.deepStrictEqual(spec.settings.filter((s) => !s.group).map((s) => s.key), TOP);
     for (const s of spec.settings) {
         if (TOP.indexOf(s.key) >= 0) continue;
         assert.ok(s.group in GROUP_STYLE, s.key + ': no group');
-        if (s.group === 'General') assert.ok(!(s.when && s.when.style), s.key + ': a general setting tied to a style');
+        if (GROUP_STYLE[s.group] === null) assert.ok(!(s.when && s.when.style), s.key + ': a shared setting tied to a style');
         /* a style's own: offered only while it is the style in use */
         else assert.strictEqual(s.when && s.when.style, GROUP_STYLE[s.group], s.key + ': shown only for its style');
         if (s.type === 'choice') assert.ok(s.options.some((o) => o[0] === String(s.default)), s.key + ': its default is one of its values');
@@ -167,11 +170,11 @@ test('a place with values: its list over the page, the value set marked; picked,
     assert.strictEqual(page.values.mFootL, 'time');
 });
 
-test('Settings, a step at a time: the top, General, and the style in use\'s own - nothing of another style\'s', () => {
+test('Settings, a step at a time: the top, the shared sections, and the style in use\'s own - nothing of another style\'s', () => {
     for (const style of Object.keys(GROUP_OF)) {
         const page = Harness.open({ values: { style } });
-        assert.deepStrictEqual(listed(page), TOP.map((k) => item(k).label).concat(['General', GROUP_OF[style]]), style);
-        for (const g of ['General', GROUP_OF[style]]) assert.deepStrictEqual(listed(page, g), offered(g, page.values), style + ' / ' + g);
+        assert.deepStrictEqual(listed(page), TOP.map((k) => item(k).label).concat(SHARED, [GROUP_OF[style]]), style);
+        for (const g of SHARED.concat([GROUP_OF[style]])) assert.deepStrictEqual(listed(page, g), offered(g, page.values), style + ' / ' + g);
     }
     /* the readings' places are set on the page alone */
     PAGE_ONLY.forEach((n) => assert.ok(item(n).hidden && item(n).page, n));
@@ -183,7 +186,7 @@ test('Settings, a step at a time: the top, General, and the style in use\'s own 
     const sh = Sheet.listSheet(page.settings, null, {});
     sh.move(TOP.length);
     sh.press();
-    assert.strictEqual(sh.group, 'General');
+    assert.strictEqual(sh.group, 'Display');
     sh.back();
     assert.strictEqual(sh.group, null);
     assert.strictEqual(sh.focus, TOP.length);
@@ -196,10 +199,10 @@ test('a row offered only with another setting comes and goes with it', () => {
     page.settings.set('background', 'modern');
     assert.ok(has('Toro', 'nodeColour') && has('Toro', 'hexTint'));
     assert.ok(!has('Toro', 'flashColour'), 'no flash: no colour for it');
-    assert.ok(!has('General', 'introMessage') && !has('General', 'flashStyle'));
+    assert.ok(!has('Display', 'introMessage') && !has('Red zone and shift', 'flashStyle'));
     page.settings.set('intro', true);
     page.settings.set('revFlash', 'both');
-    assert.ok(has('General', 'introMessage') && has('General', 'introSeconds') && has('General', 'flashStyle'));
+    assert.ok(has('Display', 'introMessage') && has('Display', 'introSeconds') && has('Red zone and shift', 'flashStyle'));
 });
 
 test('nothing on the page relies on clipping (the head unit\'s software renderer has none)', () => {

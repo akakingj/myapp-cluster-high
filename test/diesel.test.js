@@ -45,16 +45,13 @@ const COND = 'de.bmw.infrastructure.VehicleCondition';
 
 /* ------------------------------------------------------------ the setting */
 
-test('Engine is a setting in General: petrol as it comes, diesel only when the owner says so', () => {
+test('Engine is a setting in Car, as Cluster Layouts\' and the Car profile\'s: petrol as it comes, diesel only when the owner says so', () => {
     const e = item('engine');
     assert.ok(e, 'there is an Engine setting');
-    assert.deepStrictEqual([e.group, e.type, e.default, e.label], ['General', 'choice', 'petrol', 'Engine']);
-    assert.deepStrictEqual(e.options.map((o) => o[0]), ['petrol', 'diesel', 'm']);
+    assert.deepStrictEqual([e.group, e.type, e.default, e.label], ['Car', 'choice', 'petrol', 'Engine']);
+    assert.deepStrictEqual(e.options, [['auto', 'Auto (from the car)'], ['diesel', 'Diesel'], ['petrol', 'Petrol'], ['m', 'Petrol, M car'],
+        ['phev', 'Plug-in hybrid (petrol)']]);
     assert.strictEqual(e.when, undefined, 'offered whatever the style');
-    assert.match(e.options[1][1], /^Diesel: .*6,000/);
-    /* it stands before the limits it changes */
-    const keys = spec.settings.map((s) => s.key);
-    assert.ok(keys.indexOf('engine') >= 0 && keys.indexOf('engine') < keys.indexOf('rpmRedline'));
 
     /* a new install, and one from before the setting (its saved settings have no such key), are petrol:
        every style builds exactly what it builds with no engine named */
@@ -106,8 +103,8 @@ test('Redline and Limiter can be set for a diesel, and the tach scale is a petro
         assert.strictEqual(s.rpmLimiter, Math.max(l, s.rpmRedline));
     }
     /* a diesel's dial reads 0 - 6: the scale's own choice (every style's, General) is offered to a petrol (an M car's too) only */
-    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: ['petrol', 'm'] });
-    assert.strictEqual(item('scaleMaxRpm').group, 'General');
+    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: ['auto', 'petrol', 'm', 'phev'] });
+    assert.strictEqual(item('scaleMaxRpm').group, 'Red zone and shift');
     assert.strictEqual(item('scaleMaxRpm').default, '8000');
 });
 

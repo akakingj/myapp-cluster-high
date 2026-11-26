@@ -84,6 +84,168 @@
       ]
     },
     {
+      "key": "bottomExtra",
+      "label": "BMW's bottom strip",
+      "type": "choice",
+      "default": "18",
+      "options": [
+        [
+          "18",
+          "On"
+        ],
+        [
+          "hide",
+          "Off"
+        ]
+      ],
+      "aliases": {
+        "0": "18",
+        "6": "18",
+        "12": "18",
+        "24": "18",
+        "48": "hide",
+        "74": "hide",
+        "hideWide": "hide"
+      },
+      "group": "Display"
+    },
+    {
+      "key": "signCover",
+      "label": "Cover the speed limit sign's edge in BMW's strip",
+      "type": "bool",
+      "default": false,
+      "group": "Display"
+    },
+    {
+      "key": "refreshHz",
+      "label": "Refresh rate",
+      "type": "choice",
+      "default": "60",
+      "options": [
+        [
+          "60",
+          "60 a second, the smoothest"
+        ],
+        [
+          "45",
+          "45 a second"
+        ],
+        [
+          "30",
+          "30 a second"
+        ],
+        [
+          "20",
+          "20 a second, the lightest"
+        ]
+      ],
+      "group": "Display"
+    },
+    {
+      "key": "smoothing",
+      "label": "Needles between the car's updates",
+      "type": "choice",
+      "default": "smooth",
+      "options": [
+        [
+          "smooth",
+          "Glide smoothly"
+        ],
+        [
+          "light",
+          "Glide quickly"
+        ],
+        [
+          "off",
+          "Jump to each reading"
+        ]
+      ],
+      "group": "Display"
+    },
+    {
+      "key": "holiday",
+      "label": "Holiday theme: falling snow and a Christmas tree",
+      "type": "bool",
+      "default": false,
+      "group": "Display"
+    },
+    {
+      "key": "intro",
+      "label": "Start-up message",
+      "type": "bool",
+      "default": false,
+      "reset": 1,
+      "group": "Display"
+    },
+    {
+      "key": "introMessage",
+      "label": "Start-up message: words",
+      "type": "choice",
+      "default": "mgu",
+      "options": [
+        [
+          "mgu",
+          "MGU Styles an app by #tunedbywali"
+        ],
+        [
+          "nicole",
+          "For my beautiful wife, Nicole Wali, I love you"
+        ],
+        [
+          "welcome",
+          "Welcome back"
+        ],
+        [
+          "drive",
+          "Drive safe and come home soon"
+        ],
+        [
+          "buongiorno",
+          "Buongiorno"
+        ],
+        [
+          "andiamo",
+          "Andiamo"
+        ],
+        [
+          "custom",
+          "Your own: mgu-styles-message.txt on a USB stick"
+        ]
+      ],
+      "when": {
+        "intro": true
+      },
+      "group": "Display"
+    },
+    {
+      "key": "introSeconds",
+      "label": "Start-up message: how long",
+      "type": "choice",
+      "default": "10",
+      "options": [
+        [
+          "6",
+          "6 seconds"
+        ],
+        [
+          "10",
+          "10 seconds"
+        ],
+        [
+          "15",
+          "15 seconds"
+        ],
+        [
+          "20",
+          "20 seconds"
+        ]
+      ],
+      "when": {
+        "intro": true
+      },
+      "group": "Display"
+    },
+    {
       "key": "skin",
       "label": "Skin",
       "type": "choice",
@@ -98,191 +260,12 @@
           "iDrive 7"
         ]
       ],
-      "profile": "skin"
-    },
-    {
-      "key": "speedUnit",
-      "profile": "speedUnit",
-      "label": "Speed unit",
-      "type": "choice",
-      "default": "kmh",
-      "options": [
-        [
-          "mph",
-          "mph"
-        ],
-        [
-          "kmh",
-          "km/h"
-        ]
-      ],
-      "group": "General"
-    },
-    {
-      "key": "tempUnit",
-      "profile": "tempUnit",
-      "label": "Temperature unit",
-      "type": "choice",
-      "default": "c",
-      "options": [
-        [
-          "f",
-          "Fahrenheit"
-        ],
-        [
-          "c",
-          "Celsius"
-        ]
-      ],
-      "group": "General"
-    },
-    {
-      "key": "pressUnit",
-      "profile": "pressUnit",
-      "label": "Pressure unit",
-      "type": "choice",
-      "default": "psi",
-      "options": [
-        [
-          "auto",
-          "With the speed unit (psi / bar)"
-        ],
-        [
-          "psi",
-          "psi"
-        ],
-        [
-          "bar",
-          "bar"
-        ],
-        [
-          "kpa",
-          "kPa"
-        ]
-      ],
-      "group": "General"
-    },
-    {
-      "key": "econUnit",
-      "profile": "fuelUnit",
-      "profileMap": {
-        "l100": "l100",
-        "kml": "kml",
-        "mpgus": "mpg"
-      },
-      "label": "Fuel economy unit",
-      "type": "choice",
-      "default": "auto",
-      "options": [
-        [
-          "auto",
-          "With the speed unit (mpg / km/L)"
-        ],
-        [
-          "kml",
-          "km/L"
-        ],
-        [
-          "l100",
-          "L/100km"
-        ],
-        [
-          "mpg",
-          "mpg (US)"
-        ]
-      ],
-      "group": "General"
-    },
-    {
-      "key": "torqueUnit",
-      "label": "Torque unit",
-      "type": "choice",
-      "default": "kgm",
-      "options": [
-        [
-          "nm",
-          "Nm"
-        ],
-        [
-          "kgm",
-          "kgm"
-        ],
-        [
-          "lbft",
-          "lb-ft"
-        ]
-      ],
-      "group": "General",
-      "profile": "torqueUnit"
-    },
-    {
-      "key": "powerUnit",
-      "label": "Power unit",
-      "type": "choice",
-      "default": "hp",
-      "options": [
-        [
-          "hp",
-          "hp"
-        ],
-        [
-          "ps",
-          "PS"
-        ],
-        [
-          "kw",
-          "kW"
-        ]
-      ],
-      "group": "General",
-      "profile": "powerUnit"
-    },
-    {
-      "key": "clock12",
-      "label": "Clock (M styles)",
-      "type": "choice",
-      "default": "12",
-      "options": [
-        [
-          "12",
-          "12-hour"
-        ],
-        [
-          "24",
-          "24-hour"
-        ]
-      ],
-      "group": "General",
-      "profile": "clock"
-    },
-    {
-      "key": "engine",
-      "label": "Engine",
-      "type": "choice",
-      "default": "petrol",
-      "options": [
-        [
-          "petrol",
-          "Petrol"
-        ],
-        [
-          "diesel",
-          "Diesel: the rev counter reads 0 - 6,000, red from 4,500"
-        ],
-        [
-          "m",
-          "Petrol, M car"
-        ]
-      ],
-      "group": "General",
-      "profile": "engine",
-      "profileMap": {
-        "phev": "petrol"
-      }
+      "profile": "skin",
+      "group": "Display"
     },
     {
       "key": "speedMax",
-      "label": "Speedometer up to (M Sport)",
+      "label": "Speedometer up to",
       "type": "choice",
       "default": "auto",
       "options": [
@@ -299,7 +282,7 @@
           "330 km/h (200 mph)"
         ]
       ],
-      "group": "General",
+      "group": "Readouts and gauges",
       "profile": "speedMax"
     },
     {
@@ -329,7 +312,7 @@
           "45 psi / 3.0 bar"
         ]
       ],
-      "group": "General",
+      "group": "Readouts and gauges",
       "profile": "boostMax",
       "profileMap": {
         "0": "auto"
@@ -346,120 +329,70 @@
       "hidden": true
     },
     {
-      "key": "tankLitres",
-      "label": "Fuel tank size",
+      "key": "shiftFrom",
+      "label": "Yellow light at",
       "type": "choice",
-      "default": "59",
+      "default": "auto",
       "options": [
         [
-          "40",
-          "40 L"
+          "auto",
+          "Auto (1,800 under the redline)"
         ],
         [
-          "42",
-          "42 L"
+          "2000",
+          "2,000"
         ],
         [
-          "45",
-          "45 L"
+          "2500",
+          "2,500"
         ],
         [
-          "46",
-          "46 L"
+          "3000",
+          "3,000"
         ],
         [
-          "50",
-          "50 L"
+          "3500",
+          "3,500"
         ],
         [
-          "52",
-          "52 L"
+          "4000",
+          "4,000"
         ],
         [
-          "55",
-          "55 L"
+          "4500",
+          "4,500"
         ],
         [
-          "57",
-          "57 L"
+          "5000",
+          "5,000"
         ],
         [
-          "59",
-          "59 L"
+          "5500",
+          "5,500"
         ],
         [
-          "60",
-          "60 L"
+          "6000",
+          "6,000"
         ],
         [
-          "63",
-          "63 L"
+          "6500",
+          "6,500"
         ],
         [
-          "65",
-          "65 L"
+          "7000",
+          "7,000"
         ],
         [
-          "66",
-          "66 L"
-        ],
-        [
-          "68",
-          "68 L"
-        ],
-        [
-          "69",
-          "69 L"
-        ],
-        [
-          "70",
-          "70 L"
-        ],
-        [
-          "74",
-          "74 L"
-        ],
-        [
-          "80",
-          "80 L"
-        ],
-        [
-          "83",
-          "83 L"
-        ],
-        [
-          "85",
-          "85 L"
-        ],
-        [
-          "90",
-          "90 L"
+          "7500",
+          "7,500"
         ]
       ],
-      "group": "General",
-      "profile": "tankLitres"
-    },
-    {
-      "key": "fuelFrom",
-      "label": "Fuel % from",
-      "type": "choice",
-      "default": "engine",
-      "options": [
-        [
-          "engine",
-          "Engine unit (OBD tank level)"
-        ],
-        [
-          "litres",
-          "Litres / tank size"
-        ]
-      ],
-      "group": "General",
-      "profile": "fuelFrom"
+      "group": "Red zone and shift",
+      "profile": "lightStart"
     },
     {
       "key": "rpmRedline",
-      "label": "Redline",
+      "label": "Red light at (the red zone)",
       "type": "choice",
       "default": "auto",
       "options": [
@@ -572,15 +505,134 @@
           "8,500"
         ]
       ],
-      "group": "General",
+      "group": "Red zone and shift",
       "profile": "lightRed",
       "profileMap": {
         "0": "limiter"
       }
     },
     {
+      "key": "shiftAt",
+      "label": "Shift now warning at",
+      "type": "choice",
+      "default": "off",
+      "options": [
+        [
+          "off",
+          "Off (the shift lights flash at the limiter)"
+        ],
+        [
+          "auto",
+          "Auto (300 under the redline)"
+        ],
+        [
+          "4000",
+          "4,000"
+        ],
+        [
+          "4500",
+          "4,500"
+        ],
+        [
+          "5000",
+          "5,000"
+        ],
+        [
+          "5500",
+          "5,500"
+        ],
+        [
+          "5800",
+          "5,800"
+        ],
+        [
+          "6000",
+          "6,000"
+        ],
+        [
+          "6200",
+          "6,200"
+        ],
+        [
+          "6500",
+          "6,500"
+        ],
+        [
+          "6800",
+          "6,800"
+        ],
+        [
+          "7000",
+          "7,000"
+        ],
+        [
+          "7200",
+          "7,200"
+        ],
+        [
+          "7500",
+          "7,500"
+        ],
+        [
+          "7800",
+          "7,800"
+        ],
+        [
+          "8000",
+          "8,000"
+        ],
+        [
+          "8500",
+          "8,500"
+        ]
+      ],
+      "group": "Red zone and shift",
+      "profile": "shiftAt",
+      "profileMap": {
+        "0": "auto"
+      }
+    },
+    {
+      "key": "scaleMaxRpm",
+      "label": "Gauge goes up to",
+      "type": "choice",
+      "default": "8000",
+      "options": [
+        [
+          "6000",
+          "0 - 6,000"
+        ],
+        [
+          "7000",
+          "0 - 7,000"
+        ],
+        [
+          "8000",
+          "0 - 8,000"
+        ],
+        [
+          "9000",
+          "0 - 9,000"
+        ],
+        [
+          "10000",
+          "0 - 10,000 (Lamborghini)"
+        ]
+      ],
+      "when": {
+        "engine": [
+          "auto",
+          "petrol",
+          "m",
+          "phev"
+        ]
+      },
+      "group": "Red zone and shift",
+      "profile": "rpmScale"
+    },
+    {
       "key": "rpmLimiter",
-      "label": "Limiter",
+      "label": "Engine's top rpm (redline)",
       "type": "choice",
       "default": "auto",
       "options": [
@@ -689,154 +741,67 @@
           "9,000"
         ]
       ],
-      "group": "General",
+      "group": "Red zone and shift",
       "profile": "redline",
       "profileMap": {
         "0": "auto"
       }
     },
     {
-      "key": "shiftFrom",
-      "label": "Shift lights from",
+      "key": "revFlash",
+      "label": "Limiter flash",
       "type": "choice",
-      "default": "auto",
+      "default": "both",
       "options": [
         [
-          "auto",
-          "Auto (1,800 under the redline)"
+          "both",
+          "Dial and screen edges"
         ],
         [
-          "2000",
-          "2,000"
+          "band",
+          "Dial only"
         ],
         [
-          "2500",
-          "2,500"
+          "edges",
+          "Screen edges only"
         ],
-        [
-          "3000",
-          "3,000"
-        ],
-        [
-          "3500",
-          "3,500"
-        ],
-        [
-          "4000",
-          "4,000"
-        ],
-        [
-          "4500",
-          "4,500"
-        ],
-        [
-          "5000",
-          "5,000"
-        ],
-        [
-          "5500",
-          "5,500"
-        ],
-        [
-          "6000",
-          "6,000"
-        ],
-        [
-          "6500",
-          "6,500"
-        ],
-        [
-          "7000",
-          "7,000"
-        ],
-        [
-          "7500",
-          "7,500"
-        ]
-      ],
-      "group": "General",
-      "profile": "lightStart"
-    },
-    {
-      "key": "shiftAt",
-      "label": "Shift now warning at",
-      "type": "choice",
-      "default": "off",
-      "options": [
         [
           "off",
-          "Off (the shift lights flash at the limiter)"
-        ],
-        [
-          "auto",
-          "Auto (300 under the redline)"
-        ],
-        [
-          "4000",
-          "4,000"
-        ],
-        [
-          "4500",
-          "4,500"
-        ],
-        [
-          "5000",
-          "5,000"
-        ],
-        [
-          "5500",
-          "5,500"
-        ],
-        [
-          "5800",
-          "5,800"
-        ],
-        [
-          "6000",
-          "6,000"
-        ],
-        [
-          "6200",
-          "6,200"
-        ],
-        [
-          "6500",
-          "6,500"
-        ],
-        [
-          "6800",
-          "6,800"
-        ],
-        [
-          "7000",
-          "7,000"
-        ],
-        [
-          "7200",
-          "7,200"
-        ],
-        [
-          "7500",
-          "7,500"
-        ],
-        [
-          "7800",
-          "7,800"
-        ],
-        [
-          "8000",
-          "8,000"
-        ],
-        [
-          "8500",
-          "8,500"
+          "Off"
         ]
       ],
-      "group": "General",
-      "profile": "shiftAt",
-      "profileMap": {
-        "0": "auto"
-      }
+      "group": "Red zone and shift"
+    },
+    {
+      "key": "flashStyle",
+      "label": "Limiter flash: shape",
+      "type": "choice",
+      "default": "wide",
+      "options": [
+        [
+          "wide",
+          "Wide border"
+        ],
+        [
+          "edges",
+          "Thin border"
+        ],
+        [
+          "full",
+          "Whole screen"
+        ],
+        [
+          "top",
+          "Across the top"
+        ]
+      ],
+      "when": {
+        "revFlash": [
+          "both",
+          "edges"
+        ]
+      },
+      "group": "Red zone and shift"
     },
     {
       "key": "coldGuard",
@@ -853,7 +818,7 @@
           "Off (the red zone where it is set)"
         ]
       ],
-      "group": "General",
+      "group": "Red zone and shift",
       "profile": "coldGuard"
     },
     {
@@ -898,7 +863,7 @@
       "when": {
         "coldGuard": "on"
       },
-      "group": "General",
+      "group": "Red zone and shift",
       "profile": "coldLimit"
     },
     {
@@ -939,259 +904,305 @@
       "when": {
         "coldGuard": "on"
       },
-      "group": "General",
+      "group": "Red zone and shift",
       "profile": "warmOil"
     },
     {
-      "key": "revFlash",
-      "label": "Limiter flash",
+      "key": "speedUnit",
+      "profile": "speedUnit",
+      "label": "Speed unit",
       "type": "choice",
-      "default": "both",
+      "default": "kmh",
       "options": [
         [
-          "both",
-          "Dial and screen edges"
+          "mph",
+          "mph"
         ],
         [
-          "band",
-          "Dial only"
-        ],
-        [
-          "edges",
-          "Screen edges only"
-        ],
-        [
-          "off",
-          "Off"
+          "kmh",
+          "km/h"
         ]
       ],
-      "group": "General"
+      "group": "Units and clock"
     },
     {
-      "key": "flashStyle",
-      "label": "Limiter flash: shape",
+      "key": "tempUnit",
+      "profile": "tempUnit",
+      "label": "Temperature unit",
       "type": "choice",
-      "default": "wide",
+      "default": "c",
       "options": [
         [
-          "wide",
-          "Wide border"
+          "f",
+          "Fahrenheit"
         ],
         [
-          "edges",
-          "Thin border"
-        ],
-        [
-          "full",
-          "Whole screen"
-        ],
-        [
-          "top",
-          "Across the top"
+          "c",
+          "Celsius"
         ]
       ],
-      "when": {
-        "revFlash": [
-          "both",
-          "edges"
+      "group": "Units and clock"
+    },
+    {
+      "key": "torqueUnit",
+      "label": "Torque unit",
+      "type": "choice",
+      "default": "kgm",
+      "options": [
+        [
+          "nm",
+          "Nm"
+        ],
+        [
+          "kgm",
+          "kgm"
+        ],
+        [
+          "lbft",
+          "lb-ft"
         ]
+      ],
+      "group": "Units and clock",
+      "profile": "torqueUnit"
+    },
+    {
+      "key": "econUnit",
+      "profile": "fuelUnit",
+      "profileMap": {
+        "l100": "l100",
+        "kml": "kml",
+        "mpgus": "mpg"
       },
-      "group": "General"
-    },
-    {
-      "key": "bottomExtra",
-      "label": "BMW's bottom strip",
-      "type": "choice",
-      "default": "18",
-      "options": [
-        [
-          "18",
-          "On"
-        ],
-        [
-          "hide",
-          "Off"
-        ]
-      ],
-      "aliases": {
-        "0": "18",
-        "6": "18",
-        "12": "18",
-        "24": "18",
-        "48": "hide",
-        "74": "hide",
-        "hideWide": "hide"
-      },
-      "group": "General"
-    },
-    {
-      "key": "signCover",
-      "label": "Cover the speed limit sign's edge in BMW's strip",
-      "type": "bool",
-      "default": false,
-      "group": "General"
-    },
-    {
-      "key": "electric",
-      "label": "Electric range",
+      "label": "Fuel economy unit",
       "type": "choice",
       "default": "auto",
       "options": [
         [
           "auto",
-          "Automatic: a plug-in hybrid once the car shows it is one"
+          "With the speed unit (mpg / km/L)"
         ],
         [
-          "off",
-          "Off"
+          "kml",
+          "km/L"
         ],
         [
-          "hybrid",
-          "Plug-in hybrid: electric range as well as the fuel's"
+          "l100",
+          "L/100km"
         ],
         [
-          "bev",
-          "Fully electric: range, charge and battery temperature in place of fuel and oil"
+          "mpg",
+          "mpg (US)"
         ]
       ],
-      "group": "General",
-      "profile": "engine",
-      "profileMap": {
-        "phev": "hybrid",
-        "petrol": "off",
-        "m": "off",
-        "diesel": "off"
-      },
-      "reset": 1
+      "group": "Units and clock"
     },
     {
-      "key": "refreshHz",
-      "label": "Refresh rate",
+      "key": "pressUnit",
+      "profile": "pressUnit",
+      "label": "Pressure unit",
       "type": "choice",
-      "default": "60",
+      "default": "psi",
       "options": [
         [
-          "60",
-          "60 a second, the smoothest"
+          "auto",
+          "With the speed unit (psi / bar)"
+        ],
+        [
+          "psi",
+          "psi"
+        ],
+        [
+          "bar",
+          "bar"
+        ],
+        [
+          "kpa",
+          "kPa"
+        ]
+      ],
+      "group": "Units and clock"
+    },
+    {
+      "key": "powerUnit",
+      "label": "Power unit",
+      "type": "choice",
+      "default": "hp",
+      "options": [
+        [
+          "hp",
+          "hp"
+        ],
+        [
+          "ps",
+          "PS"
+        ],
+        [
+          "kw",
+          "kW"
+        ]
+      ],
+      "group": "Units and clock",
+      "profile": "powerUnit"
+    },
+    {
+      "key": "clock12",
+      "label": "Clock",
+      "type": "choice",
+      "default": "12",
+      "options": [
+        [
+          "12",
+          "12-hour"
+        ],
+        [
+          "24",
+          "24-hour"
+        ]
+      ],
+      "group": "Units and clock",
+      "profile": "clock"
+    },
+    {
+      "key": "engine",
+      "label": "Engine",
+      "type": "choice",
+      "default": "petrol",
+      "options": [
+        [
+          "auto",
+          "Auto (from the car)"
+        ],
+        [
+          "diesel",
+          "Diesel"
+        ],
+        [
+          "petrol",
+          "Petrol"
+        ],
+        [
+          "m",
+          "Petrol, M car"
+        ],
+        [
+          "phev",
+          "Plug-in hybrid (petrol)"
+        ]
+      ],
+      "group": "Car",
+      "profile": "engine"
+    },
+    {
+      "key": "tankLitres",
+      "label": "Fuel tank size",
+      "type": "choice",
+      "default": "59",
+      "options": [
+        [
+          "40",
+          "40 L"
+        ],
+        [
+          "42",
+          "42 L"
         ],
         [
           "45",
-          "45 a second"
+          "45 L"
         ],
         [
-          "30",
-          "30 a second"
+          "46",
+          "46 L"
         ],
         [
-          "20",
-          "20 a second, the lightest"
+          "50",
+          "50 L"
+        ],
+        [
+          "52",
+          "52 L"
+        ],
+        [
+          "55",
+          "55 L"
+        ],
+        [
+          "57",
+          "57 L"
+        ],
+        [
+          "59",
+          "59 L"
+        ],
+        [
+          "60",
+          "60 L"
+        ],
+        [
+          "63",
+          "63 L"
+        ],
+        [
+          "65",
+          "65 L"
+        ],
+        [
+          "66",
+          "66 L"
+        ],
+        [
+          "68",
+          "68 L"
+        ],
+        [
+          "69",
+          "69 L"
+        ],
+        [
+          "70",
+          "70 L"
+        ],
+        [
+          "74",
+          "74 L"
+        ],
+        [
+          "80",
+          "80 L"
+        ],
+        [
+          "83",
+          "83 L"
+        ],
+        [
+          "85",
+          "85 L"
+        ],
+        [
+          "90",
+          "90 L"
         ]
       ],
-      "group": "General"
+      "group": "Car",
+      "profile": "tankLitres"
     },
     {
-      "key": "smoothing",
-      "label": "Needles between the car's updates",
+      "key": "fuelFrom",
+      "label": "Fuel % from",
       "type": "choice",
-      "default": "smooth",
+      "default": "engine",
       "options": [
         [
-          "smooth",
-          "Glide smoothly"
+          "engine",
+          "Engine unit (OBD tank level)"
         ],
         [
-          "light",
-          "Glide quickly"
-        ],
-        [
-          "off",
-          "Jump to each reading"
+          "litres",
+          "Litres / tank size"
         ]
       ],
-      "group": "General"
-    },
-    {
-      "key": "holiday",
-      "label": "Holiday theme: falling snow and a Christmas tree",
-      "type": "bool",
-      "default": false,
-      "group": "General"
-    },
-    {
-      "key": "intro",
-      "label": "Start-up message",
-      "type": "bool",
-      "default": false,
-      "reset": 1,
-      "group": "General"
-    },
-    {
-      "key": "introMessage",
-      "label": "Start-up message: words",
-      "type": "choice",
-      "default": "mgu",
-      "options": [
-        [
-          "mgu",
-          "MGU Styles an app by #tunedbywali"
-        ],
-        [
-          "nicole",
-          "For my beautiful wife, Nicole Wali, I love you"
-        ],
-        [
-          "welcome",
-          "Welcome back"
-        ],
-        [
-          "drive",
-          "Drive safe and come home soon"
-        ],
-        [
-          "buongiorno",
-          "Buongiorno"
-        ],
-        [
-          "andiamo",
-          "Andiamo"
-        ],
-        [
-          "custom",
-          "Your own: mgu-styles-message.txt on a USB stick"
-        ]
-      ],
-      "when": {
-        "intro": true
-      },
-      "group": "General"
-    },
-    {
-      "key": "introSeconds",
-      "label": "Start-up message: how long",
-      "type": "choice",
-      "default": "10",
-      "options": [
-        [
-          "6",
-          "6 seconds"
-        ],
-        [
-          "10",
-          "10 seconds"
-        ],
-        [
-          "15",
-          "15 seconds"
-        ],
-        [
-          "20",
-          "20 seconds"
-        ]
-      ],
-      "when": {
-        "intro": true
-      },
-      "group": "General"
+      "group": "Car",
+      "profile": "fuelFrom"
     },
     {
       "key": "tCentre",
@@ -1556,42 +1567,6 @@
       "group": "Toro"
     },
     {
-      "key": "scaleMaxRpm",
-      "label": "Tach scale",
-      "type": "choice",
-      "default": "8000",
-      "options": [
-        [
-          "6000",
-          "0 - 6,000"
-        ],
-        [
-          "7000",
-          "0 - 7,000"
-        ],
-        [
-          "8000",
-          "0 - 8,000"
-        ],
-        [
-          "9000",
-          "0 - 9,000"
-        ],
-        [
-          "10000",
-          "0 - 10,000 (Lamborghini)"
-        ]
-      ],
-      "when": {
-        "engine": [
-          "petrol",
-          "m"
-        ]
-      },
-      "group": "General",
-      "profile": "rpmScale"
-    },
-    {
       "key": "zoom",
       "label": "Fill the screen",
       "type": "choice",
@@ -1812,10 +1787,9 @@
       ],
       "when": {
         "style": "toro",
-        "electric": [
+        "engine": [
           "auto",
-          "hybrid",
-          "bev"
+          "phev"
         ]
       },
       "group": "Toro"

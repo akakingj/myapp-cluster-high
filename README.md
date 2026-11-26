@@ -94,32 +94,30 @@ Everything is set in the app on iDrive — nothing on the cluster. Its page
 shows, and a card for each design to tap. Its bar: **Cluster on / off**,
 **Logs** and **Settings**. Settings goes a step at a time, as the head
 unit's own: *Show on the cluster* (*On* or *Off (stock cluster)*, kept
-from one start to the next), the style and the skin at the top, then **General**, then the style in use's own (**Toro**, **M Sport**,
-**M Sport Plus** or **M Track**; another style's appear once it is chosen).
+from one start to the next) and the style at the top, then the same sections as AK Cluster Layouts' Settings, in its
+order and with its names, then the style in use's own (**Toro**, **M Sport**, **M Sport Plus** or **M Track**; another
+style's appear once it is chosen).
 
-- **General**: units, the car's figures - tach scale, redline, limiter,
-  shift lights, **Shift now warning at**, **Speedometer up to** (260 km/h, 330 for an M car), **Boost gauge up to**
-  (bar or psi, as the units) and the fuel tank - set here or by the Car profile app, as Cluster Layouts does;
-  **Engine** (petrol, diesel, or petrol in an M car: the layers keep clear of its M display's boxes; a plug-in
-  hybrid's eDrive box is kept clear by *Electric range*), **Fuel % from** (as Cluster Layouts' fuel gauge: the engine unit's own tank
-  level while the engine runs, otherwise the car's litres over the tank's size; or the litres always; the Car profile
-  app sets it for both apps), the limiter flash
-  (past the shift point the shift lights flash and the speed and the gear blink red, in every style), the
-  **cold engine** guard (the shift point and the red zone lower while the oil is cold),
-  BMW's bottom strip (on or off), **electric range** for
-  plug-in hybrids and fully electric cars (*Automatic* as it comes: on once
-  the car shows it is a plug-in hybrid - its drive modes, or eDrive Live
-  sharing its battery's power - as Cluster Layouts finds one; *Car → Plug-in
-  hybrid*, or a Car profile set to a plug-in hybrid, turns it on too; a fully
-  electric car is chosen by hand. A
-  hybrid gets its electric range beside the fuel's; a fully electric car
-  gets range, charge and battery temperature in place of fuel and oil; in
-  a plug-in hybrid's electric and hybrid modes, and always on an electric
-  car, every style's rev counter becomes a **Power %** gauge as BMW's own:
-  the pedal's demand 0 - 100, **CHARGE** in green below 0 while the battery
-  takes the regeneration, from eDrive Live's battery power; the rev counter
-  again in SPORT, XTRABOOST and with the lever in S or M),
-  the holiday theme, the start-up message.
+- **Display**: BMW's bottom strip (on or off), the speed limit sign's edge, the refresh rate and the needles between
+  the car's updates, the holiday theme, the start-up message, the skin.
+- **Readouts and gauges**: **Speedometer up to** (260 km/h, 330 for an M car) and **Boost gauge up to** (bar or psi,
+  as the units).
+- **Red zone and shift**: **Yellow light at** (where the shift lights begin), **Red light at (the red zone)**, **Shift
+  now warning at** (past the shift point the shift lights flash and the speed and the gear blink red, in every style),
+  **Gauge goes up to**, **Engine's top rpm (redline)**, the limiter flash, and the **cold engine** guard (the shift
+  point and the red zone lower while the oil is cold).
+- **Units and clock**: the units and the clock.
+- **Car**: **Engine** - *Auto (from the car)*, *Diesel*, *Petrol*, *Petrol, M car* (the layers keep clear of its M
+  display's boxes) or *Plug-in hybrid (petrol)*, as Cluster Layouts' and the Car profile's. A plug-in hybrid (chosen,
+  or on *Auto* once the car shows it is one: its drive modes, or eDrive Live sharing its battery's power, as Cluster
+  Layouts finds one) gets its electric range beside the fuel's and its eDrive box kept clear; in its electric and
+  hybrid modes every style's rev counter becomes a **Power %** gauge as BMW's own: the pedal's demand 0 - 100,
+  **CHARGE** in green below 0 while the battery takes the regeneration, from eDrive Live's battery power; the rev
+  counter again in SPORT, XTRABOOST and with the lever in S or M. **Fuel tank size** and **Fuel % from** (as Cluster
+  Layouts' fuel gauge: the engine unit's own tank level while the engine runs, otherwise the car's litres over the
+  tank's size; or the litres always).
+
+  What the Car profile app sets (units, clock, engine, the rev figures, the tank) is set there for both apps.
 - **Toro / M Sport / M Sport Plus / M Track**: each style's own — what
   its middle (or M Track Mode's left wing) shows and how much of it,
   colours, the gear (Toro: D1, S1, M1).
@@ -133,7 +131,7 @@ from one start to the next), the style and the skin at the top, then **General**
   throttle, ignition timing, the fuel rail's and the supply's pressures, the battery's voltage, the fuel, a drive
   battery's charge, temperature and power, the electric range, the trip computer, the odometer, the 0-60 mph
   (0-100 km/h) time and the last upshift's rpm; a gauge, row or strip any of them that has a scale.
-  **km/h only** in an M style: *Settings → General → Speed unit → km/h*, then in the
+  **km/h only** in an M style: *Settings → Units and clock → Speed unit → km/h*, then in the
   style's own settings *Second speed underneath → One speed only* (the M View
   otherwise shows mph and km/h together).
 
@@ -167,7 +165,7 @@ across it → Keep them over the picture*.
 
 ![M Sport's centre lines: faded where the picture shows, or kept](docs/screenshots/m-lines.png)
 
-**The start-up message comes up on a dark screen** (Settings → General: *Start-up
+**The start-up message comes up on a dark screen** (Settings → Display: *Start-up
 message*, on as it comes). The words fade in, stay for the time you set,
 and fade away as the cluster comes up through them. Until 0.10.0 the
 cluster could be seen behind the words for about a second just as they
@@ -241,7 +239,7 @@ which a diesel never reaches, so its revs stay in the bottom half and nothing
 lights up. Tell the app it is a diesel:
 
 1. Open the app from iDrive's menu.
-2. Press **Settings**, then **General**.
+2. Press **Settings**, then **Car**.
 3. Press **Engine** and choose **Diesel**.
 
 That gives every style a diesel's rev counter:
@@ -253,8 +251,8 @@ That gives every style a diesel's rev counter:
 | Limiter flash, last shift light | 7,000 | **5,000** |
 | Toro's shift lights begin at | 1,800 below the redline | **3,200** |
 
-If your engine revs higher or lower than that, set **Redline** and
-**Limiter** in the same list (from 3,000
+If your engine revs higher or lower than that, set **Red light at** and
+**Engine's top rpm** in *Red zone and shift* (from 3,000
 and 4,000 upwards); *From the car* is the diesel's own figures above.
 
 On a diesel, Toro's lower left gauge shows turbo
@@ -273,15 +271,14 @@ your car and model year, and whether the speed and the gear show.
 The Car profile app (akakingj/myapp-id7) sets these for every app that follows it, AK Cluster ID8 too. What
 it sets is shown here with "Car profile" beside it and changed there:
 
-| Car profile | Here (Settings → General) |
+| Car profile | Here |
 |---|---|
-| Yellow light at | Shift lights from |
-| Red light at (Auto: the redline) | Redline (*At the limiter*) |
-| Shift now warning at (Auto: redline - 300) | Shift now warning at (*Auto*) |
-| Gauge goes up to | Tach scale |
-| Engine's top rpm (redline) | Limiter |
-| Cold-engine rev guard, Cold rev limit, Oil is warm at | Cold engine: lower the shift point and red zone, Cold engine: shift point with the oil at 30 °C, Cold engine: oil warm at (as Cluster Layouts names them) |
-| Engine, the units, the clock, the skin | the same |
+| Yellow light at, Red light at, Shift now warning at, Gauge goes up to, Engine's top rpm, the cold engine's three | the same names, *Red zone and shift* (Red light at's *Auto*: *At the limiter* here) |
+| Engine | *Car → Engine*, the same five choices |
+| The units, the clock | *Units and clock* |
+| Speedometer up to, Boost gauge up to | *Readouts and gauges* |
+| Fuel tank size, Fuel % from | *Car* |
+| Skin | *Display* |
 
 ## Showing or hiding BMW's bottom strip
 
@@ -289,8 +286,8 @@ BMW's own cluster keeps a strip along the bottom of the screen: range,
 clock, street name, driving mode, gear and outside temperature.
 
 1. Open the app from iDrive's menu.
-2. Press **Settings**, then **General**.
-3. Scroll to **BMW's bottom strip** and press it.
+2. Press **Settings**, then **Display**.
+3. Press **BMW's bottom strip** and press it.
 4. Pick one:
 
 | Choice | What you get |
@@ -302,7 +299,7 @@ The change shows on the cluster within about half a second, for every
 style. Nothing is set on the cluster itself.
 
 **If the top of BMW's speed limit sign shows under the style** (a small
-red arc right of the strip's clock, with Speed Limit Info on): Settings → General →
+red arc right of the strip's clock, with Speed Limit Info on): Settings → Display →
 **Cover the speed limit sign's edge in BMW's strip**. It covers that spot
 alone and leaves the rest of the strip as you have it.
 

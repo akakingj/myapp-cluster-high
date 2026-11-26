@@ -22,13 +22,13 @@ function settingsClass(dir) {
     return new Function('fs', 'path', 'DATA_DIR', 'log', src.slice(from, to) + '\nreturn Settings;')(fs, path, dir, { info() {}, warn() {}, error() {} });
 }
 
-test('no Car to choose: GENERAL\'s figures (or the Car profile\'s) for every car; an M car and a plug-in hybrid by Engine and Electric range', () => {
+test('no Car to choose: the figures (or the Car profile\'s) for every car; an M car and a plug-in hybrid by Engine', () => {
     assert.strictEqual(item('profile'), undefined, 'GENERAL > Car is gone');
-    assert.deepStrictEqual(item('engine').options.map((o) => o[0]), ['petrol', 'diesel', 'm']);
-    assert.strictEqual(item('electric').profileMap.m, 'off');
+    assert.deepStrictEqual(item('engine').options.map((o) => o[0]), ['auto', 'diesel', 'petrol', 'm', 'phev']);
+    assert.strictEqual(item('electric'), undefined, 'Electric range went: Engine says it');
     /* every figure is offered whatever the car (the tach scale for a petrol engine, an M car's too) */
     for (const k of ['rpmRedline', 'rpmLimiter', 'shiftFrom', 'shiftAt', 'speedMax', 'boostMax', 'tankLitres']) assert.strictEqual(item(k).when, undefined, k);
-    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: ['petrol', 'm'] });
+    assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: ['auto', 'petrol', 'm', 'phev'] });
     /* the kind of car: an M car (its M display's boxes), a plug-in hybrid (its eDrive box), a car */
     assert.strictEqual(Panel.kindOf({ engine: 'm', electric: 'off' }), 'mCarS58');
     assert.strictEqual(Panel.kindOf({ engine: 'petrol', electric: 'hybrid' }), 'hybrid');
@@ -74,8 +74,8 @@ test('a car chosen under GENERAL > Car before it went keeps its figures: moved i
     assert.strictEqual(was('b48').boostMax, '20', 'the boost gauge\'s end as Toro drew it: 20 psi');
     assert.strictEqual(was('mCarS58').engine, 'm');
     assert.strictEqual(was('mCarS58', { engine: 'diesel' }).engine, undefined, 'a diesel stays one');
-    assert.deepStrictEqual(was('hybrid'), { electric: 'hybrid' });
-    assert.deepStrictEqual(was('hybrid', { electric: 'bev' }), {});
+    assert.deepStrictEqual(was('hybrid'), { engine: 'phev' });
+    assert.deepStrictEqual(was('hybrid', { engine: 'diesel' }), {});
     assert.deepStrictEqual(was('x3m40i'), was('b48'));
     assert.strictEqual(was('carprofile'), null);
     assert.strictEqual(was('custom'), null);
@@ -160,6 +160,28 @@ test('the move happens once, through the kit\'s own settings: saved, and the nex
         s = new S(spec.settings);
         assert.strictEqual(Panel.moveCarFigures(s), null);
         assert.strictEqual(s.get('engine'), 'petrol');
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('a saved Electric range: Plug-in hybrid (before AK 0.19.1) is Engine: Plug-in hybrid, once', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'car-'));
+    try {
+        const S = settingsClass(dir), file = path.join(dir, 'settings.json');
+        fs.writeFileSync(file, JSON.stringify({ electric: 'hybrid', engine: 'petrol' }));
+        let s = new S(spec.settings);
+        assert.strictEqual(Panel.moveElectric(s), true);
+        assert.strictEqual(s.get('engine'), 'phev');
+        s.set('engine', 'petrol');
+        s = new S(spec.settings);
+        assert.strictEqual(Panel.moveElectric(s), false, 'once: a later choice stays');
+        assert.strictEqual(s.get('engine'), 'petrol');
+        /* a diesel, or Electric range left on Automatic: as it is */
+        for (const was of [{ electric: 'hybrid', engine: 'diesel' }, { electric: 'auto', engine: 'petrol' }]) {
+            fs.writeFileSync(file, JSON.stringify(was));
+            s = new S(spec.settings);
+            assert.strictEqual(Panel.moveElectric(s), false, JSON.stringify(was));
+            assert.strictEqual(s.get('engine'), was.engine);
+        }
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 

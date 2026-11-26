@@ -15,6 +15,16 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
 
 ## AK 0.19.1
 
+- **Settings as AK Cluster Layouts'.** On / off and the style at the top, then Layouts' sections in its order -
+  **Display**, **Readouts and gauges**, **Red zone and shift**, **Units and clock**, **Car** - then the style in use's
+  own. What both apps have is in the same section under the same name: *Yellow light at*, *Red light at (the red
+  zone)*, *Gauge goes up to*, *Engine's top rpm (redline)* (were Shift lights from, Redline, Tach scale, Limiter),
+  *Clock*, *Speedometer up to*; the skin is in *Display*, as Layouts'.
+- **Car → Engine has the Car profile's five choices, as Layouts':** *Auto (from the car)*, *Diesel*, *Petrol*,
+  *Petrol, M car* and *Plug-in hybrid (petrol)*. A Car profile on *Auto* or *Plug-in hybrid* is now followed (before,
+  Auto was not one of this app's and the app's own choice stayed). *Auto*: a petrol car, a plug-in hybrid once the car
+  shows it is one. *Electric range* is gone with it (a plug-in hybrid is Engine's; *Fully electric* went, never run
+  on a car): a saved *Plug-in hybrid* on a petrol car moves to Engine *Plug-in hybrid* once.
 - **BMW's bottom strip is On or Off, as AK Cluster Layouts'.** *On* (as it comes) shows the strip with 18 px trimmed
   off its top edge; *Off* hides it but BMW's gear letter. A test on a car (photos, 2026-11-26): the trims of 6 and
   12 px left pieces of BMW's own dials at the sides, and the wider gap beside the gear showed the T of COMFORT. A

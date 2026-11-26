@@ -31,7 +31,7 @@ test('the Car profile sets the units, clock, engine, rev limits and shift lights
             lightRed: 6500, redline: 7000, rpmScale: 8000, lightStart: 4500, shiftAt: 6200, coldGuard: 'on', coldLimit: 4000, warmOil: 70 });
         const Settings = settingsClass(dir);
         const s = new Settings(appSpec.settings);
-        const want = { speedUnit: 'mph', tempUnit: 'f', pressUnit: 'kpa', econUnit: 'mpg', clock12: '12', engine: 'petrol', electric: 'hybrid', rpmRedline: '6500',
+        const want = { speedUnit: 'mph', tempUnit: 'f', pressUnit: 'kpa', econUnit: 'mpg', clock12: '12', engine: 'phev', rpmRedline: '6500',
             rpmLimiter: '7000', scaleMaxRpm: '8000', shiftFrom: '4500', shiftAt: '6200', coldGuard: 'on', coldLimit: '4000', warmOil: '70' };
         for (const k of Object.keys(want)) {
             assert.strictEqual(s.get(k), want[k], k);

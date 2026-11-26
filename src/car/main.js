@@ -282,9 +282,11 @@ function start(host, deps) {
     function configure(prev) {
         try {
             settings = host.settings() || {};
-            /* (Electric range on Automatic: a plug-in hybrid's once found, else none) */
-            autoElectric = settings.electric === 'auto';
-            if (autoElectric) settings = Object.assign({}, settings, { electric: electricOf(settings, phevFound) });
+            /* (General > Car > Engine, as Cluster Layouts': Auto and Plug-in hybrid are petrol cars here, with a plug-in
+               hybrid's electric side - on Auto once the car has shown it is one) */
+            autoElectric = settings.engine === 'auto';
+            settings = Object.assign({}, settings, { electric: electricOf(settings, phevFound),
+                engine: settings.engine === 'auto' || settings.engine === 'phev' ? 'petrol' : settings.engine });
             /* (Boost gauge up to, set in the Car profile: From the car's Sport Display - its own gauge's end as one of
                the gauges, once the car has sent it (kept for the next start); until then the kind of car's own) */
             boostFromCar = settings.boostMax === 'auto';
@@ -569,14 +571,13 @@ function start(host, deps) {
 }
 
 /*
- * General: Electric range on Automatic: a plug-in hybrid's once the car has shown it is one (found: lookForPhev),
- * as Cluster Layouts' Vehicle; else none. Off, Plug-in hybrid and Fully electric are as chosen (the Car profile's
- * Engine "Plug-in hybrid" sets it).
+ * The electric side for Car > Engine (as Cluster Layouts' Engine, and the Car profile's): Plug-in hybrid has it; Auto
+ * once the car has shown it is a plug-in hybrid (found: lookForPhev); the others none.
  */
 function electricOf(settings, found) {
-    var e = settings && settings.electric;
-    if (e !== 'auto') return e;
-    return found ? 'hybrid' : 'off';
+    var e = settings && settings.engine;
+    if (e === 'phev') return 'hybrid';
+    return e === 'auto' && found ? 'hybrid' : 'off';
 }
 
 module.exports = { start: start, shaders: shaders, carState: carState, electricOf: electricOf,
