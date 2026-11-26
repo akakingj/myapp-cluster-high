@@ -196,6 +196,19 @@ test('Settings, a step at a time: the top, the shared sections, and the style in
     assert.strictEqual(sh.focus, TOP.length);
 });
 
+test('a setting the Car profile sets: its row dimmed, "Car profile" by its value, nothing opened (Start with the car)', () => {
+    const page = Harness.open({ values: { style: 'toro', autoStart: 'on' }, held: ['autoStart'] });
+    const sh = Sheet.listSheet(page.settings, null, {});
+    const i = TOP.indexOf('autoStart'), row = sh.rows()[i];
+    assert.deepStrictEqual([row.held, row.kind, /Car profile$/.test(row.value)], [true, null, true], JSON.stringify(row));
+    sh.move(i);
+    sh.press();
+    assert.strictEqual(sh.open, null, 'not opened here');
+    /* one it leaves: as before */
+    const own = Sheet.listSheet(Harness.open({ values: { style: 'toro' } }).settings, null, {}).rows()[i];
+    assert.ok(!own.held && own.kind === 'more');
+});
+
 test('a row offered only with another setting comes and goes with it', () => {
     const page = Harness.open({ values: { style: 'toro', background: 'genuine', intro: false, revFlash: 'off' } });
     const has = (g, k) => listed(page, g).indexOf(item(k).label) >= 0;

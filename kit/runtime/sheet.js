@@ -120,7 +120,7 @@ function list(r, t, key, rows, focus, y0, controller, opts) {
         }
         const vw = row.value != null ? Math.min(560, r.textWidth(String(row.value), 26)) : 0;
         if (row.value != null) r.text(fit(r, row.value, 26, 560), right, cy + 9, 26, row.on && row.kind === 'radio' ? t.text : t.dim, { align: 'right' });
-        r.text(fit(r, row.label, 28, right - vw - 40 - (x + 28)), x + 28, cy + 10, 28, t.text);
+        r.text(fit(r, row.label, 28, right - vw - 40 - (x + 28)), x + 28, cy + 10, 28, row.held ? t.dim : t.text);
         rects.push({ i, x, y: Math.max(y, y0), w, h: Math.min(y + ROW_H, bottom) - Math.max(y, y0) });
     });
     r.noclip();
@@ -166,9 +166,9 @@ function list7(r, t, key, rows, focus, y0, controller, opts) {
         if (row.kind === 'more') { const bx = x + w - 16, by = y + RH - 14; r.quad([[bx - 12, by], [bx, by], [bx, by - 12], [bx, by - 12]], on ? '#ffffff' : '#d8d7da'); right -= 24; }
         const hasVal = row.value != null && String(row.value) !== '';
         if (hasVal) {
-            r.text(fit(r, row.label, 28, right - left), left, y + 34, 28, t.text);
-            r.text(fit(r, row.value, 22, right - left), left, y + 63, 22, on ? '#e8e2de' : t.dim);
-        } else r.text(fit(r, row.label, 28, right - left), left, cy + 10, 28, t.text);
+            r.text(fit(r, row.label, 28, right - left), left, y + 34, 28, row.held ? t.dim : t.text);
+            r.text(fit(r, row.value, 22, right - left), left, y + 63, 22, on && !row.held ? '#e8e2de' : t.dim);
+        } else r.text(fit(r, row.label, 28, right - left), left, cy + 10, 28, row.held ? t.dim : t.text);
         rects.push({ i, x, y: Math.max(y, y0), w, h: Math.min(y + RH, bottom) - Math.max(y, y0) });
     });
     r.noclip();
@@ -228,6 +228,8 @@ function listSheet(settings, title, opts) {
             return entries(this.group).map((s) => (s.extra ? { label: s.extra.label, value: valueOf(s.extra), kind: 'more' }
                 // (a group: how many settings it holds under its name, as AK Cluster Layouts' settings show it)
                 : s.group && !s.key ? { label: s.group, value: count(entries(s.group).length), kind: 'more' }
+                // (a setting the Car profile sets: dimmed, its value with "Car profile", not opened here - choose())
+                : held(s) ? { label: s.label, value: translate(String(settings.display(s.key))) + '  ·  ' + translate('Car profile'), kind: null, held: true }
                 : s.type === 'bool' ? { label: s.label, kind: 'toggle', on: !!settings.get(s.key) }
                     : { label: s.label, value: settings.display(s.key), kind: values(s) ? 'more' : null }));
         },
@@ -355,6 +357,7 @@ function listSheet(settings, title, opts) {
             // (an open() that throws leaves the settings as they are; display.js logs it)
             if (s.extra) { const c = s.extra.open && s.extra.open(); if (c) this.child = c; return null; }
             if (s.group && !s.key) { this.group = s.group; this.gfocus = this.focus; this.focus = 0; return null; }
+            if (held(s)) return null;      // the Car profile sets it (Settings.held): changed in Car profile
             if (s.type === 'bool') settings.set(s.key, !settings.get(s.key));
             else if (values(s)) {
                 this.open = s;

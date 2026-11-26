@@ -13,6 +13,13 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.23.2
+
+- **A setting the Car profile sets looks it in Settings.** With the Car profile starting AK Cluster Layouts, this
+  app's *Start on the cluster with the car* showed as any other row, though it can't be changed here. A row the Car
+  profile holds is now dimmed, its value followed by "· Car profile", with no arrow, and choosing it opens nothing
+  (it opened the values' list before, and a pick there changed nothing). The kit's `sheet.js`, as Layouts 0.62.2's.
+
 ## AK 0.23.1
 
 - **The speed limit sign where the owner marked it, in sight and easier to read.** 0.22.0 put it top middle on
