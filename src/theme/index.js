@@ -1,10 +1,20 @@
 (function (root, factory) {
     if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('./lambo.js'), require('./track.js'), require('./mtrack.js'), require('./overlays.js'));
+        /* each style's builder read the first time it is built (0.23.1): at a start, the style in use alone - 55 KB
+           of the three's 165 - and the others when the drive mode or the owner asks for them */
+        module.exports = factory({
+            toro: function () { return require('./lambo.js'); },
+            track: function () { return require('./track.js'); },
+            mtrack: function () { return require('./mtrack.js'); }
+        }, require('./overlays.js'));
     } else {
-        root.MGUThemes = factory(root.MGUTheme, root.MGUTrack, root.MGUMTrack, root.MGUOverlays);
+        root.MGUThemes = factory({
+            toro: function () { return root.MGUTheme; },
+            track: function () { return root.MGUTrack; },
+            mtrack: function () { return root.MGUMTrack; }
+        }, root.MGUOverlays);
     }
-}(typeof self !== 'undefined' ? self : this, function (Toro, Track, MTrack, Overlays) {
+}(typeof self !== 'undefined' ? self : this, function (load, Overlays) {
     'use strict';
 
     /*
@@ -15,7 +25,24 @@
     /* track: M Sport (the id it has always had in saved settings);
        mplus: M Sport Plus, the same style with the other middle;
        mtrack: M Track Mode, BMW M's track view */
-    var THEMES = { toro: Toro, track: Track, mplus: Track.plus, mtrack: MTrack };
+    var FILE = { toro: 'toro', track: 'track', mplus: 'track', mtrack: 'mtrack' };
+    var read = {};
+    function builder(id) {
+        var f = FILE[id];
+        if (!read[f]) read[f] = load[f]();
+        return id === 'mplus' ? read[f].plus : read[f];
+    }
+    /* (each style's builder as a getter: its file read when first asked for) */
+    var THEMES = {};
+    Object.keys(FILE).forEach(function (id) {
+        Object.defineProperty(THEMES, id, { enumerable: true, get: function () { return builder(id); } });
+    });
+    /* a style's builder read now, to have it at hand (the drive mode's own style, read after the first frame) */
+    function preload(id) {
+        if (Object.prototype.hasOwnProperty.call(FILE, id)) builder(id);
+    }
+    /* the styles' files read so far, for the tests */
+    function loaded() { return Object.keys(read); }
 
     function idOf(settings) {
         var t = settings && settings.style;
@@ -70,5 +97,6 @@
         return typeof most === 'number' ? most : 0;
     }
 
-    return { build: build, idOf: idOf, THEMES: THEMES, OWN: OWN, forStyle: forStyle, keyFor: keyFor, lowerMost: lowerMost };
+    return { build: build, idOf: idOf, THEMES: THEMES, OWN: OWN, forStyle: forStyle, keyFor: keyFor, lowerMost: lowerMost,
+             preload: preload, loaded: loaded };
 }));

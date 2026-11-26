@@ -29,6 +29,7 @@ var Words = require('../theme/words.js');
 var Smooth = require('./smooth.js');
 var Presence = require('./presence.js');
 var Providers = require('./providers.js');
+var Startup = require('./startup.js');
 var Panel = require('../geometry/panel.js');
 var core = require('../shaders/core.js');
 var parts = require('../shaders/parts.js');
@@ -141,8 +142,12 @@ function start(host, deps) {
     var log = host.log || { info: function () {}, warn: function () {} };
     function now() { return deps.now ? deps.now() : Date.now(); }
     var settleMs = deps.showSettleMs !== undefined ? deps.showSettleMs : SHOW_SETTLE_MS;
+    /* start-up timings for the log (startup.js): from the app's first line (deps.t0, app/entry.js), once a start */
+    var startup = deps.startup || Startup.create(log, { t0: deps.t0 });
+    startup.mark('service');
 
     var loaded = deps.atlas && deps.atlasPixels ? null : Atlas.load();
+    startup.mark('atlas');
     var atlas = deps.atlas || loaded.meta;
     var atlasPixels = deps.atlasPixels || loaded.pixels;
     /* the atlas with the start-up message's own letters under it, for the words it was made for (words.js) */
@@ -311,9 +316,21 @@ function start(host, deps) {
         }
     }
 
+    /* the settings but Show on the cluster and Start with the car, as text: a change of those alone is a press of a
+       button, not a scroll through a list, and is applied at once (reconfigure) */
+    function restOf(s) {
+        var o = {}, k;
+        for (k in s || {}) if (Object.prototype.hasOwnProperty.call(s, k) && k !== 'enabled' && k !== 'autoStart') o[k] = s[k];
+        try { return JSON.stringify(o); } catch (e) { return String(Math.random()); }
+    }
+    var appliedRest = null, appliedOn = false;
+
     /* Read the settings and build a theme and driver for them. */
     function configure(prev) {
         try {
+            var raw0 = host.settings() || {};
+            appliedRest = restOf(raw0);
+            appliedOn = raw0.enabled === true || raw0.enabled === 'on';
             /* (the drive mode's own style, where Display has one for it) */
             settings = Panel.styleFor(host.settings() || {}, modeCls);
             /* (General > Car > Engine, as Cluster Layouts': Auto and Plug-in hybrid are petrol cars here, with a plug-in
@@ -353,12 +370,17 @@ function start(host, deps) {
        only 16 assets per client and refuses the rest silently - then rebuild. */
     function reconfigure() {
         if (settleTimer) clearTimeout(settleTimer);
+        /* Show on the cluster (or Start with the car) alone: at once - the 400 ms are for scrolling through a list */
+        var raw = host.settings() || {}, on = raw.enabled === true || raw.enabled === 'on';
+        var quick = restOf(raw) === appliedRest;
+        if (on && !appliedOn) startup.show(true); else if (!on) startup.show(false);
         settleTimer = setTimeout(guard('settings', function () {
             settleTimer = null;
             var wasRunning = running, prev = driver;
             running = false;
             configure(prev);
             log.info('settings applied');
+            startup.showStep('applied');
             if (wasRunning && connected && driver && theme.settings.enabled) {
                 /* the new driver takes the layers over where they stay the same, else builds its own (cluster.js adopt) */
                 driver.ready();
@@ -366,7 +388,16 @@ function start(host, deps) {
             } else if (prev) {
                 try { prev.stop(); } catch (e) { log.warn('stop: ' + e); }
             }
-        }), SETTLE_MS);
+            kick();
+        }), quick ? 0 : SETTLE_MS);
+    }
+
+    /* the next frame now, not at the idle frame's pace (IDLE_MS), while nothing is drawn: a change that may put the
+       style up (the settings applied, cluster-render connected) is acted on at once */
+    function kick() {
+        if (stopped || running) return;
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(frame, 0);
     }
 
     try {
@@ -379,6 +410,8 @@ function start(host, deps) {
     cr.on('ready', guard('ready', function () {
         connected = true;
         log.info('cluster-render: connected');
+        startup.mark('connected');
+        kick();
         /* the client replays our layers itself; the atlas bytes are ours */
         if (running && driver) driver.ready();
     }));
@@ -476,7 +509,7 @@ function start(host, deps) {
 
             var want = enabled && !yielded && connected && !!driver &&
                 (car === 'on' || (car === 'starting' && running));
-            if (!want) wantSince = 0; else if (!wantSince) wantSince = now();
+            if (!want) wantSince = 0; else if (!wantSince) { wantSince = now(); startup.showStep('wanted'); }
             if (want && !running && now() - wantSince < settleMs) want = false;
 
             if (car === 'off') onAt = 0;
@@ -486,6 +519,8 @@ function start(host, deps) {
                 upSince = Date.now();
                 if (!onAt) onAt = now();
                 log.info('cluster: on');
+                startup.mark('on the cluster');
+                startup.showStep('up');
             } else if (!want && running) {
                 driver.stop();
                 running = false;
@@ -536,6 +571,18 @@ function start(host, deps) {
                 st.sinceOn = onAt ? (now() - onAt) / 1000 : -1;
                 st.now = now();
                 driver.tick(st);
+                if (startup.mark('first frame')) {
+                    startup.showStep('first frame');
+                    /* the drive mode's own styles (Display > Style in Sport / in ECO PRO), read now while nothing waits on
+                       them: the style in use alone was read to come up (src/theme/index.js) */
+                    setImmediate(guard('preload', function () {
+                        var raw = host.settings() || {};
+                        ['styleSport', 'styleEco'].forEach(function (k) {
+                            var d = Panel.DESIGN_OF && Panel.DESIGN_OF[raw[k]];
+                            if (d && d.style) Theme.preload(d.style);
+                        });
+                    }));
+                } else if (startup.showing()) startup.showStep('first frame');
             }
 
             setStatus(!enabled ? 'Off - BMW original cluster'
@@ -549,6 +596,8 @@ function start(host, deps) {
         }
         /* an even cadence: the frame's own work comes off the wait */
         var wait = running ? Math.max(4, frameMs() - (Date.now() - began)) : IDLE_MS;
+        /* wanted, waiting out SHOW_SETTLE_MS: the next frame when it is over, not up to IDLE_MS after */
+        if (!running && wantSince) wait = Math.max(4, Math.min(IDLE_MS, settleMs - (now() - wantSince) + 1));
         timer = setTimeout(frame, wait);
     }
 

@@ -23,6 +23,18 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   14 - 18) and its ring is a little thinner. With *Lower and enlarge the cluster* it goes where its place goes, at its
   own size. `test/sli.test.js` holds it clear of the camera's cowl too, lowered as well.
 
+- **Up quicker.** At a start the cluster reads the style in use alone (55 KB of the three styles' 165 KB; the drive
+  mode's own styles are read just after the first frame), and none of the page's pictures (660 KB, read when the
+  page first draws them; without them the page draws its sketches). The first frame no longer waits for the idle
+  pace (a quarter second) once cluster-render is up. Show on the cluster pressed is acted on at once (the 0.4 s wait
+  is for a scroll through the settings), and the style comes up as the 1.2 s settle ends, not up to a quarter second
+  later. On a PC: the start to the first frame 303 → 56 ms (ten each); Show pressed to the first frame 1.80 → 1.21 s.
+  The 1.2 s settle, the atlas and the turn taking are as they were.
+- **Start-up timings in the log** (`src/car/startup.js`), each once a start, from the app's first line, with the
+  wall clock: `startup: modules`, `service`, `atlas`, `connected`, `on the cluster`, `first frame` - e.g.
+  `startup: first frame +2380 ms (uptime 41.2 s) 21:40:05.112`; and for Show on the cluster pressed,
+  `show: on the cluster +1215 ms (applied +2, wanted +3, up +1204, first frame +1215)`. In Logs and its codes.
+
 ## AK 0.23.0
 
 - **Start on the cluster with the car** (Settings, under Show on the cluster; or the Car profile's *Start on the

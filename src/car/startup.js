@@ -1,0 +1,55 @@
+'use strict';
+/*
+ * Start-up timings for the log (0.23.1): how long each step of a start takes, on the car, so a change can be
+ * measured against the last (docs: the owner's notes on AK Cluster ID8 coming up after AK Cluster Layouts).
+ *
+ *   var S = Startup.create(log, { t0: ms, wall0: ms });   t0: when the app's first line ran (Date.now())
+ *   S.mark('modules', at)     'startup: modules +312 ms (uptime 4.1 s) 21:40:05.112' - each step once a start
+ *   S.show(on)                Show on the cluster turned on (or off) while the app runs
+ *   S.showStep('applied')     its steps, logged together once it is on the cluster:
+ *                             'show: on the cluster +1650 ms (applied +3, wanted +5, up +1210, first frame +1240)'
+ *
+ * Nothing it does changes what the cluster shows. The wall clock on each start line is for lining it up with
+ * AK Cluster Layouts' log and the car's own waking. Node 8.
+ */
+
+function clock(ms) {
+    var d = new Date(ms);
+    function two(n) { return (n < 10 ? '0' : '') + n; }
+    var m = d.getMilliseconds();
+    return two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) + '.' + (m < 10 ? '00' : m < 100 ? '0' : '') + m;
+}
+
+function create(log, opts) {
+    opts = opts || {};
+    var t0 = typeof opts.t0 === 'number' ? opts.t0 : Date.now();
+    var now = opts.now || Date.now;
+    var uptime = opts.uptime || function () { return typeof process !== 'undefined' && process.uptime ? process.uptime() : 0; };
+    var done = {};
+    var showAt = null, steps = [];
+
+    /* at: when it happened, if not now (the modules, read before the log was there) */
+    function mark(stage, at) {
+        if (done[stage]) return false;
+        done[stage] = true;
+        var t = typeof at === 'number' ? at : now();
+        if (log) log.info('startup: ' + stage + ' +' + Math.round(t - t0) + ' ms (uptime ' + uptime().toFixed(1) + ' s) ' + clock(t));
+        return true;
+    }
+    function show(on) {
+        if (on) { if (showAt === null) { showAt = now(); steps = []; } } else { showAt = null; steps = []; }
+    }
+    function showStep(name) {
+        if (showAt === null) return;
+        if (steps.some(function (s) { return s[0] === name; })) return;
+        steps.push([name, now() - showAt]);
+        if (name === 'first frame') {
+            if (log) log.info('show: on the cluster +' + Math.round(now() - showAt) + ' ms (' +
+                steps.map(function (s) { return s[0] + ' +' + Math.round(s[1]); }).join(', ') + ')');
+            showAt = null; steps = [];
+        }
+    }
+    return { mark: mark, show: show, showStep: showStep, showing: function () { return showAt !== null; }, t0: t0 };
+}
+
+module.exports = { create: create, clock: clock };

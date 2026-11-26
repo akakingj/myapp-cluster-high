@@ -169,6 +169,25 @@ test('Start on the cluster with the car: Show on the cluster turned on as the ca
     assert.ok(h.presence.marks > 0 && auto.length && auto.every((a) => a === true), 'up, and its mark says it is started with the car');
 });
 
+test('Show on the cluster pressed: acted on at once (not after the 400 ms for a scroll through a list)', { timeout: 10000 }, async (t) => {
+    const h = harness(t, { enabled: false });
+    h.on.ready();
+    h.condition('FAHREN');
+    h.rpm(2000);
+    await wait(320);
+    assert.strictEqual(h.calls.effect, 0, 'off');
+    h.change({ enabled: 'on' });
+    await wait(60);
+    assert.ok(h.calls.effect > 30, 'up within a few frames: ' + h.calls.effect);
+    /* another setting with it: the 400 ms as before */
+    h.change({ enabled: 'off' });
+    await wait(60);
+    const drops = h.calls.drop;
+    h.change({ enabled: 'on', zoom: 1.05 });
+    await wait(60);
+    assert.strictEqual(h.calls.drop, drops, 'not yet');
+});
+
 test('Start on the cluster with the car off: Show on the cluster left as it is', { timeout: 10000 }, async (t) => {
     const h = harness(t, { enabled: false });
     h.on.ready();

@@ -63,6 +63,7 @@ const MODULES = [
     ['src/car/drive.js', 'drive.js'],
     ['src/car/qr.js', 'logs_qr.js'],
     ['src/car/logs.js', 'logs.js'],
+    ['src/car/startup.js', 'startup.js'],
     ['src/car/main.js', 'service.js'],
     ['src/car/cluster_render_client.js', 'cluster_render_client.js'],
     /* the package's own atlas loader stands in for the repository's */
