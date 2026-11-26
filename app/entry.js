@@ -12,7 +12,7 @@
  *
  * The page, as AK Cluster Layouts': the design's picture, its state, what
  * each of its places shows and the designs to pick from, with the bar's
- * Cluster on / off and Logs (the codes to photograph, in the page's place
+ * Show on the cluster and Logs (the codes to photograph, in the page's place
  * until Logs is pressed past the last). Settings is the kit's list, one
  * step at a time: on / off, the style and the skin at its top, then
  * General and the style in use's own (Toro, M Sport, M Sport Plus or
@@ -297,6 +297,7 @@ mgu.run({
         /* (a car chosen under General > Car before it went: its figures into General's, once) */
         try { Panel.moveCarFigures(bg.settings, bg.log); } catch (e) { bg.log.warn('car figures: ' + e); }
         try { Panel.moveElectric(bg.settings, bg.log); } catch (e) { bg.log.warn('electric range: ' + e); }
+        try { Panel.moveEconAuto(bg.settings, bg.log); } catch (e) { bg.log.warn('fuel economy unit: ' + e); }
         try {
             const svc = Service.start(hostFor(bg), { appId: bg.spec.id,
                 font: KitFonts ? (text) => KitFonts.get('label', 36, text) : undefined });
@@ -470,7 +471,7 @@ mgu.run({
                 cv.fillRect(BX, BY, PW, PH, withAlpha('#000000', 0.55));
                 label('BMW\'s own cluster shows', BX + PW / 2, BY + PH / 2 + 10, 28, INK, { align: 'center', font: SK7 ? undefined : 'bold' });
             }
-            /* under it: on / off, as the bar's Cluster on / off (and AK Cluster Layouts' under its cards), and what the centre has to show */
+            /* under it: on / off, as the bar's Show on the cluster (and AK Cluster Layouts' under its cards), and what the centre has to show */
             let y = BY + PH + 14;
             const bw = PW + 8, bh = 56;
             if (on && SK7) focus7(cv, BX - 4, y, bw, bh);

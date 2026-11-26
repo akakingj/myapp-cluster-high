@@ -116,8 +116,11 @@
     /* the four as they come: the frame's - or, in an electric car, what it has instead */
     var ROW_HOME = { frame: ['boost', 'coolant', 'oil', 'iat'], bev: ['charge', 'hvtemp', 'off', 'off'] };
     /* u: the units shown (units.js); boostBar: General > Boost gauge up to's end in bar, and boostPsi in psi (null: the
-       frame's own 1.9 bar, 28 psi) */
-    function rowScales(u, boostBar, boostPsi) {
+       frame's own 1.9 bar, 28 psi); zones: { hotOil, hotCoolant, hotGearbox, warmOil } in C (Readouts and gauges' too-hot
+       figures and Oil is warm at, as AK Cluster Layouts and the Car profile have them; none: the frame's own) */
+    function rowScales(u, boostBar, boostPsi, zones) {
+        var Z = zones || {};
+        var num = function (v, d) { return typeof v === 'number' && isFinite(v) ? v : d; };
         var celsius = u.temp === 'c';
         function unitScale(key, tag, unit, hi, show) {
             return { key: key, icon: null, tag: tag, unit: unit, marks: ['0', String(hi / 2), String(hi)], lo: 0, hi: hi,
@@ -146,12 +149,12 @@
         }
         return {
             boost: boostBar ? boostSet(boostBar, boostPsi) : press('boostBar', 'u', 1.9, ['0.0', '0.9', '1.9'], 28, ['0', '14', '28']),
-            /* the frame's line turns red for the last eighth: from about 122 C */
-            coolant: temp('coolantC', 'w', 70, 130, ['70', '100', '130'], ['160', '210', '260'], 160, 260, null, 122),
-            /* ... and the oil's is blue up to about 66 C and red from about 134 C */
-            oil: temp('oilC', 'o', 50, 150, ['50', '100', '150'], ['120', '210', '300'], 120, 300, 66, 134.5),
+            /* the line red from Coolant is too hot at (the frame's own: the last eighth, from about 122 C) */
+            coolant: temp('coolantC', 'w', 70, 130, ['70', '100', '130'], ['160', '210', '260'], 160, 260, null, num(Z.hotCoolant, 122)),
+            /* ... and the oil's blue up to Oil is warm at and red from Oil is too hot at (the frame's: 66 and 134 C) */
+            oil: temp('oilC', 'o', 50, 150, ['50', '100', '150'], ['120', '210', '300'], 120, 300, num(Z.warmOil, 66), num(Z.hotOil, 134.5)),
             /* the gearbox oil: no symbol of the frame's for it, so its word (tag) stands in the symbol's place */
-            gearbox: Object.assign(temp('gearboxC', null, 40, 130, ['40', '85', '130'], ['100', '185', '270'], 100, 270, null, 120),
+            gearbox: Object.assign(temp('gearboxC', null, 40, 130, ['40', '85', '130'], ['100', '185', '270'], 100, 270, null, num(Z.hotGearbox, 120)),
                                    { tag: 'TRANS' }),
             iat: temp('iatC', 'a', -20, 50, ['-20', '15', '50'], ['0', '60', '120'], 0, 120, null, null),
             oilp: press('oilBar', 'p', 10, ['0', '5', '10'], 140, ['0', '70', '140']),
@@ -418,7 +421,8 @@
         });
 
         /* ------------------------------------------------------- the gauge rows */
-        var R = T.ROWS, SCALES = rowScales(S.u, P.boostBar, P.boostPsi);
+        var R = T.ROWS, SCALES = rowScales(S.u, P.boostBar, P.boostPsi,
+            { hotOil: S.hotOil, hotCoolant: S.hotCoolant, hotGearbox: S.hotGearbox, warmOil: S.warmOil });
         var rowOf = S.rows.map(function (kind) { return kind === 'off' ? null : SCALES[kind]; });
         /* a reading along its row's rail: 0..1, or -1 with nothing to show */
         function rowValue(sc, s, i) {

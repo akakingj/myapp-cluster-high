@@ -701,6 +701,7 @@
         function unitPod(key, hi, show) {
             return numPod(key, 0, hi, show, function (x) { return String(Math.round(x)); }, function () { return false; });
         }
+        function hotFrac(v, lo, hi) { return Math.max(0, Math.min(1, ((typeof v === 'number' ? v : hi) - lo) / (hi - lo))); }
         function thirds(hi) { return ['0', String(hi / 2), String(hi)]; }
         var PW_HI = { hp: 400, ps: 400, kw: 300 }[UN.power] || 400;
         var TQ_HI = { nm: 600, kgm: 60, lbft: 450 }[UN.torque] || 600;
@@ -712,13 +713,14 @@
             var O3 = { psi: ['0', '70', '140'], bar: ['0', '5', '10'], kpa: ['0', '500', '1000'] }[UN.press];
             switch (kind) {
             case 'fuel': return { icon: 0, label: FUEL_WORD, key: 'fuel', marks: ['0', '50', '100'], red: [0, 0.12] };
-            case 'coolant': return { icon: 1, label: 'TEMP. ACQUA', key: 'coolant', marks: tLabels([50, 90, 130]), red: [0.81, 1] };
-            case 'oil': return { icon: 2, label: 'TEMP. OLIO', key: 'oilTemp', marks: tLabels([50, 110, 170]), red: [0.83, 1] };
+            /* (red from Coolant / Oil / Gearbox is too hot at: as AK Cluster Layouts, and the Car profile's) */
+            case 'coolant': return { icon: 1, label: 'TEMP. ACQUA', key: 'coolant', marks: tLabels([50, 90, 130]), red: [hotFrac(S.hotCoolant, 50, 130), 1] };
+            case 'oil': return { icon: 2, label: 'TEMP. OLIO', key: 'oilTemp', marks: tLabels([50, 110, 170]), red: [hotFrac(S.hotOil, 50, 170), 1] };
             case 'oilp': return { icon: 2, label: 'PRESS. OLIO', pod: pressPod('oilBar', 10, true), marks: O3, red: [0, 0.08] };
             case 'boost': return { icon: null, label: 'PRESS. TURBO', marksAt: turboAt, ticks: turboTickU, pod: turboTop ? numPod('boostBar', 0, turboTop, UN.pressIn, function (x, bar) { return UN.pressText(bar, false); },
                                                                                function () { return false; }) : pressPod('boostBar', 1.7, false), marks: P3, red: [0.86, 1] };
-            case 'gearbox': return { icon: null, label: 'TEMP. CAMBIO', pod: tempPod('gearboxC', 40, 130, 120),
-                                     marks: tLabels([40, 85, 130]), red: [0.89, 1] };
+            case 'gearbox': return { icon: null, label: 'TEMP. CAMBIO', pod: tempPod('gearboxC', 40, 130, S.hotGearbox),
+                                     marks: tLabels([40, 85, 130]), red: [hotFrac(S.hotGearbox, 40, 130), 1] };
             case 'iat': return { icon: null, label: 'TEMP. ARIA', pod: tempPod('iatC', -20, 60, null),
                                  marks: tLabels([-20, 20, 60]), red: [0.88, 1] };
             case 'volts': return { icon: null, label: 'BATTERIA V',
@@ -812,7 +814,7 @@
         slot('R2', function () {
             gaugeOr('coolant', 'coolant', RECTS.R2, {
                 side: 'right', icon: 1, label: 'TEMP. ACQUA', key: 'coolant', dir: -1,
-                marks: tLabels([50, 90, 130]), red: [0.81, 1]
+                marks: tLabels([50, 90, 130]), red: [hotFrac(S.hotCoolant, 50, 130), 1]
             });
         });
 
@@ -829,7 +831,7 @@
                 });
             } else gaugeOr('oilT', 'oilT', RECTS.L1, {
                 side: 'left', icon: 2, label: 'TEMP. OLIO', key: 'oilTemp', dir: 1,
-                marks: tLabels([50, 110, 170]), red: [0.83, 1]
+                marks: tLabels([50, 110, 170]), red: [hotFrac(S.hotOil, 50, 170), 1]
             });
         });
         /*
@@ -853,8 +855,8 @@
 
         /* ------------------------------------------- G-force widget */
         /*
-         * The load meter under the gear: a point that moves with the car's
-         * acceleration (right turn: right; accelerating: up; braking: down),
+         * The load meter under the gear: a point that moves as the driver
+         * feels the load (left bend: right; braking: up; accelerating: down),
          * the four chevrons lighting towards it, and the hardest load of the
          * last moments drawn as a line from the middle - held for PEAK_HOLD,
          * then fading over PEAK_FADE, and replaced at once by a harder one.
@@ -879,7 +881,7 @@
                 if (!s.gOk) return null;
                 var pk = peakOf(s);
                 return { u_g: [s.gX, s.gY], u_peak: [pk.x, pk.y], u_peakA: pk.a,
-                         u_max: 1.2, u_col: GC.primaryWhite, u_acc: GC.corsaRed };
+                         u_max: S.gScale || 1.2, u_col: GC.primaryWhite, u_acc: GC.corsaRed };
             }
         });
         /* Four readings around it, one per direction, from the same vector. */

@@ -272,6 +272,7 @@ function start(host, deps) {
     var onAt = 0;
     var connected = false;
     var running = false;        /* our layers are up */
+    var upSince = null;         /* when they went up (the wall clock): Cluster Layouts and this one take turns by it */
     var wantSince = 0;          /* since when the style has been wanted, not yet up (SHOW_SETTLE_MS) */
     var stopped = false;
     var timer = null, settleTimer = null;
@@ -464,7 +465,7 @@ function start(host, deps) {
             var car = carState(raw);
             var enabled = theme && theme.settings.enabled;
             /* AK Cluster Layouts on the cluster: this one steps aside while it is */
-            var yielded = !!enabled && presence.othersShowing(now());
+            var yielded = !!enabled && presence.othersShowing(now(), running ? upSince : null);
 
             var want = enabled && !yielded && connected && !!driver &&
                 (car === 'on' || (car === 'starting' && running));
@@ -475,6 +476,7 @@ function start(host, deps) {
             if (want && !running) {
                 driver.ready();
                 running = true;
+                upSince = Date.now();
                 if (!onAt) onAt = now();
                 log.info('cluster: on');
             } else if (!want && running) {
@@ -519,7 +521,7 @@ function start(host, deps) {
             } catch (e) { log.warn('engine: ' + e); }
 
             if (running) {
-                presence.mark(now());
+                presence.mark(now(), upSince);
                 var st = State.present(raw, profile, theme.settings);
                 if (hasCentre) st.centre = centre.state();
                 st.sinceOn = onAt ? (now() - onAt) / 1000 : -1;

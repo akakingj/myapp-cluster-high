@@ -1,7 +1,7 @@
 'use strict';
 /*
  * The app's own page on the iDrive screen, as AK Cluster Layouts': the design,
- * its places and the designs' cards, the bar's Cluster on / off and Logs, and
+ * its places and the designs' cards, the bar's Show on the cluster and Logs, and
  * the settings in the kit's list a step at a time (General, then the style in
  * use's own). The staged app is run as it is (tools/page-harness.js) and its
  * places are pressed.
@@ -117,7 +117,7 @@ test('the page: on / off under the picture, the design\'s places, then its cards
             assert.ok(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y, a.key + ' overlaps ' + b.key);
         }
     }
-    /* the bar: Cluster on / off, Logs, Settings */
+    /* the bar: Show on the cluster, Logs, Settings */
     assert.deepStrictEqual(spec.screens[0].buttons.map((b) => b[0]), ['BTN_SHOW', 'BTN_LOGS', 'BTN_SETTINGS']);
     assert.ok(!('fill' in spec.screens[0]) && !('hmi' in spec.screens[0]), 'the kit\'s header and bar round the page');
 });

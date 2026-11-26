@@ -251,6 +251,23 @@ function moveElectric(settings, log) {
     return moved;
 }
 
+/*
+ * Fuel economy unit's Auto went in AK 0.20.0 (as AK Cluster Layouts'): a saved Auto, or none saved, becomes the unit
+ * it gave - mpg (US) with mph, km/L with km/h - once. Returns the unit set, or null.
+ */
+function moveEconAuto(settings, log) {
+    var v = settings.values || {};
+    if (v._econMoved) return null;
+    var to = null;
+    if (v.econUnit === undefined || v.econUnit === 'auto') {
+        to = (settings.get ? settings.get('speedUnit') : v.speedUnit) === 'mph' ? 'mpg' : 'kml';
+        settings.set('econUnit', to);
+        if (log) log.info('Fuel economy unit: Auto is ' + to + ' now');
+    }
+    settings.set('_econMoved', 1);
+    return to;
+}
+
 function moveCarFigures(settings, log) {
     var v = settings.values || {};
     if (v._carMoved || v.profile === undefined) return null;
@@ -339,7 +356,7 @@ return {
     kindOf: kindOf,
     figuresOfCar: figuresOfCar,
     moveCarFigures: moveCarFigures,
-    moveElectric: moveElectric,
+    moveElectric: moveElectric, moveEconAuto: moveEconAuto,
     DESIGN_OF: DESIGN_OF, modeKey: modeKey, styleFor: styleFor,
     PSI_PER_BAR: PSI_PER_BAR,
     snapBoost: snapBoost,

@@ -413,11 +413,12 @@
             function (s) { return powerOn(s) ? Palette.powerZero(REV.marks) * REV.step : 0; });
 
         /* --------------------------------------------------- fuel and oil */
-        function strip(id, b, side, fn) {
+        /* zone: the oil's [red above, blue below] as heights of the art (the strips' own: M.STRIP hot, cold) */
+        function strip(id, b, side, fn, zone) {
             shape(id, 12, 'mstrip', b, function (s) {
                 var v = fn(s);
                 return { u_side: side, u_level: v === null ? 0 : clamp01(v), u_on: v === null ? 0 : 1,
-                         u_lit: K.segLit, u_dim: K.segDim, u_ink: K.soft,
+                         u_lit: K.segLit, u_dim: K.segDim, u_ink: K.soft, u_zone: zone || [M.STRIP.hot, M.STRIP.cold],
                          u_hotCol: K.hot, u_coldCol: K.cold, u_lowCol: K.segLow };
             });
         }
@@ -428,13 +429,16 @@
         /* the oil scale runs between its own end marks: 50 to 150 C, or
            120 to 300 F - round numbers either way, each at its true height */
         var bev = S.electric === 'bev';
+        function oilFrac(t) { return celsius ? (t - 50) / 100 : (t * 1.8 + 32 - 120) / 180; }
+        /* red from Oil is too hot at, blue up to Oil is warm at (as AK Cluster Layouts, and the Car profile's) */
+        var oilY = function (t) { return M.STRIP.bottom - clamp01(oilFrac(t)) * (M.STRIP.bottom - M.STRIP.top); };
         strip('oilStrip', box(M.mirror(470), 340, M.mirror(344), 501), 1, function (s) {
             /* an electric car has no oil: the strip is its drive battery's temperature, -10 to 60 C */
             if (bev) return typeof s.hvTempFrac === 'number' ? s.hvTempFrac : null;
             var t = oilC(s);
             if (t === null) return null;
-            return celsius ? (t - 50) / 100 : (t * 1.8 + 32 - 120) / 180;
-        });
+            return oilFrac(t);
+        }, bev ? null : [oilY(S.hotOil), oilY(S.warmOil)]);
 
         /* ------------------------------------------------- the scale numerals */
         /*

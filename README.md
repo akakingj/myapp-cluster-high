@@ -66,7 +66,7 @@ follow; **main** is this version.
    this version (**beta-6** is the stable beta, 0.9.6).
 2. Install **mgu-styles2**.
 3. Open it from iDrive's menu. It is **off** after install: nothing on
-   your cluster changes until you press **Cluster on / off** in its bar.
+   your cluster changes until you press **Show on the cluster** in its bar.
 
 **If the Store will not add it**, its status line says why:
 
@@ -91,7 +91,7 @@ Central display area* to *Map view*.
 
 Everything is set in the app on iDrive — nothing on the cluster. Its page
 (as AK Cluster Layouts'): the style on the cluster, what each of its places
-shows, and a card for each design to tap. Its bar: **Cluster on / off**,
+shows, and a card for each design to tap. Its bar: **Show on the cluster**,
 **Logs** and **Settings**. Settings goes a step at a time, as the head
 unit's own: *Show on the cluster* (*On* or *Off (stock cluster)*, kept
 from one start to the next) and the style at the top, then the same sections as AK Cluster Layouts' Settings, in its
@@ -106,13 +106,16 @@ style's appear once it is chosen).
 - **Start-up words** (the last row of Settings): the start-up message in your own words, typed on the head unit's own
   keyboard, Korean on a Korean car; OK makes them the message (*Your own words*). Letters the message's face has not,
   Korean among them, come from the head unit's own Korean font (a Korean package's).
-- **Readouts and gauges**: **Speedometer up to** (260 km/h, 330 for an M car) and **Boost gauge up to** (bar or psi,
-  as the units).
+- **Readouts and gauges**: **Toro: G meter size** (the g its edge stands for: 1.0 - 2.0), **Speedometer up to** (260
+  km/h, 330 for an M car), **Oil / Coolant / Gearbox is too hot at** (where Toro's gauges, M Track Mode's rows and M
+  Sport's oil strip turn red; the oil blue until *Oil is warm at*) and **Boost gauge up to** (bar or psi, as the units).
+  Toro's G meter's dot moves as the driver feels the load: to the right in a left bend, up braking, down accelerating.
 - **Red zone and shift**: **Yellow light at** (where the shift lights begin), **Red light at (the red zone)**, **Shift
   now warning at** (past the shift point the shift lights flash and the speed and the gear blink red, in every style),
   **Gauge goes up to**, **Engine's top rpm (redline)**, the limiter flash, and the **cold engine** guard (the shift
   point and the red zone lower while the oil is cold).
-- **Units and clock**: the units and the clock.
+- **Units and clock**: the units (fuel economy: km/L, L/100km, mpg (US) or mpg (UK)) and the clock (the car's own
+  time).
 - **Car**: **Engine** - *Auto (from the car)*, *Diesel*, *Petrol*, *Petrol, M car* (the layers keep clear of its M
   display's boxes) or *Plug-in hybrid (petrol)*, as Cluster Layouts' and the Car profile's. A plug-in hybrid (chosen,
   or on *Auto* once the car shows it is one: its drive modes, or eDrive Live sharing its battery's power, as Cluster
@@ -121,9 +124,15 @@ style's appear once it is chosen).
   **CHARGE** in green below 0 while the battery takes the regeneration, from eDrive Live's battery power; the rev
   counter again in SPORT, XTRABOOST and with the lever in S or M. **Fuel tank size** and **Fuel % from** (as Cluster
   Layouts' fuel gauge: the engine unit's own tank level while the engine runs, otherwise the car's litres over the
-  tank's size; or the litres always).
+  tank's size; or the litres always). **Electric range when full** (miles): a plug-in hybrid's electric range from its
+  charge while the car gives none, and its battery gauge against it.
 
-  What the Car profile app sets (units, clock, engine, the rev figures, the tank) is set there for both apps.
+  What the Car profile app sets (units, clock, engine, the rev figures, the too-hot figures, the G meter, the tank, the
+  electric range) is set there for both apps.
+
+AK Cluster Layouts and this app take turns on the cluster: the one that came up first keeps it; the other waits, its
+page saying so (*Waiting: AK Cluster Layouts is on the cluster* here, *Waiting: AK Cluster ID8 is on the cluster* on
+Layouts').
 - **Toro / M Sport / M Sport Plus / M Track**: each style's own — what
   its middle (or M Track Mode's left wing) shows and how much of it,
   colours, the gear (Toro: D1, S1, M1).

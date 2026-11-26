@@ -466,11 +466,15 @@ test('a row\'s mark stands at its reading, clamped to the rail, and is not there
     /* the same readings on the imperial scales: 14 psi is the middle, 210 F is the middle */
     const i = build({ units: 'imperial' }), vi = layer(i, 'rows').uniforms(state(i, { boostBar: 14 / 14.503774, coolantC: (210 - 32) / 1.8 }), 0).u_val;
     assert.ok(Math.abs(vi[0] - 0.5) < 1e-6 && Math.abs(vi[1] - 0.5) < 1e-6);
-    /* where a line is coloured: the frame's coolant turns red for its last eighth, its oil is blue at first and red at last */
+    /* where a line is coloured: red from Coolant / Oil is too hot at (118, 130 C as they come), the oil blue up to Oil is
+       warm at (80 C) - as AK Cluster Layouts, and the Car profile's */
     const u = L.uniforms(state(t, RAW), 0);
     assert.deepStrictEqual([u.u_cold[0], u.u_cold[1], u.u_cold[3]], [0, 0, 0]);
     assert.ok(u.u_hot[0] > 1 && u.u_hot[3] > 1, 'boost and intake air: one colour');
-    assert.ok(Math.abs(u.u_hot[1] - 0.867) < 0.01 && Math.abs(u.u_cold[2] - 0.16) < 0.01 && Math.abs(u.u_hot[2] - 0.845) < 0.01);
+    assert.ok(Math.abs(u.u_hot[1] - (118 - 70) / 60) < 0.01 && Math.abs(u.u_cold[2] - 0.3) < 0.01 && Math.abs(u.u_hot[2] - 0.8) < 0.01);
+    const z = build({ units: 'metric', hotCoolant: '125', hotOil: '140', warmOil: '60' });
+    const uz = layer(z, 'rows').uniforms(state(z, RAW), 0);
+    assert.ok(Math.abs(uz.u_hot[1] - (125 - 70) / 60) < 0.01 && Math.abs(uz.u_cold[2] - 0.1) < 0.01 && Math.abs(uz.u_hot[2] - 0.9) < 0.01);
     assert.deepStrictEqual(u.u_on, [1, 1, 1, 1]);
     /* as the frame has it the rail stays whole; the other way the rail past the mark stands back */
     assert.strictEqual(u.u_fill, 0);

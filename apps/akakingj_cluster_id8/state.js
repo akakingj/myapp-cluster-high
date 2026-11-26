@@ -140,13 +140,16 @@
          */
         var electric = opts.electric === 'hybrid' || opts.electric === 'bev' ? opts.electric : 'off';
         var power = powerPct(raw, electric);
-        var evKm = electric !== 'off' && has(raw.evRangeKm) ? raw.evRangeKm : null;
         var soc = electric !== 'off' && has(raw.socPct) ? raw.socPct : null;
+        /* a plug-in hybrid's range with a full battery (Car > Electric range when full, miles; as AK Cluster Layouts):
+           the car's own range, else the charge's share of that, as Layouts estimates it */
+        var EV_FULL_KM = electric === 'bev' ? 500 : (has(opts.eFull) ? Number(opts.eFull) : 31) * 1.609344;
+        var evKm = electric !== 'off' && has(raw.evRangeKm) ? raw.evRangeKm
+            : electric === 'hybrid' && soc !== null ? Math.max(0, soc) / 100 * EV_FULL_KM : null;
         var evText = evKm === null ? dash : String(Math.round(U.distIn(evKm)));
         if (electric === 'bev') fuel = soc === null ? undefined : soc;
         /* the battery as a gauge: the bar is its charge (or, with no charge
            reported, the range against a full one's), the figure the range */
-        var EV_FULL_KM = electric === 'bev' ? 500 : 80;
         var battery = evKm === null && soc === null ? NO_POD
             : pod(soc !== null ? soc / 100 : evKm / EV_FULL_KM, 2,
                   soc !== null ? soc <= 10 : evKm <= EV_FULL_KM * 0.1,
@@ -158,10 +161,14 @@
             : pod((hvC - HV_LO) / HV_SPAN, (50 - HV_LO) / HV_SPAN, hvC >= 50,
                   deg(hvC), hvC < 5 ? COOL : LIT);
 
+        /* red from Oil / Coolant is too hot at, the oil blue until Oil is warm at (as AK Cluster Layouts, and the Car
+           profile's) */
+        var HOT_OIL = has(opts.hotOil) ? Number(opts.hotOil) : 130, HOT_WATER = has(opts.hotCoolant) ? Number(opts.hotCoolant) : 118;
+        var WARM_OIL = has(opts.warmOil) ? Number(opts.warmOil) : 80;
         var oilTemp = has(oilC)
-            ? pod((oilC - 50) / 120, (150 - 50) / 120, oilC >= 150,
+            ? pod((oilC - 50) / 120, (HOT_OIL - 50) / 120, oilC >= HOT_OIL,
                   deg(oilC),
-                  oilC < 80 ? COOL : LIT)
+                  oilC < WARM_OIL ? COOL : LIT)
             : pod(0, 2, 0, dash, LIT);
 
         var oilPress = has(oilP)
@@ -169,7 +176,7 @@
             : pod(0, 2, 0, dash, LIT);
 
         var coolant = has(watC)
-            ? pod((watC - 50) / 80, (115 - 50) / 80, watC >= 115,
+            ? pod((watC - 50) / 80, (HOT_WATER - 50) / 80, watC >= HOT_WATER,
                   deg(watC),
                   watC < 70 ? COOL : LIT)
             : pod(0, 2, 0, dash, LIT);
@@ -283,11 +290,13 @@
             boostPeakPsi: boostPeak,
             gOk: has(raw.gLat) || has(raw.gLon),
             auxIsOil: auxIsOil,
-            /* the meter's own axes: x to the right, y forward. The bus's
-               lateral is ISO (left positive), so a right-hand turn - the
-               car accelerating to the right - reads to the right */
-            gX: has(raw.gLat) ? -raw.gLat : 0,
-            gY: has(raw.gLon) ? raw.gLon : 0,
+            /* the meter's own axes, x to the right, y up, as the driver feels
+               the load (as AK Cluster Layouts' G meter and the G-Force app):
+               the bus's lateral is ISO (left positive), so a left bend - the
+               car accelerating to the left - reads to the right; braking up,
+               accelerating down */
+            gX: has(raw.gLat) ? raw.gLat : 0,
+            gY: has(raw.gLon) ? -raw.gLon : 0,
             gLat: has(raw.gLat) ? raw.gLat : 0,
             gLon: has(raw.gLon) ? raw.gLon : 0,
             gPeakLat: has(raw.gPeakLat) ? raw.gPeakLat : 0,

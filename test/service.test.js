@@ -148,6 +148,36 @@ test('presence.js: its mark carries its id, and only another app\'s fresh mark c
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
+test('presence.js: AK Cluster Layouts and this one take turns, the one up first keeping the cluster', () => {
+    const fs = require('fs'), os = require('os'), path = require('path');
+    const Presence = require('../src/car/presence.js');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'presence-'));
+    try {
+        const p = Presence.create({ app: 'akakingj_cluster_id8', dir });
+        const now = Date.now();
+        p.mark(5000, now - 1000);
+        const mine = JSON.parse(fs.readFileSync(path.join(dir, 'akakingj_cluster_id8.json'), 'utf8'));
+        assert.deepStrictEqual([mine.app, mine.since], ['akakingj_cluster_id8', now - 1000], 'its own file, for Layouts');
+        /* Layouts (0.61.0) up: its own file, with its since */
+        const layouts = (since) => {
+            fs.writeFileSync(path.join(dir, 'akakingj_cluster_layouts.json'), JSON.stringify({ app: 'akakingj_cluster_layouts', since, at: Date.now() }));
+            fs.writeFileSync(path.join(dir, 'layouts.json'), JSON.stringify({ app: 'akakingj_cluster_layouts', centre: 'info', at: Date.now() }));
+        };
+        layouts(now - 500);
+        assert.strictEqual(p.othersShowing(1000, null), true, 'waiting: Layouts is on, so it stays off');
+        assert.strictEqual(p.othersShowing(2000, now - 1000), false, 'up before Layouts: it keeps the cluster (Layouts steps aside)');
+        layouts(now - 2000);
+        assert.strictEqual(p.othersShowing(3000, now - 1000), true, 'up after Layouts: it steps aside');
+        /* an older Layouts: layouts.json alone, no app in it - always waited for, as before */
+        fs.rmSync(path.join(dir, 'akakingj_cluster_layouts.json'));
+        fs.writeFileSync(path.join(dir, 'layouts.json'), JSON.stringify({ centre: 'info', at: Date.now() }));
+        assert.strictEqual(p.othersShowing(4000, now - 1000), true);
+        /* its own layouts.json mark (Centre's) does not count */
+        p.mark(9000, now - 1000);
+        assert.strictEqual(p.othersShowing(5000, now - 1000), false);
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('nothing goes up while the car is off or switching on', { timeout: 10000 }, async (t) => {
     const h = harness(t);
     h.on.ready();

@@ -56,7 +56,7 @@ const BUTTONS = [['BTN_SHOW', 'Cluster on / off'], ['BTN_DESIGN', 'Design'], ['B
 const FILL = { name: 'MAIN', kind: 'canvas', title: 'Test', hmi: false, fill: true, buttons: BUTTONS };
 const knob = (n) => ({ frontRotaryEncoderOperation: n, frontRotaryEncoderPushButton: 0, frontRotaryEncoderDeflection: 0 });
 
-test('the app\'s one screen is a canvas in the kit\'s frame (no "fill"): Cluster on / off, Logs, Settings in its bar', () => {
+test('the app\'s one screen is a canvas in the kit\'s frame (no "fill"): Show on the cluster, Logs, Settings in its bar', () => {
     const s = appSpec.screens[0];
     assert.strictEqual(appSpec.screens.length, 1);
     assert.deepStrictEqual([s.name, s.kind, s.hmi, s.fill], ['MAIN', 'canvas', undefined, undefined]);
@@ -174,7 +174,7 @@ test('a screen without "fill" (the app\'s): header, back column, the page betwee
     assert.ok(pl.ox + FULL.src.x * pl.scale >= 84 && pl.oy + FULL.src.y * pl.scale >= FULL.headH, JSON.stringify(pl));
     assert.strictEqual(pl.extra, undefined);
     assert.ok(d._ring().every((p) => !p.tgt));
-    /* the bar: Cluster on / off and Logs; Settings is the header's last tab */
+    /* the bar: Show on the cluster and Logs; Settings is the header's last tab */
     assert.deepStrictEqual(d.buttons().map((b) => b.id), ['BTN_SHOW', 'BTN_LOGS']);
     assert.deepStrictEqual(d._tabList().tabs, ['Settings']);
     /* "fill" needs "hmi": false with it */

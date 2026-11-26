@@ -31,8 +31,23 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   set-up) after it: *STRADA EGO* (Comfort Individual), *CITTA EGO* (ECO PRO and Electric Individual), *SPORT EGO*
   (Sport Individual), set smaller to RECHARGE's width where longer, clear of the dial's inner edge. ECO PRO was
   STRADA.
-- **Cluster on / off under the design's picture again**, as AK Cluster Layouts' under its cards: the status's dot and
-  what a press does, the same as the bar's *Cluster on / off*.
+- **On / off under the design's picture again**, as AK Cluster Layouts' under its cards: the status's dot and what a
+  press does, the same as the bar's button, which is now *Show on the cluster*, as Layouts' (it was *Cluster on / off*).
+- **Fuel economy unit: km/L, L/100km, mpg (US) or mpg (UK)**, as AK Cluster Layouts': every fuel use unit of the Car
+  profile is taken (its mpg (UK) was not). *With the speed unit* (Auto) is gone: a saved one, or none saved, becomes the
+  unit it gave - mpg (US) with mph, km/L with km/h - once.
+- **AK Cluster Layouts and this app take turns, both ways.** The one that came up first keeps the cluster, the other
+  waits (before, this one always stepped aside and Layouts never did); each page says *Waiting: AK Cluster Layouts / ID8
+  is on the cluster*. Each also keeps a file of its own with when it came up (presence.js); an older Layouts, with
+  none, is waited for as before.
+- **The Car profile's G meter size, too-hot figures and electric range when full, as Layouts follows them.**
+  Readouts and gauges: *Toro: G meter size* (1.0 - 2.0 g, 1.2 as it was), *Oil / Coolant / Gearbox is too hot at* (130,
+  118, 115 C as Layouts': Toro's gauges and its oil and coolant figures, M Track Mode's rows and M Sport's oil strip
+  red from them - they were 150 / 115 / 120, 134 / 122 / 120 and 138 C - and the oil blue up to *Oil is warm at*, 80 C,
+  where M Track and M Sport had 66 and 61). Car: *Electric range when full* (31 mi as Layouts'): a plug-in hybrid's
+  battery gauge against it (it was 80 km) and its range estimated from the charge while the car gives none.
+- **Toro's G meter's dot moves as the driver feels the load**, as Layouts' G meter and the G-Force app: right in a left
+  bend, up braking, down accelerating (it went with the car's acceleration, the other way).
 - **The start-up message in your own words, typed.** Settings → **Start-up words** opens the head unit's own keyboard
   (BMW's speller, in the car's language: Hangul on a Korean car); OK makes them the message (*Your own words*, which
   was a text file on a USB stick - still read while nothing is typed). Letters the message's face has not, Korean among

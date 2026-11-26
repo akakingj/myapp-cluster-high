@@ -97,6 +97,20 @@ test('the units as AK Cluster Layouts sets them: each on its own, Auto pressure 
         ['62', '100', '17.4', '29.4', '249', '20.5']);
     const auto = Units.of({ speedUnit: 'kmh', pressUnit: 'auto', econUnit: 'auto' });
     assert.deepStrictEqual([auto.press, auto.econ, auto.labels.speed, auto.labels.dist], ['bar', 'kml', 'km/h', 'km']);
+    /* mpg (UK): imperial gallons, 282.481 over L/100km; a car profile's every fuel use unit is one of Fuel economy unit's */
+    assert.strictEqual(s({ speedUnit: 'kmh', econUnit: 'mpguk' }).info.economy, '35.3');
+    const econ = require('../app/app.base.json').settings.find((x) => x.key === 'econUnit');
+    assert.deepStrictEqual(econ.options.map((o) => o[0]), ['kml', 'l100', 'mpg', 'mpguk'], 'no Auto');
+    for (const v of ['l100', 'kml', 'mpguk', 'mpgus']) assert.ok(econ.options.some((o) => o[0] === econ.profileMap[v]), v);
+    /* a saved Auto (or none) becomes the unit it gave, once */
+    const Panel = require('../src/geometry/panel.js');
+    const store = (values) => ({ values, get: (k) => values[k], set(k, v) { values[k] = v; } });
+    let st8 = store({ econUnit: 'auto', speedUnit: 'mph' });
+    assert.strictEqual(Panel.moveEconAuto(st8), 'mpg');
+    st8.values.econUnit = 'auto';
+    assert.strictEqual(Panel.moveEconAuto(st8), null, 'once');
+    assert.strictEqual(Panel.moveEconAuto(store({})), 'kml');
+    assert.strictEqual(Panel.moveEconAuto(store({ econUnit: 'l100' })), null);
     /* every unit word the styles draw is in the atlas's faces they draw it in */
     const atlas = require('../assets/fonts/atlas.json');
     const has = (face, str) => [...str].every((c) => c === ' ' || (atlas.faces[face].glyphs[c] && atlas.faces[face].glyphs[c].tw >= 0));

@@ -15,7 +15,7 @@
  *
  *   gpu   with the Store's renderer (its client writing to a file, as the
  *         kit's own tooling has it): the page in the kit's frame (its
- *         header with Settings, the bar with Cluster on / off and Logs),
+ *         header with Settings, the bar with Show on the cluster and Logs),
  *         worked with the controller and a finger - round its places, a
  *         card, a place's values, Settings a step at a time, Logs, back.
  *   soft  without the renderer: the plain page in the HMI's frame, its
@@ -166,7 +166,7 @@ async function child(mode) {
         check(d.fill() === false, 'the screen is a "fill" screen');
         check(d.own(), 'the kit is not running the screen');
         check(d.headH() > 0 && d.barH() > 0, 'the kit\'s header or bar is missing (' + d.headH() + ', ' + d.barH() + ')');
-        check(JSON.stringify(d.buttons().map((b) => b.id)) === '["BTN_SHOW","BTN_LOGS"]', 'the bar is not Cluster on / off and Logs: ' + d.buttons().map((b) => b.id).join(' '));
+        check(JSON.stringify(d.buttons().map((b) => b.id)) === '["BTN_SHOW","BTN_LOGS"]', 'the bar is not Show on the cluster and Logs: ' + d.buttons().map((b) => b.id).join(' '));
         const tl = d._tabList();
         check(tl.settings === tl.tabs.length - 1 && tl.tabs[tl.settings] === 'Settings', 'Settings is not the header\'s tab: ' + JSON.stringify(tl));
         /* ---- the page: the style's own places on its picture, a card for each design */
@@ -258,7 +258,7 @@ async function child(mode) {
         /* ---- on / off: the bar's */
         const en = s.get('enabled');
         d._click('BTN_SHOW'); await wait(150);
-        check(s.get('enabled') === (en === 'on' ? 'off' : 'on'), 'the bar\'s Cluster on / off did not turn the cluster ' + (en === 'on' ? 'off' : 'on'));
+        check(s.get('enabled') === (en === 'on' ? 'off' : 'on'), 'the bar\'s Show on the cluster did not turn the cluster ' + (en === 'on' ? 'off' : 'on'));
     } else {
         /* the plain page: the HMI shows what the app pushes, and its bar does the jobs */
         check(await until(() => sim.pushed > 0, 8000), 'the plain page was never pushed to the HMI');
@@ -268,7 +268,7 @@ async function child(mode) {
         check(!d.own(), 'the kit says it runs the screen with no renderer there');
         const en = s.get('enabled');
         comp('BTN_SHOW').emit('action', {}); await wait(200);
-        check(s.get('enabled') === (en === 'on' ? 'off' : 'on'), 'the bar\'s Cluster on / off did not switch it');
+        check(s.get('enabled') === (en === 'on' ? 'off' : 'on'), 'the bar\'s Show on the cluster did not switch it');
         const before0 = sim.pushed;
         comp('BTN_LOGS').emit('action', {}); await wait(300);
         check(sim.pushed > before0, 'the bar\'s Logs drew nothing');

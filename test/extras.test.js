@@ -283,10 +283,19 @@ test('refresh rate and smoothing settings', () => {
     assert.strictEqual(Palette.resolve({ smoothing: 'nope' }, P).smoothing, 'smooth');
 });
 
-test('the G meter: a right-hand turn reads to the right, braking down', () => {
+test('the G meter: as the driver feels it - a right-hand bend reads to the left, braking up; its size the Car profile\'s', () => {
     /* the bus is ISO: lateral positive to the left */
     const right = State.present({ rpm: 2000, gLat: -0.5, gLon: -0.3 }, P, {});
-    assert.ok(right.gX > 0.49 && right.gY < -0.29);
+    assert.ok(right.gX < -0.49 && right.gY > 0.29);
+    const ahead = State.present({ rpm: 2000, gLat: 0.4, gLon: 0.2 }, P, {});
+    assert.ok(ahead.gX > 0.39 && ahead.gY < -0.19, 'a left bend, accelerating: right and down');
+    for (const [v, want] of [[undefined, 1.2], ['2', 2], ['1.5', 1.5]]) {
+        const tg = Toro.build(atlas, 'carprofile', { gScale: v });
+        assert.strictEqual(find(tg, 'gforce').uniforms(Object.assign({}, right, { now: 0 })).u_max, want);
+    }
+    const gs = require('../app/app.base.json').settings.find((x) => x.key === 'gScale');
+    assert.strictEqual(gs.profile, 'gMax');
+    for (const g of ['1', '1.2', '1.5', '2']) assert.ok(gs.options.some((o) => o[0] === gs.profileMap[g]), g);
     const th = Toro.build(atlas, 'carprofile', {});
     const L = (id) => find(th, id).uniforms(Object.assign(right, { now: 0 }));
     assert.strictEqual(L('gR').u_count > 0, true);
@@ -298,15 +307,15 @@ test('the G peak is held a few seconds as a line, then fades away', () => {
     const g = find(th, 'gforce');
     const st = (lat, now) => Object.assign(State.present({ rpm: 2000, gLat: lat, gLon: 0 }, P, {}), { now });
     let u = g.uniforms(st(-0.9, 1000));
-    assert.ok(Math.abs(u.u_peak[0] - 0.9) < 1e-9 && u.u_peakA === 1);
+    assert.ok(Math.abs(u.u_peak[0] + 0.9) < 1e-9 && u.u_peakA === 1);
     u = g.uniforms(st(-0.2, 3500));
-    assert.ok(Math.abs(u.u_peak[0] - 0.9) < 1e-9 && u.u_peakA === 1, 'held');
+    assert.ok(Math.abs(u.u_peak[0] + 0.9) < 1e-9 && u.u_peakA === 1, 'held');
     u = g.uniforms(st(-0.2, 4750));
     assert.ok(u.u_peakA > 0.3 && u.u_peakA < 0.7, 'fading: ' + u.u_peakA);
     u = g.uniforms(st(-0.2, 7000));
-    assert.ok(Math.abs(u.u_peak[0] - 0.2) < 1e-9, 'a new, smaller peak once the old one is gone');
+    assert.ok(Math.abs(u.u_peak[0] + 0.2) < 1e-9, 'a new, smaller peak once the old one is gone');
     const smaller = g.uniforms(st(-1.1, 7100));
-    assert.ok(Math.abs(smaller.u_peak[0] - 1.1) < 1e-9, 'a harder one replaces it at once');
+    assert.ok(Math.abs(smaller.u_peak[0] + 1.1) < 1e-9, 'a harder one replaces it at once');
 });
 
 test('boost: level with the speed, a step bigger each psi, its gauge sweeping right to left', () => {
@@ -395,8 +404,13 @@ test('electric range: a plug-in hybrid has it beside the fuel\'s, an electric ca
     const none = State.present({ rangeKm: 400, fuelPct: 50 }, P, { electric: 'bev' });
     assert.deepStrictEqual([none.rangeText, none.info.erange, none.pods.battery.text, none.pods.fuel.text], ['--', '--', '--', '--']);
     /* a range with no charge reported: the bar is the range against a full battery's */
+    /* (a full battery's range: Car > Electric range when full, 31 mi as it comes, as AK Cluster Layouts) */
     const noSoc = State.present({ evRangeKm: 40 }, P, { electric: 'hybrid' });
-    assert.ok(noSoc.pods.battery.frac > 0.4 && noSoc.pods.battery.frac < 0.6);
+    assert.ok(Math.abs(noSoc.pods.battery.frac - 40 / (31 * 1.609344)) < 1e-9);
+    assert.ok(Math.abs(State.present({ evRangeKm: 40 }, P, { electric: 'hybrid', eFull: 50 }).pods.battery.frac - 40 / (50 * 1.609344)) < 1e-9);
+    /* the charge with no range from the car: the range estimated from it, as Layouts does */
+    const est = State.present({ socPct: 50 }, P, { electric: 'hybrid', eFull: 30 });
+    assert.deepStrictEqual([est.info.erange, est.pods.battery.text], ['15', '15']);
     /* low: it warns */
     assert.ok(State.present({ evRangeKm: 5, socPct: 8 }, P, { electric: 'bev' }).pods.battery.alarm);
 });
@@ -516,4 +530,30 @@ test('one speed or two in the M styles, each style its own; a new install trims 
     assert.strictEqual(Palette.resolve({}, P).bottomExtra, 0);
     assert.strictEqual(Palette.resolve({ bottomExtra: '18' }, P).bottomExtra, 18);
     assert.strictEqual(Palette.resolve({ bottomExtra: '0' }, P).bottomExtra, 0, 'someone who chose to show all of it keeps it');
+});
+
+test('too hot and warm, as AK Cluster Layouts and the Car profile have them: Toro\'s gauges and pods, M Sport\'s oil strip', () => {
+    /* the pods: red from Oil / Coolant is too hot at, the oil blue until Oil is warm at */
+    const pods = (o) => State.present({ rpm: 2000, oilTempC: 132, coolantC: 119 }, P, Palette.resolve(o, P)).pods;
+    let p = pods({});
+    assert.deepStrictEqual([p.oilTemp.alarm, p.coolant.alarm], [1, 1], '130 and 118 C as they come');
+    p = pods({ hotOil: '135', hotCoolant: '125' });
+    assert.deepStrictEqual([p.oilTemp.alarm, p.coolant.alarm], [0, 0]);
+    /* Toro's gauges: their red zones from the same figures */
+    const zones = (o) => {
+        const th = Toro.build(atlas, 'carprofile', o), st = State.present({ rpm: 2000 }, P, th.settings);
+        return th.layers.map((L) => L.uniforms && L.uniforms(Object.assign(st, { now: 0 }), 0)).filter((u) => u && u.u_redZone)
+            .map((u) => +u.u_redZone[0].toFixed(3));
+    };
+    assert.ok(zones({}).indexOf(+((118 - 50) / 80).toFixed(3)) >= 0 && zones({}).indexOf(+((130 - 50) / 120).toFixed(3)) >= 0, JSON.stringify(zones({})));
+    assert.ok(zones({ hotCoolant: '125', hotOil: '140' }).indexOf(+((125 - 50) / 80).toFixed(3)) >= 0);
+    assert.ok(zones({ hotCoolant: '125', hotOil: '140' }).indexOf(+((140 - 50) / 120).toFixed(3)) >= 0);
+    /* M Sport's oil strip: red above Oil is too hot at, blue below Oil is warm at */
+    const zone = (o) => {
+        const th = Themes.build(atlas, 'carprofile', Object.assign({ style: 'track', units: 'metric' }, o));
+        return th.layers.find((L) => L.id === 'oilStrip').uniforms(State.present({ rpm: 2000, oilTempC: 90 }, th.profile, th.settings), 0).u_zone;
+    };
+    const M = require('../src/theme/mgeom.js'), y = (c) => M.STRIP.bottom - (c - 50) / 100 * (M.STRIP.bottom - M.STRIP.top);
+    assert.deepStrictEqual(zone({}).map((v) => +v.toFixed(2)), [y(130), y(80)].map((v) => +v.toFixed(2)));
+    assert.deepStrictEqual(zone({ hotOil: '140', warmOil: '60' }).map((v) => +v.toFixed(2)), [y(140), y(60)].map((v) => +v.toFixed(2)));
 });

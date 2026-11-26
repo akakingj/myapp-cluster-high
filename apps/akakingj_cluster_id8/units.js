@@ -10,7 +10,7 @@
      * Car profile, through the kit): Speed unit (km/h | mph; distances go with
      * it), Temperature unit (C | F), Pressure unit (psi | bar | kPa, or Auto:
      * psi with mph, bar with km/h) and Fuel economy unit (km/L | L/100km |
-     * mpg, or Auto: mpg with mph, km/L with km/h).
+     * mpg (US) | mpg (UK); none set: mpg (US) with mph, km/L with km/h).
      *
      * The preview's and the tests' one word, units: metric | imperial, stands
      * for all four where they are not given (metric: km/h, C, bar, L/100km;
@@ -19,6 +19,7 @@
     var MI_PER_KM = 0.621371;
     var PSI_PER_BAR = 14.503774;
     var MPG_PER_L100 = 235.215;          /* US gallons: what a US car's cluster shows */
+    var MPGUK_PER_L100 = 282.481;        /* imperial gallons */
     var KML_PER_L100 = 100;
 
     var PRESS = {
@@ -29,7 +30,7 @@
         /* (in small letters: the M styles' word face has no capital P) */
         kpa: { label: 'kpa', per: 100, digits: 0, oilDigits: 0, step: 10 }
     };
-    var ECON = { kml: 'km/L', l100: 'L/100km', mpg: 'mpg' };
+    var ECON = { kml: 'km/L', l100: 'L/100km', mpg: 'mpg', mpguk: 'mpg' };
     /* torque (from Nm) and power (from kW), as Cluster Layouts and the Car profile name them; the M styles' word
        face has small letters only for some, so each label is as the faces have it */
     /* (in small letters, and lb ft without its hyphen: the M styles' word face has neither; Toro writes them in capitals) */
@@ -68,7 +69,8 @@
             pressStep: P.step,
             /* the trip computer's average (L/100km) in the unit chosen */
             econIn: function (l100) {
-                return econ === 'mpg' ? MPG_PER_L100 / l100 : econ === 'kml' ? KML_PER_L100 / l100 : l100;
+                return econ === 'mpg' ? MPG_PER_L100 / l100 : econ === 'mpguk' ? MPGUK_PER_L100 / l100
+                    : econ === 'kml' ? KML_PER_L100 / l100 : l100;
             }
         };
     }
