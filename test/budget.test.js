@@ -182,7 +182,7 @@ test('an option that costs more is off as it comes, and what it costs is bounded
         `the whole wing: ${wing.drawn.toFixed(2)} screens, ${wing.bytes.toFixed(0)} bytes a frame against ${slot.drawn.toFixed(2)}, ${slot.bytes.toFixed(0)}`);
     /* everything on at once still fits the renderer's limit of layers */
     for (const style of Object.keys(BUDGET)) {
-        const all = run(style, { holiday: true, intro: true, centre: 'waze', centreSize: 'full', revFlash: 'both', lower: 74, shake: 'hard' }, DRIVE);
+        const all = run(style, { holiday: true, intro: true, sliSign: true, centre: 'waze', centreSize: 'full', revFlash: 'both', lower: 74, shake: 'hard' }, DRIVE);
         assert.ok(all.layers <= 64, `${style}: ${all.layers} layers with everything on`);
     }
 });

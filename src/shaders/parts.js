@@ -621,6 +621,24 @@
         '}'
     ].join('\n');
 
+    /* -------------------------------------------------------------- sign */
+    /* The speed limit sign (src/theme/overlays.js): a disc in its square, a red ring round a light face a little
+       darker towards its foot; the figures are a text layer over it. */
+    var sign = [
+        'uniform vec3 u_ring;',
+        'uniform vec3 u_face;',
+        'void main() {',
+        '  vec2 p = px();',
+        '  vec2 c = u_size * 0.5;',
+        '  float r = min(c.x, c.y) - 1.0;',
+        '  float l = length(p - c);',
+        '  float a = cov(l - r);',
+        '  float face = cov(l - r * 0.8);',
+        '  vec3 col = mix(u_ring, u_face * (1.0 - 0.1 * p.y / u_size.y), face);',
+        '  gl_FragColor = vec4(col, a);',
+        '}'
+    ].join('\n');
+
     /* ------------------------------------------------------------- cover */
     /* One flat colour, opaque: what is laid over BMW's bottom strip when it
        is hidden (src/theme/strip.js). */
@@ -678,7 +696,7 @@
 
     var out = { snow: snow, xtree: xtree, veil: veil, hgauge: hgauge, text: text, plate: plate, marker: marker, gearband: gearband,
                 gauge: gauge, gforce: gforce, icon: icon, vbar: vbar, boost: boost,
-                gmeter: gmeter, hairline: hairline, cover: cover };
+                gmeter: gmeter, hairline: hairline, cover: cover, sign: sign };
     /* the snow's grid, for whoever sends u_fall: not a shader, so not listed with them */
     Object.defineProperty(out, 'SNOW', { value: SNOW, enumerable: false });
     return out;

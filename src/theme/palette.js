@@ -95,6 +95,7 @@
         /* Toro's numeral: staged (D1, S1, M1, as BMW shows the gear) | gear (the figure alone, as a Lamborghini) */
         gearShows: 'staged',
         holiday: false,          /* snow falling down the sides and a tree in a corner */
+        sliSign: false,          /* a speed limit sign of our own (src/theme/overlays.js) */
         /* a message over the cluster at every start, fading into it */
         intro: false,
         introMessage: 'mgu',     /* one of INTRO_WORDS, or custom (the owner's own: typed, or a USB text file) */
@@ -361,6 +362,7 @@
         if (['hybrid', 'bev'].indexOf(s.electric) < 0) s.electric = 'off';
         if (['oilP', 'oilT', 'coolant', 'fuel'].indexOf(s.electricGauge) < 0) s.electricGauge = 'auto';
         s.holiday = s.holiday === true;
+        s.sliSign = s.sliSign === true || s.sliSign === 'on';
         s.intro = s.intro === true;
         s.introSeconds = clampNum(s.introSeconds, 3, 30, DEFAULTS.introSeconds);
         if (typeof s.introText !== 'string' || !s.introText.trim()) {

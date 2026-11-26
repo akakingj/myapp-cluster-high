@@ -37,8 +37,21 @@ const Panel = require('./panel.js');
 const path = require('path');
 /* the page's words in the app's language (the Store builds it in Korean): drawn as literal text, so they go through
    the kit's catalogue here; the cluster's own lettering stays as the styles have it */
-let tr = (s) => String(s);
-try { tr = require('./kit/i18n').t; } catch (e) { /* tools: English */ }
+let tr = (s) => String(s), known = () => false;
+try {
+    const i18n = require('./kit/i18n'), keys = new Set(Object.keys(i18n.dict || {}).map((k) => k.toLowerCase()));
+    tr = i18n.t;
+    /* a whole text the catalogue has (tr() alone also puts in the words it knows of one it lacks: "The four 게이지") */
+    known = (s) => keys.has(String(s).trim().toLowerCase());
+} catch (e) { /* tools: English */ }
+/* a setting's text with its aside in brackets cut off ("Fuel pressure: high (HPFP)"), in the app's language: the cut
+   English when the catalogue has it, else the whole text's own words with a closing aside cut off there (the
+   Korean "람보르기니, 한계(또는 …)에서 번쩍임" keeps its middle one). { s, done }: done = already in the language */
+function shortText(text, cut) {
+    const c = cut(text);
+    if (c === text || known(c) || !known(text)) return { s: c, done: false };
+    return { s: tr(text).replace(/\s*\([^()]*\)$/, ''), done: true };
+}
 let Record = null;
 try { Record = require('./kit/record'); } catch (e) { /* no pixel images: the designs' sketches */ }
 /* the head unit's own letters (the kit's fonts: Korean in a Korean package), for the start-up words' (src/theme/words.js) */
@@ -508,9 +521,10 @@ mgu.run({
                 const isOn = s.type === 'bool' ? !!settings.get(s.key) : null;
                 cv.roundRect(x, yy, CW, CH, rad(10), SK7 ? CARD : withAlpha('#ffffff', 0.07));
                 if (SK7) cv.fillRect(x, yy + CH - 1, CW, 1, LINE);
-                fitLabel(s.label.replace(/\s*\(.*\)$/, ''), x + 16, yy + 20, 14, CW - 30, DIM, { font: SK7 ? undefined : 'bold' });
-                const v = s.type === 'bool' ? (isOn ? 'On' : 'Off') : choice(s.key).replace(/ \(.*$/, '');
-                fitLabel(v, x + 16, yy + 44, 19, CW - 30, isOn === false ? FAINT : INK, { font: SK7 ? undefined : 'bold' });
+                const name = shortText(s.label, (t) => t.replace(/\s*\(.*\)$/, ''));
+                fitLabel(name.s, x + 16, yy + 20, 14, CW - 30, DIM, { font: SK7 ? undefined : 'bold', done: name.done });
+                const v = s.type === 'bool' ? { s: isOn ? 'On' : 'Off', done: false } : shortText(choice(s.key), (t) => t.replace(/ \(.*$/, ''));
+                fitLabel(v.s, x + 16, yy + 44, 19, CW - 30, isOn === false ? FAINT : INK, { font: SK7 ? undefined : 'bold', done: v.done });
                 tgt(x, yy, CW, CH, () => press(s), 'place:' + s.key, rad(10));
             });
 

@@ -13,6 +13,20 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.22.0
+
+- **Settings > Display > Speed limit sign** (off as it comes). BMW's own speed limit sign is drawn under the
+  apps' layers, so no style shows it. On, each style shows a round sign of our own (a red ring round a light disc,
+  the limit in figures) in room it leaves: Toro's empty upper left, above the oil gauges; the M styles' top middle,
+  between BMW's turn arrows and above the plates (`src/theme/overlays.js` SLI, the `sign` shader). Two layers more
+  when on. It shows `--` for now: the car's value comes once AK Cluster Info's Driving assistant check has shown
+  which value is the sign's. `test/sli.test.js` keeps it clear of each style's readouts, the KOMBI's lights and the
+  strip with every centre, size and lowering.
+- **The page's cards in Korean throughout.** A card shows a setting's name and value without the aside in brackets;
+  the cut English often had no Korean of its own ("Fuel pressure: high", "Gauge row 1", "The four gauges",
+  "Lamborghini, bursts at the limit") and showed in English or half-translated. Now the cut English when the
+  catalogue has it whole, else the Korean of the whole text with its closing aside cut off (`app/entry.js` shortText).
+
 ## AK 0.21.0
 
 - **The iDrive 7 skin now matches AK Cluster Layouts'.** With *Skin* on *iDrive 7* (Settings > Display, or the Car

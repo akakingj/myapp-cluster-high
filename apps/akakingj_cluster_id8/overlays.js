@@ -33,6 +33,26 @@
     var MAX_W = 1560;       /* px the message may be wide */
     var FACE = 'lambo';
 
+    /*
+     * Settings > Display > Speed limit sign (0.22.0, off as it comes): a round sign of our own - a red ring round a
+     * light disc, the limit in figures - in each style's room. BMW's own speed limit sign is drawn under the
+     * apps' layers (the owner, 2026-11-26: gone under AK Cluster Layouts), so it is gone under any style. Each style's
+     * place [x, y, r] (its centre and radius), picked off the styles as drawn: Toro's empty upper left, above the oil
+     * gauges and clear of the KOMBI's lights; the M styles' top middle, between BMW's turn arrows and above the
+     * plates (test/sli.test.js keeps each clear of the style's pieces). The figures: state.speedLimit, which nothing
+     * reads yet ('--': the car's value comes once AK Cluster Info's Driving assistant check has shown which it is).
+     */
+    var SLI = {
+        toro: { at: [320, 300, 46], face: 'display' },
+        track: { at: [955, 54, 42], face: 'mb' },
+        mplus: { at: [955, 54, 42], face: 'mb' },
+        mtrack: { at: [955, 54, 42], face: 'mb' }
+    };
+    function sliText(st) {
+        var v = st && st.speedLimit;
+        return typeof v === 'number' && isFinite(v) && v > 0 ? String(Math.round(v)) : '--';
+    }
+
     var PLACES = {
         snow: [[0, 0, 470, 646], [1450, 0, 470, 646]],
         /* Toro's side instruments: their gauges, labels, figures and icons */
@@ -174,6 +194,19 @@
             }
         }
 
+        var sign = S.sliSign && SLI[theme.id];
+        if (sign) {
+            var cx = sign.at[0], cy = sign.at[1], r = sign.at[2];
+            layers.push({
+                id: 'sliDisc', z: 190, shader: 'sign', still: true,
+                x: cx - r, y: cy - r, w: 2 * r, h: 2 * r,
+                uniforms: function () { return { u_ring: [0.88, 0.19, 0.23], u_face: [0.957, 0.957, 0.949] }; }
+            });
+            var fs = r * 0.62;
+            TL.txt('sliNum', 191, { x: cx - r * 0.74, y: cy - r * 0.5, w: r * 1.48, h: r },
+                { face: sign.face, size: fs, align: 'centre', x: cx, y: cy + fs * 0.36, color: [0.08, 0.08, 0.08] }, sliText);
+        }
+
         if (S.intro) {
             var hold = S.introSeconds;
             /* (the owner's own words with letters the message's face has not: their own face, src/theme/words.js) */
@@ -232,7 +265,7 @@
         return theme;
     }
 
-    return { add: add, clean: clean, fit: fit, introAlpha: introAlpha, PLACES: PLACES,
+    return { add: add, clean: clean, fit: fit, introAlpha: introAlpha, PLACES: PLACES, SLI: SLI, sliText: sliText,
              FADE_IN: FADE_IN, FADE_OUT: FADE_OUT,
              snowFall: snowFall, SNOW_SPEED: SNOW_SPEED, SNOW_STEP_MS: SNOW_STEP_MS };
 }));
