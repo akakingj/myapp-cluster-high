@@ -489,8 +489,9 @@ test('the speed limit sign\'s edge in BMW\'s strip can be covered: a small patch
     const Strip = require('../src/theme/strip.js');
     const p = Panel.SIGN_PATCH, g = Panel.GEAR_TRIGGER_WINDOW;
     assert.strictEqual(require('../app/app.base.json').settings.find((x) => x.key === 'signCover').default, false);
-    /* where the sign's arc was seen (x 471 - 499, y 669 - 675), with room; above the strip's own figures; far from the gear */
-    assert.ok(p.x <= 461 && p.x + p.w >= 509 && p.y === Panel.BOTTOM_CUT && p.y + p.h >= 676 && p.y + p.h <= 677);
+    /* where the sign's arc was seen (x 471 - 499, y 669 - 675), with room; clear of the clock left of it (its figures to
+       x 453 or so, from y 668: a patch from x 440 cut the 6 of 18:26 on a car); far from the gear */
+    assert.ok(p.x >= 460 && p.x <= 466 && p.x + p.w >= 509 && p.y === Panel.BOTTOM_CUT && p.y + p.h >= 676 && p.y + p.h <= 677);
     assert.ok(p.x + p.w < g.x - 800);
     for (const style of ['toro', 'track', 'mplus']) {
         const ids = (cfg) => Themes.build(atlas, 'carprofile', Object.assign({ style }, cfg)).layers.filter((L) => /^strip/.test(L.id));

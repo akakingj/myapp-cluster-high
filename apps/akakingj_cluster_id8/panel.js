@@ -62,11 +62,13 @@ var GEAR_KEEP_WIDE = { x: 1340, w: 160 };                          /* 1340 - 150
  * Speed Limit Info: with a limit showing, the top of BMW's sign stands up
  * out of the strip, right of the clock - a red arc at about x 471 - 499,
  * y 669 - 675 (off one photograph of a 2020s plug-in hybrid, good to a few
- * px). SIGN_PATCH is a cover for it alone: from the cut down to the row
- * above the strip's own figures (their tops are at about y 676), far from
- * the gear's window. A setting, off as it comes.
+ * px). The clock just left of it reaches x 453 or so, its figures' tops
+ * y 668 (a diesel G20, 2026-11-26, "18:26": a patch from x 440 cut the
+ * 6's top right). SIGN_PATCH is a cover for the sign alone: from the cut
+ * down to y 676, in the gap between the clock and the sign, far from the
+ * gear's window. A setting, off as it comes.
  */
-var SIGN_PATCH = { x: 440, y: BOTTOM_CUT, w: 90, h: 30 };          /* 440 - 530, 646 - 676 */
+var SIGN_PATCH = { x: 462, y: BOTTOM_CUT, w: 68, h: 30 };          /* 462 - 530, 646 - 676 */
 
 /* The glass is cut on a diagonal at the top corners: nothing there is seen. */
 var CORNER_LEFT = [{ x: 0, y: 0 }, { x: 325, y: 0 }, { x: 0, y: 190 }];

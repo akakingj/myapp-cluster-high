@@ -13,6 +13,12 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.20.1
+
+- **Cover the speed limit sign's edge in BMW's strip no longer cuts the clock.** Its patch began at x 440, over the
+  top right of the clock's last figure (on a car: the 6 of 18:26, whose figures reach x 453 or so from y 668); it now
+  covers x 462 - 530 alone, the gap between the clock and the sign (its arc at x 471 - 499) and the sign.
+
 ## AK 0.20.0
 
 - **A style for each drive mode, as AK Cluster Layouts' layout for each.** Settings → Display: **Style in Sport** and
