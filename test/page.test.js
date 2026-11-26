@@ -209,6 +209,24 @@ test('a setting the Car profile sets: its row dimmed, "Car profile" by its value
     assert.ok(!own.held && own.kind === 'more');
 });
 
+test('Settings: the style on the cluster now offered too when the drive mode\'s own puts another there, and marked', () => {
+    /* Style M Track, Style in Sport Toro, in Sport: Toro on the cluster - both groups, Toro's marked */
+    const page = Harness.open({ values: { style: 'mtrack', styleSport: 'toro_genuine' }, mode: 'sport' });
+    const top = listed(page);
+    assert.ok(top.indexOf('Toro') >= 0 && top.indexOf('M Track') >= 0, top.join(' | '));
+    assert.ok(top.indexOf('M Sport') < 0 && top.indexOf('M Sport Plus') < 0, 'no other style\'s');
+    const sh = Sheet.listSheet(page.settings, null, {});
+    const rows = sh.rows(), toro = rows.find((r) => r.label === 'Toro'), mt = rows.find((r) => r.label === 'M Track');
+    assert.ok(/On the cluster now$/.test(toro.value) && !/On the cluster now/.test(mt.value), toro.value + ' / ' + mt.value);
+    /* Toro's own group lists Toro's settings as with Style Toro */
+    assert.deepStrictEqual(listed(page, 'Toro'), offered('Toro', Object.assign({}, page.values, { style: 'toro' })));
+    /* not in Sport: the Style's alone, unmarked */
+    const plain = Harness.open({ values: { style: 'mtrack', styleSport: 'toro_genuine' } });
+    const t2 = listed(plain);
+    assert.ok(t2.indexOf('Toro') < 0 && t2.indexOf('M Track') >= 0, t2.join(' | '));
+    assert.ok(!Sheet.listSheet(plain.settings, null, {}).rows().some((r) => /On the cluster now/.test(r.value || '')));
+});
+
 test('a row offered only with another setting comes and goes with it', () => {
     const page = Harness.open({ values: { style: 'toro', background: 'genuine', intro: false, revFlash: 'off' } });
     const has = (g, k) => listed(page, g).indexOf(item(k).label) >= 0;

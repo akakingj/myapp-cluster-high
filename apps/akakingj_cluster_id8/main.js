@@ -379,6 +379,23 @@ mgu.run({
         const modeKey = () => Panel.modeKey({ styleSport: settings.get('styleSport'), styleEco: settings.get('styleEco') }, modeNow());
         const shownStyle = () => (modeKey() === 'style' ? settings.get('style') : Panel.DESIGN_OF[settings.get(modeKey())].style);
         const style = () => (STYLE_NAME[shownStyle()] ? shownStyle() : 'toro');
+        /*
+         * Settings: each style's own group ("when": { "style": ... }) is offered for Style, and for the style on the
+         * cluster now when the drive mode's own (Style in Sport / in ECO PRO) puts another there - the group the
+         * cluster's own look comes from, marked "On the cluster now" (the owner, 2026-11-26: Toro on the cluster in
+         * Sport, Style set to M Track, and only M Track's settings were offered).
+         */
+        const STYLE_GROUP = { toro: 'Toro', track: 'M Sport', mplus: 'M Sport Plus', mtrack: 'M Track' };
+        const ownShown = settings.shown ? settings.shown.bind(settings) : null;
+        const another = () => { const st = shownStyle(); return st !== settings.get('style') ? st : null; };
+        if (ownShown) {
+            settings.shown = (s) => {
+                if (ownShown(s)) return true;
+                const st = s && !s.hidden && s.when && s.when.style !== undefined ? another() : null;
+                return !!st && Object.keys(s.when).every((k) => [].concat(s.when[k]).indexOf(k === 'style' ? st : settings.get(k)) >= 0);
+            };
+        }
+        settings.groupNote = (g) => { const st = another(); return st && STYLE_GROUP[st] === g ? 'On the cluster now' : null; };
         /* the setting a style keeps what shows in its middle under, and what it may be */
         const centreKey = (st) => Theme.keyFor(st || style(), 'centre');
         const centreOptions = (st) => ((settings.item(centreKey(st)) || {}).options || []).map((o) => o[0]);

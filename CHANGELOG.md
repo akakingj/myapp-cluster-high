@@ -13,6 +13,14 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.23.3
+
+- **Settings offers the style on the cluster now.** With *Style in Sport* or *Style in ECO PRO* putting another style
+  on the cluster (say Toro, in Sport) than *Style* (say M Track), Settings offered M Track's own settings alone. Now
+  the style on the cluster's own group is offered as well, marked "On the cluster now" by its count, and lists what
+  it lists with Style set to it (`app/entry.js`: settings.shown, groupNote; the kit's `sheet.js` shows the note).
+  With no drive mode style in use, as before.
+
 ## AK 0.23.2
 
 - **A setting the Car profile sets looks it in Settings.** With the Car profile starting AK Cluster Layouts, this

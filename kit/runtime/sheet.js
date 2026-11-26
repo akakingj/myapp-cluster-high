@@ -227,7 +227,9 @@ function listSheet(settings, title, opts) {
             }
             return entries(this.group).map((s) => (s.extra ? { label: s.extra.label, value: valueOf(s.extra), kind: 'more' }
                 // (a group: how many settings it holds under its name, as AK Cluster Layouts' settings show it)
-                : s.group && !s.key ? { label: s.group, value: count(entries(s.group).length), kind: 'more' }
+                // (and what the app says of it: settings.groupNote, the style on the cluster now - app/entry.js)
+                : s.group && !s.key ? { label: s.group, value: count(entries(s.group).length) + (settings.groupNote && settings.groupNote(s.group)
+                    ? '  ·  ' + translate(settings.groupNote(s.group)) : ''), kind: 'more' }
                 // (a setting the Car profile sets: dimmed, its value with "Car profile", not opened here - choose())
                 : held(s) ? { label: s.label, value: translate(String(settings.display(s.key))) + '  ·  ' + translate('Car profile'), kind: null, held: true }
                 : s.type === 'bool' ? { label: s.label, kind: 'toggle', on: !!settings.get(s.key) }
