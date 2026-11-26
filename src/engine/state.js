@@ -24,19 +24,22 @@
     }
 
     /*
-     * BMW's driving modes as the Lamborghini names its own: Strada for the
-     * road, Sport, and Corsa for the track. 'bmw' shows BMW's own name;
-     * 'fixed' always shows the mode setting's text.
+     * BMW's driving modes by the names Lamborghini gives its own: CITTA (the city, gently), STRADA (the road),
+     * SPORT, CORSA (the track) and EGO (the driver's own set-up). A plug-in hybrid's take the same as a petrol
+     * car's of the same kind (its Sport SPORT, its Hybrid STRADA, its Electric CITTA), and its Battery Control
+     * RECHARGE, as the Revuelto names charging the battery. 'bmw' shows BMW's own name; 'fixed' always shows
+     * the mode setting's text.
      */
-    /* (a plug-in hybrid's own, src/car/vehicle.js phevNameOf: as the Revuelto names its - CITTA on electricity
-       alone, STRADA the hybrid, RECHARGE charging the battery, CORSA the boost - and as BMW's cluster does) */
-    var LAMBO = { COMFORT: 'STRADA', ECO_PRO: 'STRADA', ADAPTIVE: 'STRADA',
-                  SPORT: 'SPORT', SPORT_PLUS: 'CORSA', TRACK: 'CORSA',
-                  PHEV_SPORT: 'SPORT', PHEV_SPORT_INDIVIDUAL: 'SPORT', HYBRID: 'STRADA', HYBRID_ECO_PRO: 'STRADA',
-                  HYBRID_COMFORT: 'STRADA', ELECTRIC: 'CITTA', ELECTRIC_INDIVIDUAL: 'CITTA', BATTERY_CONTROL: 'RECHARGE',
+    /* (a plug-in hybrid's own names, src/car/vehicle.js phevNameOf; a petrol car's, driveModeOf) */
+    var LAMBO = { ECO_PRO: 'CITTA', ECO_PRO_PLUS: 'CITTA', ECO_PRO_INDIVIDUAL: 'EGO',
+                  COMFORT: 'STRADA', COMFORT_PLUS: 'STRADA', COMFORT_INDIVIDUAL: 'EGO', ADAPTIVE: 'STRADA',
+                  SPORT: 'SPORT', SPORT_INDIVIDUAL: 'EGO', SPORT_PLUS: 'CORSA', TRACK: 'CORSA',
+                  PHEV_SPORT: 'SPORT', PHEV_SPORT_INDIVIDUAL: 'EGO', HYBRID: 'STRADA', HYBRID_ECO_PRO: 'CITTA',
+                  HYBRID_COMFORT: 'STRADA', ELECTRIC: 'CITTA', ELECTRIC_INDIVIDUAL: 'EGO', BATTERY_CONTROL: 'RECHARGE',
                   XTRABOOST: 'CORSA' };
-    var BMW = { COMFORT: 'COMFORT', ECO_PRO: 'ECO PRO', ADAPTIVE: 'ADAPTIVE',
-                SPORT: 'SPORT', SPORT_PLUS: 'SPORT+', TRACK: 'TRACK',
+    var BMW = { ECO_PRO: 'ECO PRO', ECO_PRO_PLUS: 'ECO PRO+', ECO_PRO_INDIVIDUAL: 'ECO PRO INDIVIDUAL',
+                COMFORT: 'COMFORT', COMFORT_PLUS: 'COMFORT+', COMFORT_INDIVIDUAL: 'COMFORT INDIVIDUAL', ADAPTIVE: 'ADAPTIVE',
+                SPORT: 'SPORT', SPORT_INDIVIDUAL: 'SPORT INDIVIDUAL', SPORT_PLUS: 'SPORT+', TRACK: 'TRACK',
                 PHEV_SPORT: 'SPORT', PHEV_SPORT_INDIVIDUAL: 'SPORT INDIVIDUAL', HYBRID: 'HYBRID', HYBRID_ECO_PRO: 'HYBRID ECO PRO',
                 HYBRID_COMFORT: 'HYBRID COMFORT', ELECTRIC: 'ELECTRIC', ELECTRIC_INDIVIDUAL: 'ELECTRIC INDIVIDUAL',
                 BATTERY_CONTROL: 'BATTERY CONTROL', XTRABOOST: 'XTRABOOST' };

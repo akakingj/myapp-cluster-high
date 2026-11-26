@@ -41,6 +41,10 @@ let tr = (s) => String(s);
 try { tr = require('./kit/i18n').t; } catch (e) { /* tools: English */ }
 let Record = null;
 try { Record = require('./kit/record'); } catch (e) { /* no pixel images: the designs' sketches */ }
+/* the head unit's own letters (the kit's fonts: Korean in a Korean package), for the start-up words' (src/theme/words.js) */
+let KitFonts = null;
+try { KitFonts = require('./kit/fonts'); } catch (e) { /* tools: the message's own face only */ }
+const Speller = require('./speller.js');
 
 /*
  * How often each interface is re-read. Notifications carry most readings,
@@ -114,17 +118,17 @@ function hostFor(bg) {
 /* the page's colours, as the skin has them (useSkin) */
 const SKINS = {
     classic: { INK: '#e8f0f6', DIM: '#8d9aa6', FAINT: '#55626e', RED: '#ff263d', CARD: '#121b25', FIELD: '#05090f',
-               BG: '#070b11', LINE: '#18222e', R: 1 },
+               BG: '#070b11', LINE: '#18222e', OFF: '#2a3846', R: 1 },
     /* the head unit's own screens: near-black, silver-grey words, the orange focus, square corners */
     idrive7: { INK: '#f4f3f2', DIM: '#b5b3b4', FAINT: '#7d7c81', RED: '#ff570c', CARD: '#0b0b0d', FIELD: '#060607',
-               BG: '#030304', LINE: '#2c2b2f', R: 0 }
+               BG: '#030304', LINE: '#2c2b2f', OFF: '#4b4a50', R: 0 }
 };
-let INK, DIM, FAINT, RED, CARD, FIELD, BG, LINE, SK7 = false;
+let INK, DIM, FAINT, RED, CARD, FIELD, BG, LINE, OFF, SK7 = false;
 /* a corner's radius in the skin: as drawn (Classic), or nearly square (iDrive 7) */
 const rad = (r) => (SK7 ? Math.min(r, 3) : r);
 function useSkin(id) {
     const k = SKINS[id] || SKINS.classic;
-    ({ INK, DIM, FAINT, RED, CARD, FIELD, BG, LINE } = k);
+    ({ INK, DIM, FAINT, RED, CARD, FIELD, BG, LINE, OFF } = k);
     SK7 = !k.R;
 }
 useSkin('classic');
@@ -294,7 +298,8 @@ mgu.run({
         try { Panel.moveCarFigures(bg.settings, bg.log); } catch (e) { bg.log.warn('car figures: ' + e); }
         try { Panel.moveElectric(bg.settings, bg.log); } catch (e) { bg.log.warn('electric range: ' + e); }
         try {
-            const svc = Service.start(hostFor(bg), { appId: bg.spec.id });
+            const svc = Service.start(hostFor(bg), { appId: bg.spec.id,
+                font: KitFonts ? (text) => KitFonts.get('label', 36, text) : undefined });
             bg.log.info('cluster service started');
             return svc;
         } catch (e) {
@@ -317,7 +322,12 @@ mgu.run({
         }
         /* set by the Car profile app (the kit's Settings.held): shown with its value, changed there */
         const held = (key) => !!(settings.held && settings.held(key));
-        const style = () => (STYLE_NAME[settings.get('style')] ? settings.get('style') : 'toro');
+        /* the setting the drive mode now uses (Display > Style in Sport / in ECO PRO, else Style): the cluster shows
+           its design, and a design picked here goes to it, as AK Cluster Layouts' Layout in Sport / in ECO PRO */
+        const modeNow = () => (background && background.mode ? background.mode() : null);
+        const modeKey = () => Panel.modeKey({ styleSport: settings.get('styleSport'), styleEco: settings.get('styleEco') }, modeNow());
+        const shownStyle = () => (modeKey() === 'style' ? settings.get('style') : Panel.DESIGN_OF[settings.get(modeKey())].style);
+        const style = () => (STYLE_NAME[shownStyle()] ? shownStyle() : 'toro');
         /* the setting a style keeps what shows in its middle under, and what it may be */
         const centreKey = (st) => Theme.keyFor(st || style(), 'centre');
         const centreOptions = (st) => ((settings.item(centreKey(st)) || {}).options || []).map((o) => o[0]);
@@ -340,9 +350,27 @@ mgu.run({
             refresh();
         }
         function toggleShown() { settings.set('enabled', settings.get('enabled') === 'on' ? 'off' : 'on'); refresh(); }
+        /* Settings > Start-up words: typed on the head unit's own keyboard (speller.js), Korean included; OK with words
+           makes them the start-up message */
+        function typeWords() {
+            Speller.type(ctx.app, tr('Start-up words')).then((text) => {
+                if (text === null || text === undefined) return;
+                const words = String(text).replace(/\s+/g, ' ').trim().slice(0, 90);
+                settings.set('introWords', words);
+                if (words) { settings.set('introMessage', 'custom'); settings.set('intro', true); }
+                refresh();
+            }, (e) => { if (ctx.log) ctx.log.warn('speller: ' + (e && e.message || e)); });
+        }
+        if (ctx.settingsRow && ctx.app) {
+            ctx.settingsRow({ label: 'Start-up words', value: () => settings.get('introWords') || tr('Not typed yet'),
+                open: () => { typeWords(); return null; } });
+        }
         function useDesign(d) {
-            settings.set('style', d.style);
-            if (d.background) settings.set('background', d.background);
+            if (modeKey() !== 'style') settings.set(modeKey(), d.id);
+            else {
+                settings.set('style', d.style);
+                if (d.background) settings.set('background', d.background);
+            }
             refresh();
         }
         /*
@@ -405,7 +433,7 @@ mgu.run({
             useSkin(settings.get('skin'));
             const cv = ctx.canvas(W, 520);
             const H = 520, page = tab;
-            const sig = JSON.stringify([status, on, centre, feed, settingsOf(settings, ctx.spec), page, logView && logView.page]);
+            const sig = JSON.stringify([status, on, centre, feed, settingsOf(settings, ctx.spec), page, logView && logView.page, modeNow()]);
             if (sig === last) return;
             last = sig;
 
@@ -426,7 +454,8 @@ mgu.run({
 
             if (page === 'logs') { drawLogs(cv, label, fitLabel, tgt, top, ch); return done(); }
 
-            const di = designIndex(settings.get('style'), settings.get('background'));
+            const di = modeKey() === 'style' ? designIndex(settings.get('style'), settings.get('background'))
+                : Math.max(0, DESIGNS.findIndex((d) => d.id === settings.get(modeKey())));
             const D = DESIGNS[di];
             const PW = Previews.W, PH = Previews.H, TW = Previews.TW, TH = Previews.TH;
 
@@ -441,12 +470,18 @@ mgu.run({
                 cv.fillRect(BX, BY, PW, PH, withAlpha('#000000', 0.55));
                 label('BMW\'s own cluster shows', BX + PW / 2, BY + PH / 2 + 10, 28, INK, { align: 'center', font: SK7 ? undefined : 'bold' });
             }
-            /* under it: the service's state (on / off: the bar's Cluster on / off), and what the centre has to show */
+            /* under it: on / off, as the bar's Cluster on / off (and AK Cluster Layouts' under its cards), and what the centre has to show */
             let y = BY + PH + 14;
             const bw = PW + 8, bh = 56;
-            cv.roundRect(BX - 4, y, bw, bh, rad(10), FIELD);
+            if (on && SK7) focus7(cv, BX - 4, y, bw, bh);
+            else {
+                cv.roundRect(BX - 4, y, bw, bh, rad(28), on ? (SK7 ? CARD : '#12301f') : FIELD);
+                cv.strokeRoundRect(BX - 4, y, bw, bh, rad(28), 2, on ? (SK7 ? RED : '#3ddc84') : OFF);
+            }
             cv.circle(BX + 26, y + bh / 2, 9, statusColour(status));
-            fitLabel(status, BX + 48, y + bh / 2 + 8, 22, bw - 70, INK);
+            fitLabel(on ? 'On the cluster  -  press for BMW\'s own' : 'Off  -  press to show it on the cluster',
+                BX + 48, y + bh / 2 + 8, 22, bw - 70, INK);
+            tgt(BX - 4, y, bw, bh, toggleShown, 'show', rad(28));
             y += bh + 26;
             const cardsY = bottom - (TH + 46);
             if (y + 18 < cardsY - 8) {
@@ -460,7 +495,9 @@ mgu.run({
             fitLabel(D.name, RX, top + 40, 34, RW - 300, INK, { font: SK7 ? undefined : 'bold' });
             label(tr(status), RX + RW, top + 40, 18,
                 statusColour(status), { align: 'right', font: SK7 ? undefined : 'bold', done: true });
-            fitLabel(D.sub, RX, top + 68, 18, RW, DIM);
+            const MODE_NAME = { styleSport: 'Style in Sport', styleEco: 'Style in ECO PRO' };
+            fitLabel(MODE_NAME[modeKey()] ? tr(MODE_NAME[modeKey()]) + '   ·   ' + tr(D.sub) : D.sub, RX, top + 68, 18, RW, DIM,
+                MODE_NAME[modeKey()] ? { done: true } : undefined);
             const keys = (PLACES[st] || []).map((k) => settings.item(k)).filter((s) => s && offered(s, true));
             const COLS = keys.length <= 6 ? 2 : 3, gap = 10;
             const CW = (RW - gap * (COLS - 1)) / COLS, CH = 54;

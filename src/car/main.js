@@ -25,6 +25,7 @@ var fs = require('fs');
 var path = require('path');
 var Feed = require('./feed.js');
 var Message = require('./message.js');
+var Words = require('../theme/words.js');
 var Smooth = require('./smooth.js');
 var Presence = require('./presence.js');
 var Providers = require('./providers.js');
@@ -41,6 +42,9 @@ var SETTLE_MS = 400;          /* settings changes, while someone scrolls through
 /* the style goes up once it has been wanted this long without a break, as Cluster Layouts' (engine.js SETTLE_MS): at the
    head unit's start the car's state and the render service come up in steps */
 var SHOW_SETTLE_MS = 1200;
+/* a drive mode with a style of its own (Style in Sport / in ECO PRO) shows it once the mode has held this long, as
+   Cluster Layouts' layout per mode */
+var MODE_SETTLE_MS = 1500;
 /*
  * Where the readings the bus does not carry come from. The app has no setting for it: the engine unit only ("off").
  * The other modes stay for a host that names one (settings.beemFlash):
@@ -141,6 +145,18 @@ function start(host, deps) {
     var loaded = deps.atlas && deps.atlasPixels ? null : Atlas.load();
     var atlas = deps.atlas || loaded.meta;
     var atlasPixels = deps.atlasPixels || loaded.pixels;
+    /* the atlas with the start-up message's own letters under it, for the words it was made for (words.js) */
+    var wordsAtlas = null;
+    function atlasFor(words) {
+        if (!words || !deps.font || !Words.needs(atlas, 'lambo', words)) return null;
+        if (!wordsAtlas || wordsAtlas.words !== words) {
+            var t0 = Date.now(), ext = Words.extend(atlas, atlasPixels, words, deps.font);
+            wordsAtlas = ext ? { words: words, meta: ext.meta, pixels: ext.pixels } : { words: words };
+            log.info('start-up words: ' + (ext ? 'their own letters, ' + ext.meta.h + ' atlas rows, ' + (Date.now() - t0) + ' ms'
+                : 'no font for their letters'));
+        }
+        return wordsAtlas.meta ? wordsAtlas : null;
+    }
 
     var settings = {};
     var profile = null;
@@ -212,6 +228,21 @@ function start(host, deps) {
         saveVehicle({ phev: true, why: why });
         reconfigure();
     }
+    /* the drive mode's kind ('sport', 'eco' or none: Vehicle.modeClassOf), as the style on the cluster has it, and
+       one the car has gone into since, while it settles */
+    var modeCls = null, modeWant = null, modeAt = 0;
+    function lookForMode(raw) {
+        var c = Vehicle.modeClassOf(raw);
+        if (c === modeCls) { modeWant = null; return; }
+        if (c !== modeWant) { modeWant = c; modeAt = now(); return; }
+        if (now() - modeAt < MODE_SETTLE_MS) return;
+        var was = Panel.modeKey(host.settings() || {}, modeCls);
+        modeCls = c; modeWant = null;
+        var to = Panel.modeKey(host.settings() || {}, c);
+        if (was === 'style' && to === 'style') return;
+        log.info('drive mode ' + (raw.phevName || raw.driveMode || '-') + ': ' + to);
+        reconfigure();
+    }
     var needs = {};              /* what the style on the cluster shows of those readings */
     var feedSaid = null;
     var engineRanAt = -Infinity; /* when the engine was last seen running */
@@ -281,7 +312,8 @@ function start(host, deps) {
     /* Read the settings and build a theme and driver for them. */
     function configure(prev) {
         try {
-            settings = host.settings() || {};
+            /* (the drive mode's own style, where Display has one for it) */
+            settings = Panel.styleFor(host.settings() || {}, modeCls);
             /* (General > Car > Engine, as Cluster Layouts': Auto and Plug-in hybrid are petrol cars here, with a plug-in
                hybrid's electric side - on Auto once the car has shown it is one) */
             autoElectric = settings.engine === 'auto';
@@ -292,18 +324,22 @@ function start(host, deps) {
             boostFromCar = settings.boostMax === 'auto';
             if (boostFromCar && boostCarTop) settings = Object.assign({}, settings, { boostMax: boostCarTop });
             applyFeedMode();
-            /* your own start-up words come from a file (src/car/message.js) */
+            /* your own start-up words: typed on the page (Settings > Start-up words), else from a file (src/car/message.js);
+               letters the message's face has not (Korean) from the head unit's own font (words.js) */
+            var A = null;
             if (settings.intro && settings.introMessage === 'custom') {
-                var words = deps.message !== undefined ? deps.message
-                    : Message.load({ dataDir: host.dataDir, log: log });
-                settings = Object.assign({}, settings, { introText: words || null });
+                var typed = typeof settings.introWords === 'string' ? settings.introWords.replace(/\s+/g, ' ').trim() : '';
+                var words = typed || (deps.message !== undefined ? deps.message
+                    : Message.load({ dataDir: host.dataDir, log: log }));
+                A = atlasFor(words);
+                settings = Object.assign({}, settings, { introText: words || null, introFace: A ? Words.FACE : null });
             }
             /* the kind of car: an M car (General > Engine), a plug-in hybrid (Electric range, worked out above), a car */
             profile = Panel.profileFor(Panel.kindOf(settings), settings);
-            theme = Theme.build(atlas, profile.id, settings);
+            theme = Theme.build(A ? A.meta : atlas, profile.id, settings);
             driver = Driver.create({
                 cr: cr, theme: theme, shaders: SHADERS,
-                atlas: atlas, atlasPixels: atlasPixels, log: log, adopt: prev || null
+                atlas: A ? A.meta : atlas, atlasPixels: A ? A.pixels : atlasPixels, log: log, adopt: prev || null
             });
         } catch (e) {
             log.warn('configure: ' + (e && e.stack || e));
@@ -423,7 +459,7 @@ function start(host, deps) {
             } catch (e) { log.warn('providers: ' + e); }
 
             var raw = reader.raw(now(), profileTank(profile), fuelFrom());
-            try { lookForPhev(raw); lookForBoostTop(raw); } catch (e) { log.warn('vehicle: ' + e); }
+            try { lookForPhev(raw); lookForBoostTop(raw); lookForMode(raw); } catch (e) { log.warn('vehicle: ' + e); }
             if (theme) raw = smoother.apply(raw, now(), Smooth.TAU[theme.settings.smoothing] || 0, theme.glide);
             var car = carState(raw);
             var enabled = theme && theme.settings.enabled;
@@ -545,6 +581,8 @@ function start(host, deps) {
             try { return centre.info(); } catch (e) { return null; }
         },
         status: function () { return status; },
+        /* the drive mode's kind the cluster shows its style for ('sport', 'eco' or null) */
+        mode: function () { return modeCls; },
         /* the state of things as plain values, for the page's Logs tab */
         snapshot: function () {
             var raw = {}, eng = null;
@@ -558,7 +596,7 @@ function start(host, deps) {
             } catch (e) { raw = { error: String(e) }; }
             try { eng = engine.info(needs, now()); } catch (e) { eng = { error: String(e) }; }
             return { status: status, running: running, connected: connected, profile: profile && profile.id,
-                     style: theme && theme.settings && theme.settings.style,
+                     style: theme && theme.id,
                      electric: theme && theme.settings && theme.settings.electric, phevFound: phevFound,
                      needs: needs, engine: eng, readings: raw };
         },

@@ -263,6 +263,25 @@ function moveCarFigures(settings, log) {
     return f;
 }
 
+/*
+ * The style a drive mode shows (Settings > Display > Style in Sport / Style in ECO PRO, as AK Cluster Layouts'
+ * Layout in Sport / in ECO PRO): each is one of the page's designs (a style and, for Toro, its background) or Same
+ * as Style. modeKey: the setting the mode now uses ('style' where it has none of its own), so a design picked on
+ * the page goes there; styleFor: the settings with that design's style and background in them.
+ */
+var DESIGN_OF = { toro_genuine: { style: 'toro', background: 'genuine' }, toro_modern: { style: 'toro', background: 'modern' },
+    toro_revuelto: { style: 'toro', background: 'revuelto' }, track: { style: 'track' }, mplus: { style: 'mplus' },
+    mtrack: { style: 'mtrack' } };
+var MODE_KEYS = { sport: 'styleSport', eco: 'styleEco' };
+function modeKey(settings, cls) {
+    var k = MODE_KEYS[cls];
+    return k && settings && DESIGN_OF[settings[k]] ? k : 'style';
+}
+function styleFor(settings, cls) {
+    var k = modeKey(settings, cls);
+    return k === 'style' ? settings : Object.assign({}, settings, DESIGN_OF[settings[k]]);
+}
+
 /* Every rectangular zone a layout must keep clear for the given profile. */
 function keepClear(profileId) {
     var p = profile(profileId);
@@ -321,6 +340,7 @@ return {
     figuresOfCar: figuresOfCar,
     moveCarFigures: moveCarFigures,
     moveElectric: moveElectric,
+    DESIGN_OF: DESIGN_OF, modeKey: modeKey, styleFor: styleFor,
     PSI_PER_BAR: PSI_PER_BAR,
     snapBoost: snapBoost,
     BOOST_BAR: BOOST_BAR,

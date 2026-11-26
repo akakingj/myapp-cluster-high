@@ -568,3 +568,32 @@ test('the car\'s own boost comes first; an M style asks for what its footer hold
         ['on', 'off', 'on', 'off', 'auto', 'off', 'off']);
 });
 
+
+test('a drive mode with a style of its own (Style in Sport / in ECO PRO) shows it once the mode has held 1.5 s, and the rest Style', { timeout: 15000 }, async (t) => {
+    const FES = 'de.bmw.infotainment.drivingexcitement.FES';
+    const h = harness(t, { style: 'toro', background: 'genuine', styleSport: 'mtrack', styleEco: 'toro_revuelto' });
+    h.on.ready();
+    h.condition('FAHREN');
+    h.rpm(2000);
+    await wait(100);
+    const mode = async (m) => {
+        h.send(FES, 'statusFESVehicleDynamicSwitchHMI', { actualValueModeDrivingExperience: m });
+        await wait(300);
+        h.tick(1600);
+        h.send(FES, 'statusFESVehicleDynamicSwitchHMI', { actualValueModeDrivingExperience: m });
+        await wait(800);
+    };
+    await mode('SPORT_EXPERT');
+    assert.strictEqual(h.svc.mode(), 'sport');
+    assert.strictEqual(h.svc.theme().id, 'mtrack');
+    await mode('ECO_PRO_INDIVIDUAL');
+    assert.strictEqual(h.svc.mode(), 'eco');
+    assert.deepStrictEqual([h.svc.theme().id, h.svc.theme().settings.background], ['toro', 'revuelto']);
+    await mode('COMFORT');
+    assert.strictEqual(h.svc.mode(), null);
+    assert.deepStrictEqual([h.svc.theme().id, h.svc.theme().settings.background], ['toro', 'genuine']);
+    /* Same as Style: Sport shows Style's */
+    h.change({ styleSport: 'same' });
+    await mode('SPORT_DYNAMIC');
+    assert.strictEqual(h.svc.theme().id, 'toro');
+});

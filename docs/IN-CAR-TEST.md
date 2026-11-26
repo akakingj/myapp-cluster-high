@@ -29,6 +29,19 @@ still stand, except where a newer check says otherwise.
 - For anything in the middle (a map, the camera): the car's **Instrument
   cluster > Central display area** on **Map view**.
 
+## Drive modes, Cluster on / off on the page, the start-up words typed (AK 0.20.0)
+
+Never on a car yet. The keyboard is BMW's own speller, opened as the MGU Store opens it for a Wi-Fi password; the
+Korean letters on the cluster were checked drawn here, not on a cluster.
+
+| # | Check | Expect |
+|---|---|---|
+| K1 | The page: the button under the design's picture, then the bar's *Cluster on / off* | Each turns the cluster over to the other (ours / BMW's), the same as the other; the button's words and dot follow |
+| K2 | Settings → Display → *Style in Sport* → M Track Mode, *Style in ECO PRO* → Toro Revuelto; drive through Comfort → Sport → Sport+ → Sport Individual → ECO PRO → ECO PRO Individual | About 1.5 s after each change: Comfort the Style, every Sport mode M Track Mode, both ECO PRO Toro Revuelto. In Sport the page shows M Track Mode with *Style in Sport* beside its name, and a card tapped there changes Style in Sport, not Style. **If a mode shows the wrong style, photograph Logs in that mode** |
+| K3 | Toro, *Mode name* Lamborghini's, the same modes | ECO PRO *CITTA*, Comfort *STRADA*, Sport *SPORT*, Sport+ *CORSA*, every Individual *EGO*. Then *BMW's own names*: *SPORT+*, *SPORT INDIVIDUAL*, *ECO PRO INDIVIDUAL* each as itself. On a plug-in hybrid: Electric *CITTA*, Hybrid *STRADA*, Sport *SPORT*, XtraBoost *CORSA*, Battery Control *RECHARGE* |
+| K4 | Settings → *Start-up words* (the last rows) | BMW's own keyboard opens over the app, in the car's language; on a Korean car its Hangul keys. Type a few words in Korean, OK: the row shows them, *Start-up message* is on and its words *Your own words*. **If the keyboard does not open, or opens behind the app, say so and photograph Logs** |
+| K5 | Lock the car, let it sleep, start it | The Korean words come up on the dark and fade into the cluster, as the built-in messages do. **Photograph them**: the letters whole, not blurred or cut |
+
 ## Cars, the gear, more readings, the strips and gauges (AK 0.15.0)
 
 | # | Do | Look for |

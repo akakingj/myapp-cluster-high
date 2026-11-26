@@ -2419,6 +2419,11 @@ Toro (Lamborghini Huracan)	Toro (람보르기니 우라칸)
 M Sport (BMW M View, iDrive 8)	M Sport (BMW M View, iDrive 8)
 M Sport Plus (M stripes, a wide picture in the centre)	M Sport Plus (M 3선, 가운데 넓은 그림)
 M Track Mode (BMW M's track view)	M Track Mode (BMW M 트랙 화면)
+Style in Sport	스포츠 모드 스타일
+Style in ECO PRO	ECO PRO 모드 스타일
+Same as Style	스타일과 같게
+Toro hex (modern hex lattice)	Toro hex (모던 육각 격자)
+Toro Revuelto (Y signature)	Toro Revuelto (Y 시그니처)
 With the speed unit (mpg / km/L)	속도 단위에 맞춤 (mpg / km/L)
 M car (S58)	M 차량 (S58)
 S58 (M car)	S58 (M 차량)
@@ -2464,7 +2469,9 @@ Welcome back	Welcome back
 Drive safe and come home soon	Drive safe and come home soon
 Buongiorno	Buongiorno
 Andiamo	Andiamo
-Your own: mgu-styles-message.txt on a USB stick	직접 쓰기: USB의 mgu-styles-message.txt
+Your own words	직접 입력한 문구
+Start-up words	시작 메시지 문구
+Not typed yet	아직 입력 안 함
 Start-up message: how long	시작 메시지: 시간
 6 seconds	6초
 10 seconds	10초
@@ -2516,7 +2523,7 @@ Middle of the dial, large	다이얼 가운데, 크게
 Left corner, smaller: above the boost gauge	왼쪽 구석, 작게: 부스트 게이지 위
 Right corner, smaller: above the speed	오른쪽 구석, 작게: 속도 위
 Mode name	모드 이름
-Strada / Sport / Corsa	Strada / Sport / Corsa
+Citta / Strada / Sport / Corsa / Ego	Citta / Strada / Sport / Corsa / Ego
 BMW's own names	BMW 이름
 Always CORSA	항상 CORSA
 0 - 10,000 (Lamborghini)	0 - 10,000 (람보르기니)

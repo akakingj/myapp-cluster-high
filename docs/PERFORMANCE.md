@@ -212,6 +212,12 @@ once when the app starts — on the simulated car, start-up took the same
 0.15 – 0.20 s of processor time in both — and a style that is not on the
 cluster sends none of its shaders and costs no frame anything.
 
+The start-up message in the owner's own words (AK 0.20.0) with letters the atlas has not - Korean - adds them under
+it, made on the head unit from its own Korean font: only the message's letters (at most 64), about 46 rows for 22 of
+them, so 1024 × 1072 to 1024 × 1168 on the GPU (48 to 144 KB more) for as long as that message is chosen, and
+about 0.1 s of processor time here (a few times that on the head unit) at the start and when the words change. Any
+other message, and no message, leaves the atlas as it is.
+
 ## How it is held
 
 `test/budget.test.js` runs with every `npm test`. For each style as it

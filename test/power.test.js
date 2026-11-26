@@ -214,3 +214,45 @@ test('a plug-in hybrid\'s drive mode named as BMW\'s cluster names it (and Toro 
         ['STRADA', 'CITTA', 'RECHARGE', 'SPORT', 'CORSA']);
     assert.strictEqual(label('COMFORT', 'bmw'), 'COMFORT', 'a petrol car\'s as before');
 });
+
+test('every drive mode by its own name (Sport+, Individual, ECO PRO+ ...), the same Italian names for a plug-in hybrid\'s of the same kind', () => {
+    const FES = (v) => ({ actualValueModeDrivingExperience: v });
+    assert.deepStrictEqual(['SPORT_DYNAMIC', 'SPORT_EXPERT', 'SPORT_INDIVIDUAL', 'COMFORT', 'COMFORT_PLUS', 'COMFORT_INDIVIDUAL',
+        'ECO_PRO_EFFICIENT', 'ECO_PRO_PLUS', 'ECO_PRO_INDIVIDUAL', 'ADAPTIVE'].map((v) => Vehicle.driveModeOf(FES(v))),
+        ['SPORT', 'SPORT_PLUS', 'SPORT_INDIVIDUAL', 'COMFORT', 'COMFORT_PLUS', 'COMFORT_INDIVIDUAL', 'ECO_PRO', 'ECO_PRO_PLUS', 'ECO_PRO_INDIVIDUAL', 'ADAPTIVE']);
+    assert.deepStrictEqual([1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => Vehicle.driveModeOf(FES(n))),
+        ['SPORT', 'SPORT_PLUS', 'SPORT_INDIVIDUAL', 'COMFORT', 'COMFORT_PLUS', 'COMFORT_INDIVIDUAL', 'ECO_PRO', 'ECO_PRO_PLUS', 'ECO_PRO_INDIVIDUAL']);
+    const label = (v, style) => {
+        const r = Vehicle.createReader({});
+        r.receive('de.bmw.infotainment.drivingexcitement.FES', 'statusFESVehicleDynamicSwitchHMI', FES(v), 1000);
+        return State.present(r.raw(1100, 60), Panel.profile('carprofile'), { modeLabel: style }).modeLabel;
+    };
+    const PETROL = ['ECO_PRO_EFFICIENT', 'COMFORT', 'SPORT_DYNAMIC', 'SPORT_EXPERT', 'SPORT_INDIVIDUAL', 'ECO_PRO_INDIVIDUAL'];
+    assert.deepStrictEqual(PETROL.map((v) => label(v, 'lamborghini')), ['CITTA', 'STRADA', 'SPORT', 'CORSA', 'EGO', 'EGO']);
+    assert.deepStrictEqual(PETROL.map((v) => label(v, 'bmw')), ['ECO PRO', 'COMFORT', 'SPORT', 'SPORT+', 'SPORT INDIVIDUAL', 'ECO PRO INDIVIDUAL']);
+    const PHEV = ['PHEV_ELECTRIC_STANDARD', 'PHEV_HYBRID_ECO', 'PHEV_HYBRID_STANDARD', 'PHEV_SPORT_STANDARD', 'PHEV_SPORT_PLUS', 'PHEV_SPORT_INDIVIDUAL'];
+    assert.deepStrictEqual(PHEV.map((v) => label(v, 'lamborghini')), ['CITTA', 'CITTA', 'STRADA', 'SPORT', 'CORSA', 'EGO']);
+});
+
+test('the drive mode from the HMI\'s switch field first: the Sport Display\'s only while that one has said nothing for a minute', () => {
+    const FES = 'de.bmw.infotainment.drivingexcitement.FES';
+    const r = Vehicle.createReader({});
+    r.receive(FES, 'statusFESVehicleDynamicSwitchHMI', { actualValueModeDrivingExperience: 'SPORT_EXPERT' }, 1000);
+    r.receive(FES, 'statusSwitchDriveDynamicSport2', { actualValueModeDrivingExperience: 'SPORT_DYNAMIC' }, 1200);
+    assert.strictEqual(r.raw(1300, 60).driveMode, 'SPORT_PLUS');
+    r.receive(FES, 'statusSwitchDriveDynamicSport2', { actualValueModeDrivingExperience: 'SPORT_DYNAMIC' }, 62000);
+    assert.strictEqual(r.raw(62100, 60).driveMode, 'SPORT');
+});
+
+test('Style in Sport / in ECO PRO: which drive modes take them, and the style and background they give', () => {
+    const cls = (driveMode, phevName) => Vehicle.modeClassOf({ driveMode, phevName });
+    assert.deepStrictEqual(['SPORT', 'SPORT_PLUS', 'SPORT_INDIVIDUAL', 'TRACK', 'ECO_PRO', 'ECO_PRO_INDIVIDUAL', 'COMFORT', 'ADAPTIVE', undefined].map((m) => cls(m)),
+        ['sport', 'sport', 'sport', 'sport', 'eco', 'eco', null, null, null]);
+    assert.deepStrictEqual(['PHEV_SPORT', 'XTRABOOST', 'ELECTRIC', 'HYBRID_ECO_PRO', 'HYBRID', 'BATTERY_CONTROL'].map((p) => cls('ECO_PRO', p)),
+        ['sport', 'sport', 'eco', null, null, null]);
+    const s = { style: 'toro', background: 'genuine', styleSport: 'mtrack', styleEco: 'same' };
+    assert.deepStrictEqual([Panel.modeKey(s, 'sport'), Panel.modeKey(s, 'eco'), Panel.modeKey(s, null)], ['styleSport', 'style', 'style']);
+    assert.strictEqual(Panel.styleFor(s, 'sport').style, 'mtrack');
+    assert.strictEqual(Panel.styleFor(s, 'eco'), s);
+    assert.deepStrictEqual([Panel.styleFor({ style: 'track', styleEco: 'toro_modern' }, 'eco').style, Panel.styleFor({ style: 'track', styleEco: 'toro_modern' }, 'eco').background], ['toro', 'modern']);
+});

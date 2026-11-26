@@ -22,6 +22,7 @@
  *   @press=<key>      press a place first (place:mCentre opens its list)
  *   @held=<keys>      the settings the Car profile holds (units,rpmRedline ...): shown as set there
  *   @centre=...       what the stand-in service reports (waze, camera, idle)
+ *   @mode=sport|eco   the drive mode's kind the stand-in service reports (Style in Sport / in ECO PRO)
  */
 'use strict';
 const fs = require('fs');
@@ -37,7 +38,7 @@ const spec = JSON.parse(fs.readFileSync(path.join(Harness.APP, 'app.json'), 'utf
 const defaults = {};
 (spec.settings || []).forEach((s) => { defaults[s.key] = s.default; });
 const values = {};
-const tool = { own: '1', logs: '', settings: '', press: '', centre: '', held: '' };
+const tool = { own: '1', logs: '', settings: '', press: '', centre: '', held: '', mode: '' };
 for (const kv of process.argv.slice(3)) {
     const i = kv.indexOf('=');
     const k = kv.slice(0, i), v = kv.slice(i + 1);
@@ -45,7 +46,7 @@ for (const kv of process.argv.slice(3)) {
     values[k] = v === 'true' ? true : v === 'false' ? false : (v !== '' && !isNaN(Number(v)) && typeof defaults[k] === 'number' ? Number(v) : v);
 }
 const own = tool.own !== '0';
-const page = Harness.open({ values, own, centre: tool.centre, held: tool.held ? tool.held.split(',') : [] });
+const page = Harness.open({ values, own, centre: tool.centre, held: tool.held ? tool.held.split(',') : [], mode: tool.mode || null });
 
 for (let n = Number(tool.logs) || 0; n > 0; n--) page.click('BTN_LOGS');
 if (own && tool.press) page.run(tool.press);
@@ -54,7 +55,7 @@ const shot = page.shot();
 let sheet = page.sheet();
 if (tool.settings) {
     /* the kit's settings list (kit/runtime/mgu.js, BTN_SETTINGS) */
-    sheet = Sheet.listSheet(page.settings, null, { version: spec.version });
+    sheet = Sheet.listSheet(page.settings, null, { version: spec.version, extra: () => page.rows });
     if (tool.settings !== 'top') sheet.group = tool.settings;
 }
 const W = shot.w, H = shot.h;

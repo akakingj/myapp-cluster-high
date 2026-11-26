@@ -115,22 +115,27 @@ function selectionOf(x) {
     return undefined;
 }
 
-/* Driving Experience Control: FES.actualValueModeDrivingExperience. */
+/* Driving Experience Control: FES.actualValueModeDrivingExperience, each mode by its own name, as BMW's
+   cluster shows it (Sport, Sport+, Sport Individual, Comfort, Comfort+, Comfort Individual, ECO PRO, ECO PRO+,
+   ECO PRO Individual, Adaptive) */
 var MODE_BY_KEY = {
-    SPORT_DYNAMIC: 'SPORT', SPORT_EXPERT: 'SPORT_PLUS', SPORT_INDIVIDUAL: 'SPORT',
-    COMFORT: 'COMFORT', COMFORT_PLUS: 'COMFORT', COMFORT_INDIVIDUAL: 'COMFORT',
-    ECO_PRO_EFFICIENT: 'ECO_PRO', ECO_PRO_PLUS: 'ECO_PRO', ECO_PRO_INDIVIDUAL: 'ECO_PRO',
+    SPORT_DYNAMIC: 'SPORT', SPORT_EXPERT: 'SPORT_PLUS', SPORT_INDIVIDUAL: 'SPORT_INDIVIDUAL',
+    COMFORT: 'COMFORT', COMFORT_PLUS: 'COMFORT_PLUS', COMFORT_INDIVIDUAL: 'COMFORT_INDIVIDUAL',
+    ECO_PRO_EFFICIENT: 'ECO_PRO', ECO_PRO_PLUS: 'ECO_PRO_PLUS', ECO_PRO_INDIVIDUAL: 'ECO_PRO_INDIVIDUAL',
     ADAPTIVE: 'ADAPTIVE', BOOST: 'SPORT'
 };
 var MODE_PATTERNS = [
-    [/ECO_?PRO|EFFICIENT|ECO/i, 'ECO_PRO'], [/SPORT_?PLUS|SPORT\+|SPORTPLUS/i, 'SPORT_PLUS'],
+    [/ECO_?PRO_?INDIVIDUAL/i, 'ECO_PRO_INDIVIDUAL'], [/ECO_?PRO_?PLUS|ECO_?PRO\+/i, 'ECO_PRO_PLUS'],
+    [/ECO_?PRO|EFFICIENT|ECO/i, 'ECO_PRO'],
+    [/SPORT_?INDIVIDUAL/i, 'SPORT_INDIVIDUAL'], [/SPORT_?PLUS|SPORT\+|SPORTPLUS|SPORT_?EXPERT/i, 'SPORT_PLUS'],
     [/TRACK|RACE/i, 'TRACK'], [/ADAPTIVE|ADAPTIV/i, 'ADAPTIVE'],
+    [/COMFORT_?INDIVIDUAL/i, 'COMFORT_INDIVIDUAL'], [/COMFORT_?PLUS|COMFORT\+/i, 'COMFORT_PLUS'],
     [/SPORT|XTRABOOST/i, 'SPORT'], [/COMFORT|NORMAL|BASIS|BASE/i, 'COMFORT']
 ];
 /* the same by number, as Cluster Layouts reads them (its shared/data.js FES_MODES); a plug-in hybrid's own modes
    other than its SPORT (0x11 - 0x16) are phevNameOf's */
-var MODE_BY_NUMBER = { 1: 'SPORT', 2: 'SPORT_PLUS', 3: 'SPORT', 4: 'COMFORT', 5: 'COMFORT', 6: 'COMFORT',
-                       7: 'ECO_PRO', 8: 'ECO_PRO', 9: 'ECO_PRO', 10: 'ADAPTIVE', 15: 'SPORT', 16: 'SPORT' };
+var MODE_BY_NUMBER = { 1: 'SPORT', 2: 'SPORT_PLUS', 3: 'SPORT_INDIVIDUAL', 4: 'COMFORT', 5: 'COMFORT_PLUS', 6: 'COMFORT_INDIVIDUAL',
+                       7: 'ECO_PRO', 8: 'ECO_PRO_PLUS', 9: 'ECO_PRO_INDIVIDUAL', 10: 'ADAPTIVE', 15: 'SPORT', 16: 'SPORT_INDIVIDUAL' };
 function driveModeOf(raw) {
     var v = member(raw, 'actualValueModeDrivingExperience');
     if (typeof v === 'number') return MODE_BY_NUMBER[v];
@@ -184,6 +189,18 @@ function phevNameOf(raw) {
         if (PHEV_PATTERNS[i][0].test(s)) return PHEV_PATTERNS[i][1];
     }
     return undefined;
+}
+/*
+ * Which of the per-mode styles a drive mode takes (Settings > Display > Style in Sport / Style in ECO PRO), as AK
+ * Cluster Layouts' Layout in Sport / in ECO PRO: 'sport' for every Sport (Sport+, Individual, Track, a plug-in
+ * hybrid's Sport and XtraBoost), 'eco' for ECO PRO (+, Individual) and a plug-in hybrid's Electric, null for the
+ * rest (Comfort, Adaptive, Hybrid and its ECO PRO, Battery Control) and for none yet.
+ */
+function modeClassOf(raw) {
+    var m = (raw && (raw.phevName || raw.driveMode)) || '';
+    if (/SPORT|XTRABOOST|TRACK/.test(m)) return 'sport';
+    if (/ECO_PRO|ELECTRIC/.test(m) && !/HYBRID/.test(m)) return 'eco';
+    return null;
 }
 /* M cars: MDrive.controlDisplayMSystems.controlDisplayEngineMode. */
 function mEngineModeOf(raw) {
@@ -305,6 +322,12 @@ function createReader(opts) {
         if (value === undefined) return;
         v[key] = { value: value, at: now };
     }
+    var hmiModeAt = -Infinity;      /* when the HMI's switch field last named a mode */
+    function modes(value, now) {
+        put('driveMode', driveModeOf(value), now);
+        put('phevMode', phevModeOf(value), now);
+        put('phevName', phevNameOf(value), now);
+    }
     /* the car's pressure unit (statusNewCurrentUnitsStatusExt): the Sport Display's boost comes in it */
     var carPress = null;
     function inBar(raw) { return carPress === 'PSI' ? raw * 0.1 / PSI_BAR : raw / 100; }
@@ -412,13 +435,12 @@ function createReader(opts) {
                    Sport Display); a figure no boost gauge ends at (under 0.5 bar, past 4) is not taken */
                 var mx = value && value.displayMaximumValueBoostPressure;
                 if (typeof mx === 'number' && mx > 0 && mx < 255 && inBar(mx) >= 0.5 && inBar(mx) <= 4) put('boostMaxCar', inBar(mx), now);
-                put('driveMode', driveModeOf(value), now);
-                put('phevMode', phevModeOf(value), now);
-                put('phevName', phevNameOf(value), now);
+                /* (the mode from here only while the HMI's switch field, the one the stock cluster names, has said
+                   nothing for a minute, as Cluster Layouts reads them) */
+                if (now - hmiModeAt > 60000) modes(value, now);
             } else if (field === 'statusFESVehicleDynamicSwitchHMI') {
-                put('driveMode', driveModeOf(value), now);
-                put('phevMode', phevModeOf(value), now);
-                put('phevName', phevNameOf(value), now);
+                if (driveModeOf(value) !== undefined || phevNameOf(value) !== undefined) hmiModeAt = now;
+                modes(value, now);
             }
         } else if (service === 'de.bmw.infotainment.misc.MDrive' && field === 'dataDisplayGearbox') {
             put('program', programOf(value), now);
@@ -566,6 +588,6 @@ module.exports = {
     createReader: createReader,
     scaled: scaled, stageOf: stageOf, gearText: gearText, gearStaged: gearStaged, programOf: programOf,
     selectionOf: selectionOf, conditionOf: conditionOf,
-    driveModeOf: driveModeOf, phevModeOf: phevModeOf, phevNameOf: phevNameOf, mEngineModeOf: mEngineModeOf, clockOffset: clockOffset,
+    driveModeOf: driveModeOf, modeClassOf: modeClassOf, phevModeOf: phevModeOf, phevNameOf: phevNameOf, mEngineModeOf: mEngineModeOf, clockOffset: clockOffset,
     averageL100: averageL100
 };

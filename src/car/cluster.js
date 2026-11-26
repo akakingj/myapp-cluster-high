@@ -85,10 +85,11 @@ function create(opts) {
             w: Math.ceil(T.x + T.w) - x0, h: Math.ceil(T.y + T.h) - y0 });
     }
     function keepOf(L) { return (L.belowCut || CUT >= L.y + L.h) ? 0 : Math.max(0, (CUT - L.y) / L.h); }
-    var shape = ordered.map(function (T) {
+    /* (and the atlas: the start-up message in the owner's own words has letters of its own under it, words.js) */
+    var shape = ['atlas|' + (opts.atlas.h || opts.atlas.size) + '|' + (opts.atlas.key || '')].concat(ordered.map(function (T) {
         var L = pixelRect(T);
         return [L.id, L.shader, L.klass || 'content', L.z || 0, L.x, L.y, L.w, L.h, keepOf(L)].join('|');
-    }).join('\n');
+    })).join('\n');
 
     /* Taken over from the driver this one follows: its layers stay on the cluster, nothing is dropped or made. */
     function takeOver(prev) {
@@ -124,7 +125,7 @@ function create(opts) {
          */
         atlasRef = cr.asset({
             target: TARGET, format: 'r8',
-            w: opts.atlas.size, h: opts.atlas.size,
+            w: opts.atlas.size, h: opts.atlas.h || opts.atlas.size,
             sampling: 'bilinear', wrap: 'clamp'
         });
         if (!atlasRef) { log.warn('cluster: the glyph atlas was refused'); return false; }
@@ -170,7 +171,7 @@ function create(opts) {
             cr.uniform(ref, 'u_keep', [keepOf(L)]);
             if (body.indexOf('u_atlas') >= 0) {
                 cr.bind(ref, 'u_atlas', atlasRef);
-                cr.uniform(ref, 'u_atlasSize', [opts.atlas.size, opts.atlas.size]);
+                cr.uniform(ref, 'u_atlasSize', [opts.atlas.size, opts.atlas.h || opts.atlas.size]);
             }
         }
         built = true;

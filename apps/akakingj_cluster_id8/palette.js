@@ -98,8 +98,9 @@
         holiday: false,          /* snow falling down the sides and a tree in a corner */
         /* a message over the cluster at every start, fading into it */
         intro: false,
-        introMessage: 'mgu',     /* one of INTRO_WORDS, or custom (a USB text file) */
+        introMessage: 'mgu',     /* one of INTRO_WORDS, or custom (the owner's own: typed, or a USB text file) */
         introText: null,         /* the words themselves, when given (custom) */
+        introFace: null,         /* their face where the message's (lambo) lacks their letters: words (src/theme/words.js) */
         introSeconds: 10,
         showBoost: true,
         showAuxLeft: true,       /* the brief's unreadable far-left region */

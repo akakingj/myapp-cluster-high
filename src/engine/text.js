@@ -58,8 +58,8 @@
             m = glyphs[ch];
             if (!m) continue;
             if (m.tw) {
-                g.push(m.u / atlas.size, m.v / atlas.size,
-                       m.tw / atlas.size, m.th / atlas.size);
+                g.push(m.u / atlas.size, m.v / (atlas.h || atlas.size),
+                       m.tw / atlas.size, m.th / (atlas.h || atlas.size));
                 p.push(x + m.bx * size, y + m.by * size,
                        m.w * size, m.h * size);
                 count++;
@@ -130,8 +130,8 @@
                 m = glyphs[str.charAt(j)];
                 if (!m) continue;
                 if (m.tw) {
-                    g.push(m.u / atlas.size, m.v / atlas.size,
-                           m.tw / atlas.size, m.th / atlas.size);
+                    g.push(m.u / atlas.size, m.v / (atlas.h || atlas.size),
+                           m.tw / atlas.size, m.th / (atlas.h || atlas.size));
                     p.push(x + m.bx * size, y + m.by * size, m.w * size, m.h * size);
                     count++;
                 }

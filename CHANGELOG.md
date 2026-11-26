@@ -13,6 +13,29 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.20.0
+
+- **A style for each drive mode, as AK Cluster Layouts' layout for each.** Settings → Display: **Style in Sport** and
+  **Style in ECO PRO**, a design each (or *Same as Style*, as it comes). Every Sport mode takes Style in Sport (Sport+,
+  Sport Individual, Track, a plug-in hybrid's Sport and XtraBoost), ECO PRO (+, Individual) and a plug-in hybrid's
+  Electric take Style in ECO PRO, the rest Style; the cluster changes once the mode has held 1.5 s. In such a mode the
+  page shows its design, names the setting, and a card picks it there.
+- **Every drive mode by its own name.** Sport+, Sport Individual, Comfort+, Comfort Individual, ECO PRO+ and ECO PRO
+  Individual were read as Sport, Comfort or ECO PRO; BMW's names now show each (*SPORT+*, *SPORT INDIVIDUAL*, *ECO PRO
+  INDIVIDUAL* ...). The mode is read from the HMI's switch field, the one BMW's cluster names, first; the Sport
+  Display's only while that has said nothing for a minute (as Cluster Layouts reads it): the two could disagree and the
+  last one won.
+- **Toro's mode names are Lamborghini's five, and a plug-in hybrid's the same as a petrol car's of their kind.**
+  *CITTA* (ECO PRO, Electric, Hybrid ECO PRO), *STRADA* (Comfort, Adaptive, Hybrid), *SPORT*, *CORSA* (Sport+,
+  XtraBoost), *EGO* (every Individual: Lamborghini's own set-up), *RECHARGE* (Battery Control). ECO PRO was STRADA.
+- **Cluster on / off under the design's picture again**, as AK Cluster Layouts' under its cards: the status's dot and
+  what a press does, the same as the bar's *Cluster on / off*.
+- **The start-up message in your own words, typed.** Settings → **Start-up words** opens the head unit's own keyboard
+  (BMW's speller, in the car's language: Hangul on a Korean car); OK makes them the message (*Your own words*, which
+  was a text file on a USB stick - still read while nothing is typed). Letters the message's face has not, Korean among
+  them, come from the head unit's own Korean font (Noto Sans CJK KR, a Korean package's): only the message's own
+  letters, as distance fields under the cluster's glyph atlas (a few rows more), and only while the message needs them.
+
 ## AK 0.19.1
 
 - **Settings as AK Cluster Layouts'.** On / off and the style at the top, then Layouts' sections in its order -

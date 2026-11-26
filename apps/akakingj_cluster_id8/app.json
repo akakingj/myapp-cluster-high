@@ -2,7 +2,7 @@
   "id": "akakingj_cluster_id8",
   "title": "AK Cluster ID8",
   "vendor": "MGU-Styles",
-  "version": "0.19.1",
+  "version": "0.20.0",
   "loggingId": "AKC8",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
@@ -151,6 +151,80 @@
       ]
     },
     {
+      "key": "styleSport",
+      "label": "Style in Sport",
+      "type": "choice",
+      "default": "same",
+      "options": [
+        [
+          "same",
+          "Same as Style"
+        ],
+        [
+          "toro_genuine",
+          "Toro (Lamborghini Huracan)"
+        ],
+        [
+          "toro_modern",
+          "Toro hex (modern hex lattice)"
+        ],
+        [
+          "toro_revuelto",
+          "Toro Revuelto (Y signature)"
+        ],
+        [
+          "track",
+          "M Sport (BMW M View, iDrive 8)"
+        ],
+        [
+          "mplus",
+          "M Sport Plus (M stripes, a wide picture in the centre)"
+        ],
+        [
+          "mtrack",
+          "M Track Mode (BMW M's track view)"
+        ]
+      ],
+      "group": "Display"
+    },
+    {
+      "key": "styleEco",
+      "label": "Style in ECO PRO",
+      "type": "choice",
+      "default": "same",
+      "options": [
+        [
+          "same",
+          "Same as Style"
+        ],
+        [
+          "toro_genuine",
+          "Toro (Lamborghini Huracan)"
+        ],
+        [
+          "toro_modern",
+          "Toro hex (modern hex lattice)"
+        ],
+        [
+          "toro_revuelto",
+          "Toro Revuelto (Y signature)"
+        ],
+        [
+          "track",
+          "M Sport (BMW M View, iDrive 8)"
+        ],
+        [
+          "mplus",
+          "M Sport Plus (M stripes, a wide picture in the centre)"
+        ],
+        [
+          "mtrack",
+          "M Track Mode (BMW M's track view)"
+        ]
+      ],
+      "group": "Display"
+    },
+    {
       "key": "bottomExtra",
       "label": "BMW's bottom strip",
       "type": "choice",
@@ -276,12 +350,20 @@
         ],
         [
           "custom",
-          "Your own: mgu-styles-message.txt on a USB stick"
+          "Your own words"
         ]
       ],
       "when": {
         "intro": true
       },
+      "group": "Display"
+    },
+    {
+      "key": "introWords",
+      "label": "Start-up words",
+      "type": "text",
+      "default": "",
+      "hidden": true,
       "group": "Display"
     },
     {
@@ -1617,7 +1699,7 @@
       "options": [
         [
           "lamborghini",
-          "Strada / Sport / Corsa"
+          "Citta / Strada / Sport / Corsa / Ego"
         ],
         [
           "bmw",

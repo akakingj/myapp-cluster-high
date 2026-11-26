@@ -59,6 +59,7 @@ function open(opts) {
     Object.assign(values, opts.values || {});
 
     let shot = null, frame = null, sheet = null;
+    const rows = [], typing = [];
     const listeners = [], handlers = {}, clicks = {}, closed = [];
     const centreKey = () => ({ toro: 'tCentre', track: 'mCentre', mplus: 'pCentre' }[values.style] || 'tCentre');
     function centreInfo() {
@@ -96,6 +97,8 @@ function open(opts) {
         settings,
         background: opts.service === null ? null : {
             status: () => opts.status || (values.enabled === 'on' ? 'On the cluster' : 'Off - BMW original cluster'),
+            /* the drive mode's kind the cluster shows its style for (opts.mode: 'sport', 'eco'; none by default) */
+            mode: () => opts.mode || null,
             centre: centreInfo,
             feed: () => (mStyle() ? 'BeeM-Flash: 9 channels' : 'BeeM-Flash: oil pressure, G')
         },
@@ -106,15 +109,36 @@ function open(opts) {
             return r;
         },
         onLayout() {},
-        sheet(sh) { if (!own) return false; sheet = sh; return true; }
+        sheet(sh) { if (!own) return false; sheet = sh; return true; },
+        /* the app's own rows at the bottom of the kit's Settings (kit/runtime/mgu.js settingsRow) */
+        settingsRow(row) { rows.push(row); },
+        /* the head unit's keyboard (app/speller.js): opts.typed is what OK gives (null: left without OK) */
+        app: { getUseCaseFactory: () => ({ create: () => Promise.resolve(speller()) }) }
     };
+    function speller() {
+        let told = null;
+        return {
+            token: 't',
+            proxy: {
+                init: () => Promise.resolve(), waitUntilAvailable: () => Promise.resolve(),
+                notify: { subscribe(fn) { told = fn; return Promise.resolve(1); }, unsubscribe: () => Promise.resolve() },
+                interactionState: { getValue: () => Promise.resolve('READY') },
+                start(o) {
+                    typing.push(o.startParameters.get(4));
+                    setTimeout(() => told(opts.typed === null ? { interactionState: 'ABORTED' }
+                        : { interactionParameters: new Map([[102, opts.typed || ''], [105, true]]) }), 0);
+                    return Promise.resolve();
+                }
+            }
+        };
+    }
     if (own) ctx.onBack = (fn) => { handlers.back = fn; };
     loadApp().start(ctx);
     if (!shot) throw new Error('the page drew nothing');
 
     const target = (key) => (shot.targets || []).find((t) => t.key === key);
     return {
-        own, spec, values, settings,
+        own, spec, values, settings, rows, typing,
         shot: () => shot,
         frame: () => frame(),
         targets: () => (shot.targets || []).slice(),

@@ -48,6 +48,7 @@ const MODULES = [
     ['src/theme/lambo.js', 'theme_toro.js'],
     ['src/theme/track.js', 'theme_track.js'],
     ['src/theme/mtrack.js', 'theme_mtrack.js'],
+    ['src/theme/words.js', 'words.js'],
     ['src/theme/overlays.js', 'overlays.js'],
     ['src/theme/index.js', 'theme.js'],
     ['src/car/cluster.js', 'cluster.js'],
@@ -68,6 +69,7 @@ const MODULES = [
     ['app/atlas.staged.js', 'atlas.js', 'src/car/atlas.js'],
     ['app/previews_data.js', 'previews_data.js'],
     ['app/previews.js', 'previews.js'],
+    ['app/speller.js', 'speller.js'],
     ['app/entry.js', 'main.js']
 ];
 const FLAT = {};

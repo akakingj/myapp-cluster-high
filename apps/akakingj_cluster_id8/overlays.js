@@ -66,9 +66,12 @@
 
     /* What the face can draw: Michroma's capitals, figures and a little
        punctuation. Anything else is left out rather than shown as a gap. */
-    function clean(atlas, str) {
-        var glyphs = atlas.faces[FACE] ? atlas.faces[FACE].glyphs : {};
-        var up = String(str || '').toUpperCase().replace(/\s+/g, ' ').trim();
+    /* (face: the message's, lambo, in capitals; or the owner's own words' as typed, words.js) */
+    function clean(atlas, str, face) {
+        face = face || FACE;
+        var glyphs = atlas.faces[face] ? atlas.faces[face].glyphs : {};
+        var up = String(str || '').replace(/\s+/g, ' ').trim();
+        if (face === FACE) up = up.toUpperCase();
         var out = '', i;
         for (i = 0; i < up.length; i++) {
             var ch = up.charAt(i);
@@ -78,23 +81,24 @@
     }
 
     /* Greedy word wrap at a size; the size comes down until it fits. */
-    function wrap(atlas, str, size, tracking) {
+    function wrap(atlas, str, size, tracking, face) {
         var words = str.split(' '), lines = [], cur = '', i;
         for (i = 0; i < words.length; i++) {
             var next = cur ? cur + ' ' + words[i] : words[i];
-            if (cur && Text.measure(atlas, FACE, next, size, tracking) > MAX_W) {
+            if (cur && Text.measure(atlas, face, next, size, tracking) > MAX_W) {
                 lines.push(cur); cur = words[i];
             } else cur = next;
         }
         if (cur) lines.push(cur);
         return lines;
     }
-    function fit(atlas, str) {
+    function fit(atlas, str, face) {
+        face = face || FACE;
         var size = 64, lines;
         for (; size > 26; size -= 4) {
-            lines = wrap(atlas, str, size, size * 0.06);
+            lines = wrap(atlas, str, size, size * 0.06, face);
             var widest = 0;
-            lines.forEach(function (l) { widest = Math.max(widest, Text.measure(atlas, FACE, l, size, size * 0.06)); });
+            lines.forEach(function (l) { widest = Math.max(widest, Text.measure(atlas, face, l, size, size * 0.06)); });
             if (lines.length <= 3 && widest <= MAX_W) break;
         }
         return { size: size, lines: lines, tracking: size * 0.06 };
@@ -172,8 +176,10 @@
 
         if (S.intro) {
             var hold = S.introSeconds;
-            var msg = clean(atlas, S.introText);
-            var F = fit(atlas, msg);
+            /* (the owner's own words with letters the message's face has not: their own face, src/theme/words.js) */
+            var face = S.introFace && atlas.faces[S.introFace] ? S.introFace : FACE;
+            var msg = clean(atlas, S.introText, face);
+            var F = fit(atlas, msg, face);
             var lineH = F.size * 1.35;
             var midY = 300;
             var top = midY - (F.lines.length - 1) * lineH / 2;
@@ -202,7 +208,7 @@
                each placed where it falls in the centred line */
             var pieces = [];
             F.lines.forEach(function (l, i) {
-                var x0 = Panel.PANEL_WIDTH / 2 - Text.measure(atlas, FACE, l, F.size, F.tracking) / 2;
+                var x0 = Panel.PANEL_WIDTH / 2 - Text.measure(atlas, face, l, F.size, F.tracking) / 2;
                 var y = top + i * lineH + F.size * 0.36;
                 var start = 0, n = 0, j;
                 for (j = 0; j <= l.length; j++) {
@@ -210,7 +216,7 @@
                         var pre = l.slice(0, start), str = l.slice(start, j);
                         if (str.trim()) {
                             pieces.push({ str: str, y: y,
-                                x: x0 + Text.measure(atlas, FACE, pre, F.size, F.tracking) + (pre ? F.tracking : 0) });
+                                x: x0 + Text.measure(atlas, face, pre, F.size, F.tracking) + (pre ? F.tracking : 0) });
                         }
                         start = j; n = 0;
                     }
@@ -219,7 +225,7 @@
             });
             TL.statics('introText', 210, { x: 0, y: top - F.size * 1.1, w: Panel.PANEL_WIDTH,
                                            h: (F.lines.length - 1) * lineH + F.size * 1.6 },
-                { face: FACE, size: F.size, align: 'left', tracking: F.tracking,
+                { face: face, size: F.size, align: 'left', tracking: F.tracking,
                   color: [0.97, 0.97, 0.98], alpha: alpha }, pieces);
             theme.introSeconds = hold + FADE_OUT + 0.6;
         }

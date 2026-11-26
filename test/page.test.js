@@ -101,10 +101,10 @@ const DESIGN_IDS = ['toro_genuine', 'toro_modern', 'toro_revuelto', 'track', 'mp
 const placesOf = (style, values) => PLACES[style].filter((k) => Object.keys(item(k).when || {}).every((w) =>
     w === 'style' || [].concat(item(k).when[w]).indexOf(values[w]) >= 0)).map((k) => 'place:' + k);
 
-test('the page: the design\'s places, then its cards - and no bar or tabs of its own (the kit\'s and the HMI\'s are there)', () => {
+test('the page: on / off under the picture, the design\'s places, then its cards - and no bar or tabs of its own (the kit\'s and the HMI\'s are there)', () => {
     for (const own of [true, false]) {
         const page = Harness.open({ values: { style: 'mplus' }, own });
-        assert.deepStrictEqual(page.targets().map((t) => t.key), placesOf('mplus', page.values).concat(DESIGN_IDS.map((d) => 'design:' + d)));
+        assert.deepStrictEqual(page.targets().map((t) => t.key), ['show'].concat(placesOf('mplus', page.values), DESIGN_IDS.map((d) => 'design:' + d)));
         assert.deepStrictEqual([page.shot().w, page.shot().h], [1600, 520]);
         page.targets().forEach((t) => {
             assert.ok(t.x >= 0 && t.y >= 0 && t.x + t.w <= 1600 && t.y + t.h <= 520, t.key + ' off the page');
@@ -122,9 +122,13 @@ test('the page: the design\'s places, then its cards - and no bar or tabs of its
     assert.ok(!('fill' in spec.screens[0]) && !('hmi' in spec.screens[0]), 'the kit\'s header and bar round the page');
 });
 
-test('the page: on / off at the bar, a design by its card, and each of its places - one press each', () => {
+test('the page: on / off at the bar or under the picture, a design by its card, and each of its places - one press each', () => {
     const page = Harness.open({ values: { style: 'track', enabled: 'off' } });
     page.click('BTN_SHOW');
+    assert.strictEqual(page.values.enabled, 'on');
+    page.run('show');
+    assert.strictEqual(page.values.enabled, 'off');
+    page.run('show');
     assert.strictEqual(page.values.enabled, 'on');
     page.click('BTN_SHOW');
     assert.strictEqual(page.values.enabled, 'off');
@@ -287,4 +291,31 @@ test('Logs: the codes to photograph, three a page, and the whole as a file, as C
     assert.strictEqual(page.back(), true);
     assert.ok(page.target('design:toro_genuine'));
     assert.strictEqual(page.back(), false);
+});
+
+test('in a drive mode with a style of its own (Style in Sport / in ECO PRO), the page shows that design and a card picks it there', () => {
+    const page = Harness.open({ values: { style: 'toro', background: 'genuine', styleSport: 'mtrack', styleEco: 'same' }, mode: 'sport' });
+    assert.deepStrictEqual(keys(page, 'place:'), placesOf('mtrack', page.values), 'M Track Mode\'s places');
+    page.run('design:mplus');
+    assert.deepStrictEqual([page.values.styleSport, page.values.style, page.values.background], ['mplus', 'toro', 'genuine']);
+    /* ECO PRO with Same as Style: a card is Style's */
+    const eco = Harness.open({ values: { style: 'toro', background: 'genuine', styleSport: 'mtrack', styleEco: 'same' }, mode: 'eco' });
+    eco.run('design:toro_modern');
+    assert.deepStrictEqual([eco.values.style, eco.values.background, eco.values.styleSport], ['toro', 'modern', 'mtrack']);
+});
+
+test('Settings > Start-up words: the head unit\'s keyboard; OK with words makes them the start-up message, left without OK changes nothing', async () => {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const page = Harness.open({ values: { intro: false, introMessage: 'mgu' }, typed: '  안녕하세요   동하님  ' });
+    assert.deepStrictEqual(page.rows.map((r) => r.label), ['Start-up words']);
+    assert.strictEqual(page.rows[0].value(), 'Not typed yet');
+    assert.strictEqual(page.rows[0].open(), null, 'the settings stay open under the keyboard');
+    await wait(20);
+    assert.deepStrictEqual(page.typing, ['Start-up words'], 'the keyboard\'s title');
+    assert.deepStrictEqual([page.values.introWords, page.values.introMessage, page.values.intro], ['안녕하세요 동하님', 'custom', true]);
+    assert.strictEqual(page.rows[0].value(), '안녕하세요 동하님');
+    const left = Harness.open({ values: { intro: false, introMessage: 'mgu', introWords: 'Ciao' }, typed: null });
+    left.rows[0].open();
+    await wait(20);
+    assert.deepStrictEqual([left.values.introWords, left.values.introMessage, left.values.intro], ['Ciao', 'mgu', false]);
 });

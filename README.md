@@ -98,8 +98,14 @@ from one start to the next) and the style at the top, then the same sections as 
 order and with its names, then the style in use's own (**Toro**, **M Sport**, **M Sport Plus** or **M Track**; another
 style's appear once it is chosen).
 
-- **Display**: BMW's bottom strip (on or off), the speed limit sign's edge, the refresh rate and the needles between
-  the car's updates, the holiday theme, the start-up message, the skin.
+- **Display**: **Style in Sport** and **Style in ECO PRO** (as Layouts' *Layout in Sport* / *in ECO PRO*: a design
+  of its own for every Sport mode - Sport+, Individual, a plug-in hybrid's Sport and XtraBoost - and for ECO PRO and a
+  plug-in hybrid's Electric, or *Same as Style*; the cluster changes once the mode has held 1.5 s, and in that mode a
+  card on the page picks that mode's design), BMW's bottom strip (on or off), the speed limit sign's edge, the refresh
+  rate and the needles between the car's updates, the holiday theme, the start-up message, the skin.
+- **Start-up words** (the last row of Settings): the start-up message in your own words, typed on the head unit's own
+  keyboard, Korean on a Korean car; OK makes them the message (*Your own words*). Letters the message's face has not,
+  Korean among them, come from the head unit's own Korean font (a Korean package's).
 - **Readouts and gauges**: **Speedometer up to** (260 km/h, 330 for an M car) and **Boost gauge up to** (bar or psi,
   as the units).
 - **Red zone and shift**: **Yellow light at** (where the shift lights begin), **Red light at (the red zone)**, **Shift
@@ -121,6 +127,10 @@ style's appear once it is chosen).
 - **Toro / M Sport / M Sport Plus / M Track**: each style's own — what
   its middle (or M Track Mode's left wing) shows and how much of it,
   colours, the gear (Toro: D1, S1, M1).
+  Toro's **Mode name**: the drive mode by Lamborghini's names - *CITTA* (ECO PRO, a plug-in hybrid's Electric and
+  Hybrid ECO PRO), *STRADA* (Comfort, Adaptive, a plug-in hybrid's Hybrid), *SPORT*, *CORSA* (Sport+, XtraBoost),
+  *EGO* (every Individual), *RECHARGE* (Battery Control) - a plug-in hybrid's taking the name of the petrol car's of
+  its kind; or BMW's own, each mode by its own name (*SPORT+*, *SPORT INDIVIDUAL*, *ECO PRO INDIVIDUAL* ...).
 - **Logs** (AK 0.17.0): the app's state and logs as QR codes to photograph and send with a problem, three a page
   (Logs again: the next page), and as a file on a USB stick - the same codes as AK Cluster Layouts' Logs (`python3 tools/decode_logs.py
   photo1.jpg photo2.jpg ...` puts them back together).
