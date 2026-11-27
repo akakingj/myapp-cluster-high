@@ -404,7 +404,7 @@
             if (powerOn(s)) return [0, 0, 0, 0];
             var red = Math.min(M.SCALE.n - 0.3, M.rpmTicks(s.redRpm || S.rpmRedline, REV.top));
             /* (the amber from the yellow where a car or Shift lights from gives one, else just before the red) */
-            var amber = S.yellowRpm ? Math.min(red - 0.33, M.rpmTicks(S.yellowRpm, REV.top)) : red - 0.33;
+            var amber = S.yellowOff ? red - 0.05 : S.yellowRpm ? Math.min(red - 0.33, M.rpmTicks(S.yellowRpm, REV.top)) : red - 0.33;
             return [red + 0.09, M.SCALE.n - 0.04, amber, red - 0.05];
         }
         dial('revDial', box(M.mirror(634), 64, M.mirror(186), 523), 1, K.R, revTicks, redZone,

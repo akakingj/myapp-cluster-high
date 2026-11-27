@@ -112,7 +112,7 @@ style's appear once it is chosen).
   km/h, 330 for an M car), **Oil / Coolant / Gearbox is too hot at** (where Toro's gauges, M Track Mode's rows and M
   Sport's oil strip turn red; the oil blue until *Oil is warm at*) and **Boost gauge up to** (bar or psi, as the units).
   Toro's G meter's dot moves as the driver feels the load: to the right in a left bend, up braking, down accelerating.
-- **Red zone and shift**: **Yellow light at** (where the shift lights begin), **Red light at (the red zone)**, **Shift
+- **Red zone and shift**: **Yellow light at** (where the shift lights begin; *Off*: no yellow, green then red), **Red light at (the red zone)**, **Shift
   now warning at** (past the shift point the shift lights flash and the speed and the gear blink red, in every style),
   **Gauge goes up to**, **Engine's top rpm (redline)**, the limiter flash, and the **cold engine** guard (the shift
   point and the red zone lower while the oil is cold).

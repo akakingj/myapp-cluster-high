@@ -322,7 +322,9 @@
         s.speedMax = String(settings.speedMax) === '330' ? 330 : String(settings.speedMax) === '260' ? 260
             : settings.engine === 'm' ? 330 : 260;
         s.mCar = settings.engine === 'm';
-        /* the yellow (Shift lights from, set): the M dial's amber starts there */
+        /* the yellow (Shift lights from, set): the M dial's amber starts there; Off (the Car profile's Yellow light at
+           Off, its 'off', as a G20 other than an M car has it): no amber, and the shift lights green, then red */
+        s.yellowOff = settings.shiftFrom === 'off';
         s.yellowRpm = Number(settings.shiftFrom) > 0 && Number(settings.shiftFrom) < s.rpmRedline ? Number(settings.shiftFrom) : null;
         s.shiftWarn = settings.shiftAt !== undefined && settings.shiftAt !== null && settings.shiftAt !== 'off';
         s.shiftAtRpm = clampNum(settings.shiftAt === 'auto' || !s.shiftWarn ? null : settings.shiftAt, 2500, s.rpmLimiter,
