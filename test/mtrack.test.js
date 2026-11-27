@@ -974,7 +974,8 @@ test('a row\'s slow readings glide for this style alone: a mark on a rail slides
     for (const cfg of [{ row1: 'iat', row2: 'volts', row3: 'charge', row4: 'hvtemp', electric: 'bev' }, {}]) {
         build(cfg).glide.forEach((k) => assert.ok(k in Smooth.MORE, k));
     }
-    /* the other styles ask for nothing: their figures are passed on exactly as they arrive */
+    /* the other styles, as they come, ask for nothing: their figures are passed on exactly as they arrive (M Sport's strips
+       given such a reading ask as these rows: track.test) */
     for (const style of ['toro', 'track', 'mplus']) assert.strictEqual(Themes.build(atlas, 'carprofile', { style }).glide, undefined, style);
     const plain = Smooth.create();
     plain.apply({ iatC: 20, batteryV: 13.8 }, 0, 90);

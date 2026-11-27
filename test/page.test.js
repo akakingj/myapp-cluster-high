@@ -90,12 +90,12 @@ test('the settings: on / off and the style on top, then Cluster Layouts\' sectio
 const PLACES = {
     toro: ['tCentre', 'tCentreSize', 'gearPlace', 'showBoost', 'showAuxLeft', 'electricGauge', 'modeLabel', 'shiftStyle',
         'gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2'],
-    track: ['mCentre', 'mCentreSize', 'mGear', 'mSpeed2', 'mFootL', 'mFootM', 'mFootR', 'mPanel'],
-    mplus: ['pCentre', 'pCentreSize', 'pGear', 'pSpeed2', 'pFootL', 'pFootM', 'pFootR', 'pPanel'],
+    track: ['mCentre', 'mCentreSize', 'mGear', 'mSpeed2', 'mStripL', 'mStripR', 'mFootL', 'mFootM', 'mFootR', 'mPanel'],
+    mplus: ['pCentre', 'pCentreSize', 'pGear', 'pSpeed2', 'pStripL', 'pStripR', 'pFootL', 'pFootM', 'pFootR', 'pPanel'],
     mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR', 'kPanel']
 };
 /* the readings' places: set on the page alone, not in the settings list */
-const PAGE_ONLY = ['gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2', 'mFootL', 'mFootM', 'mFootR', 'pFootL', 'pFootM', 'pFootR',
+const PAGE_ONLY = ['gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2', 'mStripL', 'mStripR', 'pStripL', 'pStripR', 'mFootL', 'mFootM', 'mFootR', 'pFootL', 'pFootM', 'pFootR',
     'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR'];
 const DESIGN_IDS = ['toro_genuine', 'toro_modern', 'toro_revuelto', 'track', 'mplus', 'mtrack'];
 const placesOf = (style, values) => PLACES[style].filter((k) => Object.keys(item(k).when || {}).every((w) =>

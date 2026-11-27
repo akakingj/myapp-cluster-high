@@ -13,6 +13,19 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.28.0
+
+- **M Sport and M Sport Plus: the two strips beside the dials can show any reading** (as M Track Mode's): the fuel on
+  the left and the engine oil temperature on the right as they come, or boost, coolant, oil, gearbox oil, intake air,
+  oil pressure, battery voltage, the pedal, the throttle, ignition timing, the drive battery's charge and temperature,
+  engine power, torque, both fuel pressures, the fuel, or nothing - each on its own scale with its three figures, its
+  unit and its symbol or word, red above its too-hot figure and blue below its cold one. Set on the page (*Strip by the
+  speedometer (left)*, *Strip by the rev counter (right)*), each style its own. M Track Mode's scales moved to
+  `src/theme/readings.js` (`Readings.scales`) for both; the strip shader `mstrip` takes its look (`u_kind`) apart from
+  its side. As they come, both styles draw exactly as before.
+- **The electric range in the right of the footer comes with the drive battery's charge** (M Sport, M Sport Plus, M
+  Track Mode): ten small segments before *EV*, lit to the charge, red at 10 % and under (`segbar`, `src/shaders/parts.js`).
+
 ## AK 0.27.1
 
 - **A curve's speed is no longer taken for a limit.** AK Cluster Info's log of 27 November 2026, 16:35 (the cruise

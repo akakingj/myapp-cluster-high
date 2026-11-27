@@ -333,6 +333,13 @@ With the strip hidden, the M styles' footer can carry what it showed:
 the app's page → *Footer, left / middle / right* (time, range,
 outside temperature and more), and in Settings → M Sport or M Sport Plus
 *The gear's place shows* if you would rather not see the gear twice.
+The electric range on the right comes with the drive battery's charge, a row
+of ten segments before *EV* (red at 10 % and under), in every M style.
+
+M Sport's and M Sport Plus's two strips beside the dials, the fuel and the
+oil temperature as they come, take any reading M Track Mode's strips can,
+or nothing (the app's page → *Strip by the speedometer (left)*, *Strip by
+the rev counter (right)*).
 
 ![BMW's bottom strip On and Off](docs/screenshots/strip.png)
 

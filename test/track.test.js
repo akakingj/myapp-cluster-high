@@ -947,6 +947,63 @@ test('the speed is flush right over its unit and keeps clear of the dial at thre
     }
 });
 
+test('the two strips (0.28.0): fuel and oil as they come, or any of M Track Mode\'s gauge readings, in M Sport and M Sport Plus', () => {
+    const Readings = require('../src/theme/readings.js');
+    const sideOf = (t, id) => layer(t, id) && layer(t, id).uniforms(state(t, {}));
+    /* as they come: the frame's fuel left, oil right, each its own look */
+    const d = build({ units: 'metric' });
+    assert.deepStrictEqual([sideOf(d, 'fuelStrip').u_kind, sideOf(d, 'oilStrip').u_kind], [0, 1]);
+    assert.strictEqual(says(d, 'fuelLabels', state(d, {})), '11/20');
+    for (const style of ['track', 'mplus']) {
+        const pre = style === 'track' ? 'm' : 'p';
+        /* the page's settings, under the style's own names */
+        const t = build({ style: style, units: 'metric', [pre + 'StripL']: 'boost', [pre + 'StripR']: 'coolant' });
+        assert.deepStrictEqual(t.settings.strips, ['boost', 'coolant'], style);
+        assert.strictEqual(t.settings.numbers, true, 'set on scales of their own: read as numbers');
+        const L = (raw) => layer(t, 'fuelStrip').uniforms(state(t, raw));
+        const R = (raw) => layer(t, 'oilStrip').uniforms(state(t, raw));
+        assert.ok(Math.abs(L({ boostBar: 0.95 }).u_level - 0.5) < 1e-9, 'boost 0.95 of 1.9 bar: half');
+        assert.strictEqual(L({}).u_on, 0, 'no reading: dark');
+        assert.ok(Math.abs(R({ coolantC: 100 }).u_level - 0.5) < 1e-9, 'coolant 100 of 70 - 130: half');
+        assert.deepStrictEqual([L({}).u_kind, R({}).u_kind, L({}).u_side, R({}).u_side], [1, 1, 0, 1]);
+        assert.strictEqual(says(t, 'fuelLabels', state(t, {})), '1.90.90.0');
+        assert.strictEqual(says(t, 'oilLabels', state(t, {})), '13010070');
+        /* the coolant's red from Coolant is too hot at, above the strip's top for none */
+        const top = M.STRIP.top, foot = M.STRIP.bottom, y = (f) => foot - f * (foot - top);
+        assert.ok(Math.abs(R({}).u_zone[0] - y((t.settings.hotCoolant - 70) / 60)) < 1e-9, String(t.settings.hotCoolant));
+        assert.ok(L({}).u_zone[0] < top && L({}).u_zone[1] > foot, 'boost: no zone');
+        /* nothing: the strip, its figures and its symbol left out */
+        const off = build({ style: style, [pre + 'StripL']: 'off' });
+        assert.ok(!layer(off, 'fuelStrip') && !layer(off, 'fuelLabels') && !layer(off, 'fuelIcon'));
+        /* every reading of M Track Mode's has its strip, figures and a symbol or word, on either side */
+        for (const k of Readings.SCALE_KINDS.filter((x) => x !== 'off')) {
+            const x = build({ style: style, units: 'metric', [pre + 'StripL']: k, [pre + 'StripR']: k });
+            for (const id of ['fuelStrip', 'oilStrip', 'fuelLabels', 'oilLabels', 'fuelIcon', 'oilIcon']) assert.ok(layer(x, id), style + ' ' + k + ' ' + id);
+        }
+    }
+    /* the readings the car may not carry are asked for, the boost glides (as M Track Mode's) */
+    const g = build({ mStripL: 'iat', mStripR: 'volts' });
+    assert.ok(g.shows.iat && g.shows.volts && !g.shows.tank, JSON.stringify(g.shows));
+    assert.deepStrictEqual(g.glide, ['iatC', 'batteryV']);
+});
+
+test('the electric range on the right of the footer comes with the drive battery\'s charge as segments (0.28.0), every M style', () => {
+    for (const style of ['track', 'mplus', 'mtrack']) {
+        const t = build({ style: style, units: 'metric', electric: 'hybrid', footR: 'erange' });
+        const id = style === 'mtrack' ? 'footRCharge' : 'slotRCharge';
+        const L = layer(t, id);
+        assert.ok(L && L.shader === 'segbar', style);
+        const u = L.uniforms(state(t, { socPct: 78, evRangeKm: 43 }));
+        assert.deepStrictEqual([u.u_frac, u.u_on, u.u_segs, u.u_lowAt], [0.78, 1, 10, 0.1], style);
+        assert.ok(u.u_span[0] >= 0 && u.u_span[1] > u.u_span[0] && u.u_span[1] <= L.w, style + ' inside its layer');
+        assert.strictEqual(L.uniforms(state(t, { evRangeKm: 43 })), null, style + ': no charge, no bar');
+        /* the other readings there, and the other places, have none */
+        assert.ok(!layer(build({ style: style, electric: 'hybrid', footR: 'outside' }), id), style);
+        assert.ok(!build({ style: style, electric: 'hybrid', footL: 'erange' }).layers.some((x) => x.shader === 'segbar'), style);
+    }
+    assert.ok(allShaders.segbar, 'the shader is one the cluster has');
+});
+
 test('the gear is shown as the car names it', () => {
     const t = build();
     for (const g of ['P', 'R', 'N', 'D', 'D8', 'S5', 'M3', '1']) assert.strictEqual(says(t, 'gear', state(t, {}, { gear: g })), g);

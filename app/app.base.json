@@ -2,7 +2,7 @@
   "id": "akakingj_cluster_id8",
   "title": "AK Cluster ID8",
   "vendor": "MGU-Styles",
-  "version": "0.27.1",
+  "version": "0.28.0",
   "loggingId": "AKC8",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
@@ -2520,6 +2520,186 @@
       }
     },
     {
+      "key": "mStripL",
+      "type": "choice",
+      "default": "auto",
+      "label": "Strip by the speedometer (left)",
+      "options": [
+        [
+          "auto",
+          "As BMW's: fuel"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "group": "M Sport",
+      "when": {
+        "style": "track"
+      },
+      "hidden": true,
+      "page": true
+    },
+    {
+      "key": "mStripR",
+      "type": "choice",
+      "default": "auto",
+      "label": "Strip by the rev counter (right)",
+      "options": [
+        [
+          "auto",
+          "As BMW's: engine oil temperature"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "group": "M Sport",
+      "when": {
+        "style": "track"
+      },
+      "hidden": true,
+      "page": true
+    },
+    {
       "key": "mFootL",
       "type": "choice",
       "default": "time",
@@ -3141,6 +3321,186 @@
       "when": {
         "style": "mplus"
       }
+    },
+    {
+      "key": "pStripL",
+      "type": "choice",
+      "default": "auto",
+      "label": "Strip by the speedometer (left)",
+      "options": [
+        [
+          "auto",
+          "As BMW's: fuel"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "group": "M Sport Plus",
+      "when": {
+        "style": "mplus"
+      },
+      "hidden": true,
+      "page": true
+    },
+    {
+      "key": "pStripR",
+      "type": "choice",
+      "default": "auto",
+      "label": "Strip by the rev counter (right)",
+      "options": [
+        [
+          "auto",
+          "As BMW's: engine oil temperature"
+        ],
+        [
+          "boost",
+          "Turbo boost"
+        ],
+        [
+          "coolant",
+          "Coolant temperature"
+        ],
+        [
+          "oil",
+          "Oil temperature"
+        ],
+        [
+          "gearbox",
+          "Gearbox oil temperature"
+        ],
+        [
+          "iat",
+          "Intake air temperature"
+        ],
+        [
+          "oilp",
+          "Oil pressure"
+        ],
+        [
+          "volts",
+          "Battery voltage"
+        ],
+        [
+          "pedal",
+          "Accelerator pedal"
+        ],
+        [
+          "throttle",
+          "Throttle"
+        ],
+        [
+          "timing",
+          "Ignition timing"
+        ],
+        [
+          "charge",
+          "Drive battery charge"
+        ],
+        [
+          "hvtemp",
+          "Drive battery temperature"
+        ],
+        [
+          "power",
+          "Engine power"
+        ],
+        [
+          "torque",
+          "Engine torque"
+        ],
+        [
+          "hpfp",
+          "Fuel pressure: high (injection rail)"
+        ],
+        [
+          "lpfp",
+          "Fuel pressure: low (supply)"
+        ],
+        [
+          "fuel",
+          "Fuel"
+        ],
+        [
+          "off",
+          "Nothing"
+        ]
+      ],
+      "group": "M Sport Plus",
+      "when": {
+        "style": "mplus"
+      },
+      "hidden": true,
+      "page": true
     },
     {
       "key": "pFootL",

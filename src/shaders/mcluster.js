@@ -448,13 +448,14 @@
         .reduce(function (acc, t) { return acc ? 'min(' + acc + ', ' + t + ')' : t; }, '');
     var mstrip = [
         HEAD,
-        'uniform float u_side;',     /* 0: fuel, on the left; 1: oil, its mirror */
+        'uniform float u_side;',     /* 0: the left strip; 1: the right, its mirror */
+        'uniform float u_kind;',     /* its look (0.28.0): 0 the fuel's, its foot shading low; 1 a line red above u_zone.x, blue below .y */
         'uniform float u_level;',    /* 0..1 */
         'uniform float u_on;',       /* 0: no reading, nothing lit */
         'uniform vec3 u_lit;',
         'uniform vec3 u_dim;',       /* the unlit segments */
         'uniform vec3 u_ink;',       /* the fine line */
-        'uniform vec2 u_zone;',      /* oil: the heights it turns red above and blue below (Oil is too hot at / warm at) */
+        'uniform vec2 u_zone;',      /* the heights it turns red above and blue below (the oil's: Oil is too hot at / warm at) */
         'uniform vec3 u_hotCol;',
         'uniform vec3 u_coldCol;',
         'uniform vec3 u_lowCol;',    /* fuel: the foot of the last segment */
@@ -470,7 +471,7 @@
         /* the line: plain for fuel; for oil red where it is hot, blue where cold */
         '  vec3 ink = u_ink;',
         '  float gap = 1.0;',
-        '  if (u_side > 0.5) {',
+        '  if (u_kind > 0.5) {',
         '    ink = p.y < u_zone.x ? u_hotCol : (p.y > u_zone.y ? u_coldCol : u_ink);',
         '    gap = step(0.9, min(abs(p.y - u_zone.x), abs(p.y - u_zone.y)));',
         '  }',
@@ -479,7 +480,7 @@
         '  float yl = ' + n(ST.bottom) + ' - u_level * ' + n(ST.bottom - ST.top) + ';',
         '  float on = u_on * ac(yl - p.y);',
         '  vec3 lit = u_lit;',
-        '  if (u_side > 0.5) {',
+        '  if (u_kind > 0.5) {',
         '    lit = yl > u_zone.y + 1.0 ? u_coldCol : (yl < u_zone.x ? u_hotCol : u_lit);',
         '  } else {',
         '    float t = clamp((p.y - ' + n(ST.cuts[2]) + ') / ' + n(ST.bottom - ST.cuts[2]) + ', 0.0, 1.0);',

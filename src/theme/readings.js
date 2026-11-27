@@ -1,7 +1,7 @@
 (function (root, factory) {
-    if (typeof module === 'object' && module.exports) module.exports = factory();
-    else root.MGUReadings = factory();
-}(typeof self !== 'undefined' ? self : this, function () {
+    if (typeof module === 'object' && module.exports) module.exports = factory(require('../geometry/panel.js'));
+    else root.MGUReadings = factory(root.MGUPanel);
+}(typeof self !== 'undefined' ? self : this, function (Panel) {
     'use strict';
 
     /*
@@ -101,5 +101,99 @@
         };
     }
 
-    return { KINDS: KINDS, kind: kind, known: known, table: table, shows: shows, NEEDS: NEEDS };
+    /*
+     * The gauge rows' and strips' readings on scales of their own (M Track Mode's rows and strips; M Sport's and M Sport
+     * Plus's strips, 0.28.0): each with its symbol or word, its three figures, its unit and its zones.
+     */
+    function c2f(v) { return v * 1.8 + 32; }
+    var PSI_PER_BAR = 14.503774;
+    /* a row's reading -> the car reading to glide for it (the others glide for every style already) */
+    var SCALE_GLIDE = { iat: 'iatC', volts: 'batteryV', charge: 'socPct', hvtemp: 'hvTempC', timing: 'timingDeg' };
+
+    /*
+     * What a gauge row can show. Each reading has its symbol, the three
+     * figures over its rail (the scale's start, middle and end), its unit,
+     * and where its line is coloured: "cold" up to a value, "hot" from one
+     * (in the car's own units, as the reading is). The first four are the
+     * frame's, with the frame's own scales; the rest are in the same hand.
+     */
+    /* (the same readings AK Cluster Layouts' gauges offer) */
+    var SCALE_KINDS = ['boost', 'coolant', 'oil', 'gearbox', 'iat', 'oilp', 'volts', 'pedal', 'throttle', 'timing', 'charge', 'hvtemp',
+                     'power', 'torque', 'hpfp', 'lpfp', 'fuel', 'off'];
+    /* the four as they come: the frame's - or, in an electric car, what it has instead */
+    var SCALE_HOME = { frame: ['boost', 'coolant', 'oil', 'iat'], bev: ['charge', 'hvtemp', 'off', 'off'] };
+    /* u: the units shown (units.js); boostBar: General > Boost gauge up to's end in bar, and boostPsi in psi (null: the
+       frame's own 1.9 bar, 28 psi); zones: { hotOil, hotCoolant, hotGearbox, warmOil } in C (Readouts and gauges' too-hot
+       figures and Oil is warm at, as AK Cluster Layouts and the Car profile have them; none: the frame's own) */
+    function scales(u, boostBar, boostPsi, zones) {
+        var Z = zones || {};
+        var num = function (v, d) { return typeof v === 'number' && isFinite(v) ? v : d; };
+        var celsius = u.temp === 'c';
+        /* the engine's most (kW, Nm: the Car profile's Power / Torque gauge up to, on Auto the car's Sport Display's,
+           0.24.3) as the row's end in the unit shown, up to a round step so its middle reads; 0: none, the row's own */
+        function top(v, lo, hi, mul, step) {
+            return typeof v === 'number' && v >= lo && v <= hi ? Math.ceil(v * mul / step) * step : 0;
+        }
+        function unitScale(key, tag, unit, hi, show) {
+            return { key: key, icon: null, tag: tag, unit: unit, marks: ['0', String(hi / 2), String(hi)], lo: 0, hi: hi,
+                     show: show, cold: null, hot: null };
+        }
+        function temp(key, icon, lo, hi, marksC, marksF, loF, hiF, cold, hot) {
+            return { key: key, icon: icon, unit: u.labels.temp, marks: celsius ? marksC : marksF,
+                     lo: celsius ? lo : loF, hi: celsius ? hi : hiF,
+                     show: function (v) { return celsius ? v : c2f(v); }, cold: cold, hot: hot };
+        }
+        /* Boost gauge up to set: its end in the unit, numbered as the car's own gauge (Panel.boostTicks: 0 10 20 30,
+           0 17.5 35), each at its place (marksAt) */
+        function boostSet(bar, psi) {
+            var p = u.press, end = p === 'psi' ? psi : p === 'kpa' ? bar * 100 : bar, t = Panel.boostTicks(end, p);
+            return { key: 'boostBar', icon: 'u', unit: u.labels.press, lo: 0, hi: end,
+                     marks: t.map(function (x) { return x.str; }), marksAt: t.map(function (x) { return x.at; }),
+                     show: function (v) { return p === 'psi' ? v * PSI_PER_BAR : p === 'kpa' ? v * 100 : v; } };
+        }
+        /* (kPa: the bar's scale a hundredfold) */
+        function press(key, icon, hiBar, marksBar, hiPsi, marksPsi) {
+            var p = u.press;
+            return { key: key, icon: icon, unit: u.labels.press,
+                     marks: p === 'psi' ? marksPsi : p === 'kpa' ? marksBar.map(function (m) { return String(Math.round(Number(m) * 100)); }) : marksBar,
+                     lo: 0, hi: p === 'psi' ? hiPsi : p === 'kpa' ? hiBar * 100 : hiBar,
+                     show: function (v) { return p === 'psi' ? v * PSI_PER_BAR : p === 'kpa' ? v * 100 : v; } };
+        }
+        return {
+            boost: boostBar ? boostSet(boostBar, boostPsi) : press('boostBar', 'u', 1.9, ['0.0', '0.9', '1.9'], 28, ['0', '14', '28']),
+            /* the line red from Coolant is too hot at (the frame's own: the last eighth, from about 122 C) */
+            coolant: temp('coolantC', 'w', 70, 130, ['70', '100', '130'], ['160', '210', '260'], 160, 260, null, num(Z.hotCoolant, 122)),
+            /* ... and the oil's blue up to Oil is warm at and red from Oil is too hot at (the frame's: 66 and 134 C) */
+            oil: temp('oilC', 'o', 50, 150, ['50', '100', '150'], ['120', '210', '300'], 120, 300, num(Z.warmOil, 66), num(Z.hotOil, 134.5)),
+            /* the gearbox oil: not in the frame, drawn to match - a thermometer before a cog (tools/mglyphs.py icon_gearbox) */
+            gearbox: temp('gearboxC', 'g', 40, 130, ['40', '85', '130'], ['100', '185', '270'], 100, 270, null, num(Z.hotGearbox, 120)),
+            iat: temp('iatC', 'a', -20, 50, ['-20', '15', '50'], ['0', '60', '120'], 0, 120, null, null),
+            oilp: press('oilBar', 'p', 10, ['0', '5', '10'], 140, ['0', '70', '140']),
+            volts: { key: 'volts', icon: 'v', unit: 'v', marks: ['10', '13', '16'], lo: 10, hi: 16,
+                     show: function (v) { return v; }, cold: 11.8, hot: 15.2 },
+            /* the engine unit's: the accelerator pedal, the throttle's opening and the ignition angle, each by its word */
+            pedal: { key: 'pedalPct', icon: null, tag: 'PEDAL', unit: '%', unitFace: 'mx', marks: ['0', '50', '100'], lo: 0, hi: 100,
+                     show: function (v) { return v; }, cold: null, hot: null },
+            throttle: { key: 'throttlePct', icon: null, tag: 'THR', unit: '%', unitFace: 'mx', marks: ['0', '50', '100'], lo: 0, hi: 100,
+                        show: function (v) { return v; }, cold: null, hot: null },
+            timing: { key: 'timingDeg', icon: null, tag: 'IGN', unit: '°', marks: ['-10', '20', '50'], lo: -10, hi: 50,
+                      show: function (v) { return v; }, cold: null, hot: null },
+            charge: { key: 'socPct', icon: 'c', unit: '%', unitFace: 'mx', marks: ['0', '50', '100'], lo: 0, hi: 100,
+                      show: function (v) { return v; }, cold: 10, hot: null },
+            hvtemp: temp('hvC', 'h', -10, 60, ['-10', '25', '60'], ['14', '77', '140'], 14, 140, 5, 50),
+            /* the engine's power and torque in the units shown, each by its word */
+            power: unitScale('powerKw', 'PWR', u.labels.power, top(Z.powerMax, 60, 600, { hp: 1.34102, ps: 1.35962, kw: 1 }[u.power] || 1.34102, 50)
+                             || { hp: 400, ps: 400, kw: 300 }[u.power] || 400, u.powerIn),
+            torque: unitScale('torqueNm', 'TQ', u.labels.torque, top(Z.torqueMax, 150, 1000, { nm: 1, kgm: 0.101972, lbft: 0.737562 }[u.torque] || 1, u.torque === 'kgm' ? 5 : 50)
+                              || { nm: 600, kgm: 60, lbft: 450 }[u.torque] || 600, u.torqueIn),
+            /* the fuel rail's and the supply's pressures */
+            hpfp: Object.assign(press('hpfpBar', null, 350, ['0', '175', '350'], 5000, ['0', '2500', '5000']), { tag: 'HPFP' }),
+            lpfp: Object.assign(press('lpfpBar', null, 10, ['0', '5', '10'], 140, ['0', '70', '140']), { tag: 'LPFP' }),
+            fuel: { key: 'fuelPct', icon: null, tag: 'FUEL', unit: '%', unitFace: 'mx', marks: ['0', '50', '100'], lo: 0, hi: 100,
+                    show: function (v) { return v; }, cold: 10, hot: null }
+        };
+    }
+
+    return { KINDS: KINDS, kind: kind, known: known, table: table, shows: shows, NEEDS: NEEDS,
+             scales: scales, SCALE_KINDS: SCALE_KINDS, SCALE_HOME: SCALE_HOME, SCALE_GLIDE: SCALE_GLIDE };
 }));

@@ -61,9 +61,9 @@
     var OWN = {
         toro: { centre: 'tCentre', centreSize: 'tCentreSize' },
         track: { centre: 'mCentre', centreSize: 'mCentreSize', speed2: 'mSpeed2', mPanel: 'mPanel', mPop: 'mPop', mGear: 'mGear',
-                 footL: 'mFootL', footM: 'mFootM', footR: 'mFootR' },
+                 stripL: 'mStripL', stripR: 'mStripR', footL: 'mFootL', footM: 'mFootM', footR: 'mFootR' },
         mplus: { centre: 'pCentre', centreSize: 'pCentreSize', speed2: 'pSpeed2', mPanel: 'pPanel', mPop: 'pPop', mGear: 'pGear',
-                 footL: 'pFootL', footM: 'pFootM', footR: 'pFootR' },
+                 stripL: 'pStripL', stripR: 'pStripR', footL: 'pFootL', footM: 'pFootM', footR: 'pFootR' },
         /* M Track Mode: what its left wing holds, its four gauge rows, how a row marks its reading, its footer */
         mtrack: { centre: 'kCentre', wing: 'kWing', row1: 'kRow1', row2: 'kRow2', row3: 'kRow3', row4: 'kRow4', rowMark: 'kRowMark',
                   stripL: 'kStripL', stripR: 'kStripR',
