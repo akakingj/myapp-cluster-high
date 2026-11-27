@@ -362,8 +362,8 @@
             shape('platesR', 2, 'mplatesR' + mTail, box(958, 100, 1505, 486), plateLook);
         }
 
-        /* the footer's four-pane panel */
-        if (S.mPanel !== 'off') {
+        /* the footer's four-pane panel (not under the driving mode's name, which takes its whole width: 0.26.3) */
+        if (S.mPanel !== 'off' && S.mPanel !== 'mode') {
             shape('footPanel', 2, 'mfoot', box(722, 531, 1074, 589), function () {
                 return { u_pane: K.pane, u_paneFoot: K.paneFoot };
             });
@@ -733,15 +733,33 @@
                 { face: 'mb', size: fig(18.0), align: 'left', color: K.white },
                 [{ str: 'WD', x: X(938.0), y: Y(568.2) }]);
         } else if (S.mPanel === 'mode') {
-            /* as tall as "4WD" where it fits; a long name is set smaller,
-               so it stays on its own pane */
-            dyn('driveMode', 30, box(892, 542, 992, 576), function (s) {
+            /*
+             * The driving mode's name large, where the four panes were, across their width (0.26.3: on one pane it
+             * was set as small as BATTERY CONTROL needed, and a layer's 12 letters cut it to BATTERY CONTR): up to
+             * 26 tall, smaller only to keep in that width; a name of more than 12 letters in two layers side by side
+             * (src/engine/text.js MAX_GLYPHS), split between its words.
+             */
+            var MODE_CX = 900.0, MODE_ROOM = 300.0, MODE_H = 26.0, MODE_Y = 559.4;
+            var modeFit = function (s) {
                 if (!s.modeLabel) return null;
-                var h = 17.0, room = 82.0;
-                var w = Text.measure(atlas, 'mb', s.modeLabel, fig(h), 0) / SC;
-                if (w > room) h = h * room / w;
-                return { str: s.modeLabel, face: 'mb', size: fig(h), align: 'centre',
-                         x: X(942.0), y: Y(559.2 + h / 2), color: K.white };
+                var str = String(s.modeLabel), h = MODE_H;
+                var w = Text.measure(atlas, 'mb', str, fig(h), 0) / SC;
+                if (w > MODE_ROOM) { h = h * MODE_ROOM / w; w = MODE_ROOM; }
+                // (the first words up to 12 letters, the rest after them)
+                var words = str.split(' '), a = [], n = 0;
+                while (words.length && (!a.length || n + words[0].length <= Text.MAX_GLYPHS)) { n += words[0].length; a.push(words.shift()); }
+                return { h: h, x0: X(MODE_CX - w / 2), one: a.join(' '), two: words.join(' ') };
+            };
+            var modeBox = box(730, 536, 1070, 584);
+            dyn('driveMode', 30, modeBox, function (s) {
+                var m = modeFit(s);
+                return m && { str: m.one, face: 'mb', size: fig(m.h), align: 'left', x: m.x0, y: Y(MODE_Y + m.h / 2), color: K.white };
+            });
+            dyn('driveMode2', 30, modeBox, function (s) {
+                var m = modeFit(s);
+                if (!m || !m.two) return null;
+                return { str: m.two, face: 'mb', size: fig(m.h), align: 'left',
+                         x: m.x0 + Text.measure(atlas, 'mb', m.one + ' ', fig(m.h), 0), y: Y(MODE_Y + m.h / 2), color: K.white };
             });
         }
 

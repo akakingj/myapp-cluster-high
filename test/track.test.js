@@ -517,6 +517,7 @@ test('every M layer is given exactly the uniforms its shader declares', () => {
             const src = allShaders[L.shader];
             assert.ok(src, `${L.id}: no shader called ${L.shader}`);
             const u = L.uniforms(st, 0);
+            if (!u && L.id === 'driveMode2') continue;      // (a name's second layer: only past 12 letters, below)
             assert.ok(u, L.id + ' shows in this state');
             const declared = [...src.matchAll(/uniform\s+\w+\s+(\w+)/g)].map((m) => m[1])
                 .filter((k) => !BUILT_IN.includes(k)).sort();
@@ -2353,5 +2354,24 @@ test('the revs in the gear\'s place stand on the black bar: inside their layer, 
                 }
             }
         }
+    }
+});
+
+test('the driving mode\'s name on the footer: large, across the panes\' width, no panes under it; past 12 letters in two layers', () => {
+    for (const style of ['track', 'mplus']) {
+        const t = build({ style, mPanel: 'mode', units: 'metric' });
+        assert.ok(!t.layers.some((L) => L.id === 'footPanel'), style + ': no four panes under the name');
+        const shown = (mode) => {
+            const st = Object.assign(state(t, { rpm: 900, speedKmh: 0, gear: 'D', driveMode: 'SPORT' }), { modeLabel: mode });
+            return ['driveMode', 'driveMode2'].map((id) => t.layers.find((L) => L.id === id).uniforms(st, 0));
+        };
+        const [one, none] = shown('SPORT');
+        assert.ok(one && none === null, style + ': SPORT in one layer');
+        assert.strictEqual(one.u_count, 5);
+        const [a, b] = shown('BATTERY CONTROL');
+        assert.deepStrictEqual([a.u_count, b.u_count], [7, 7], style + ': BATTERY CONTROL whole (was cut to BATTERY CONTR)');
+        const [c, d] = shown('ECO PRO INDIVIDUAL');
+        assert.deepStrictEqual([c.u_count, d.u_count], [6, 10], style + ': ECO PRO / INDIVIDUAL');
+        assert.ok(build({ style, mPanel: '4wd' }).layers.some((L) => L.id === 'footPanel'), style + ': 4WD keeps its panes');
     }
 });

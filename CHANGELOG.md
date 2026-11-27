@@ -13,6 +13,14 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.26.3
+
+- **M Sport and M Sport Plus: the driving mode's name large.** With *Footer panel shows: The driving mode* the name
+  now stands where the four panes were, across their whole width (the panes go), up to about one and a half times
+  4WD's height, smaller only to keep in that width. On one pane it had been set as small as the longest name needed,
+  and a text layer's 12 letters cut BATTERY CONTROL to BATTERY CONTR (the test car's 530e); a name of more than 12
+  letters (BATTERY CONTROL, ECO PRO INDIVIDUAL) now goes in two layers side by side, whole.
+
 ## AK 0.26.2
 
 - **The speed limit sign no longer blinks `--` as a limit is taken.** AK Cluster Info's log (27 November 2026, 04:16:44)
