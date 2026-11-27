@@ -44,6 +44,12 @@ var SIGNALS = {
         functionalLibraryData: 'rs',
         _optional: 'The speed limit the car has read, as the head-up display gets it (Display > Speed limit sign)'
     },
+    /* the speed limit SIGN itself (0.28.0, sliNow): its one event, about twice a second; a unit without it builds the
+       app without it (kit build.py fit_to_unit, "_optional") and the sign comes from the head-up display's figures */
+    'de.bmw.dass.TrafficSignRecognition': {
+        _broadcasts: ['TrafficSignRecognition'],
+        _optional: 'The speed limit sign the front camera reads (Display > Speed limit sign): the head-up display\'s figures instead'
+    },
     'de.bmw.infotainment.KombiIF': {
         statusRangeTankStatus: 'rs',
         statusShowTimeDate: 'rs',
@@ -119,6 +125,18 @@ function sliRawOf(value) {
 }
 /* whether the head-up display's data announces the NEXT limit (a sign ahead, its distance counting down) */
 function sliAhead(r) { return r.symbol === 'LDM_VZA_VSLI_SPEED_LIMIT' && !!r.dist && !/_OFF$/.test(String(r.dist)); }
+/*
+ * The speed limit SIGN itself (0.28.0): de.bmw.dass.TrafficSignRecognition's TrafficSignRecognition event - AK Cluster
+ * Info's signal survey of 27 Nov 2026 (21 min in town): presentClassLimitSpeed x 5 is the sign the front camera last
+ * read (8 = 40, 18 = 90, 22 = 110, within 1 - 3 s of the camera's own SPEED_LIMIT), while the head-up display's
+ * vSLISpeedValue stayed at 20 (100), the limiter's taken figure. It comes first; the head-up display's figures only
+ * without it (a car without the event, or 10 s of silence). 1 - 28 (5 - 140 km/h); anything else (254: none) keeps
+ * the last. As AK Cluster Layouts 0.68.0 (shared/data.js tsrStep).
+ */
+function tsrStep(prev, v) {
+    var n = findKey(v, 'presentClassLimitSpeed', 3);
+    return typeof n === 'number' && n >= 1 && n <= SLI_MAX ? n * 5 : prev;
+}
 var SLI_COURSE = 'LDM_VZA_VSLI_COURSE', SLI_LIMIT = 'LDM_VZA_VSLI_SPEED_LIMIT';
 /* the limit shown after this data (km/h, the car's own figures), from the one shown before it (prev; undefined: none);
    mem (an object kept with it) remembers a curve's speed */
@@ -403,7 +421,7 @@ function createReader(opts) {
      * For the Logs (--- sli ---): each change of what the head-up display has of Speed Limit Assist, with the time and
      * the car's speed, the last 20; and how often its data comes (the last 60 s) and when it last came.
      */
-    var sliChanges = [], sliTimes = [], sliLast = '', sliShown, sliMem = {};
+    var sliChanges = [], sliTimes = [], sliLast = '', sliShown, sliMem = {}, tsrShown;
     function sliSeen(r, now) {
         sliTimes.push(now);
         while (sliTimes.length && now - sliTimes[0] > 60000) sliTimes.shift();
@@ -418,15 +436,21 @@ function createReader(opts) {
         var e = v.sli, age = e ? Math.round((now - e.at) / 100) / 10 : null;
         var head = 'head-up display data: ' + sliTimes.filter(function (t) { return now - t <= 60000; }).length + ' in the last 60 s, ' +
             (age === null ? 'none yet' : 'the last ' + age + ' s ago') + '; shown: ' + (sliNow(now) || '--');
-        return [head].concat(sliChanges.slice(-(last || 20)).map(function (c) {
+        var t = v.tsr, tAge = t ? Math.round((now - t.at) / 100) / 10 : null;
+        var sign = 'sign (TrafficSignRecognition): ' + (tAge === null ? 'none yet'
+            : 'presentClassLimitSpeed ' + findKey(t.value, 'presentClassLimitSpeed', 3) + ', ' + tAge + ' s ago, shown ' + (tsrShown || '--'));
+        return [sign, head].concat(sliChanges.slice(-(last || 20)).map(function (c) {
             return new Date(c.at).toISOString() + ' at ' + (c.speed === null ? '?' : c.speed) + ' km/h  shown ' + (c.shown || '--') + '  ' + JSON.stringify(c.raw);
         })).join('\n');
     }
     /* the last limit recognised (sliStep), while the head-up display's data comes (10 s) */
     function sliNow(now) {
+        if (tsrOn(now)) return tsrShown;
         var e = v.sli;
         return e && now - e.at <= SLI_STALE_MS ? sliShown : undefined;
     }
+    /* the sign's own event has come in the last 10 s (tsrStep) */
+    function tsrOn(now) { return !!v.tsr && now - v.tsr.at <= SLI_STALE_MS; }
     /* Readings that only change slowly are not aged out. */
     function held(key) { return v[key] ? v[key].value : undefined; }
 
@@ -536,6 +560,10 @@ function createReader(opts) {
         } else if (service === 'de.bmw.infotainment.misc.MDrive' && field === 'controlDisplayMSystems') {
             var mm = mEngineModeOf(value);
             if (mm) { put('driveMode', mm, now); put('mDrive', true, now); }
+        } else if (service === 'de.bmw.dass.TrafficSignRecognition' && field === 'TrafficSignRecognition') {
+            /* the sign itself (tsrStep): presentClassLimitSpeed x 5 */
+            put('tsr', value, now);
+            tsrShown = tsrStep(tsrShown, value);
         } else if (service === 'de.bmw.infotainment.displaydataserver.DisplayDataServer' && field === 'functionalLibraryData') {
             /* what the head-up display has of Speed Limit Assist (sliRawOf), and the limit shown after it (sliStep) */
             var raw = sliRawOf(value);
@@ -670,6 +698,8 @@ function createReader(opts) {
             sliRaw: v.sli ? v.sli.value.value : undefined, sliSymbol: v.sli ? v.sli.value.symbol : undefined,
             sliDist: v.sli ? v.sli.value.dist : undefined, sliTakeover: v.sli ? v.sli.value.takeover : undefined,
             sliAgeS: v.sli ? Math.round((now - v.sli.at) / 100) / 10 : undefined,
+            sliSource: tsrOn(now) ? 'sign' : v.sli ? 'head-up display' : 'none',
+            sliSign: v.tsr ? findKey(v.tsr.value, 'presentClassLimitSpeed', 3) : undefined,
             gLat: gOk ? lat : undefined, gLon: gOk ? lon : undefined,
             gPeakLat: gOk ? peakLat : undefined, gPeakLon: gOk ? peakLon : undefined
         };
@@ -689,7 +719,7 @@ module.exports = {
     SIGNALS: SIGNALS,
     createReader: createReader,
     scaled: scaled, stageOf: stageOf, gearText: gearText, gearStaged: gearStaged, programOf: programOf,
-    selectionOf: selectionOf, conditionOf: conditionOf, sliStep: sliStep, sliRawOf: sliRawOf, sliAhead: sliAhead,
+    selectionOf: selectionOf, conditionOf: conditionOf, sliStep: sliStep, sliRawOf: sliRawOf, sliAhead: sliAhead, tsrStep: tsrStep,
     driveModeOf: driveModeOf, modeClassOf: modeClassOf, phevModeOf: phevModeOf, phevNameOf: phevNameOf, mEngineModeOf: mEngineModeOf, clockOffset: clockOffset,
     averageL100: averageL100
 };

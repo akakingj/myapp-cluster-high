@@ -15,6 +15,15 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
 
 ## AK 0.28.0
 
+- **The speed limit sign is the sign itself.** AK Cluster Info's signal survey of 27 November 2026 (21 minutes in
+  town) found it: `de.bmw.dass.TrafficSignRecognition`'s `TrafficSignRecognition` event, about twice a second,
+  `presentClassLimitSpeed` x 5 the sign the front camera last read (8 = 40, 18 = 90, 22 = 110, within 1 - 3 s of the
+  camera's own SPEED_LIMIT). The head-up display's `vSLISpeedValue`, which 0.27.x went by, stayed at 100 the whole drive:
+  the limiter's taken figure. The sign comes first now; the head-up display's figures only on a car without the event,
+  or after 10 s of silence. 254 (none) and anything past 140 km/h keep the last. Declared `_optional` with its one
+  broadcast, so a unit without it builds the app without it (`kit/tools/build.py` fit_to_unit); `app/entry.js`
+  subscribes an interface's `_broadcasts`. Logs `--- sli ---` starts with the sign's line; the data has sliSource and
+  sliSign.
 - **M Sport and M Sport Plus: the two strips beside the dials can show any reading** (as M Track Mode's): the fuel on
   the left and the engine oil temperature on the right as they come, or boost, coolant, oil, gearbox oil, intake air,
   oil pressure, battery voltage, the pedal, the throttle, ignition timing, the drive battery's charge and temperature,

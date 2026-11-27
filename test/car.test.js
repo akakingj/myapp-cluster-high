@@ -247,8 +247,39 @@ test('the speed limit sign as the car\'s own: the last limit recognised, kept ti
     // the log: each change with its time and speed, the last 20; how often the data came
     for (let i = 0; i < 30; i++) hud(row(i % 2 ? 10 : 12, NO, 'LDM_VSLI_DIST_OFF'), 11000 + i * 100);
     const lines = r.sliLog(14000).split('\n');
-    assert.ok(/^head-up display data: \d+ in the last 60 s, the last 0.1 s ago; shown: 50$/.test(lines[0]), lines[0]);
-    assert.strictEqual(lines.length, 21, 'the last 20 changes');
-    assert.ok(/ at \? km\/h  shown 50  \{"value":10/.test(lines[20]), lines[20]);
+    assert.strictEqual(lines[0], 'sign (TrafficSignRecognition): none yet');
+    assert.ok(/^head-up display data: \d+ in the last 60 s, the last 0.1 s ago; shown: 50$/.test(lines[1]), lines[1]);
+    assert.strictEqual(lines.length, 22, 'the last 20 changes');
+    assert.ok(/ at \? km\/h  shown 50  \{"value":10/.test(lines[21]), lines[21]);
     assert.ok(Vehicle.SIGNALS['de.bmw.infotainment.displaydataserver.DisplayDataServer'].functionalLibraryData);
+});
+
+test('the speed limit sign itself (0.28.0): TrafficSignRecognition\'s presentClassLimitSpeed x 5 over the head-up display\'s (AK Cluster Info\'s signal survey of Nov 27 2026)', () => {
+    const r = Vehicle.createReader({});
+    const hud = (value, at) => r.receive('de.bmw.infotainment.displaydataserver.DisplayDataServer', 'functionalLibraryData',
+        { xSpeedLimitAssist: { vSLISpeedValue: value, vSLISymbol: 'LDM_VZA_VSLI_NO_SYMBOL', ldmAdditionalSign: 'TAKEOVER_SET' } }, at);
+    const sign = (cls, at) => r.receive('de.bmw.dass.TrafficSignRecognition', 'TrafficSignRecognition',
+        { presentWithdrawalLimitSpeed: 1, nextWithdrawalLimitSpeed: 0, presentClassLimitSpeed: cls, nextClassLimitSpeed: 254, countryCodingTrafficSign: 7 }, at);
+    /* the head-up display stuck at 100 (the limiter's taken figure) the whole drive; the signs 40, 90, 110 */
+    hud(20, 1000);
+    assert.strictEqual(r.raw(1000).speedLimit, 100, 'no sign event yet: the head-up display\'s');
+    sign(8, 2000);
+    assert.deepStrictEqual([r.raw(2000).speedLimit, r.raw(2000).sliSource, r.raw(2000).sliSign], [40, 'sign', 8]);
+    hud(20, 2500);
+    assert.strictEqual(r.raw(2500).speedLimit, 40, 'the sign over the head-up display');
+    sign(18, 3000);
+    assert.strictEqual(r.raw(3000).speedLimit, 90);
+    sign(254, 3500);
+    assert.strictEqual(r.raw(3500).speedLimit, 90, '254 (none): the last kept');
+    sign(22, 4000);
+    assert.strictEqual(r.raw(4000).speedLimit, 110);
+    assert.ok(/^sign \(TrafficSignRecognition\): presentClassLimitSpeed 22, 0 s ago, shown 110$/.test(r.sliLog(4000).split('\n')[0]));
+    hud(20, 12000);
+    assert.deepStrictEqual([r.raw(14001).speedLimit, r.raw(14001).sliSource], [100, 'head-up display'], 'the sign silent 10 s: the head-up display\'s again');
+    assert.deepStrictEqual([Vehicle.tsrStep(undefined, { presentClassLimitSpeed: 0 }), Vehicle.tsrStep(60, {}), Vehicle.tsrStep(undefined, { presentClassLimitSpeed: 29 })],
+        [undefined, 60, undefined]);
+    /* declared optional, its one broadcast: a unit without it builds the app without it (kit build.py fit_to_unit) */
+    const d = Vehicle.SIGNALS['de.bmw.dass.TrafficSignRecognition'];
+    assert.deepStrictEqual(d._broadcasts, ['TrafficSignRecognition']);
+    assert.ok(d._optional);
 });

@@ -61,6 +61,12 @@
       "functionalLibraryData": "rs",
       "_optional": "The speed limit the car has read, as the head-up display gets it (Display > Speed limit sign)"
     },
+    "de.bmw.dass.TrafficSignRecognition": {
+      "_broadcasts": [
+        "TrafficSignRecognition"
+      ],
+      "_optional": "The speed limit sign the front camera reads (Display > Speed limit sign): the head-up display's figures instead"
+    },
     "de.bmw.infotainment.KombiIF": {
       "statusRangeTankStatus": "rs",
       "statusShowTimeDate": "rs",

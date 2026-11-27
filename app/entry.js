@@ -148,9 +148,16 @@ function hostFor(bg) {
                 /* Notifications carry the readings; the poll only catches
                    any the head unit drops. */
                 const pollMs = POLL_MS[svc] || DEFAULT_POLL_MS;
+                /* (an interface's broadcasts, "_broadcasts": each event as it comes, 0.28.0 - the speed limit sign) */
+                const events = [].concat(signals[svc]._broadcasts || []);
                 Promise.resolve()
                     .then(() => bg.signals.watch(svc, '1', handlers, bg.log, { pollMs }))
-                    .then((r) => { if (r && r.error) bg.log.warn('signals ' + svc + ': ' + r.error); })
+                    .then((r) => {
+                        if (r && r.error) { bg.log.warn('signals ' + svc + ': ' + r.error); return null; }
+                        if (!events.length || !r || !r.proxy || !bg.signals.on) return null;
+                        return Promise.all(events.map((name) => bg.signals.on(r.proxy, name, (v) => onValue(svc, name, v), bg.log)
+                            .catch((e) => bg.log.warn('signals ' + svc + '.' + name + ': ' + e))));
+                    })
                     .catch((e) => bg.log.warn('signals ' + svc + ': ' + e));
             });
         }
