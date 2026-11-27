@@ -13,6 +13,12 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.26.6
+
+- **Toro's shift lights 36 px lower.** On a G30 (the test car's 530e) the cluster's trim covers the top of the glass
+  at its sides, and cut the lights' upper two thirds off (photos of 27 November 2026). Lamborghini's bar, the GT3
+  LEDs and the blade alike now start at y 38 - 44, whole under the trim.
+
 ## AK 0.26.5
 
 - **M Sport, M Sport Plus and M Track: the driving mode's name over the four panes as they are.** The panel keeps its

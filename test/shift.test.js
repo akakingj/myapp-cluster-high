@@ -74,3 +74,11 @@ test('the cold-engine guard: the shift point down at the Cold rev limit with the
     const toro = build('toro', cfg), dial = (oil) => layer(toro, 'dial').uniforms(at(toro, 3000, oil), 0).u_redFrom;
     assert.deepStrictEqual([dial(30), dial(90)], [4.3, 6.8]);
 });
+
+test('Toro\'s shift lights 36 px below the glass\'s top edge, clear of a G30\'s trim (0.26.6), in each of its styles', () => {
+    assert.strictEqual(layer(build('toro', {}), 'shift').y, 38, 'Lamborghini\'s bar');
+    for (const shiftStyle of ['gt3', 'blade']) {
+        const t = build('toro', { shiftStyle });
+        assert.ok(['shift', 'shiftR'].every((id) => layer(t, id).y >= 42), shiftStyle);
+    }
+});

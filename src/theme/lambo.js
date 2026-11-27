@@ -442,13 +442,16 @@
                 });
             };
             var orange = [1.0, 0.45, 0.08];
+            /* (0.26.6) the lights 36 px lower than the glass's top edge: on a G30 (the test car's 530e, photos of 2026-11-27)
+               the cluster's trim covers the top of the glass at the sides, and cut their upper two thirds off */
+            var SHIFT_DOWN = 36;
             if (toroShift) {
                 /* (from where the glass's corners leave it whole, the middle the cowl's width) */
-                shiftLayer('shift', { x: 400, y: 2, w: 1120, h: 46, leds: 8, gap: (GAP_R - GAP_L) / 2 },
+                shiftLayer('shift', { x: 400, y: 2 + SHIFT_DOWN, w: 1120, h: 46, leds: 8, gap: (GAP_R - GAP_L) / 2 },
                     function (f) { return f; }, [GC.primaryWhite, orange, GC.corsaRed]);
             } else {
                 var blade = S.shiftStyle === 'blade';
-                var half = blade ? { y: 8, h: 30, leds: 1 } : { y: 6, h: 34, leds: 8 };
+                var half = blade ? { y: 8 + SHIFT_DOWN, h: 30, leds: 1 } : { y: 6 + SHIFT_DOWN, h: 34, leds: 8 };
                 var L = { x: 400, w: GAP_L - 400 }, R = { x: GAP_R, w: 1520 - GAP_R };
                 shiftLayer('shift', Object.assign({}, half, L), function (f) { return clamp01(f * 2); },
                     blade ? [GC.primaryWhite, GC.primaryWhite, GC.primaryWhite] : [C.green, C.green, C.amber]);
