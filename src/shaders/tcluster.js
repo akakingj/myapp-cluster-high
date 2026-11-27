@@ -432,6 +432,7 @@
         'uniform vec3 u_red;',       /* ... from the right */
         'uniform vec3 u_cyan;',
         'uniform float u_panel;',    /* 0: no panel */
+        'uniform float u_seps;',     /* 1: the four panes; 0: one, under the driving mode's name */
         /* the hook\'s centre line, as an outline to take the distance from */
         /* (from its level end back up the lean: that way round, the turn is a convex corner) */
         chain('hookK', [[3000, HK.y], hookTurn, [HK.p0[0] - 400 * T.K, HK.p0[1] - 400]], [0, HK.r, 0], false),
@@ -440,7 +441,7 @@
         '  float t = p.y - ' + n(FP.top) + ';',
         '  float d = max(max(-t, p.y - ' + n(FP.bottom) + '),',
         '                max(' + n(FP.left[0]) + ' + t * ' + fine(leanL) + ' - p.x, p.x - (' + n(FP.right[0]) + ' + t * ' + fine(leanR) + ')) * 0.9);',
-        '  d = max(d, ' + n(F.sepW / 2) + ' - ' + seps + ');',
+        '  if (u_seps > 0.5) d = max(d, ' + n(F.sepW / 2) + ' - ' + seps + ');',
         '  float fall = clamp(t / ' + n(FP.bottom - FP.top) + ', 0.0, 1.0);',
         '  vec4 c = vec4(mix(u_pane, u_paneFoot, fall), ac(d) * u_panel);',
         '',

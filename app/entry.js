@@ -319,7 +319,7 @@ const PLACES = {
         'gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2'],
     track: ['mCentre', 'mCentreSize', 'mGear', 'mSpeed2', 'mFootL', 'mFootM', 'mFootR', 'mPanel'],
     mplus: ['pCentre', 'pCentreSize', 'pGear', 'pSpeed2', 'pFootL', 'pFootM', 'pFootR', 'pPanel'],
-    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR']
+    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR', 'kPanel']
 };
 /* the page's pictures (kit/record.js setImage): the big one, and each design's card (+ its index) */
 const IMG_BIG = 0x49443801, IMG_CARD = 0x49443810;

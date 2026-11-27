@@ -362,10 +362,11 @@
             shape('platesR', 2, 'mplatesR' + mTail, box(958, 100, 1505, 486), plateLook);
         }
 
-        /* the footer's four-pane panel (not under the driving mode's name, which takes its whole width: 0.26.3) */
-        if (S.mPanel !== 'off' && S.mPanel !== 'mode') {
+        /* the footer's four-pane panel; under the driving mode's name, which takes its whole width, one pane (0.26.4) */
+        if (S.mPanel !== 'off') {
+            var seps = S.mPanel === 'mode' ? 0 : 1;
             shape('footPanel', 2, 'mfoot', box(722, 531, 1074, 589), function () {
-                return { u_pane: K.pane, u_paneFoot: K.paneFoot };
+                return { u_pane: K.pane, u_paneFoot: K.paneFoot, u_seps: seps };
             });
         }
 
@@ -734,7 +735,7 @@
                 [{ str: 'WD', x: X(938.0), y: Y(568.2) }]);
         } else if (S.mPanel === 'mode') {
             /*
-             * The driving mode's name large, where the four panes were, across their width (0.26.3: on one pane it
+             * The driving mode's name large, across the panel's width, on one pane (0.26.3: on one of four it
              * was set as small as BATTERY CONTROL needed, and a layer's 12 letters cut it to BATTERY CONTR): up to
              * 26 tall, smaller only to keep in that width; a name of more than 12 letters in two layers side by side
              * (src/engine/text.js MAX_GLYPHS), split between its words.

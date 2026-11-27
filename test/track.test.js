@@ -2357,10 +2357,11 @@ test('the revs in the gear\'s place stand on the black bar: inside their layer, 
     }
 });
 
-test('the driving mode\'s name on the footer: large, across the panes\' width, no panes under it; past 12 letters in two layers', () => {
+test('the driving mode\'s name on the footer: large, across the panel on one pane; past 12 letters in two layers', () => {
     for (const style of ['track', 'mplus']) {
         const t = build({ style, mPanel: 'mode', units: 'metric' });
-        assert.ok(!t.layers.some((L) => L.id === 'footPanel'), style + ': no four panes under the name');
+        const st0 = state(t, { rpm: 900, speedKmh: 0, gear: 'D', driveMode: 'SPORT' });
+        assert.strictEqual(t.layers.find((L) => L.id === 'footPanel').uniforms(st0, 0).u_seps, 0, style + ': one pane under the name');
         const shown = (mode) => {
             const st = Object.assign(state(t, { rpm: 900, speedKmh: 0, gear: 'D', driveMode: 'SPORT' }), { modeLabel: mode });
             return ['driveMode', 'driveMode2'].map((id) => t.layers.find((L) => L.id === id).uniforms(st, 0));
@@ -2372,6 +2373,7 @@ test('the driving mode\'s name on the footer: large, across the panes\' width, n
         assert.deepStrictEqual([a.u_count, b.u_count], [7, 7], style + ': BATTERY CONTROL whole (was cut to BATTERY CONTR)');
         const [c, d] = shown('ECO PRO INDIVIDUAL');
         assert.deepStrictEqual([c.u_count, d.u_count], [6, 10], style + ': ECO PRO / INDIVIDUAL');
-        assert.ok(build({ style, mPanel: '4wd' }).layers.some((L) => L.id === 'footPanel'), style + ': 4WD keeps its panes');
+        const four = build({ style, mPanel: '4wd' });
+        assert.strictEqual(four.layers.find((L) => L.id === 'footPanel').uniforms(st0, 0).u_seps, 1, style + ': 4WD keeps its four panes');
     }
 });

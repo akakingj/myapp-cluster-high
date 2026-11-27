@@ -68,7 +68,7 @@ test('the settings: on / off and the style on top, then Cluster Layouts\' sectio
     Object.keys(Themes.OWN.track).forEach((n) => assert.notStrictEqual(Themes.OWN.track[n], Themes.OWN.mplus[n]));
     /* M Track Mode has its own: what its left wing holds, its four gauge rows, how a row marks its reading */
     assert.deepStrictEqual(Object.keys(Themes.OWN.mtrack),
-        ['centre', 'wing', 'row1', 'row2', 'row3', 'row4', 'rowMark', 'stripL', 'stripR', 'footL', 'footM', 'footR']);
+        ['centre', 'wing', 'row1', 'row2', 'row3', 'row4', 'rowMark', 'stripL', 'stripR', 'footL', 'footM', 'footR', 'mPanel']);
     const MTrack = require('../src/theme/mtrack.js');
     for (const n of [1, 2, 3, 4]) {
         /* each row: as BMW's, any reading a row can show, or nothing */
@@ -92,7 +92,7 @@ const PLACES = {
         'gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2'],
     track: ['mCentre', 'mCentreSize', 'mGear', 'mSpeed2', 'mFootL', 'mFootM', 'mFootR', 'mPanel'],
     mplus: ['pCentre', 'pCentreSize', 'pGear', 'pSpeed2', 'pFootL', 'pFootM', 'pFootR', 'pPanel'],
-    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR']
+    mtrack: ['kCentre', 'kWing', 'kRow1', 'kRow2', 'kRow3', 'kRow4', 'kStripL', 'kStripR', 'kFootL', 'kFootM', 'kFootR', 'kPanel']
 };
 /* the readings' places: set on the page alone, not in the settings list */
 const PAGE_ONLY = ['gaugeL1', 'gaugeL2', 'gaugeR1', 'gaugeR2', 'mFootL', 'mFootM', 'mFootR', 'pFootL', 'pFootM', 'pFootR',

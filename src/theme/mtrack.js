@@ -252,6 +252,9 @@
         var WIN_X = T.windowX0();     /* where the wing's window begins, at this fit */
         S.modeLabel = 'bmw';
         S.mode = '';
+        /* what the footer's four-pane panel shows (0.26.4, as M Sport's): empty as BMW's frame has it, 4WD, 2WD, the
+           driving mode's name across it, or no panel */
+        S.mPanel = ['blank', '4wd', '2wd', 'mode', 'off'].indexOf(settings && settings.mPanel) >= 0 ? settings.mPanel : 'blank';
         S.centreSize = 'standard';
         var fixture = !!(settings && settings.mtFixture);
         /* the units shown (S.u, units.js): the speed's, and the temperatures' */
@@ -421,9 +424,44 @@
             return { u_hair: K.hair, u_edge: K.edge, u_band: K.band };
         });
         /* the footer's panel, the light along its top, the hook */
+        var panelOn = S.mPanel === 'off' ? 0 : 1, panelSeps = S.mPanel === 'mode' ? 0 : 1;
         shape('footPanel', 2, 'mtfoot', box(598, 448, 1024, 544), function () {
-            return { u_pane: K.pane, u_paneFoot: K.paneFoot, u_blue: K.footBlue, u_red: K.footRed, u_cyan: K.hook, u_panel: 1 };
+            return { u_pane: K.pane, u_paneFoot: K.paneFoot, u_blue: K.footBlue, u_red: K.footRed, u_cyan: K.hook, u_panel: panelOn, u_seps: panelSeps };
         });
+        /* on it (S.mPanel): 4WD / 2WD on its third pane, as M Sport's; or the driving mode's name across the panel, one
+           pane under it, up to 25 tall and smaller only to keep in its width; past 12 letters in two layers side by
+           side (src/engine/text.js MAX_GLYPHS) */
+        if (S.mPanel === '4wd' || S.mPanel === '2wd') {
+            var wd = S.mPanel.charAt(0);
+            dyn('driveFig', 30, box(826, 500, 866, 532), function () {
+                return { str: wd, face: 'mw', size: fig(17.2), x: X(833.2), y: Y(526.0), ink: 'l', color: K.white };
+            });
+            dyn('driveWord', 30, box(856, 500, 906, 534), function () {
+                return { str: 'WD', face: 'mb', size: fig(17.2), x: X(860.8), y: Y(526.0), ink: 'l', color: K.white };
+            });
+        } else if (S.mPanel === 'mode') {
+            var MODE_CX = 828.6, MODE_ROOM = 250.0, MODE_H = 25.0, MODE_Y = 517.6;
+            var modeFit = function (s) {
+                if (!s.modeLabel) return null;
+                var str = String(s.modeLabel), h = MODE_H;
+                var w = Text.measure(atlas, 'mb', str, fig(h), 0) / SC;
+                if (w > MODE_ROOM) { h = h * MODE_ROOM / w; w = MODE_ROOM; }
+                var parts = str.split(' '), a = [], n = 0;
+                while (parts.length && (!a.length || n + parts[0].length <= Text.MAX_GLYPHS)) { n += parts[0].length; a.push(parts.shift()); }
+                return { h: h, x0: X(MODE_CX - w / 2), one: a.join(' '), two: parts.join(' ') };
+            };
+            var modeBox = box(680, 496, 980, 540);
+            dyn('driveMode', 30, modeBox, function (s) {
+                var m = modeFit(s);
+                return m && { str: m.one, face: 'mb', size: fig(m.h), x: m.x0, y: Y(MODE_Y + m.h / 2), ink: 'l', color: K.white };
+            });
+            dyn('driveMode2', 30, modeBox, function (s) {
+                var m = modeFit(s);
+                if (!m || !m.two) return null;
+                return { str: m.two, face: 'mb', size: fig(m.h), x: m.x0 + Text.measure(atlas, 'mb', m.one + ' ', fig(m.h), 0),
+                         y: Y(MODE_Y + m.h / 2), ink: 'l', color: K.white };
+            });
+        }
 
         /* ------------------------------------------------------- the gauge rows */
         var R = T.ROWS, SCALES = rowScales(S.u, P.boostBar, P.boostPsi,

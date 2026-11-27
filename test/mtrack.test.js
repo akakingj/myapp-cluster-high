@@ -1045,3 +1045,23 @@ test('the power and torque rows end at the engine\'s most (the Car profile\'s, o
     const none = MTrack.rowScales(Units.of({ units: 'metric' }), null, null, { powerMax: 0, torqueMax: 5000 });
     assert.deepStrictEqual([none.power.hi, none.torque.hi], [own.power.hi, own.torque.hi], 'none, or not a car\'s: the rows\' own');
 });
+
+test('the footer panel shows (0.26.4, as M Sport): empty panes as BMW\'s frame, 4WD / 2WD, the driving mode large across one pane, or none', () => {
+    const st = (t, mode) => Object.assign(state(t, RAW), mode ? { modeLabel: mode } : {});
+    const ids = (t) => t.layers.filter((L) => /^drive/.test(L.id)).map((L) => L.id);
+    const blank = build({}), panel = (t, s) => t.layers.find((L) => L.id === 'footPanel').uniforms(s, 0);
+    assert.deepStrictEqual(ids(blank), [], 'as it comes: the panes empty');
+    assert.deepStrictEqual([panel(blank, st(blank)).u_panel, panel(blank, st(blank)).u_seps], [1, 1]);
+    const four = build({ mPanel: '4wd' });
+    assert.deepStrictEqual(ids(four), ['driveFig', 'driveWord']);
+    assert.deepStrictEqual(['driveFig', 'driveWord'].map((id) => four.layers.find((L) => L.id === id).uniforms(st(four), 0).u_count), [1, 2]);
+    const mode = build({ mPanel: 'mode' }), s = st(mode, 'BATTERY CONTROL');
+    assert.strictEqual(panel(mode, s).u_seps, 0, 'one pane under the name');
+    assert.deepStrictEqual(['driveMode', 'driveMode2'].map((id) => mode.layers.find((L) => L.id === id).uniforms(s, 0).u_count), [7, 7], 'BATTERY CONTROL whole');
+    assert.strictEqual(mode.layers.find((L) => L.id === 'driveMode2').uniforms(st(mode, 'SPORT'), 0), null);
+    const off = build({ mPanel: 'off' });
+    assert.strictEqual(panel(off, st(off)).u_panel, 0, 'no panel');
+    // the setting, under M Track, as M Sport's
+    const spec = require('../app/app.base.json'), k = spec.settings.find((x) => x.key === 'kPanel');
+    assert.deepStrictEqual([k.default, k.options.map((o) => o[0]), k.group, k.when], ['blank', ['blank', '4wd', '2wd', 'mode', 'off'], 'M Track', { style: 'mtrack' }]);
+});

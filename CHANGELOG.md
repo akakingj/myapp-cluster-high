@@ -13,6 +13,14 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.26.4
+
+- **M Track Mode: Footer panel shows**, as M Sport's and M Sport Plus's: *Empty panes (as BMW's)* - as it comes, as
+  BMW's own frame has it - *4WD*, *2WD*, *The driving mode* or *Nothing*; on the page with the style's places and in
+  its settings group. Before, its panel stayed empty and there was nothing to choose.
+- **The driving mode's name keeps its panel under it** (all three M styles): 0.26.3 took the panel away under the
+  name; now it stays, as one pane (no separators through the name), and 4WD / 2WD keep the four.
+
 ## AK 0.26.3
 
 - **M Sport and M Sport Plus: the driving mode's name large.** With *Footer panel shows: The driving mode* the name
