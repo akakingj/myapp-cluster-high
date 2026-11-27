@@ -13,6 +13,14 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.27.1
+
+- **A curve's speed is no longer taken for a limit.** AK Cluster Info's log of 27 November 2026, 16:35 (the cruise
+  control on at 102, then 112): on a 100 road the head-up display gave `vSLISymbol` LDM_VZA_VSLI_COURSE with 10 (50)
+  counting down from 500 m, and left the 10 with no symbol until the next 100 sign; 0.27.0 would have shown 50 for about
+  20 s. The curve's figure is skipped, and the same figure after it with no symbol, until another figure or a limit sign
+  comes (`src/car/vehicle.js` sliStep). The cruise control's own speed never came in it (20 all along at 102 and 112).
+
 ## AK 0.27.0
 
 - **The speed limit sign works as the car's own.** The last limit recognised stays until another is - 60 until an 80

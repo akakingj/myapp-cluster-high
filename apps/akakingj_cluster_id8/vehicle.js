@@ -98,6 +98,10 @@ function member(v, key) { return v && typeof v === 'object' ? v[key] : v; }
  * (vSLIDistance OFF, or the symbol gone). 0 or nothing: the one shown kept. Up to 140 km/h (28): a 30 (150) seen once on
  * a motorway (Nov 24) is no road's. '--' till the first one, and 10 s after the head-up display's data stops. (0.25.1 -
  * 0.26.6 showed it only with the limiter or the cruise control on and ldmAdditionalSign TAKEOVER_SET: '--' otherwise.)
+ * A curve's or junction's speed (vSLISymbol LDM_VZA_VSLI_COURSE, the log of 16:35, Nov 27: a 10 = 50 at 500 m ... OFF on a
+ * 100 road, the cruise control at 102) is no limit: not shown, nor the same figure left after it with no symbol, till
+ * another figure or a limit sign comes (mem.course). The cruise control's own speed never comes in it (102, then 112:
+ * vSLISpeedValue 20 all along).
  * AK Cluster Layouts' shared/data.js sliStep is the same rule.
  */
 var SLI_STALE_MS = 10000, SLI_MAX = 28;
@@ -115,10 +119,16 @@ function sliRawOf(value) {
 }
 /* whether the head-up display's data announces the NEXT limit (a sign ahead, its distance counting down) */
 function sliAhead(r) { return r.symbol === 'LDM_VZA_VSLI_SPEED_LIMIT' && !!r.dist && !/_OFF$/.test(String(r.dist)); }
-/* the limit shown after this data (km/h, the car's own figures), from the one shown before it (prev; undefined: none) */
-function sliStep(prev, r) {
+var SLI_COURSE = 'LDM_VZA_VSLI_COURSE', SLI_LIMIT = 'LDM_VZA_VSLI_SPEED_LIMIT';
+/* the limit shown after this data (km/h, the car's own figures), from the one shown before it (prev; undefined: none);
+   mem (an object kept with it) remembers a curve's speed */
+function sliStep(prev, r, mem) {
     var n = r && r.value;
-    if (!r || typeof n !== 'number' || n < 1 || n > SLI_MAX || sliAhead(r)) return prev;
+    if (!r || typeof n !== 'number' || n < 1 || n > SLI_MAX) return prev;
+    if (r.symbol === SLI_COURSE) { if (mem) mem.course = n; return prev; }
+    if (sliAhead(r)) return prev;
+    if (mem && mem.course === n && r.symbol !== SLI_LIMIT) return prev;
+    if (mem) mem.course = undefined;
     return n * 5;
 }
 
@@ -393,7 +403,7 @@ function createReader(opts) {
      * For the Logs (--- sli ---): each change of what the head-up display has of Speed Limit Assist, with the time and
      * the car's speed, the last 20; and how often its data comes (the last 60 s) and when it last came.
      */
-    var sliChanges = [], sliTimes = [], sliLast = '', sliShown;
+    var sliChanges = [], sliTimes = [], sliLast = '', sliShown, sliMem = {};
     function sliSeen(r, now) {
         sliTimes.push(now);
         while (sliTimes.length && now - sliTimes[0] > 60000) sliTimes.shift();
@@ -529,7 +539,7 @@ function createReader(opts) {
         } else if (service === 'de.bmw.infotainment.displaydataserver.DisplayDataServer' && field === 'functionalLibraryData') {
             /* what the head-up display has of Speed Limit Assist (sliRawOf), and the limit shown after it (sliStep) */
             var raw = sliRawOf(value);
-            if (raw) { put('sli', raw, now); sliShown = sliStep(sliShown, raw); sliSeen(raw, now); }
+            if (raw) { put('sli', raw, now); sliShown = sliStep(sliShown, raw, sliMem); sliSeen(raw, now); }
         } else if (service === 'de.bmw.infotainment.vehicle.CDS2') {
             if (field === 'statusLateralAccelerationMassCenter') {
                 b = value && value.lateralAccelerationCentreOfGravity;

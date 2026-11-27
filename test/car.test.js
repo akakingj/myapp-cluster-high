@@ -229,6 +229,16 @@ test('the speed limit sign as the car\'s own: the last limit recognised, kept ti
     assert.strictEqual(shown(8000), 100, '0: the one shown kept');
     hud(row(30, NO, 'LDM_VSLI_DIST_OFF'), 9000);
     assert.strictEqual(shown(9000), 100, '30 (150, Nov 24): no road\'s, 100 kept');
+    /* a curve's speed (16:35, Nov 27): 50 at 500 m on a 100 road, the cruise control at 102 - no limit */
+    var CO = 'LDM_VZA_VSLI_COURSE';
+    hud(row(10, CO, 'LDM_VSLI_DIST_500_M', 'TAKEOVER_SET'), 9200);
+    assert.strictEqual(shown(9200), 100, 'a curve\'s speed: not a limit');
+    hud(row(10, CO, 'LDM_VSLI_DIST_OFF', 'TAKEOVER_SET'), 9400);
+    assert.strictEqual(shown(9400), 100, 'the curve reached: still not a limit');
+    hud(row(10, NO, 'LDM_VSLI_DIST_OFF', 'TAKEOVER_SET'), 9600);
+    assert.strictEqual(shown(9600), 100, 'the curve\'s figure left with no symbol: kept 100');
+    hud(row(20, SL, 'LDM_VSLI_DIST_OFF', 'TAKEOVER_SET'), 9800);
+    assert.strictEqual(shown(9800), 100, 'the 100 sign after it: 100');
     hud(row(12, NO, 'LDM_VSLI_DIST_OFF'), 10000);
     assert.strictEqual(shown(10000), 60, 'a new one with no announcement (the camera\'s): 60');
     assert.strictEqual(shown(20001), undefined, 'no head-up display data for 10 s: --');
