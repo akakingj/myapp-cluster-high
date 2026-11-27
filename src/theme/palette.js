@@ -97,6 +97,8 @@
         gearShows: 'staged',
         holiday: false,          /* snow falling down the sides and a tree in a corner */
         sliSign: false,          /* a speed limit sign of our own (src/theme/overlays.js) */
+        powerMax: 0,             /* the engine's most, kW and Nm (the Car profile's; 0: M Track's rows their own) */
+        torqueMax: 0,
         /* a message over the cluster at every start, fading into it */
         intro: false,
         introMessage: 'mgu',     /* one of INTRO_WORDS, or custom (the owner's own: typed, or a USB text file) */
@@ -364,6 +366,8 @@
         if (['oilP', 'oilT', 'coolant', 'fuel'].indexOf(s.electricGauge) < 0) s.electricGauge = 'auto';
         s.holiday = s.holiday === true;
         s.sliSign = s.sliSign === true || s.sliSign === 'on';
+        s.powerMax = Number(s.powerMax) || 0;
+        s.torqueMax = Number(s.torqueMax) || 0;
         s.intro = s.intro === true;
         s.introSeconds = clampNum(s.introSeconds, 3, 30, DEFAULTS.introSeconds);
         if (typeof s.introText !== 'string' || !s.introText.trim()) {

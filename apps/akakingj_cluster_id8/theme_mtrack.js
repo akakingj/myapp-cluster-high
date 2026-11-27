@@ -122,6 +122,11 @@
         var Z = zones || {};
         var num = function (v, d) { return typeof v === 'number' && isFinite(v) ? v : d; };
         var celsius = u.temp === 'c';
+        /* the engine's most (kW, Nm: the Car profile's Power / Torque gauge up to, on Auto the car's Sport Display's,
+           0.24.3) as the row's end in the unit shown, up to a round step so its middle reads; 0: none, the row's own */
+        function top(v, lo, hi, mul, step) {
+            return typeof v === 'number' && v >= lo && v <= hi ? Math.ceil(v * mul / step) * step : 0;
+        }
         function unitScale(key, tag, unit, hi, show) {
             return { key: key, icon: null, tag: tag, unit: unit, marks: ['0', String(hi / 2), String(hi)], lo: 0, hi: hi,
                      show: show, cold: null, hot: null };
@@ -170,8 +175,10 @@
                       show: function (v) { return v; }, cold: 10, hot: null },
             hvtemp: temp('hvC', 'h', -10, 60, ['-10', '25', '60'], ['14', '77', '140'], 14, 140, 5, 50),
             /* the engine's power and torque in the units shown, each by its word */
-            power: unitScale('powerKw', 'PWR', u.labels.power, { hp: 400, ps: 400, kw: 300 }[u.power] || 400, u.powerIn),
-            torque: unitScale('torqueNm', 'TQ', u.labels.torque, { nm: 600, kgm: 60, lbft: 450 }[u.torque] || 600, u.torqueIn),
+            power: unitScale('powerKw', 'PWR', u.labels.power, top(Z.powerMax, 60, 600, { hp: 1.34102, ps: 1.35962, kw: 1 }[u.power] || 1.34102, 50)
+                             || { hp: 400, ps: 400, kw: 300 }[u.power] || 400, u.powerIn),
+            torque: unitScale('torqueNm', 'TQ', u.labels.torque, top(Z.torqueMax, 150, 1000, { nm: 1, kgm: 0.101972, lbft: 0.737562 }[u.torque] || 1, u.torque === 'kgm' ? 5 : 50)
+                              || { nm: 600, kgm: 60, lbft: 450 }[u.torque] || 600, u.torqueIn),
             /* the fuel rail's and the supply's pressures */
             hpfp: Object.assign(press('hpfpBar', null, 350, ['0', '175', '350'], 5000, ['0', '2500', '5000']), { tag: 'HPFP' }),
             lpfp: Object.assign(press('lpfpBar', null, 10, ['0', '5', '10'], 140, ['0', '70', '140']), { tag: 'LPFP' }),
@@ -421,7 +428,8 @@
 
         /* ------------------------------------------------------- the gauge rows */
         var R = T.ROWS, SCALES = rowScales(S.u, P.boostBar, P.boostPsi,
-            { hotOil: S.hotOil, hotCoolant: S.hotCoolant, hotGearbox: S.hotGearbox, warmOil: S.warmOil });
+            { hotOil: S.hotOil, hotCoolant: S.hotCoolant, hotGearbox: S.hotGearbox, warmOil: S.warmOil,
+              powerMax: Number(S.powerMax), torqueMax: Number(S.torqueMax) });
         var rowOf = S.rows.map(function (kind) { return kind === 'off' ? null : SCALES[kind]; });
         /* a reading along its row's rail: 0..1, or -1 with nothing to show */
         function rowValue(sc, s, i) {

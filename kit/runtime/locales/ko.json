@@ -2759,5 +2759,6 @@
   "Engine's top rpm (redline)": "엔진 최고 rpm (레드라인)",
   "Speedometer up to": "속도계 최고값",
   "Clock": "시계",
-  "Plug-in hybrid (petrol)": "플러그인 하이브리드 (가솔린)"
+  "Plug-in hybrid (petrol)": "플러그인 하이브리드 (가솔린)",
+  "Torque gauge up to": "토크 게이지 최댓값"
 }

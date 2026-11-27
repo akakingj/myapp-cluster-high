@@ -13,6 +13,14 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.25.0
+
+- **M Track Mode's power and torque rows end at the car's most.** The Car profile 1.13.0's *Power gauge up to* and
+  *Torque gauge up to* (on Auto the car's own Sport Display's most power and torque, kW and Nm) set where the PWR and
+  TQ rows end, in the unit shown and up to a round step so the middle reads (a 330e's 215 kW: 300 hp; 420 Nm: 450);
+  without them the rows' own 400 hp / 300 kW and 600 Nm / 60 kgm as before (`src/theme/mtrack.js` top; hidden
+  `powerMax`, `torqueMax` following the profile; `test/mtrack.test.js`).
+
 ## AK 0.24.2
 
 - **A settings change no longer flashes the stock cluster.** A change that keeps the same layers (a colour, a reading)

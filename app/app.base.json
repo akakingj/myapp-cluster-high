@@ -2,7 +2,7 @@
   "id": "akakingj_cluster_id8",
   "title": "AK Cluster ID8",
   "vendor": "MGU-Styles",
-  "version": "0.24.2",
+  "version": "0.25.0",
   "loggingId": "AKC8",
   "description": "Custom instrument clusters drawn over the whole iDrive 7 cluster: Toro, after the Lamborghini Huracan; M Sport, BMW M's iDrive 8 M View rebuilt from a reference frame; M Sport Plus, the same dials round the M stripes with a wide picture in the centre; and M Track Mode, BMW M's track view - four gauge rows in a blue wing, the gear, a leaning rev counter. Each style has its own page of settings. Off until you turn it on; BMW's warnings and gear display always stay BMW's.",
   "autostart": true,
@@ -640,6 +640,8 @@
       },
       "hidden": true
     },
+    {"key": "powerMax", "profile": "powerMax", "label": "Power gauge up to", "type": "number", "unit": "kW", "default": 0, "labels": {"0": "Auto"}, "steps": [0, 100, 120, 135, 140, 150, 160, 170, 185, 190, 200, 215, 230, 240, 250, 260, 275, 285, 300, 320, 340, 360, 375, 390, 405, 420, 450, 460, 480, 500, 530, 550, 600], "hidden": true, "group": "Readouts and gauges"},
+    {"key": "torqueMax", "profile": "torqueMax", "label": "Torque gauge up to", "type": "number", "unit": "Nm", "default": 0, "labels": {"0": "Auto"}, "steps": [0, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 900], "hidden": true, "group": "Readouts and gauges"},
     {
       "key": "shiftFrom",
       "label": "Yellow light at",

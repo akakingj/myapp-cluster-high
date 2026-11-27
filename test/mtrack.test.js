@@ -1035,3 +1035,13 @@ test('the two strips can show any reading a row can, the fuel, or nothing: its f
     const src = require('../src/shaders/tcluster.js').mtstrip;
     assert.ok(/u_kind < 0\.5 && u_level < 0\.26/.test(src));
 });
+
+test('the power and torque rows end at the engine\'s most (the Car profile\'s, on Auto the Sport Display\'s), rounded so they read', () => {
+    const own = MTrack.rowScales(Units.of({ units: 'metric' }));
+    const hp = MTrack.rowScales(Units.of({ units: 'metric', powerUnit: 'hp', torqueUnit: 'nm' }), null, null, { powerMax: 215, torqueMax: 420 });
+    assert.deepStrictEqual([hp.power.hi, hp.power.marks[2], hp.torque.hi], [300, '300', 450], 'a 330e: 215 kW is 288 hp, to 300; 420 Nm to 450');
+    const kw = MTrack.rowScales(Units.of({ units: 'metric', powerUnit: 'kw', torqueUnit: 'kgm' }), null, null, { powerMax: 135, torqueMax: 300 });
+    assert.deepStrictEqual([kw.power.hi, kw.torque.hi], [150, 35], 'a 320i: 135 kW to 150, 300 Nm is 30.6 kgm, to 35');
+    const none = MTrack.rowScales(Units.of({ units: 'metric' }), null, null, { powerMax: 0, torqueMax: 5000 });
+    assert.deepStrictEqual([none.power.hi, none.torque.hi], [own.power.hi, own.torque.hi], 'none, or not a car\'s: the rows\' own');
+});
