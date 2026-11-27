@@ -2757,7 +2757,7 @@ Shift now warning at	변속 경고 rpm
 Engine unit (OBD tank level)	엔진 ECU (OBD 연료량)
 Fuel % from	연료 % 출처
 Litres / tank size	남은 리터 / 탱크 용량
-Petrol, M car	가솔린, M 차량
+Petrol, M car	M
 Automatic (330 km/h for an M car, else 260)	자동 (M 차량은 330 km/h, 그 외 260)
 Boost gauge up to	부스트 게이지 최고값
 Automatic (1.5 bar / 22 psi; an M car 1.8 bar / 26 psi)	자동 (1.5 bar / 22 psi, M 차량은 1.8 bar / 26 psi)

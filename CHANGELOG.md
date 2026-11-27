@@ -13,6 +13,11 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.28.1
+
+The Engine setting's M car choice reads just "M" in Korean (was 가솔린, M 차량), as in the AK clusters and the Car
+profile (the owner's ask).
+
 ## AK 0.28.0
 
 - **The speed limit sign is the sign itself.** AK Cluster Info's signal survey of 27 November 2026 (21 minutes in
