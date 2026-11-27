@@ -502,13 +502,12 @@
         HEAD,
         'uniform vec3 u_pane;',      /* the panes at their top edge */
         'uniform vec3 u_paneFoot;',  /* ... and at their foot: they lighten downwards */
-        'uniform float u_seps;',     /* 1: the four panes; 0: one, under the driving mode's name */
         'void main() {',
         '  vec2 p = art();',
         '  float t = p.y - ' + n(FP.top) + ';',
         '  float d = max(max(' + n(FP.top) + ' - p.y, p.y - ' + n(FP.bottom) + '),',
         '                max(' + n(FP.left) + ' + t * ' + n(FP.leanL) + ' - p.x, p.x - (' + n(FP.right) + ' + t * ' + n(FP.leanR) + ')) * 0.87);',
-        '  if (u_seps > 0.5) d = max(d, ' + n(M.FOOT.sepW / 2) + ' - ' + seps + ');',
+        '  d = max(d, ' + n(M.FOOT.sepW / 2) + ' - ' + seps + ');',
         '  float fall = clamp((t - 4.0) / ' + n(FP.bottom - FP.top - 7.0) + ', 0.0, 1.0);',
         '  gl_FragColor = vec4(mix(u_pane, u_paneFoot, fall), ac(d));',
         '}'

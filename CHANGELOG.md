@@ -13,6 +13,11 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.26.5
+
+- **M Sport, M Sport Plus and M Track: the driving mode's name over the four panes as they are.** The panel keeps its
+  design (0.26.3 took it away, 0.26.4 made it one pane); the name, set large across it, stands over the four panes.
+
 ## AK 0.26.4
 
 - **M Track Mode: Footer panel shows**, as M Sport's and M Sport Plus's: *Empty panes (as BMW's)* - as it comes, as

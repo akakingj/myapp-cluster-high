@@ -425,12 +425,12 @@
             return { u_hair: K.hair, u_edge: K.edge, u_band: K.band };
         });
         /* the footer's panel, the light along its top, the hook */
-        var panelOn = S.mPanel === 'off' ? 0 : 1, panelSeps = S.mPanel === 'mode' ? 0 : 1;
+        var panelOn = S.mPanel === 'off' ? 0 : 1;
         shape('footPanel', 2, 'mtfoot', box(598, 448, 1024, 544), function () {
-            return { u_pane: K.pane, u_paneFoot: K.paneFoot, u_blue: K.footBlue, u_red: K.footRed, u_cyan: K.hook, u_panel: panelOn, u_seps: panelSeps };
+            return { u_pane: K.pane, u_paneFoot: K.paneFoot, u_blue: K.footBlue, u_red: K.footRed, u_cyan: K.hook, u_panel: panelOn };
         });
-        /* on it (S.mPanel): 4WD / 2WD on its third pane, as M Sport's; or the driving mode's name across the panel, one
-           pane under it, up to 25 tall and smaller only to keep in its width; past 12 letters in two layers side by
+        /* on it (S.mPanel): 4WD / 2WD on its third pane, as M Sport's; or the driving mode's name over the four panes,
+           across them, up to 25 tall and smaller only to keep in its width; past 12 letters in two layers side by
            side (src/engine/text.js MAX_GLYPHS) */
         if (S.mPanel === '4wd' || S.mPanel === '2wd') {
             var wd = S.mPanel.charAt(0);
