@@ -451,12 +451,10 @@
                 var blade = S.shiftStyle === 'blade';
                 var half = blade ? { y: 8, h: 30, leds: 1 } : { y: 6, h: 34, leds: 8 };
                 var L = { x: 400, w: GAP_L - 400 }, R = { x: GAP_R, w: 1520 - GAP_R };
-                /* (Yellow light at Off: green, then red - no amber) */
-                var mid = S.yellowOff ? C.green : C.amber;
                 shiftLayer('shift', Object.assign({}, half, L), function (f) { return clamp01(f * 2); },
-                    blade ? [GC.primaryWhite, GC.primaryWhite, GC.primaryWhite] : [C.green, C.green, mid]);
+                    blade ? [GC.primaryWhite, GC.primaryWhite, GC.primaryWhite] : [C.green, C.green, C.amber]);
                 shiftLayer('shiftR', Object.assign({}, half, R), function (f) { return clamp01(f * 2 - 1); },
-                    blade ? [GC.primaryWhite, GC.primaryWhite, GC.corsaRed] : S.yellowOff ? [GC.corsaRed, GC.corsaRed, GC.corsaRed] : [C.amber, GC.corsaRed, GC.corsaRed]);
+                    blade ? [GC.primaryWhite, GC.primaryWhite, GC.corsaRed] : [C.amber, GC.corsaRed, GC.corsaRed]);
             }
         }
         if (edgeFlash) {

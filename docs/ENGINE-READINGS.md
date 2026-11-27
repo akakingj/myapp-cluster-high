@@ -122,10 +122,10 @@ used only while the car's Sport Display sends no boost of its own. The
 a place shows it, as Cluster Layouts reads them (its `config.dme`).
 
 The **fuel gauge** is Cluster Layouts' own figure: the engine unit's tank
-level while it answers (asked every 10 s while a fuel gauge or place is
-shown, kept a minute), otherwise the car's litres over *Settings → General → Fuel tank
-size*. *Settings → General → Fuel % from → Litres / tank size* keeps to the litres and
-never asks.
+level (asked every 10 s while a fuel gauge or place is shown), its last
+answer held while the unit is not asked or silent; `--` till it first
+answers. (0.26.0: the car's litres over a tank size, and *Fuel tank size* /
+*Fuel % from*, gone.)
 
 ## A diesel
 

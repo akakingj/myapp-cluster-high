@@ -702,8 +702,8 @@ async function main() {
     /* (Engine: diesel - its engine unit is asked only the standard identifiers, and there is none for oil pressure) */
     const dieselSet = settings.engine === 'diesel';
     const held = mFoot.concat(rows);
-    /* (the fuel gauge, in every style as it comes: the engine unit's tank level, unless Fuel % from keeps to litres) */
-    const tankWanted = settings.electric !== 'bev' && settings.fuelFrom !== 'litres';
+    /* (the fuel gauge, in every style as it comes: the engine unit's tank level) */
+    const tankWanted = settings.electric !== 'bev';
     const wanted = tankWanted || (THEME === 'toro' ? (oilGauge && !dieselSet) || (!!process.env.CAR_SIM_NO_BUS_BOOST && settings.showBoost !== false)
         : held.indexOf('iat') >= 0 || held.indexOf('volts') >= 0 || (rows.indexOf('oilp') >= 0 && !dieselSet) ||
           (!!process.env.CAR_SIM_NO_BUS_BOOST && held.indexOf('boost') >= 0));

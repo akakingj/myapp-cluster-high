@@ -570,21 +570,22 @@ function createReader(opts) {
     }
 
     var peakBoost = 0, peakLat = 0, peakLon = 0, lastPeak = 0;
+    /* the engine unit's tank level last answered: the gauge holds it while the unit is not asked or silent */
+    var lastTank;
 
-    function raw(now, tankLitres, fuelFrom) {
+    function raw(now) {
         now = now || Date.now();
         /* the tank is read slowly; holding it stops the gauge blinking
            between a number and dashes between polls */
         var litres = held('fuelLitres');
         /*
          * The fuel gauge's figure, as AK Cluster Layouts': the engine unit's own tank level (OBD PID 0x2F,
-         * src/car/engine.js) while it answers, else the car's litres over the tank's size. fuelFrom
-         * 'litres' (General: Fuel % from) keeps to the litres.
+         * src/car/engine.js) and nothing else, its last answer held; none ('--') till it first answers.
+         * (0.26.0: the car's litres over a tank size, General: Fuel tank size and Fuel % from, gone)
          */
-        var byLitres = typeof litres === 'number' && tankLitres
-            ? Math.max(0, Math.min(100, litres / tankLitres * 100)) : undefined;
-        var byEngine = fuelFrom === 'litres' ? undefined : get('tankPct', now);
-        var fuelPct = typeof byEngine === 'number' ? byEngine : byLitres;
+        var byEngine = get('tankPct', now);
+        if (typeof byEngine === 'number') lastTank = Math.max(0, Math.min(100, byEngine));
+        var fuelPct = lastTank;
         var boost = get('boostBus', now);
         if (boost === undefined) boost = get('boostDme', now);
         var latR = get('gLat', now), lonR = get('gLon', now);
@@ -629,7 +630,6 @@ function createReader(opts) {
             fuelLitres: typeof litres === 'number' ? litres : undefined,
             tankPct: byEngine,
             fuelPct: fuelPct,
-            fuelPctFrom: typeof byEngine === 'number' ? 'engine' : typeof byLitres === 'number' ? 'litres' : undefined,
             odoKm: held('odoKm'),
             /* the trip computer's distance and time, the gearbox oil, the torque */
             tripKm: held('tripKm'),

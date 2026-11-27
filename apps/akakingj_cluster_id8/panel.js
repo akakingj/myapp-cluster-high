@@ -146,19 +146,19 @@ var PROFILES = {
     carprofile: {
         id: 'carprofile', name: 'Car', engine: '', cylinders: 6, aspiration: 'turbo',
         rpmMax: 8000, rpmRedline: 6750, rpmLimiter: 7000,
-        gearCount: 8, gearbox: 'ZF 8HP', boost: true, boostMaxPsi: 22, tankLitres: 60, extraZones: []
+        gearCount: 8, gearbox: 'ZF 8HP', boost: true, boostMaxPsi: 22, extraZones: []
     },
     mCarS58: {
         id: 'mCarS58', name: 'M car', engine: 'S58', cylinders: 6, aspiration: 'turbo',
         rpmMax: 8000, rpmRedline: 7000, rpmLimiter: 8000,
-        gearCount: 8, gearbox: 'ZF 8HP / DCT', boost: true, boostMaxPsi: 26, tankLitres: 59,
+        gearCount: 8, gearbox: 'ZF 8HP / DCT', boost: true, boostMaxPsi: 26,
         extraZones: [M_BOX_A, M_BOX_B]
     },
     /* a plug-in hybrid: Car > Engine Plug-in hybrid (or Auto, found from the car), as Cluster Layouts' */
     hybrid: {
         id: 'hybrid', name: 'Plug-in hybrid (eDrive)', engine: 'B46/B58 PHEV', cylinders: 4, aspiration: 'turbo',
         rpmMax: 7000, rpmRedline: 6000, rpmLimiter: 6500,
-        gearCount: 8, gearbox: 'ZF 8HP', boost: false, boostMaxPsi: 18, tankLitres: 60, extraZones: [EDRIVE_BOX]
+        gearCount: 8, gearbox: 'ZF 8HP', boost: false, boostMaxPsi: 18, extraZones: [EDRIVE_BOX]
     }
 };
 
@@ -207,14 +207,12 @@ function snapBoost(bar) {
 function profileFor(id, settings) {
     var p = profile(id);
     if (!settings) return p;
-    var num = function (v, lo, hi, d) { v = Number(v); return v >= lo && v <= hi ? v : d; };
     var out = {}, k;
     for (k in p) if (Object.prototype.hasOwnProperty.call(p, k)) out[k] = p[k];
     var psi = BOOST_BAR[Number(settings.boostMax)] ? Number(settings.boostMax) : null;
     out.boostPsi = psi;
     out.boostBar = psi ? BOOST_BAR[psi] : null;
     out.boostMaxPsi = psi || p.boostMaxPsi;
-    out.tankLitres = num(settings.tankLitres, 20, 120, p.tankLitres);
     return out;
 }
 
@@ -225,11 +223,11 @@ function profileFor(id, settings) {
 var CAR_FIGURES = {
     /* (the boost gauge's end as Toro drew it in psi: 20 for a B48, 30 for the others) */
     b48: { rpmLimiter: '7000', rpmRedline: '6000', shiftAt: '6500', shiftFrom: 'auto', scaleMaxRpm: '7000', speedMax: '260',
-           boostMax: '20', tankLitres: '59' },
+           boostMax: '20' },
     b58: { rpmLimiter: '7500', rpmRedline: '6500', shiftAt: '7000', shiftFrom: 'auto', scaleMaxRpm: '8000', speedMax: '260',
-           boostMax: '30', tankLitres: '60' },
+           boostMax: '30' },
     mCarS58: { engine: 'm', rpmLimiter: '8000', rpmRedline: '7000', shiftAt: '7500', shiftFrom: '6500', scaleMaxRpm: '8000',
-               speedMax: '330', boostMax: '30', tankLitres: '59' },
+               speedMax: '330', boostMax: '30' },
     hybrid: { engine: 'phev' }
 };
 function figuresOfCar(saved) {

@@ -34,21 +34,6 @@ test('Shift now at: off as it comes (the shift lights flash at the limiter), Aut
     assert.strictEqual(at(set, 0, 90).shiftNow, false);
 });
 
-test('Yellow light at Off (the Car profile\'s, a G20 but an M car\'s): no amber on the M dial, the shift lights green then red', () => {
-    const on = build('toro', { shiftFrom: '5000', shiftStyle: 'gt3' }), off = build('toro', { shiftFrom: 'off', shiftStyle: 'gt3' });
-    assert.deepStrictEqual([on.settings.yellowOff, off.settings.yellowOff, off.settings.yellowRpm], [false, true, null]);
-    const cols = (t, id) => { const u = layer(t, id).uniforms(at(t, 6000, 90), 0); return [u.u_c1, u.u_c2, u.u_c3]; };
-    const isAmber = (c) => c[0] > 0.9 && c[1] > 0.6 && c[1] < 0.8 && c[2] < 0.2;
-    assert.ok(cols(on, 'shift').concat(cols(on, 'shiftR')).some(isAmber), 'amber as it comes');
-    assert.ok(!cols(off, 'shift').concat(cols(off, 'shiftR')).some(isAmber), 'none with Off');
-    const m = build('track', { shiftFrom: 'off' }), z = layer(m, 'revDial').uniforms(at(m, 3000, 90), 0).u_zone;
-    assert.ok(z[3] - z[2] <= 0, 'the M dial: no amber run before the red');
-    /* the shift now warning past the red (Car profile 1.14.0's Auto on a 320i: red 6000, solid from 6500, the limiter 7000) */
-    const g20 = build('toro', { rpmRedline: '6000', rpmLimiter: '7000', scaleMaxRpm: '7000', shiftAt: '6500' });
-    assert.strictEqual(g20.settings.shiftAtRpm, 6500);
-    assert.deepStrictEqual([at(g20, 6450, 90).shiftNow, at(g20, 6500, 90).shiftNow], [false, true]);
-});
-
 test('at the shift point the speed and the gear blink red in every style, four times a second', () => {
     const red = (c) => c[0] > 0.8 && c[1] < 0.4;
     for (const style of ['toro', 'track', 'mplus', 'mtrack']) {

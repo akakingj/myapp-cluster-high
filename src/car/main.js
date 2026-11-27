@@ -120,11 +120,6 @@ function ambientAccent(r, g, b) {
     return [r / mx, g / mx, b / mx];
 }
 
-/* Tank sizes, litres, only to turn the fuel level into a percentage. */
-function profileTank(profile) {
-    return profile.tankLitres || 60;
-}
-
 /*
  * host: {
  *   subscribe(signals, onValue)   onValue(service, field, value)
@@ -173,8 +168,6 @@ function start(host, deps) {
     var reader = Vehicle.createReader({});
     var smoother = Smooth.create();
     /* how long one frame is, from the refresh rate setting */
-    /* General: Fuel % from (engine | litres) */
-    function fuelFrom() { return theme && theme.settings.fuelFrom === 'litres' ? 'litres' : 'engine'; }
     function frameMs() {
         var hz = theme && theme.settings && theme.settings.refreshHz;
         return hz ? Math.max(16, Math.round(1000 / hz)) : FRAME_MS;
@@ -494,7 +487,7 @@ function start(host, deps) {
                 reader.setFeed('kwIn', pw.kwIn, now());
             } catch (e) { log.warn('providers: ' + e); }
 
-            var raw = reader.raw(now(), profileTank(profile), fuelFrom());
+            var raw = reader.raw(now());
             try { lookForPhev(raw); lookForBoostTop(raw); lookForMode(raw); } catch (e) { log.warn('vehicle: ' + e); }
             if (theme) raw = smoother.apply(raw, now(), Smooth.TAU[theme.settings.smoothing] || 0, theme.glide);
             var car = carState(raw);
@@ -544,8 +537,8 @@ function start(host, deps) {
             needs = { oil: !!shows.oil, iat: !!shows.iat, volts: !!shows.volts,
                       pedal: !!shows.pedal || powerable, throttle: !!shows.throttle, timing: !!shows.timing,
                       boostTarget: !!shows.boostTarget, hpfp: !!shows.hpfp, lpfp: !!shows.lpfp,
-                      /* the tank's level, unless General: Fuel % from keeps to the car's litres */
-                      tank: !!shows.tank && fuelFrom() === 'engine',
+                      /* the tank's level: the fuel gauge's only figure */
+                      tank: !!shows.tank,
                       boost: !!shows.boost && !reader.hasBusBoost(now(), BUS_BOOST_MS),
                       /* the gearbox oil, from the gearbox unit while the car's BasicDataSet gives none (a minute) */
                       gearbox: !!shows.gearbox && !reader.hasBusGearbox(now(), 60000) };
@@ -651,7 +644,7 @@ function start(host, deps) {
         snapshot: function () {
             var raw = {}, eng = null;
             try {
-                var r = reader.raw(now(), profileTank(profile), fuelFrom());
+                var r = reader.raw(now());
                 Object.keys(r).forEach(function (k) {
                     var v = r[k];
                     if (typeof v === 'number') raw[k] = Math.round(v * 100) / 100;

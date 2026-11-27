@@ -641,12 +641,6 @@ test('the car\'s own boost comes first; an M style asks for what its footer hold
     h.change({ mFootL: 'time', mFootM: 'range', mFootR: 'outside' });
     await wait(800);
     assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, boost: false });
-    /* GENERAL: Fuel % from: Litres / tank size - not asked for that either */
-    h.change({ fuelFrom: 'litres' });
-    await wait(800);
-    assert.strictEqual(lastTick(engine).needs.tank, false);
-    h.change({ fuelFrom: 'engine' });
-    await wait(800);
     /* turned on while driving: the feed starts, the engine unit is left alone */
     assert.strictEqual(feed.starts, 0);
     h.change({ beemFlash: 'on' });

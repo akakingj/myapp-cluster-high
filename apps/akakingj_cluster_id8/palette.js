@@ -175,9 +175,6 @@
         scaleMaxRpm: 8000,
         /* petrol | diesel: a diesel's own rev range (DIESEL, below). Petrol as it comes. */
         engine: 'petrol',
-        /* engine | litres: the fuel gauge's figure, as AK Cluster Layouts' Fuel % from - the engine unit's
-           tank level while it answers, else the car's litres over the tank's size (src/car/vehicle.js) */
-        fuelFrom: 'engine',
         showZeroNumeral: false,  /* the brief keeps the 0 end unlabelled */
         redFromScale: null,      /* null: derive from rpmRedline */
         /*
@@ -287,7 +284,6 @@
 
         var diesel = settings.engine === 'diesel';
         s.engine = diesel ? 'diesel' : 'petrol';
-        s.fuelFrom = settings.fuelFrom === 'litres' ? 'litres' : 'engine';
         /* Whole thousands: every numeral lands on a mark. (A diesel's dial reads 0 - 6.) */
         var scale = diesel ? DIESEL.scaleMaxRpm
             : Math.round(clampNum(settings.scaleMaxRpm, 6000, 10000,
@@ -322,9 +318,7 @@
         s.speedMax = String(settings.speedMax) === '330' ? 330 : String(settings.speedMax) === '260' ? 260
             : settings.engine === 'm' ? 330 : 260;
         s.mCar = settings.engine === 'm';
-        /* the yellow (Shift lights from, set): the M dial's amber starts there; Off (the Car profile's Yellow light at
-           Off, its 'off', as a G20 other than an M car has it): no amber, and the shift lights green, then red */
-        s.yellowOff = settings.shiftFrom === 'off';
+        /* the yellow (Shift lights from, set): the M dial's amber starts there */
         s.yellowRpm = Number(settings.shiftFrom) > 0 && Number(settings.shiftFrom) < s.rpmRedline ? Number(settings.shiftFrom) : null;
         s.shiftWarn = settings.shiftAt !== undefined && settings.shiftAt !== null && settings.shiftAt !== 'off';
         s.shiftAtRpm = clampNum(settings.shiftAt === 'auto' || !s.shiftWarn ? null : settings.shiftAt, 2500, s.rpmLimiter,

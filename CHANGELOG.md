@@ -13,15 +13,17 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
-## AK 0.26.0
+## AK 0.26.1
 
-- **Yellow light at: Off.** No yellow at all: the M dial's amber run before the red gone, the GT3 LEDs green, then red.
-  The Car profile (1.14.0) sends Off on Auto for every G20 but an M car - its own rev gauge has no yellow (an M3's from
-  6500) - and Off can be chosen here too. Toro's own white-orange-red bar stays as it is.
-- **The Car profile's Auto now as a G20's own rev gauge**, which this app takes as it is: on a 320i (and a 330e's
+- **The fuel gauge: the engine unit's tank level only.** Its own fill (OBD PID 0x2F, the one AK Cluster Layouts and
+  Live Data show), its last answer held while the unit is not asked (the engine off) or silent; `--` till it first
+  answers. The car's litres over a tank size, and General's **Fuel tank size** and **Fuel % from**, are gone - the
+  size meant nothing - and the Car profile (1.15.0) no longer sends them.
+- **0.26.0's Yellow light at *Off* taken back out**: the shift lights go by the yellow.
+- **The Car profile's Auto, as a G20's own rev gauge** (Car profile 1.14.0), taken as it is: on a 320i (and a 330e's
   petrol engine) the red zone from 6000 (where its hatched red begins), Shift now warning at 6500 (where it turns
-  solid), the Limiter (Engine's top rpm) at the gauge's end, 7000 - before, Auto put the Limiter at 6000, so the
-  shift lights flashed there; a 320d's 5000 / 5500 / 6000, an M3's red and warning 7200, yellow 6500, 8000.
+  solid), Engine's top rpm (the Limiter) at the gauge's end, 7000 - before, Auto put the Limiter at 6000, so the
+  shift lights flashed there; a 320d's 5000 / 5500 / 6000; an M3's yellow 6500, red and warning 7200, 8000.
 
 ## AK 0.25.1
 

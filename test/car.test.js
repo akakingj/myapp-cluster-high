@@ -27,7 +27,7 @@ test('no Car to choose: the figures (or the Car profile\'s) for every car; an M 
     assert.deepStrictEqual(item('engine').options.map((o) => o[0]), ['auto', 'diesel', 'petrol', 'm', 'phev']);
     assert.strictEqual(item('electric'), undefined, 'Electric range went: Engine says it');
     /* every figure is offered whatever the car (the tach scale for a petrol engine, an M car's too) */
-    for (const k of ['rpmRedline', 'rpmLimiter', 'shiftFrom', 'shiftAt', 'speedMax', 'boostMax', 'tankLitres']) assert.strictEqual(item(k).when, undefined, k);
+    for (const k of ['rpmRedline', 'rpmLimiter', 'shiftFrom', 'shiftAt', 'speedMax', 'boostMax']) assert.strictEqual(item(k).when, undefined, k);
     assert.deepStrictEqual(item('scaleMaxRpm').when, { engine: ['auto', 'petrol', 'm', 'phev'] });
     /* the kind of car: an M car (its M display's boxes), a plug-in hybrid (its eDrive box), a car */
     assert.strictEqual(Panel.kindOf({ engine: 'm', electric: 'off' }), 'mCarS58');
@@ -51,15 +51,14 @@ test('the figures: GENERAL\'s, the kind of car\'s own where left to the car; the
     assert.deepStrictEqual(fig('mCarS58', { engine: 'm' }), [8000, 8000, 7000, null, null, 330]);
     assert.deepStrictEqual(fig('mCarS58', { engine: 'm', speedMax: '260' }).slice(5), [260]);
     assert.deepStrictEqual(fig('hybrid'), [6500, 8000, 6000, null, null, 260]);
-    /* the boost gauge's top in psi and its bar (Automatic: the kind's own), the tank */
-    const p = Panel.profileFor('carprofile', { tankLitres: '52', boostMax: '45' });
-    assert.deepStrictEqual([p.tankLitres, p.boostBar, p.boostPsi, p.boostMaxPsi], [52, 3, 45, 45], 'the car\'s own 45 psi gauge: 3.0 bar');
+    /* the boost gauge's top in psi and its bar (Automatic: the kind's own) */
+    const p = Panel.profileFor('carprofile', { boostMax: '45' });
+    assert.deepStrictEqual([p.tankLitres, p.boostBar, p.boostPsi, p.boostMaxPsi], [undefined, 3, 45, 45], 'the car\'s own 45 psi gauge: 3.0 bar');
     assert.deepStrictEqual(['15', '20', '30'].map((v) => Panel.profileFor('carprofile', { boostMax: v }).boostBar), [2, 2, 2], 'in bar 2.0');
     assert.strictEqual(Panel.profileFor('carprofile', { boostMax: '2.5' }).boostPsi, null, 'no gauge ends there: the kind\'s own');
     assert.deepStrictEqual(Panel.BOOST_BAR, { 15: 2, 20: 2, 30: 2, 45: 3 });
     const a = Panel.profileFor('mCarS58', { boostMax: 'auto' });
     assert.deepStrictEqual([a.boostBar, a.boostPsi, a.boostMaxPsi], [null, null, 26]);
-    assert.strictEqual(item('tankLitres').profile, 'tankLitres');
     assert.strictEqual(item('speedMax').profile, 'speedMax');
     assert.strictEqual(item('boostMax').profile, 'boostMax');
     /* every boost top the Car profile gives is one of this app's */
@@ -70,7 +69,7 @@ test('the figures: GENERAL\'s, the kind of car\'s own where left to the car; the
 test('a car chosen under GENERAL > Car before it went keeps its figures: moved into GENERAL\'s own once', () => {
     const was = (car, extra) => Panel.figuresOfCar(Object.assign({ profile: car }, extra || {}));
     assert.deepStrictEqual(was('b58'), { rpmLimiter: '7500', rpmRedline: '6500', shiftAt: '7000', shiftFrom: 'auto', scaleMaxRpm: '8000',
-        speedMax: '260', boostMax: '30', tankLitres: '60' });
+        speedMax: '260', boostMax: '30' });
     assert.strictEqual(was('b48').boostMax, '20', 'the boost gauge\'s end as Toro drew it: 20 psi');
     assert.strictEqual(was('mCarS58').engine, 'm');
     assert.strictEqual(was('mCarS58', { engine: 'diesel' }).engine, undefined, 'a diesel stays one');
@@ -107,36 +106,23 @@ test('the gear with its programme: D1, S1, M1 from MDrive.dataDisplayGearbox; P,
     assert.strictEqual(item('gearShows').default, 'staged');
 });
 
-test('the fuel gauge as AK Cluster Layouts\': the engine unit\'s tank level while it answers, else litres over the tank', () => {
+test('the fuel gauge as AK Cluster Layouts\': the engine unit\'s tank level only, its last answer held', () => {
     const r = Vehicle.createReader({});
     r.receive('de.bmw.infotainment.KombiIF', 'statusRangeTankStatus', { fluidLevelFuelTank: 20, range: 300 }, 1000);
-    /* no answer from the engine unit: the car's litres over the tank's size */
-    let x = r.raw(1000, 59, 'engine');
-    assert.ok(Math.abs(x.fuelPct - 20 / 59 * 100) < 1e-9);
-    assert.deepStrictEqual([x.fuelPctFrom, x.fuelLitres, x.tankPct], ['litres', 20, undefined]);
-    /* the engine unit's own level, while fresh */
+    /* no answer from the engine unit yet: none ('--'), the car's litres not used */
+    let x = r.raw(1000);
+    assert.deepStrictEqual([x.fuelPct, x.fuelLitres, x.tankPct], [undefined, 20, undefined]);
+    /* the engine unit's own level */
     r.setFeed('tankPct', 12.5, 1000);
-    x = r.raw(1000, 59, 'engine');
-    assert.deepStrictEqual([x.fuelPct, x.fuelPctFrom, x.tankPct], [12.5, 'engine', 12.5]);
-    /* GENERAL: Fuel % from: Litres / tank size keeps to the litres */
-    x = r.raw(1000, 59, 'litres');
-    assert.ok(Math.abs(x.fuelPct - 20 / 59 * 100) < 1e-9);
-    assert.strictEqual(x.fuelPctFrom, 'litres');
-    /* no longer fed (the engine reader keeps it a minute): back to the litres */
-    x = r.raw(5000, 59, 'engine');
-    assert.strictEqual(x.fuelPctFrom, 'litres');
-    /* the setting, as Layouts' */
-    const it = item('fuelFrom');
-    assert.deepStrictEqual([it.label, it.default, it.options.map((o) => o[0])], ['Fuel % from', 'engine', ['engine', 'litres']]);
+    x = r.raw(1000);
+    assert.deepStrictEqual([x.fuelPct, x.tankPct], [12.5, 12.5]);
+    /* no longer fed (not asked, or silent): the last held */
+    x = r.raw(500000);
+    assert.deepStrictEqual([x.fuelPct, x.tankPct], [12.5, undefined]);
+    /* no tank size, no Fuel % from (0.26.0) */
+    assert.ok(!spec.settings.some((s) => s.key === 'tankLitres' || s.key === 'fuelFrom'));
 });
 
-test('the Car profile\'s fuel settings land: every tank size it can give, and Fuel % from', () => {
-    /* (the Car profile app's steps for Fuel tank size, akakingj/myapp-id7 apps/car_profile/app.json) */
-    const CAR_PROFILE_TANKS = [40, 42, 46, 50, 52, 55, 57, 59, 60, 63, 65, 66, 68, 69, 70, 74, 80, 83, 85, 90];
-    const own = item('tankLitres').options.map((o) => o[0]);
-    assert.deepStrictEqual(CAR_PROFILE_TANKS.map(String).filter((v) => own.indexOf(v) < 0), []);
-    assert.strictEqual(item('fuelFrom').profile, 'fuelFrom');
-});
 
 test('the move happens once, through the kit\'s own settings: saved, and the next start leaves later choices alone', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'car-'));

@@ -112,7 +112,7 @@ style's appear once it is chosen).
   km/h, 330 for an M car), **Oil / Coolant / Gearbox is too hot at** (where Toro's gauges, M Track Mode's rows and M
   Sport's oil strip turn red; the oil blue until *Oil is warm at*) and **Boost gauge up to** (bar or psi, as the units).
   Toro's G meter's dot moves as the driver feels the load: to the right in a left bend, up braking, down accelerating.
-- **Red zone and shift**: **Yellow light at** (where the shift lights begin; *Off*: no yellow, green then red), **Red light at (the red zone)**, **Shift
+- **Red zone and shift**: **Yellow light at** (where the shift lights begin), **Red light at (the red zone)**, **Shift
   now warning at** (past the shift point the shift lights flash and the speed and the gear blink red, in every style),
   **Gauge goes up to**, **Engine's top rpm (redline)**, the limiter flash, and the **cold engine** guard (the shift
   point and the red zone lower while the oil is cold).
@@ -124,9 +124,8 @@ style's appear once it is chosen).
   Layouts finds one) gets its electric range beside the fuel's and its eDrive box kept clear; in its electric and
   hybrid modes every style's rev counter becomes a **Power %** gauge as BMW's own: the pedal's demand 0 - 100,
   **CHARGE** in green below 0 while the battery takes the regeneration, from eDrive Live's battery power; the rev
-  counter again in SPORT, XTRABOOST and with the lever in S or M. **Fuel tank size** and **Fuel % from** (as Cluster
-  Layouts' fuel gauge: the engine unit's own tank level while the engine runs, otherwise the car's litres over the
-  tank's size; or the litres always). **Electric range when full** (km, in miles with mph): a plug-in hybrid's electric range from its
+  counter again in SPORT, XTRABOOST and with the lever in S or M. The fuel gauge, as Cluster Layouts': the engine
+  unit's own tank level only, its last answer held (0.26.0: no tank size to set). **Electric range when full** (km, in miles with mph): a plug-in hybrid's electric range from its
   charge while the car gives none (shown with "~" before it, as Layouts shows an estimate), and its battery gauge
   against it.
 
@@ -301,7 +300,6 @@ it sets is shown here with "Car profile" beside it and changed there:
 | Engine | *Car → Engine*, the same five choices |
 | The units, the clock | *Units and clock* |
 | Speedometer up to, Boost gauge up to | *Readouts and gauges* |
-| Fuel tank size, Fuel % from | *Car* |
 | Skin | *Display* |
 
 ## Showing or hiding BMW's bottom strip
