@@ -13,6 +13,15 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.24.0
+
+- **The speed limit sign shows the car's limit.** *Display > Speed limit sign* had `--`; it now shows the limit the car
+  has read, as the head-up display gets it (`DisplayDataServer.functionalLibraryData`, `xSpeedLimitAssist.vSLISpeedValue`,
+  in steps of 5). AK Cluster Info's log of 27 November 2026 had 14, 10, 12 and 8 on roads of 70, 50, 60 and 40 km/h;
+  the value stays after the head-up display's pop-up ends. Read every 2 s; `--` again 10 s after the car stops sending
+  one, or at 0 (`src/car/vehicle.js` speedLimit, `src/engine/state.js`; `test/car.test.js`, `test/sli.test.js`). The
+  preview takes `speedLimit=`.
+
 ## AK 0.23.4
 
 - **Toro's speed limit sign no longer sits on the gear.** With *Gear position* on the right, the gear stands where

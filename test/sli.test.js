@@ -63,3 +63,12 @@ test('the figures: the car\'s, once read, else --', () => {
     assert.strictEqual(Overlays.sliText({ speedLimit: 79.6 }), '80');
     assert.strictEqual(Overlays.sliText({ speedLimit: 120 }), '120');
 });
+
+test('the car\'s limit reaches the sign: the reader\'s speedLimit through the state to the figures', () => {
+    const State = require('../src/engine/state.js');
+    const Sim = require('../preview/sim.js');
+    const profile = Panel.profile('carprofile');
+    const raw = Sim.create(profile).raw();
+    assert.strictEqual(Overlays.sliText(State.present(Object.assign({}, raw, { speedLimit: undefined }), profile, {})), '--');
+    assert.strictEqual(Overlays.sliText(State.present(Object.assign({}, raw, { speedLimit: 70 }), profile, {})), '70');
+});

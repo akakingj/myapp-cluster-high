@@ -215,3 +215,18 @@ test('the Sport Display\'s boost and its gauge\'s end in the car\'s pressure uni
     const it = item('boostMax');
     assert.deepStrictEqual([it.default, it.hidden, it.profileMap['0'], it.options[0][1]], ['auto', true, 'auto', 'From the car\'s Sport Display']);
 });
+
+test('the speed limit as the head-up display gets it: steps of 5, kept after the pop-up, 10 s, none at 0', () => {
+    const r = Vehicle.createReader({});
+    const hud = (x, at) => r.receive('de.bmw.infotainment.displaydataserver.DisplayDataServer', 'functionalLibraryData',
+        { xSpeedLimitAssist: Object.assign({ statusVZA: 'STATUS_INACTIVE', countryCode: 'LDM_CCODE_ECE' }, x), cruiseCtrlSpeedHUD: 65535 }, at);
+    assert.strictEqual(r.raw(1000, 59).speedLimit, undefined, 'none read yet');
+    hud({ vSLISymbol: 'LDM_VZA_VSLI_SPEED_LIMIT', vSLISpeedValue: 14 }, 1000);
+    assert.strictEqual(r.raw(1000, 59).speedLimit, 70, 'AK Cluster Info\'s log: 14 on a road of 70');
+    hud({ vSLISymbol: 'LDM_VZA_VSLI_NO_SYMBOL', vSLISpeedValue: 8 }, 3000);
+    assert.strictEqual(r.raw(3000, 59).speedLimit, 40, 'the value after the pop-up too');
+    assert.strictEqual(r.raw(13001, 59).speedLimit, undefined, 'not read for 10 s: none');
+    hud({ vSLISpeedValue: 0 }, 14000);
+    assert.strictEqual(r.raw(14000, 59).speedLimit, undefined, '0: none');
+    assert.ok(Vehicle.SIGNALS['de.bmw.infotainment.displaydataserver.DisplayDataServer'].functionalLibraryData);
+});

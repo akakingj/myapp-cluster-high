@@ -79,7 +79,9 @@
                 avgL100: 9.6, iatC: 31 + s.boostBar * 9, batteryV: 14.1, gearboxC: s.oilTempC - 8,
                 pedalPct: s.throttle * 100, throttlePct: 3 + s.throttle * 90, timingDeg: 18 - s.rpm / 800,
                 gLat: s.gLat, gLon: s.gLon,
-                gPeakLat: s.gPeakLat, gPeakLon: s.gPeakLon
+                gPeakLat: s.gPeakLat, gPeakLon: s.gPeakLon,
+                /* the speed limit the car has read: none unless poked (the preview's speedLimit=) */
+                speedLimit: s.speedLimit
             };
         }
 

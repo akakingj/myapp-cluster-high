@@ -206,6 +206,7 @@
     if (params.get('rpm')) sim.poke({ rpm: parseFloat(params.get('rpm')) });
     if (params.get('speed')) sim.poke({ speedKmh: parseFloat(params.get('speed')) });
     if (params.get('oil')) sim.poke({ oilTempC: parseFloat(params.get('oil')) });
+    if (params.get('speedLimit')) sim.poke({ speedLimit: parseFloat(params.get('speedLimit')) });   // the sign's figures (sliSign=on)
 
     draw(isFinite(seek) ? seek : 0);
     window.__ready = true;

@@ -92,6 +92,7 @@ const POLL_MS = {
     'de.bmw.infrastructure.VehicleCondition': 1000,
     'de.bmw.infotainment.MDrive': 2000,
     'de.bmw.infotainment.KombiIF': 5000,                 // range, fuel, odo
+    'de.bmw.infotainment.displaydataserver.DisplayDataServer': 2000,   // the speed limit (as Layouts reads it)
     'de.bmw.infrastructure.EnvironmentalInformation': 15000
 };
 const DEFAULT_POLL_MS = 3000;

@@ -71,6 +71,10 @@ var SIGNALS = {
         dataDisplayGearbox: 's',
         _optional: 'Driving mode on M cars; the gearbox\'s S / M programme'
     },
+    'de.bmw.infotainment.displaydataserver.DisplayDataServer': {
+        functionalLibraryData: 'rs',
+        _optional: 'The speed limit the car has read, as the head-up display gets it (Display > Speed limit sign)'
+    },
     'de.bmw.infotainment.vehicle.CDS2': {
         statusLateralAccelerationMassCenter: 'rs',
         statusLongitudinalAccelerationMassCenter: 'rs',
@@ -83,6 +87,17 @@ function enumOf(v, names) {
     return typeof v === 'string' && Object.prototype.hasOwnProperty.call(names, v) ? names[v] : v;
 }
 function member(v, key) { return v && typeof v === 'object' ? v[key] : v; }
+/* a member by its name at any depth up to `depth` (the head-up display's data nests its groups) */
+function findKey(v, key, depth) {
+    if (!v || typeof v !== 'object' || depth < 0) return undefined;
+    if (Object.prototype.hasOwnProperty.call(v, key)) return v[key];
+    var ks = Object.keys(v);
+    for (var i = 0; i < ks.length; i++) {
+        var f = findKey(v[ks[i]], key, depth - 1);
+        if (f !== undefined) return f;
+    }
+    return undefined;
+}
 
 /*
  * VehicleCondition.statusConditionVehicle (kit/runtime/car.js numbering):
@@ -339,6 +354,10 @@ function createReader(opts) {
         if (now - e.at > STALE_MS) return undefined;
         return e.value;
     }
+    function sliNow(now) {
+        var e = v.sliRaw;
+        return e && now - e.at <= 10000 && e.value >= 1 && e.value <= 30 ? e.value * 5 : undefined;
+    }
     /* Readings that only change slowly are not aged out. */
     function held(key) { return v[key] ? v[key].value : undefined; }
 
@@ -448,6 +467,12 @@ function createReader(opts) {
         } else if (service === 'de.bmw.infotainment.misc.MDrive' && field === 'controlDisplayMSystems') {
             var mm = mEngineModeOf(value);
             if (mm) { put('driveMode', mm, now); put('mDrive', true, now); }
+        } else if (service === 'de.bmw.infotainment.displaydataserver.DisplayDataServer' && field === 'functionalLibraryData') {
+            /* the speed limit the car has read (xSpeedLimitAssist.vSLISpeedValue) in steps of 5: AK Cluster Info's log of
+               Nov 27 2026 had 14, 10, 12 and 8 on roads of 70, 50, 60 and 40 km/h. It stays after vSLISymbol goes back to
+               no symbol (the head-up display's pop-up ends); 0 or past 30: none */
+            var sl = findKey(value, 'vSLISpeedValue', 4);
+            if (typeof sl === 'number') put('sliRaw', sl, now);
         } else if (service === 'de.bmw.infotainment.vehicle.CDS2') {
             if (field === 'statusLateralAccelerationMassCenter') {
                 b = value && value.lateralAccelerationCentreOfGravity;
@@ -572,6 +597,8 @@ function createReader(opts) {
             clock: d ? { h: d.getUTCHours(), m: d.getUTCMinutes() } : undefined,
             /* undefined, not zero, when the car is not sending it: the
                meter then shows dashes instead of a convincing 0.00 */
+            /* the speed limit (polled every 2 s: kept 10 s), in the sign's own unit */
+            speedLimit: sliNow(now),
             gLat: gOk ? lat : undefined, gLon: gOk ? lon : undefined,
             gPeakLat: gOk ? peakLat : undefined, gPeakLon: gOk ? peakLon : undefined
         };

@@ -330,7 +330,9 @@
                    powerKw: has(raw.torqueNm) && has(raw.rpm) ? Math.max(0, raw.torqueNm * raw.rpm / 9549) : null,
                    hpfpBar: has(raw.hpfpBar) ? raw.hpfpBar : null, lpfpBar: has(raw.lpfpBar) ? raw.lpfpBar : null,
                    fuelPct: has(fuel) ? fuel : null } : null,
-            info: info
+            info: info,
+            /* the speed limit the car has read (null: none), for the sign (Display > Speed limit sign) */
+            speedLimit: has(raw.speedLimit) && raw.speedLimit > 0 ? raw.speedLimit : null
         };
     }
 
