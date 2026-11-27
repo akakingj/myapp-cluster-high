@@ -23,8 +23,12 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   speedometer (left)*, *Strip by the rev counter (right)*), each style its own. M Track Mode's scales moved to
   `src/theme/readings.js` (`Readings.scales`) for both; the strip shader `mstrip` takes its look (`u_kind`) apart from
   its side. As they come, both styles draw exactly as before.
-- **The electric range in the right of the footer comes with the drive battery's charge** (M Sport, M Sport Plus, M
-  Track Mode): ten small segments before *EV*, lit to the charge, red at 10 % and under (`segbar`, `src/shaders/parts.js`).
+- **The electric range in the right of the footer brings the drive battery's charge beside the rev counter**, as a
+  plug-in hybrid's own cluster has its charge gauge there over its electric range (M Sport, M Sport Plus: the right
+  strip; M Track Mode: the oil's strip): 0, 50, 100 %, the battery's symbol, lit to the charge. A strip set on the page
+  keeps what was set.
+- M Sport's rev numerals: a Power %'s 50 (a plug-in hybrid's electric and hybrid modes) stands at the dial's widest and
+  was cut by its layer's edge; the layer now reaches to 1716.
 
 ## AK 0.27.1
 

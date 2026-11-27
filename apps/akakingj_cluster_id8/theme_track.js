@@ -192,8 +192,10 @@
         S.footM = footKind(settings && settings.footM, 'range');
         S.footR = footKind(settings && settings.footR, 'outside');
         /* the two strips beside the dials (0.28.0): the frame's fuel (left) and engine oil (right; an electric car's drive
-           battery temperature), or any of M Track Mode's gauge readings on its scale (Readings.scales), or nothing */
-        var STRIP_HOME = ['fuel', S.electric === 'bev' ? 'hvtemp' : 'oil'];
+           battery temperature), or any of M Track Mode's gauge readings on its scale (Readings.scales), or nothing. With
+           the electric range in the footer's right place the right one is the drive battery's charge, 0 - 100 %, as a
+           plug-in hybrid's own cluster has its charge beside the rev counter over its electric range */
+        var STRIP_HOME = ['fuel', S.footR === 'erange' ? 'charge' : S.electric === 'bev' ? 'hvtemp' : 'oil'];
         S.strips = ['stripL', 'stripR'].map(function (k, i) {
             var v = settings && settings[k];
             return Readings.SCALE_KINDS.indexOf(v) >= 0 ? v : STRIP_HOME[i];
@@ -564,7 +566,10 @@
             [8, 7, 6, 5].map(speedItem), speedTicks, K.blueNum);
         scale('speedScaleB', roomy ? box(119, 278, 358, 526) : box(128, 282, 350, 522), 'mw', NUM_H.speed,
             [4, 3, 2, 1, 0].map(speedItem), speedTicks, K.blueNum);
-        var revBox = roomy ? box(1454, 74, 1676, 528) : box(1462, 78, 1668, 524);
+        /* (with a battery, wide enough for a Power %'s 50, which stands at the dial's widest, two figures: it was cut at
+           1668 before 0.28.0; without one the layer stays as small as it was, the frame's budget) */
+        var pctRoom = S.electric !== 'off' ? 48 : 0;
+        var revBox = roomy ? box(1454, 74, 1676 + pctRoom, 528) : box(1462, 78, 1668 + pctRoom, 524);
         /* a Power %'s figures (0, 50, 100) on the marks they stand at, in the rev numerals' place while it shows */
         var pctMarks = [];
         for (var q = REV.marks; q >= 0; q--) {
@@ -652,8 +657,8 @@
                     { face: st.unitFace || 'ms', size: words(deg ? 26.1 : 21.0), align: i ? 'left' : 'right', color: K.soft },
                     [{ str: st.unit, x: X(i ? T.unit.x : T.unit.x + 34), y: Y(397.0) }]);
             }
-            /* (the pump and the oil can are an engine's: an electric car's own two go without a symbol) */
-            if (bev && S.strips[i] === STRIP_HOME[i]) return;
+            /* (the pump and the oil can are an engine's: an electric car's fuel and battery temperature go without a symbol) */
+            if (bev && (S.strips[i] === 'fuel' || S.strips[i] === 'hvtemp')) return;
             var I = T.icon, cx = I.x + I.w / 2, cy = I.y + I.h / 2;
             if (st.mi) icon(I.id, 30, st.mi, I.x, I.y, I.w, I.h, i ? K.oilIcon : K.soft);
             else if (st.mt) {
@@ -690,21 +695,6 @@
          * for the place on the right, up to its right end, the unit where
          * the frame's is. at: { x, y, right, box } in artboard units.
          */
-        /*
-         * The drive battery's charge as a row of segments (0.28.0), on the electric range's line before its word: what
-         * the right place shows with the electric range chosen. end(s): where the word starts, px (null: nothing there).
-         */
-        var CHARGE_LEN = 66.0, CHARGE_GAP = 9.0;
-        function chargeBar(id, b, baseY, end) {
-            var h = TAG_H * SC, y0 = Math.round(Y(baseY) - h);
-            shape(id, 30, 'segbar', { x: b.x, y: y0, w: b.w, h: Math.ceil(h) }, function (s) {
-                var e = end(s), c = s.info ? Number(s.info.charge) : NaN;
-                if (e === null || !isFinite(c)) return null;
-                var x1 = e - CHARGE_GAP * SC - b.x;
-                return { u_span: [x1 - CHARGE_LEN * SC, x1], u_frac: Math.max(0, Math.min(1, c / 100)), u_on: 1, u_segs: 10,
-                         u_lowAt: 0.1, u_lit: K.segLit, u_low: K.hot, u_dim: K.segDim };
-            });
-        }
         function place(name, kind, at) {
             var R = READINGS[kind];
             if (!R) return;
@@ -740,11 +730,6 @@
                                  color: K.soft };
                     });
                 }
-                if (at.charge && R.tag) chargeBar(name + 'Charge', b, at.y, function (s) {
-                    var v = figures(s);
-                    return v === null ? null : X(at.x) - Text.measure(atlas, FF, v, size, 0) - TAG_GAP * SC
-                        - Text.measure(atlas, 'mb', R.tag, fig(TAG_H), 0);
-                });
                 return;
             }
             var pen = at.x + (R.icon ? 43.0 : R.tag ? tagW + TAG_GAP : 0);
@@ -858,7 +843,7 @@
                 [{ str: celsius ? '°C' : '°F', x: X(1682.0), y: Y(FOOT_Y + 2.6) }]);
 
         } else if (S.footR !== 'off') {
-            place('slotR', S.footR, { x: 1674.3, y: FOOT_Y + 1.6, right: true, box: box(1440, 552, 1800, 598), charge: S.footR === 'erange' });
+            place('slotR', S.footR, { x: 1674.3, y: FOOT_Y + 1.6, right: true, box: box(1440, 552, 1800, 598) });
         }
 
         /* ------------------------------------- the reference frame's lamps */

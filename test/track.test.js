@@ -987,21 +987,27 @@ test('the two strips (0.28.0): fuel and oil as they come, or any of M Track Mode
     assert.deepStrictEqual(g.glide, ['iatC', 'batteryV']);
 });
 
-test('the electric range on the right of the footer comes with the drive battery\'s charge as segments (0.28.0), every M style', () => {
-    for (const style of ['track', 'mplus', 'mtrack']) {
+test('the electric range on the right of the footer brings the drive battery\'s charge into the strip by the rev counter, as a plug-in hybrid\'s own cluster (0.28.0)', () => {
+    /* M Sport and M Sport Plus: the right strip; M Track Mode: the oil's (the left of its two) */
+    for (const [style, idx, id, labels] of [['track', 1, 'oilStrip', 'oilLabels'], ['mplus', 1, 'oilStrip', 'oilLabels'], ['mtrack', 0, 'oilStrip', 'stripLabels']]) {
         const t = build({ style: style, units: 'metric', electric: 'hybrid', footR: 'erange' });
-        const id = style === 'mtrack' ? 'footRCharge' : 'slotRCharge';
-        const L = layer(t, id);
-        assert.ok(L && L.shader === 'segbar', style);
-        const u = L.uniforms(state(t, { socPct: 78, evRangeKm: 43 }));
-        assert.deepStrictEqual([u.u_frac, u.u_on, u.u_segs, u.u_lowAt], [0.78, 1, 10, 0.1], style);
-        assert.ok(u.u_span[0] >= 0 && u.u_span[1] > u.u_span[0] && u.u_span[1] <= L.w, style + ' inside its layer');
-        assert.strictEqual(L.uniforms(state(t, { evRangeKm: 43 })), null, style + ': no charge, no bar');
-        /* the other readings there, and the other places, have none */
-        assert.ok(!layer(build({ style: style, electric: 'hybrid', footR: 'outside' }), id), style);
-        assert.ok(!build({ style: style, electric: 'hybrid', footL: 'erange' }).layers.some((x) => x.shader === 'segbar'), style);
+        assert.strictEqual(t.settings.strips[idx], 'charge', style);
+        assert.strictEqual(t.settings.numbers, true, style);
+        const u = layer(t, id).uniforms(state(t, { socPct: 78, evRangeKm: 43 }));
+        assert.ok(Math.abs(u.u_level - 0.78) < 1e-9 && u.u_on === 1, style + ' ' + u.u_level);
+        assert.ok(/^1005(0)?0$/.test(says(t, labels, state(t, {}))), style + ' ' + says(t, labels, state(t, {})));
+        /* another reading there: the strip as it comes; a strip set on the page keeps what was set */
+        assert.notStrictEqual(build({ style: style, electric: 'hybrid', footR: 'outside' }).settings.strips[idx], 'charge', style);
+        const key = { track: 'mStripR', mplus: 'pStripR', mtrack: 'kStripL' }[style];
+        assert.strictEqual(build({ style: style, electric: 'hybrid', footR: 'erange', [key]: 'boost' }).settings.strips[idx], 'boost', style);
     }
-    assert.ok(allShaders.segbar, 'the shader is one the cluster has');
+});
+
+test('a Power %\'s 50 on the rev numerals is not cut at the dial\'s widest (its layer reaches past 1668)', () => {
+    const L = layer(build({ units: 'metric', electric: 'hybrid' }), 'revScale');
+    assert.ok(L.x + L.w >= Math.floor(M.px(1716)) - 1, String(L.x + L.w));
+    const plain = layer(build({ units: 'metric' }), 'revScale');
+    assert.ok(plain.x + plain.w <= Math.ceil(M.px(1668)) + 1, 'without a battery: as it was');
 });
 
 test('the gear is shown as the car names it', () => {

@@ -80,33 +80,6 @@
         '}'
     ].join('\n');
 
-    /* ------------------------------------------------------------ segbar */
-    /*
-     * A short row of leaning segments filling from the left (0.28.0: the drive battery's charge beside the electric range
-     * in an M style's footer): lit to the level, red at and under u_lowAt, the rest dim; nothing while u_on is 0.
-     */
-    var segbar = [
-        'uniform vec2 u_span;',      /* where along the layer it runs, px (it moves as the figures beside it widen) */
-        'uniform float u_frac;',
-        'uniform float u_on;',
-        'uniform float u_segs;',
-        'uniform float u_lowAt;',
-        'uniform vec3 u_lit;',
-        'uniform vec3 u_low;',
-        'uniform vec3 u_dim;',
-        'void main() {',
-        '  vec2 p = px();',
-        '  float n = u_segs, w = max(u_span.y - u_span.x, 1.0), pitch = w / n;',
-        '  float x = p.x - u_span.x;',
-        '  float i = clamp(floor(x / pitch), 0.0, n - 1.0);',
-        '  vec2 q = vec2(x, p.y) - vec2((i + 0.5) * pitch, u_size.y * 0.5);',
-        '  float d = sdRound(q, vec2(pitch * 0.36, u_size.y * 0.5 - 0.5), min(pitch * 0.12, u_size.y * 0.2));',
-        '  float lit = step((i + 0.5) / n, u_frac);',
-        '  vec3 on = u_frac <= u_lowAt ? u_low : u_lit;',
-        '  gl_FragColor = vec4(mix(u_dim, on, lit), cov(d) * step(0.5, u_on));',
-        '}'
-    ].join('\n');
-
     /* -------------------------------------------------------------- vbar */
     /*
      * A vertical column of leaning segments, as on the Huracan's side pods:
@@ -722,7 +695,7 @@
     ].join('\n');
 
     var out = { snow: snow, xtree: xtree, veil: veil, hgauge: hgauge, text: text, plate: plate, marker: marker, gearband: gearband,
-                gauge: gauge, gforce: gforce, icon: icon, vbar: vbar, segbar: segbar, boost: boost,
+                gauge: gauge, gforce: gforce, icon: icon, vbar: vbar, boost: boost,
                 gmeter: gmeter, hairline: hairline, cover: cover, sign: sign };
     /* the snow's grid, for whoever sends u_fall: not a shader, so not listed with them */
     Object.defineProperty(out, 'SNOW', { value: SNOW, enumerable: false });

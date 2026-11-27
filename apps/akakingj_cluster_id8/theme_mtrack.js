@@ -187,7 +187,10 @@
         });
         /* the two strips right of the rev counter: the frame's oil and fuel, or a row's reading, or nothing */
         var STRIP_KINDS = ROW_KINDS;
-        S.strips = [['stripL', bev ? 'hvtemp' : 'oil'], ['stripR', 'fuel']].map(function (p) {
+        /* (0.28.0: with the electric range in the footer's right place the oil's strip is the drive battery's charge, as a
+           plug-in hybrid's own cluster has it beside the rev counter, and as M Sport's) */
+        var chargeHome = Readings.kind(settings && settings.footR, 'outside') === 'erange';
+        S.strips = [['stripL', chargeHome ? 'charge' : bev ? 'hvtemp' : 'oil'], ['stripR', 'fuel']].map(function (p) {
             var v = settings && settings[p[0]];
             return STRIP_KINDS.indexOf(v) >= 0 ? v : p[1];
         });
@@ -620,21 +623,6 @@
          * unit where the frame's is. at: { x, right, box } in frame units;
          * x is where the figures' ink starts (or, on the right, ends).
          */
-        /*
-         * The drive battery's charge as a row of segments (0.28.0, as M Sport's), on the electric range's line before its
-         * word: what the right place shows with the electric range chosen. end(s): where the word starts, px.
-         */
-        var CHARGE_LEN = 64.0, CHARGE_GAP = 8.5;
-        function chargeBar(id, b, end) {
-            var h = TAG_H * SC, y0 = Math.round(Y(FOOT_Y) - h);
-            shape(id, 30, 'segbar', { x: b.x, y: y0, w: b.w, h: Math.ceil(h) }, function (s) {
-                var e = end(s), c = s.info ? Number(s.info.charge) : NaN;
-                if (e === null || !isFinite(c)) return null;
-                var x1 = e - CHARGE_GAP * SC - b.x;
-                return { u_span: [x1 - CHARGE_LEN * SC, x1], u_frac: Math.max(0, Math.min(1, c / 100)), u_on: 1, u_segs: 10,
-                         u_lowAt: 0.1, u_lit: K.segLit, u_low: K.stripHot, u_dim: K.segDim };
-            });
-        }
         function place(name, kind, at) {
             var Rd = READINGS[kind];
             if (!Rd) return;
@@ -669,11 +657,6 @@
                                  x: figEnd(s) - width(s) - TAG_GAP * SC, y: Y(FOOT_Y), color: K.unit };
                     });
                 }
-                if (at.charge && Rd.tag) chargeBar(name + 'Charge', b, function (s) {
-                    if (figures(s) === null) return null;
-                    var tk = inkSpan(atlas, 'mb', Rd.tag, tsize);
-                    return figEnd(s) - width(s) - TAG_GAP * SC - (tk.r - tk.l);
-                });
                 if (Rd.icon) {
                     dyn(name + 'Icon', 30, b, function (s) {
                         if (figures(s) === null) return null;
@@ -713,8 +696,7 @@
         /* (on the right the unit's ink ends at 1556.2; the frame's figures then end at 1526. Lowered, the
            style is wider than the screen there: the place ends as far from the screen's edge as it does now) */
         var FOOT_R = Math.min(1556.2, (Panel.PANEL_WIDTH - 13 - A.ox) / SC);
-        if (S.footR !== 'off') place('footR', S.footR, { x: FOOT_R, right: true, box: box(FOOT_R - 266.2, 508, FOOT_R + 9.8, 544.5),
-                                                         charge: S.footR === 'erange' });
+        if (S.footR !== 'off') place('footR', S.footR, { x: FOOT_R, right: true, box: box(FOOT_R - 266.2, 508, FOOT_R + 9.8, 544.5) });
 
         /* ---------------------------------- the reference frame's speed limit */
         if (fixture) {

@@ -333,8 +333,9 @@ With the strip hidden, the M styles' footer can carry what it showed:
 the app's page → *Footer, left / middle / right* (time, range,
 outside temperature and more), and in Settings → M Sport or M Sport Plus
 *The gear's place shows* if you would rather not see the gear twice.
-The electric range on the right comes with the drive battery's charge, a row
-of ten segments before *EV* (red at 10 % and under), in every M style.
+With the electric range on the right, the strip by the rev counter shows the
+drive battery's charge (0 - 100 %), as a plug-in hybrid's own cluster has it,
+in every M style (unless that strip is set to something else on the page).
 
 M Sport's and M Sport Plus's two strips beside the dials, the fuel and the
 oil temperature as they come, take any reading M Track Mode's strips can,
