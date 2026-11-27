@@ -13,6 +13,13 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.24.1
+
+- **The speed limit sign keeps the last limit, and comes sooner.** The last limit the car read now stays while it sends
+  nothing new (0.24.0 went back to `--` after 10 s); `--` until it has sent one, and at 0 (none recognised). Its
+  service is set up fifth of the car's instead of twelfth: each waits for the one before it, and on the car the
+  figures came about 30 s after a start (`src/car/vehicle.js` SIGNALS, sliNow).
+
 ## AK 0.24.0
 
 - **The speed limit sign shows the car's limit.** *Display > Speed limit sign* had `--`; it now shows the limit the car
