@@ -306,7 +306,14 @@ test('Logs: the codes to photograph, three a page, and the whole as a file, as C
     assert.match(saved[0], /^cluster-logs-id8-/);
     const text = fs.readFileSync(path.join(dir, 'exports', saved[0]), 'utf8');
     assert.match(text, /^=== AK Cluster ID8 /);
-    ['settings', 'service', 'engine unit', 'data now', 'this app\'s log'].forEach((t) => assert.ok(text.indexOf('--- ' + t + ' ---') >= 0, t));
+    ['settings', 'service', 'engine unit', 'data now', 'sli', 'this app\'s log'].forEach((t) => assert.ok(text.indexOf('--- ' + t + ' ---') >= 0, t));
+    /* where it went: a USB stick, or (the sticks read-only, EROFS on the owner's car) the app's data folder, or no stick */
+    const L0 = require('../src/car/logs.js');
+    const inData = { file: '/data/exports/cluster-logs-id8-x.txt' };
+    assert.deepStrictEqual(L0.savedNote([inData, { dir: '/media/A/cluster-logs', error: 'EROFS' }]),
+        ['The USB stick is read-only: the full logs are in the app\'s data folder', inData.file]);
+    assert.deepStrictEqual(L0.savedNote([inData, { file: '/media/A/cluster-logs/x.txt' }]), ['The full logs are also on the USB stick:', '/media/A/cluster-logs/x.txt']);
+    assert.deepStrictEqual(L0.savedNote([inData]), ['Plug in a USB stick and press Make again for the full logs as a file', '']);
     /* the codes: the same as Cluster Layouts' (CLG1) */
     const Logs = require('../src/car/logs.js');
     const pages = Math.ceil(Logs.codes(text).codes.length / 3);

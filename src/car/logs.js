@@ -88,6 +88,19 @@ function save(text, dataDir, name) {
     return out;
 }
 
+/**
+ * What the page says of where save() put the full logs: [the line's words, the file or ''] - on a USB stick; a stick
+ * the head unit mounts read-only for the apps here (EROFS, the owner's car with two different sticks: every app gets
+ * them so) and the file in the app's data folder instead; or no stick at all.
+ */
+function savedNote(saved) {
+    const usb = (saved || []).filter((r) => r.file && !/[\\/]exports[\\/]/.test(r.file));
+    const failed = (saved || []).filter((r) => r.dir && r.error), inData = (saved || []).filter((r) => r.file && /[\\/]exports[\\/]/.test(r.file));
+    if (usb.length) return ['The full logs are also on the USB stick:', usb[0].file];
+    if (failed.length) return ['The USB stick is read-only: the full logs are in the app\'s data folder', inData.length ? inData[0].file : ''];
+    return ['Plug in a USB stick and press Make again for the full logs as a file', ''];
+}
+
 /** The QR codes for a text: { id, codes: [{ size, get(x, y) }] }. */
 function codes(text) {
     const z = zlib.deflateSync(Buffer.from(text, 'utf8'), { level: 9 }).toString('base64');
@@ -148,4 +161,4 @@ function pager(bundleOf, dataDir, log, tag) {
     };
 }
 
-module.exports = { tail, siblingLog, bundle, save, codes, draw, pager, RENDER_LOG, CHUNK };
+module.exports = { savedNote, tail, siblingLog, bundle, save, codes, draw, pager, RENDER_LOG, CHUNK };

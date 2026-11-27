@@ -216,17 +216,32 @@ test('the Sport Display\'s boost and its gauge\'s end in the car\'s pressure uni
     assert.deepStrictEqual([it.default, it.hidden, it.profileMap['0'], it.options[0][1]], ['auto', true, 'auto', 'From the car\'s Sport Display']);
 });
 
-test('the speed limit as the head-up display gets it: steps of 5, the last one kept, none at 0', () => {
+test('the speed limit sign: the limit Speed Limit Assist has taken, else -- (AK Cluster Info\'s log of Nov 24 2026)', () => {
     const r = Vehicle.createReader({});
-    const hud = (x, at) => r.receive('de.bmw.infotainment.displaydataserver.DisplayDataServer', 'functionalLibraryData',
-        { xSpeedLimitAssist: Object.assign({ statusVZA: 'STATUS_INACTIVE', countryCode: 'LDM_CCODE_ECE' }, x), cruiseCtrlSpeedHUD: 65535 }, at);
+    const hud = (x, at) => r.receive('de.bmw.infotainment.displaydataserver.DisplayDataServer', 'functionalLibraryData', x, at);
+    const row = (value, takeover, limiter, extra) => Object.assign({
+        xSpeedLimitAssist: { vSLISymbol: 'LDM_VZA_VSLI_NO_SYMBOL', statusVZA: 'STATUS_INACTIVE', countryCode: 'LDM_CCODE_ECE',
+            ldmAdditionalSign: takeover, vSLISpeedValue: value, vSLIAdditionalSign: 'LDM_VSLI_NO_SYMBOL' },
+        activeCruiseControl: { symbolACC: 'LDM_CAR_OFF', barsColorACC: 'LDM_STANDBY' }, statusLimiter: limiter, cruiseCtrlSpeedHUD: 65535 }, extra || {});
     assert.strictEqual(r.raw(1000, 59).speedLimit, undefined, 'none read yet');
-    hud({ vSLISymbol: 'LDM_VZA_VSLI_SPEED_LIMIT', vSLISpeedValue: 14 }, 1000);
-    assert.strictEqual(r.raw(1000, 59).speedLimit, 70, 'AK Cluster Info\'s log: 14 on a road of 70');
-    hud({ vSLISymbol: 'LDM_VZA_VSLI_NO_SYMBOL', vSLISpeedValue: 8 }, 3000);
-    assert.strictEqual(r.raw(3000, 59).speedLimit, 40, 'the value after the pop-up too');
-    assert.strictEqual(r.raw(603000, 59).speedLimit, 40, 'kept while nothing new comes (10 min)');
-    hud({ vSLISpeedValue: 0 }, 14000);
-    assert.strictEqual(r.raw(14000, 59).speedLimit, undefined, '0: none');
+    hud(row(10, 'TAKEOVER_SET', 'STATUS_ACTIVE'), 1000);                   // 00:43, 60 km/h, the limiter on
+    assert.strictEqual(r.raw(1000, 59).speedLimit, 50);
+    hud(row(12, 'NO_TAKEOVER_OFFER', 'STATUS_ACTIVE'), 2000);              // 00:56, standing
+    assert.strictEqual(r.raw(2000, 59).speedLimit, undefined, 'no takeover: --');
+    hud(row(0, 'NO_TAKEOVER_OFFER', 'STATUS_ACTIVE', { cruiseCtrlSpeedHUD: 60 }), 3000);   // 05:00, 60 km/h
+    assert.strictEqual(r.raw(3000, 59).speedLimit, undefined, '0: --');
+    hud(row(6, 'TAKEOVER_SET', 'STATUS_INACTIVE'), 4000);                   // a value left with the limiter off
+    assert.strictEqual(r.raw(4000, 59).speedLimit, undefined, 'the limiter off and no cruise control: -- (not the 30 kept on a motorway)');
+    hud(row(14, 'TAKEOVER_SET', 'STATUS_INACTIVE', { activeCruiseControl: { symbolACC: 'LDM_CAR_NORMAL', barsColorACC: 'LDM_ACTIVE' } }), 5000);
+    assert.strictEqual(r.raw(5000, 59).speedLimit, 70, 'the cruise control on (ACC): its limit');
+    assert.strictEqual(r.raw(15001, 59).speedLimit, undefined, 'no head-up display data for 10 s: --');
+    const raw = r.raw(5000, 59);
+    assert.deepStrictEqual([raw.sliRaw, raw.sliTakeover, raw.sliLimiter, raw.sliAgeS], [14, 'TAKEOVER_SET', 'STATUS_INACTIVE', 0]);
+    // the log: each change with its time and speed, the last 20; how often the data came
+    for (let i = 0; i < 30; i++) hud(row(i % 2 ? 10 : 12, 'TAKEOVER_SET', 'STATUS_ACTIVE'), 6000 + i * 100);
+    const lines = r.sliLog(9000).split('\n');
+    assert.ok(/^head-up display data: 35 in the last 60 s, the last 0.1 s ago; shown: 50$/.test(lines[0]), lines[0]);
+    assert.strictEqual(lines.length, 21, 'the last 20 changes');
+    assert.ok(/ at \? km\/h  shown 50  \{"value":10/.test(lines[20]), lines[20]);
     assert.ok(Vehicle.SIGNALS['de.bmw.infotainment.displaydataserver.DisplayDataServer'].functionalLibraryData);
 });

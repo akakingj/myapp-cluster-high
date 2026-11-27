@@ -620,6 +620,8 @@ mgu.run({
                 ['engine unit', JSON.stringify({ needs: snap.needs, engine: snap.engine })],
                 ['centre', JSON.stringify((background && background.centre && background.centre()) || null)],
                 ['data now', JSON.stringify(snap.readings || {})],
+                /* (the QR codes: the last 8 changes, the file all 20) */
+                ['sli', String((background && background.sli && background.sli(n(8, 20))) || '-')],
                 ['cluster-render log', Logs.tail(Logs.RENDER_LOG, n(20, 1500))],
                 ['this app\'s log', Logs.tail(path.join(ctx.dataDir || '.', String(ctx.spec.id) + '.log'), n(40, 600))]
             ]);
@@ -640,11 +642,11 @@ mgu.run({
             const n = logView.codes.length, pages = Math.max(1, Math.ceil(n / LOG_PER_PAGE));
             logView.page = Math.min(logView.page, pages - 1);
             const first = logView.page * LOG_PER_PAGE;
-            const usb = logView.saved.filter((r) => r.file && !/exports/.test(r.file));
+            /* where the full logs went: a USB stick, the app's data folder when the sticks are read-only, or none (Logs.savedNote) */
+            const note = Logs.savedNote(logView.saved);
             fitLabel(tr('Photograph each code') + '  ·  ' + tr('page') + ' ' + (logView.page + 1) + ' / ' + pages + '  ·  ' + tr('codes') + ' ' +
                 (n ? (first + 1) + '-' + Math.min(n, first + LOG_PER_PAGE) : '0') + ' / ' + n, 30, top + 30, 21, 900, INK, { done: true });
-            fitLabel(usb.length ? tr('The full logs are also on the USB stick:') + ' ' + usb[0].file
-                : tr('Plug in a USB stick and press Make again for the full logs as a file'), 30, top + 58, 16, 900, DIM, { done: true });
+            fitLabel(tr(note[0]) + (note[1] ? ' ' + note[1] : ''), 30, top + 58, 16, 900, DIM, { done: true });
             /* the page's buttons, right of those lines */
             const btn = (x, w, word, run, key, on) => {
                 if (on && SK7) focus7(cv, x, top + 4, w, 46);

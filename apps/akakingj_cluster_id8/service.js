@@ -644,6 +644,10 @@ function start(host, deps) {
         status: function () { return status; },
         /* the drive mode's kind the cluster shows its style for ('sport', 'eco' or null) */
         mode: function () { return modeCls; },
+        /* the speed limit sign's log (--- sli ---: src/car/vehicle.js sliLog) */
+        sli: function (last) {
+            try { return reader.sliLog(now(), last); } catch (e) { return String(e); }
+        },
         /* the state of things as plain values, for the page's Logs tab */
         snapshot: function () {
             var raw = {}, eng = null;

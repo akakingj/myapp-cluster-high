@@ -13,6 +13,22 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.25.1
+
+- **The speed limit sign shows the limit Speed Limit Assist has taken, else `--`.** AK Cluster Info's logs (24 and
+  27 November 2026) show what `vSLISpeedValue` is: the limit the limiter or the cruise control has taken, not the sign
+  the camera reads - it has a value only with the limiter (`statusLimiter` STATUS_ACTIVE) or the cruise control on
+  and `ldmAdditionalSign` TAKEOVER_SET, is 0 with the limiter off (at 60 km/h too), and keeps the last one taken in
+  between (on a motorway at 106 km/h it still had 30). The sign now shows it only then (x 5), `--` otherwise and 10 s
+  after the head-up display's data stops; 0.24.1's "the last one kept" is gone (`src/car/vehicle.js` sliOf,
+  sliRawOf). Display > Speed limit sign says so in its help.
+- **Logs: `--- sli ---`.** Each change of what the head-up display has of Speed Limit Assist (`xSpeedLimitAssist`, the
+  limiter, the ACC's symbol, the cruise speed, `pia`), with the time and the car's speed, the last 20; how often its
+  data came in the last 60 s and when it last came. `data now` has `sliRaw`, `sliTakeover`, `sliLimiter`, `sliAgeS`.
+- **Logs: a read-only USB stick.** The head unit mounts the sticks read-only for the apps here (EROFS on two sticks):
+  the page now says so and where the file is instead (the app's data folder), not "plug in a USB stick". Saving to a
+  stick is still tried (another car may allow it).
+
 ## AK 0.25.0
 
 - **M Track Mode's power and torque rows end at the car's most.** The Car profile 1.13.0's *Power gauge up to* and

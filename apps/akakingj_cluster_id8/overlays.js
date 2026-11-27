@@ -45,8 +45,8 @@
      * now about 26 - 29). 0.22.0 had the M styles' top middle,
      * under the driver camera's cowl (Panel.CAMERA), where the glass shows nothing. test/sli.test.js keeps each
      * clear of the style's pieces, the KOMBI's lights, the turn arrows and the camera's cowl, lowered too. The
-     * figures: state.speedLimit, the limit the car has read (src/car/vehicle.js: the head-up display's
-     * xSpeedLimitAssist.vSLISpeedValue x 5, 0.24.0), '--' while none.
+     * figures: state.speedLimit, the limit Speed Limit Assist has taken for the limiter or the cruise control
+     * (src/car/vehicle.js sliOf: the head-up display's xSpeedLimitAssist, 0.25.1), '--' while neither has one.
      */
     var SLI = {
         /* (Gear position right puts the gear where the sign is: the sign then goes to the mirror place, 0.23.4) */
