@@ -13,6 +13,12 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.26.2
+
+- **The speed limit sign no longer blinks `--` as a limit is taken.** AK Cluster Info's log (27 November 2026, 04:16:44)
+  shows `ldmAdditionalSign` going TAKEOVER_SET -> TAKEOVER_OCCURED -> TAKEOVER_SET at the moment Speed Limit Assist takes
+  a limit; TAKEOVER_OCCURED now counts as taken too (`src/car/vehicle.js` sliOf), as AK Cluster Layouts 0.66.1.
+
 ## AK 0.26.1
 
 - **The fuel gauge: the engine unit's tank level only.** Its own fill (OBD PID 0x2F, the one AK Cluster Layouts and

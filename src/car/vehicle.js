@@ -93,7 +93,8 @@ function member(v, key) { return v && typeof v === 'object' ? v[key] : v; }
  * the cruise control, not the sign the camera reads. AK Cluster Info's logs (Nov 24 and 27 2026): vSLISpeedValue has a
  * value only while the limiter (statusLimiter STATUS_ACTIVE) or the cruise control is on and ldmAdditionalSign is
  * TAKEOVER_SET; with the limiter off it is 0, at 60 km/h too, and between two signs taken it keeps the last one (at
- * 106 km/h on a motorway it still had 30). In steps of 5 (12: 60, 10: 50). Anything else: none, '--'.
+ * 106 km/h on a motorway it still had 30). In steps of 5 (12: 60, 10: 50). Anything else: none, '--'. TAKEOVER_OCCURED,
+ * the moment one is taken (Info's log of Nov 27, 04:16:44: SET -> OCCURED -> SET), counts too: no '--' blink (0.26.2).
  * AK Cluster Layouts' shared/data.js sliOf is the same rule.
  */
 var SLI_STALE_MS = 10000;
@@ -117,7 +118,7 @@ function sliAssistOn(r) {
 }
 /* the limit taken, km/h (or mph, as the car's own figures), or undefined */
 function sliOf(r) {
-    if (!r || r.takeover !== 'TAKEOVER_SET' || !sliAssistOn(r)) return undefined;
+    if (!r || !/^TAKEOVER_(SET|OCCURED|OCCURRED)$/.test(String(r.takeover)) || !sliAssistOn(r)) return undefined;
     var n = r.value;
     return typeof n === 'number' && n >= 1 && n <= 30 ? n * 5 : undefined;
 }
