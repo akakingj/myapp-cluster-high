@@ -202,34 +202,42 @@ test('the Sport Display\'s boost and its gauge\'s end in the car\'s pressure uni
     assert.deepStrictEqual([it.default, it.hidden, it.profileMap['0'], it.options[0][1]], ['auto', true, 'auto', 'From the car\'s Sport Display']);
 });
 
-test('the speed limit sign: the limit Speed Limit Assist has taken, else -- (AK Cluster Info\'s log of Nov 24 2026)', () => {
+test('the speed limit sign as the car\'s own: the last limit recognised, kept till another (AK Cluster Info\'s log of Nov 27 2026)', () => {
     const r = Vehicle.createReader({});
     const hud = (x, at) => r.receive('de.bmw.infotainment.displaydataserver.DisplayDataServer', 'functionalLibraryData', x, at);
-    const row = (value, takeover, limiter, extra) => Object.assign({
-        xSpeedLimitAssist: { vSLISymbol: 'LDM_VZA_VSLI_NO_SYMBOL', statusVZA: 'STATUS_INACTIVE', countryCode: 'LDM_CCODE_ECE',
-            ldmAdditionalSign: takeover, vSLISpeedValue: value, vSLIAdditionalSign: 'LDM_VSLI_NO_SYMBOL' },
-        activeCruiseControl: { symbolACC: 'LDM_CAR_OFF', barsColorACC: 'LDM_STANDBY' }, statusLimiter: limiter, cruiseCtrlSpeedHUD: 65535 }, extra || {});
-    assert.strictEqual(r.raw(1000, 59).speedLimit, undefined, 'none read yet');
-    hud(row(10, 'TAKEOVER_SET', 'STATUS_ACTIVE'), 1000);                   // 00:43, 60 km/h, the limiter on
-    assert.strictEqual(r.raw(1000, 59).speedLimit, 50);
-    hud(row(12, 'NO_TAKEOVER_OFFER', 'STATUS_ACTIVE'), 2000);              // 00:56, standing
-    assert.strictEqual(r.raw(2000, 59).speedLimit, undefined, 'no takeover: --');
-    hud(row(0, 'NO_TAKEOVER_OFFER', 'STATUS_ACTIVE', { cruiseCtrlSpeedHUD: 60 }), 3000);   // 05:00, 60 km/h
-    assert.strictEqual(r.raw(3000, 59).speedLimit, undefined, '0: --');
-    hud(row(6, 'TAKEOVER_SET', 'STATUS_INACTIVE'), 4000);                   // a value left with the limiter off
-    assert.strictEqual(r.raw(4000, 59).speedLimit, undefined, 'the limiter off and no cruise control: -- (not the 30 kept on a motorway)');
-    hud(row(14, 'TAKEOVER_SET', 'STATUS_INACTIVE', { activeCruiseControl: { symbolACC: 'LDM_CAR_NORMAL', barsColorACC: 'LDM_ACTIVE' } }), 5000);
-    assert.strictEqual(r.raw(5000, 59).speedLimit, 70, 'the cruise control on (ACC): its limit');
-    hud(row(16, 'TAKEOVER_OCCURED', 'STATUS_ACTIVE'), 5000);                // (Info's log of Nov 27, 04:16:44: the moment taken)
-    assert.strictEqual(r.raw(5000, 59).speedLimit, 80, 'TAKEOVER_OCCURED: no -- blink');
-    hud(row(14, 'TAKEOVER_SET', 'STATUS_INACTIVE', { activeCruiseControl: { symbolACC: 'LDM_CAR_NORMAL', barsColorACC: 'LDM_ACTIVE' } }), 5000);
-    assert.strictEqual(r.raw(15001, 59).speedLimit, undefined, 'no head-up display data for 10 s: --');
-    const raw = r.raw(5000, 59);
-    assert.deepStrictEqual([raw.sliRaw, raw.sliTakeover, raw.sliLimiter, raw.sliAgeS], [14, 'TAKEOVER_SET', 'STATUS_INACTIVE', 0]);
+    const row = (value, symbol, dist, takeover) => ({ xSpeedLimitAssist: { vSLISymbol: symbol, vSLIDistance: dist, ldmAdditionalSign: takeover || 'NO_TAKEOVER_OFFER',
+        vSLISpeedValue: value, statusVZA: 'STATUS_INACTIVE', countryCode: 'LDM_CCODE_ECE', vSLIAdditionalSign: 'LDM_VSLI_NO_SYMBOL' },
+        activeCruiseControl: { symbolACC: 'LDM_CAR_OFF', barsColorACC: 'LDM_ACTIVE' }, statusLimiter: 'STATUS_INACTIVE', cruiseCtrlSpeedHUD: 65535 });
+    const SL = 'LDM_VZA_VSLI_SPEED_LIMIT', NO = 'LDM_VZA_VSLI_NO_SYMBOL';
+    const shown = (at) => r.raw(at).speedLimit;
+    assert.strictEqual(shown(1000), undefined, 'none read yet');
+    hud(row(16, SL, 'LDM_VSLI_DIST_600_M'), 1000);                          // 01:22, 45 km/h, the cruise control off
+    assert.strictEqual(shown(1000), undefined, 'an 80 announced 600 m ahead: not yet, none before it: --');
+    hud(row(16, SL, 'LDM_VSLI_DIST_250_M'), 2000);
+    assert.strictEqual(shown(2000), undefined);
+    hud(row(16, SL, 'LDM_VSLI_DIST_OFF'), 3000);                            // 01:33, reached
+    assert.strictEqual(shown(3000), 80);
+    hud(row(16, NO, 'LDM_VSLI_DIST_OFF'), 4000);
+    assert.strictEqual(shown(4000), 80, 'the symbol gone: 80 kept');
+    hud(row(20, SL, 'LDM_VSLI_DIST_1_P_3_KM'), 5000);                       // 03:55, a 100 announced 1.3 km ahead
+    assert.strictEqual(shown(5000), 80, '80 still');
+    hud(row(20, NO, 'LDM_VSLI_DIST_OFF'), 6000);                            // 04:26, reached
+    assert.strictEqual(shown(6000), 100);
+    hud(row(20, NO, 'LDM_VSLI_DIST_OFF', 'TAKEOVER_SET'), 7000);
+    assert.strictEqual(shown(7000), 100, 'the takeover offered or not: the same');
+    hud(row(0, NO, 'LDM_VSLI_DIST_OFF'), 8000);
+    assert.strictEqual(shown(8000), 100, '0: the one shown kept');
+    hud(row(30, NO, 'LDM_VSLI_DIST_OFF'), 9000);
+    assert.strictEqual(shown(9000), 100, '30 (150, Nov 24): no road\'s, 100 kept');
+    hud(row(12, NO, 'LDM_VSLI_DIST_OFF'), 10000);
+    assert.strictEqual(shown(10000), 60, 'a new one with no announcement (the camera\'s): 60');
+    assert.strictEqual(shown(20001), undefined, 'no head-up display data for 10 s: --');
+    const raw = r.raw(10000);
+    assert.deepStrictEqual([raw.sliRaw, raw.sliSymbol, raw.sliDist, raw.sliTakeover, raw.sliAgeS], [12, NO, 'LDM_VSLI_DIST_OFF', 'NO_TAKEOVER_OFFER', 0]);
     // the log: each change with its time and speed, the last 20; how often the data came
-    for (let i = 0; i < 30; i++) hud(row(i % 2 ? 10 : 12, 'TAKEOVER_SET', 'STATUS_ACTIVE'), 6000 + i * 100);
-    const lines = r.sliLog(9000).split('\n');
-    assert.ok(/^head-up display data: 37 in the last 60 s, the last 0.1 s ago; shown: 50$/.test(lines[0]), lines[0]);
+    for (let i = 0; i < 30; i++) hud(row(i % 2 ? 10 : 12, NO, 'LDM_VSLI_DIST_OFF'), 11000 + i * 100);
+    const lines = r.sliLog(14000).split('\n');
+    assert.ok(/^head-up display data: \d+ in the last 60 s, the last 0.1 s ago; shown: 50$/.test(lines[0]), lines[0]);
     assert.strictEqual(lines.length, 21, 'the last 20 changes');
     assert.ok(/ at \? km\/h  shown 50  \{"value":10/.test(lines[20]), lines[20]);
     assert.ok(Vehicle.SIGNALS['de.bmw.infotainment.displaydataserver.DisplayDataServer'].functionalLibraryData);

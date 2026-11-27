@@ -13,6 +13,17 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.27.0
+
+- **The speed limit sign works as the car's own.** The last limit recognised stays until another is - 60 until an 80
+  is recognised, then 80 - with the cruise control on or off. AK Cluster Info's log of 27 November 2026 (a drive with
+  the cruise control off) showed `vSLISpeedValue` x 5 to be the limit the car knows (16: 80, 20: 100), a new one first
+  announced (`vSLISymbol` LDM_VZA_VSLI_SPEED_LIMIT, `vSLIDistance` counting down from 1.3 km to 250 m) and counted once
+  reached. 0 or nothing keeps the one shown; over 140 km/h is ignored (the 30 - 150 - of 24 November: no Korean road
+  is, motorways are 100 or 110); `--` before the first and 10 s after the head-up display's data stops
+  (`src/car/vehicle.js` sliStep). 0.25.1 - 0.26.6 showed it only with the limiter or the cruise control on and the
+  limit taken. Display > Speed limit sign's help says so. Logs `--- sli ---`: the data now has sliSymbol and sliDist.
+
 ## AK 0.26.6
 
 - **Toro's shift lights 36 px lower.** On a G30 (the test car's 530e) the cluster's trim covers the top of the glass
