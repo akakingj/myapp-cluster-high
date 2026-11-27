@@ -13,6 +13,15 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.24.2
+
+- **A settings change no longer flashes the stock cluster.** A change that keeps the same layers (a colour, a reading)
+  was already taken over as it is; one that changes them (a style, a place, a piece on or off) dropped every layer
+  first, and a target left empty goes back to BMW's own gauges until the new layers were up. Now the old style keeps
+  one layer up (its lowest one showing, with its atlas) while the new ones go up hidden, and drops it on the new
+  ones' first frame, as AK Cluster Layouts does (`src/car/cluster.js` keepOne, letGo; only while the new layers leave
+  room for it in the 64 the service gives an app; `test/adopt.test.js`).
+
 ## AK 0.24.1
 
 - **The speed limit sign keeps the last limit, and comes sooner.** The last limit the car read now stays while it sends

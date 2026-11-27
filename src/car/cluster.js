@@ -29,6 +29,8 @@ function same(a, b) {
 }
 
 function copy(v) { return typeof v === 'number' ? v : v.slice(); }
+/* the layers the service gives an app (cluster-render): the new ones and the old one held must fit */
+var MAX_LAYERS = 64;
 
 /*
  * opts: {
@@ -58,6 +60,8 @@ function create(opts) {
        engine.js): made visible one by one, the full-screen background stood alone - the cluster black - while the
        rest still had nothing to draw */
     var revealed = true;
+    /* the driver before this one's last layer and its atlas, held until ours show (build, letGo) */
+    var anchor = null;
     /* layer id -> { uniform: last value } the driver before this one sent: those the new settings leave out go
        back to 0 on the first frame (as a layer made new has them), not kept from the old settings */
     var stale = {};
@@ -115,7 +119,12 @@ function create(opts) {
         opts.adopt = null;
         if (prev) {
             if (takeOver(prev)) return true;
-            try { prev.stop(); } catch (e) { log.warn('cluster: stop: ' + e); }
+            /* another layout of layers: the old one keeps one of its layers up (and the atlas it draws with) until the
+               new ones show (tick: revealed), so the cluster is never left empty - an empty target goes back to the
+               stock HMI, and the cluster flashed the stock gauges at every such change (as Cluster Layouts' engine.js
+               keeps one; the service gives an app 64 layers, so only while the new ones leave room for it) */
+            anchor = ordered.length < MAX_LAYERS && prev.keepOne ? prev.keepOne() : null;
+            if (!anchor) { try { prev.stop(); } catch (e) { log.warn('cluster: stop: ' + e); } }
         }
         /*
          * The atlas first: binds are refused until the asset exists, and the
@@ -128,7 +137,7 @@ function create(opts) {
             w: opts.atlas.size, h: opts.atlas.h || opts.atlas.size,
             sampling: 'bilinear', wrap: 'clamp'
         });
-        if (!atlasRef) { log.warn('cluster: the glyph atlas was refused'); return false; }
+        if (!atlasRef) { log.warn('cluster: the glyph atlas was refused'); letGo(); return false; }
 
         for (var i = 0; i < ordered.length; i++) {
             /* whole pixels on the wire: the renderer's rectangles are integers */
@@ -291,6 +300,7 @@ function create(opts) {
         if (reveal) {
             show.forEach(function (id) { cr.set(refs[id], { visible: true }); visible[id] = true; });
             revealed = true;
+            letGo();                    /* the new layers are up: the old one held till now goes */
         }
         return writes;
     }
@@ -307,8 +317,35 @@ function create(opts) {
         return got;
     }
 
+    /* The driver before this one's last layer and atlas (keepOne), held while ours go up: dropped once they show. */
+    function letGo() {
+        if (!anchor) return;
+        try { cr.drop(anchor.ref); if (anchor.atlasRef) cr.drop(anchor.atlasRef); } catch (e) { log.warn('cluster: drop: ' + e); }
+        anchor = null;
+    }
+
+    /* For the next driver, of another layout of layers: every layer dropped but the lowest one showing (the
+       background, as a rule), which with the atlas is handed over to be dropped once the next one's layers show;
+       null when nothing shows. This driver is stopped after it. */
+    function keepOne() {
+        if (!built || stopped) return null;
+        if (shaking) moveAll({ x: 0, y: 0 });
+        var keep = null;
+        for (var i = 0; i < ordered.length && !keep; i++) {
+            var id = ordered[i].id;
+            if (refs[id] && visible[id]) keep = id;
+        }
+        if (!keep) return null;
+        var got = { ref: refs[keep], atlasRef: atlasRef };
+        delete refs[keep];
+        atlasRef = 0;
+        stop();
+        return got;
+    }
+
     /* Hand the cluster back to BMW. */
     function stop() {
+        letGo();
         stopped = true;
         for (var id in refs) {
             if (Object.prototype.hasOwnProperty.call(refs, id)) cr.drop(refs[id]);
@@ -319,7 +356,7 @@ function create(opts) {
     }
 
     return {
-        ready: ready, tick: tick, stop: stop, handOver: handOver,
+        ready: ready, tick: tick, stop: stop, handOver: handOver, keepOne: keepOne,
         refs: function () { return refs; },
         isBuilt: function () { return built; },
         isRevealed: function () { return built && revealed; },

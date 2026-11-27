@@ -2,7 +2,8 @@
 /*
  * A change of settings (src/car/main.js reconfigure): the next driver takes the layers over where they stay the same
  * (cluster.js adopt), so nothing is dropped or made again and only the uniforms go; another layout of layers is
- * built new, after the old one has handed the cluster back.
+ * built new while the old one holds the cluster with one layer, dropped once the new ones show (0.24.2: the cluster
+ * flashed the stock gauges at every such change).
  *
  * Run: node --test test/adopt.test.js
  */
@@ -61,20 +62,51 @@ test('the same layers with other colours: taken over, nothing dropped, made or u
     assert.strictEqual(cr.calls.drop.length, 0, 'the old driver no longer drops what it handed over');
 });
 
-test('another style: the old layers dropped first, the new ones built with their atlas', () => {
+test('another style: the old layers dropped but one, which holds the cluster until the new ones show', () => {
     const cr = fakeCR();
     const a = drive(cr, Theme.build(atlas, 'carprofile', { style: 'toro' }));
     a.ready();
-    const old = cr.calls.effect.length + 1;            /* its layers and its atlas */
+    a.tick(frame());
+    const oldLayers = cr.calls.effect.length;
     cr.reset();
     const t2 = Theme.build(atlas, 'carprofile', { style: 'mplus' });
     const b = drive(cr, t2, a);
     b.ready();
-    assert.strictEqual(cr.calls.drop.length, old);
+    /* every old layer but one dropped, the old atlas kept with it: the cluster is never left without a layer of ours
+       (an empty target goes back to the stock gauges, which flashed at every such change) */
+    assert.strictEqual(cr.calls.drop.length, oldLayers - 1, 'all but one of the old layers');
     assert.strictEqual(cr.calls.asset.length, 1);
     assert.strictEqual(cr.calls.pixels.length, 1);
-    assert.ok(cr.calls.effect.length > 0);
-    assert.notStrictEqual(cr.calls.effect.length, old - 1);
+    assert.ok(cr.calls.effect.length > 0 && cr.calls.effect.length + 1 <= 64, 'the new ones and the one held fit in 64');
+    assert.ok(cr.calls.effect.every((e) => e.visible === false), 'the new ones go up hidden');
+    assert.strictEqual(Object.keys(a.refs()).length, 0, 'the old driver holds nothing now');
+    b.tick(frame());
+    assert.ok(cr.calls.set.some((c) => c.opts.visible === true), 'the new ones shown on their first frame');
+    assert.strictEqual(cr.calls.drop.length, oldLayers + 1, 'then the one held and the old atlas go');
+});
+
+test('a change while the new layers have not shown yet: the one held still goes with stop()', () => {
+    const cr = fakeCR();
+    const a = drive(cr, Theme.build(atlas, 'carprofile', { style: 'toro' }));
+    a.ready(); a.tick(frame());
+    const oldLayers = cr.calls.effect.length;
+    cr.reset();
+    const b = drive(cr, Theme.build(atlas, 'carprofile', { style: 'mtrack' }), a);
+    b.ready();
+    const newLayers = cr.calls.effect.length;
+    b.stop();
+    assert.strictEqual(cr.calls.drop.length, (oldLayers - 1) + 2 + newLayers + 1, 'nothing left on the renderer');
+});
+
+test('nothing of the old one shown (not ticked yet): handed back whole, as before', () => {
+    const cr = fakeCR();
+    const a = drive(cr, Theme.build(atlas, 'carprofile', { style: 'toro' }));
+    a.ready();
+    const old = cr.calls.effect.length + 1;
+    cr.reset();
+    const b = drive(cr, Theme.build(atlas, 'carprofile', { style: 'mplus' }), a);
+    b.ready();
+    assert.strictEqual(cr.calls.drop.length, old);
 });
 
 test('a uniform the new settings leave out goes back to 0, as on a layer made new', () => {
