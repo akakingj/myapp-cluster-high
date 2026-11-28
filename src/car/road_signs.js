@@ -90,30 +90,6 @@ function makeZone(maxKm) {
         km: function () { return km; }
     };
 }
-/** A field's name that may be about no passing (the head-up display's data: BMW's own no passing sign there, with its
- * distance from the car's map - the owner, 2026-11-28). */
-var NP_FIELD = /pass|overtak|npi|ueberhol|tunnel|lanechange|lane_change|restrict/i;
-/** Every field of a value as ['a.b=v', ...] (a counter's or a time's left out), for the Logs. */
-function fields(v) {
-    var out = [];
-    function walk(o, p, d) {
-        if (/time|stamp|counter|crc|alive|sequence/i.test(p.split('.').pop() || '')) return;
-        if (o === null || typeof o !== 'object') { out.push(p + '=' + String(o)); return; }
-        if (d > 5) return;
-        Object.keys(o).forEach(function (k) { walk(o[k], p ? p + '.' + k : k, d + 1); });
-    }
-    if (typeof v === 'string') { try { v = JSON.parse(v); } catch (e) { return [v]; } }
-    walk(v, '', 0);
-    return out;
-}
-/** Words in lines of at most n letters (the Logs' codes keep lines whole up to about 160). */
-function chunk(list, n) {
-    var out = [], line = '';
-    list.forEach(function (x) { if (line && line.length + x.length + 1 > n) { out.push(line); line = ''; } line += (line ? ' ' : '') + x; });
-    if (line) out.push(line);
-    return out;
-}
-
 function side(l, r) { return function (t) { return /LEFT/.test(t) ? l : r; }; }
 var ART_OF = [
     [/NO_PASSING|OVERTAK/, 'no_passing'],
@@ -137,4 +113,4 @@ function artOf(t) {
 }
 
 module.exports = { CAM_IFACE: CAM_IFACE, CAM_EVENT: CAM_EVENT, SHOW_MS: SHOW_MS, parseSigns: parseSigns, warning: warning,
-    makeTracker: makeTracker, NP_KM: NP_KM, npStart: npStart, npEnd: npEnd, makeZone: makeZone, fields: fields, NP_FIELD: NP_FIELD, chunk: chunk, artOf: artOf };
+    makeTracker: makeTracker, NP_KM: NP_KM, npStart: npStart, npEnd: npEnd, makeZone: makeZone, artOf: artOf };

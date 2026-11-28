@@ -13,6 +13,12 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.29.3
+
+- The Logs are this app's again: how it works (the owner: research into the car's signals is AK Cluster Info's, its Test
+  log). `--- sli ---` keeps what the speed limit sign and the warning signs show and no passing's state; the sign
+  services' every field and the head-up display data's no passing fields (0.29.1 - 0.29.2) are gone from it.
+
 ## AK 0.29.2
 
 - Logs `--- sli ---`: the head-up display's data's fields (their names), and each change of those that may be about no

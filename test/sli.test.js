@@ -128,22 +128,8 @@ test('the camera\'s signs reach the state: a warning 10 s, a new one in its plac
     assert.ok(/^warning signs \(front camera\): DS_ANIMAL_CROSSING, [\d.]+ s ago; seen .*; no passing on, 0\.00 km since its sign$/.test(r.sliLog(t0 + 81200).split('\n')[2]), r.sliLog(t0 + 81200).split('\n')[2]);
     r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('NO_PASSING_END'), t0 + 82000);
     assert.deepStrictEqual(r.raw(t0 + 82100).roadSigns, ['wild_animal'], 'its end sign');
-    /* the sign's event's fields, as they change, in the Logs */
-    r.receive('de.bmw.dass.TrafficSignRecognition', 'TrafficSignRecognition', { presentClassLimitSpeed: 16, presentWithdrawalLimitSpeed: 1, timeStamp: 5 }, t0 + 83000);
-    r.receive('de.bmw.dass.TrafficSignRecognition', 'TrafficSignRecognition', { presentClassLimitSpeed: 16, presentWithdrawalLimitSpeed: 1, timeStamp: 6 }, t0 + 83500);
-    const log = r.sliLog(t0 + 84000).split('\n');
-    assert.strictEqual(log[3], 'TrafficSignRecognition changes: 1', 'a time\'s change is no change');
-    assert.ok(/ km\/h: presentClassLimitSpeed=16 presentWithdrawalLimitSpeed=1$/.test(log[4]), log[4]);
-    /* the head-up display's data: each change of its fields about passing, tunnels, lane changes (BMW's own no passing) */
-    const HUD = 'de.bmw.infotainment.displaydataserver.DisplayDataServer';
-    const hud = (d) => ({ xSpeedLimitAssist: { vSLISpeedValue: 16 }, xNoPassing: { vNPIDistance: d, statusNPI: d ? 'ACTIVE' : 'OFF' } });
-    r.receive(HUD, 'functionalLibraryData', hud(500), t0 + 85000);
-    r.receive(HUD, 'functionalLibraryData', hud(500), t0 + 87000);
-    r.receive(HUD, 'functionalLibraryData', hud(0), t0 + 89000);
-    const l2 = r.sliLog(t0 + 90000).split('\n');
-    assert.ok(l2.indexOf('head-up display no passing changes: 2') >= 0, l2.join('\n'));
-    assert.ok(l2.some((l) => / km\/h: xNoPassing\.vNPIDistance=500 xNoPassing\.statusNPI=ACTIVE$/.test(l)), l2.join('\n'));
-    assert.ok(l2.indexOf('  xSpeedLimitAssist.vSLISpeedValue xNoPassing.vNPIDistance xNoPassing.statusNPI') >= 0, 'its fields\' names');
+    /* (the sign services' fields: AK Cluster Info's Test log's, 0.29.3) */
+    assert.ok(!/TrafficSignRecognition changes|head-up display fields|no passing changes/.test(r.sliLog(t0 + 84000)));
     const profile = Panel.profile('carprofile');
     const Sim = require('../preview/sim.js');
     const st = State.present(Object.assign({}, Sim.create(profile).raw(), { roadSigns: ['slippery'] }), profile, {});

@@ -429,9 +429,10 @@ function createReader(opts) {
      */
     var sliChanges = [], sliTimes = [], sliLast = '', sliShown, sliMem = {}, tsrShown;
     /* the signs the camera read (0.29.1): a warning 10 s, a new one in its place; no passing till its zone ends
-       (src/car/road_signs.js); the last event for the Logs, and each change of TrafficSignRecognition's fields */
+       (src/car/road_signs.js); the last event for the Logs (the sign services' every field: AK Cluster Info's Test log's,
+       0.29.3) */
     var roadTracker = RoadSigns.makeTracker(RoadSigns.SHOW_MS, 2), npZone = RoadSigns.makeZone(RoadSigns.NP_KM);
-    var camLast = null, camSeen = {}, tsrLast = '', tsrChanges = [], hudNpLast = null, hudNpChanges = [], hudKeys = [];
+    var camLast = null, camSeen = {};
     function sliSeen(r, now) {
         sliTimes.push(now);
         while (sliTimes.length && now - sliTimes[0] > 60000) sliTimes.shift();
@@ -452,21 +453,7 @@ function createReader(opts) {
         var cam = 'warning signs (front camera): ' + (camLast ? camLast.types.join(', ') + ', ' + Math.round((now - camLast.at) / 100) / 10 + ' s ago; seen ' +
             Object.keys(camSeen).map(function (k) { return k + ' ' + camSeen[k]; }).join(', ') : 'none yet') +
             '; no passing ' + (npZone.on() ? 'on, ' + npZone.km().toFixed(2) + ' km since its sign' : 'off');
-        var tsrLines = ['TrafficSignRecognition changes: ' + (tsrChanges.length || 'none yet')];
-        tsrChanges.forEach(function (c) {
-            RoadSigns.chunk(c.f.split(' '), 150).forEach(function (l, i) {
-                tsrLines.push((i ? '  ' : new Date(c.at).toISOString().slice(11, 19) + ' at ' + (c.speed === null ? '?' : c.speed) + ' km/h: ') + l);
-            });
-        });
-        tsrLines.push('head-up display fields: ' + (hudKeys.length || 'none yet'));
-        RoadSigns.chunk(hudKeys, 150).forEach(function (l) { tsrLines.push('  ' + l); });
-        tsrLines.push('head-up display no passing changes: ' + (hudNpChanges.length || 'none yet'));
-        hudNpChanges.forEach(function (c) {
-            RoadSigns.chunk(c.f.split(' '), 150).forEach(function (l, i) {
-                tsrLines.push((i ? '  ' : new Date(c.at).toISOString().slice(11, 19) + ' at ' + (c.speed === null ? '?' : c.speed) + ' km/h: ') + l);
-            });
-        });
-        return [sign, head, cam].concat(tsrLines, sliChanges.slice(-(last || 20)).map(function (c) {
+        return [sign, head, cam].concat(sliChanges.slice(-(last || 20)).map(function (c) {
             return new Date(c.at).toISOString() + ' at ' + (c.speed === null ? '?' : c.speed) + ' km/h  shown ' + (c.shown || '--') + '  ' + JSON.stringify(c.raw);
         })).join('\n');
     }
@@ -603,30 +590,10 @@ function createReader(opts) {
             /* the sign itself (tsrStep): presentClassLimitSpeed x 5 */
             put('tsr', value, now);
             tsrShown = tsrStep(tsrShown, value);
-            /* (each change of its fields, the last 12, for the Logs: where the no passing zone's end may be) */
-            var tf = RoadSigns.fields(value).join(' ');
-            if (tf !== tsrLast) {
-                tsrLast = tf;
-                var tsp = get('speedKmh', now);
-                tsrChanges.push({ at: now, speed: typeof tsp === 'number' ? Math.round(tsp) : null, f: tf });
-                if (tsrChanges.length > 12) tsrChanges.shift();
-            }
         } else if (service === 'de.bmw.infotainment.displaydataserver.DisplayDataServer' && field === 'functionalLibraryData') {
             /* what the head-up display has of Speed Limit Assist (sliRawOf), and the limit shown after it (sliStep) */
             var raw = sliRawOf(value);
             if (raw) { put('sli', raw, now); sliShown = sliStep(sliShown, raw, sliMem); sliSeen(raw, now); }
-            /* (for the Logs: its fields' names, and each change of those that may be about no passing - the head-up
-               display shows BMW's own, with its distance from the car's map, 2026-11-28) */
-            var all = RoadSigns.fields(value), keys = {};
-            all.forEach(function (f) { keys[f.split('=')[0].split('.').slice(0, 2).join('.')] = 1; });
-            hudKeys = Object.keys(keys);
-            var np = all.filter(function (f) { return RoadSigns.NP_FIELD.test(f.split('=')[0]); }).join(' ');
-            if (np !== hudNpLast) {
-                hudNpLast = np;
-                var hsp = get('speedKmh', now);
-                hudNpChanges.push({ at: now, speed: typeof hsp === 'number' ? Math.round(hsp) : null, f: np || '(none)' });
-                if (hudNpChanges.length > 12) hudNpChanges.shift();
-            }
         } else if (service === 'de.bmw.infotainment.vehicle.CDS2') {
             if (field === 'statusLateralAccelerationMassCenter') {
                 b = value && value.lateralAccelerationCentreOfGravity;
