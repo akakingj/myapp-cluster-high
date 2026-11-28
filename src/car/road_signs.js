@@ -9,9 +9,10 @@
  * Types seen: SPEED_LIMIT, NO_PASSING_SIGN, GIVE_WAY, DS_TRAFFIC_JAM, DS_SPLIPPERY_ROAD (BMW's spelling),
  * DS_RIGHT_DOWNWARDS, DS_ANIMAL_CROSSING.
  *
- * Shown on the cluster: the warnings (DS_ types) and no passing (not its end) - the speed limit has its own sign -
- * each for 10 s after the camera last read it, oldest first, as South Korea's own signs (src/theme/signs.js, made by
- * tools/make-signs.py; the picture's name from artOf).
+ * Shown on the cluster (0.29.1, the owner's): a warning (DS_ types) when the camera reads it, for 10 s, a warning read
+ * after it in its place (one event's two together); no passing (not its end) till its zone ends (makeZone) - the speed
+ * limit has its own sign - as South Korea's own signs (src/theme/signs.js, made by tools/make-signs.py; the picture's
+ * name from artOf).
  *
  * Node 8.
  */
@@ -38,29 +39,76 @@ function parseSigns(v) {
         .filter(function (t) { return typeof t === 'string' && !!t; }).map(function (t) { return t.toUpperCase(); });
 }
 
-/** Whether a type is shown on the cluster: a warning, or no passing (not its end). */
-function shown(t) { return /^DS_/.test(t) || (/NO_PASSING|OVERTAK/.test(t) && !/(^|_)END(_|$)/.test(t)); }
+/** A warning (DS_ types): shown when the camera reads it. */
+function warning(t) { return /^DS_/.test(t); }
 
-/** The signs seen lately: add(types, t), current(t) -> the types to show, oldest first (at most max). */
+/** The warnings to show (the owner, 2026-11-28: on when the camera reads one, off a while after; a new one read takes
+ * its place): add(types, t) - one event's warnings become the ones shown, in place of those before (one event may carry
+ * two); current(t) -> them, at most max, while showMs has not passed since. */
 function makeTracker(showMs, max) {
-    showMs = showMs || SHOW_MS; max = max || 4;
-    var seen = {};      /* type -> { first, last } */
+    showMs = showMs || SHOW_MS; max = max || 2;
+    var cur = [], at = -Infinity;
     return {
         add: function (types, t) {
-            types.filter(shown).forEach(function (ty) {
-                var s = seen[ty];
-                if (s && t - s.last < showMs) s.last = t; else seen[ty] = { first: t, last: t };
-            });
+            var f = types.filter(function (ty, i) { return warning(ty) && types.indexOf(ty) === i; });
+            if (f.length) { cur = f; at = t; }
         },
         current: function (t) {
-            var out = [];
-            Object.keys(seen).forEach(function (ty) {
-                var s = seen[ty];
-                if (t - s.last < showMs) out.push([s.first, ty]); else delete seen[ty];
-            });
-            return out.sort(function (a, b) { return a[0] - b[0]; }).slice(-max).map(function (e) { return e[1]; });
+            if (t - at >= showMs) { cur = []; return []; }
+            return cur.slice(0, max);
         }
     };
+}
+
+/*
+ * No passing (the head-up display has its own; the cluster covers BMW's): on from the camera's no passing sign until
+ * the zone ends (the owner, 2026-11-28: no distance as BMW's own shows, but gone when the zone ends) - an end sign
+ * (npEnd) read by the camera; or, while what tells the end is not known (the camera sent no end sign on the drives
+ * logged so far; TrafficSignRecognition's event may carry it: the Logs keep its every field as it changes),
+ * NP_KM driven since the sign was last read.
+ */
+var NP_KM = 3;
+var NP_END = /(NO_PASSING|OVERTAK|PASSING).*(END|CANCEL|LIFT|RELEASE)|(END|CANCEL|LIFT)_.*(NO_PASSING|OVERTAK|PASSING)|END_OF_ALL|ALL_RESTRICTIONS?_END|DERESTRICT/;
+function npEnd(t) { return NP_END.test(t); }
+function npStart(t) { return /NO_PASSING|OVERTAK/.test(t) && !npEnd(t) && !/(^|_)END(_|$)/.test(t); }
+/** add(types): a no passing sign starts (or keeps on) the zone, an end sign ends it; step(t, kmh): the distance driven
+ * (gaps over 2 s counted as 2 s); on(); km(): driven since its sign. */
+function makeZone(maxKm) {
+    maxKm = maxKm || NP_KM;
+    var on = false, km = 0, last = null;
+    return {
+        add: function (types) {
+            if (types.some(npEnd)) on = false;
+            else if (types.some(npStart)) { on = true; km = 0; }
+        },
+        step: function (t, kmh) {
+            if (last !== null && on && typeof kmh === 'number' && kmh > 0) km += kmh * Math.min(2000, Math.max(0, t - last)) / 3600000;
+            last = t;
+            if (km >= maxKm) on = false;
+        },
+        on: function () { return on; },
+        km: function () { return km; }
+    };
+}
+/** Every field of a value as ['a.b=v', ...] (a counter's or a time's left out), for the Logs. */
+function fields(v) {
+    var out = [];
+    function walk(o, p, d) {
+        if (/time|stamp|counter|crc|alive|sequence/i.test(p.split('.').pop() || '')) return;
+        if (o === null || typeof o !== 'object') { out.push(p + '=' + String(o)); return; }
+        if (d > 5) return;
+        Object.keys(o).forEach(function (k) { walk(o[k], p ? p + '.' + k : k, d + 1); });
+    }
+    if (typeof v === 'string') { try { v = JSON.parse(v); } catch (e) { return [v]; } }
+    walk(v, '', 0);
+    return out;
+}
+/** Words in lines of at most n letters (the Logs' codes keep lines whole up to about 160). */
+function chunk(list, n) {
+    var out = [], line = '';
+    list.forEach(function (x) { if (line && line.length + x.length + 1 > n) { out.push(line); line = ''; } line += (line ? ' ' : '') + x; });
+    if (line) out.push(line);
+    return out;
 }
 
 function side(l, r) { return function (t) { return /LEFT/.test(t) ? l : r; }; }
@@ -85,5 +133,5 @@ function artOf(t) {
     return 'danger';
 }
 
-module.exports = { CAM_IFACE: CAM_IFACE, CAM_EVENT: CAM_EVENT, SHOW_MS: SHOW_MS, parseSigns: parseSigns, shown: shown,
-    makeTracker: makeTracker, artOf: artOf };
+module.exports = { CAM_IFACE: CAM_IFACE, CAM_EVENT: CAM_EVENT, SHOW_MS: SHOW_MS, parseSigns: parseSigns, warning: warning,
+    makeTracker: makeTracker, NP_KM: NP_KM, npStart: npStart, npEnd: npEnd, makeZone: makeZone, fields: fields, chunk: chunk, artOf: artOf };

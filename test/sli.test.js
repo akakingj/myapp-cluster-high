@@ -105,7 +105,7 @@ test('the warning signs\' pictures: the i-th the state\'s i-th, an unknown one t
     assert.strictEqual(px.length, Signs.w * Signs.ah * 4);
 });
 
-test('the camera\'s signs reach the state: warnings and no passing, each 10 s, its pictures\' names', () => {
+test('the camera\'s signs reach the state: a warning 10 s, a new one in its place; no passing till its zone ends (0.29.1)', () => {
     const RS = require('../src/car/road_signs.js');
     const V = require('../src/car/vehicle.js');
     const State = require('../src/engine/state.js');
@@ -113,15 +113,27 @@ test('the camera\'s signs reach the state: warnings and no passing, each 10 s, i
     const ev = (...t) => ({ trafficSignRecognition: { numberSigns: t.length }, trafficSign: t.map((type) => ({ type, value: 0 })) });
     const t0 = 1000000;
     r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_ANIMAL_CROSSING', 'SPEED_LIMIT'), t0);
-    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('GIVE_WAY'), t0 + 100);
-    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('NO_PASSING_SIGN'), t0 + 200);
-    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('NO_PASSING_END'), t0 + 300);
-    assert.deepStrictEqual(r.raw(t0 + 500).roadSigns, ['wild_animal', 'no_passing']);
-    /* a third: the newest two shown */
-    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_SPLIPPERY_ROAD'), t0 + 600);
-    assert.deepStrictEqual(r.raw(t0 + 700).roadSigns, ['no_passing', 'slippery']);
-    assert.deepStrictEqual(r.raw(t0 + 10700).roadSigns, []);
-    assert.ok(/^warning signs \(front camera\): DS_SPLIPPERY_ROAD, [\d.]+ s ago; seen DS_ANIMAL_CROSSING 1, SPEED_LIMIT 1, GIVE_WAY 1, NO_PASSING_SIGN 1, NO_PASSING_END 1, DS_SPLIPPERY_ROAD 1$/.test(r.sliLog(t0 + 700).split('\n')[2]));
+    assert.deepStrictEqual(r.raw(t0 + 100).roadSigns, ['wild_animal']);
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('GIVE_WAY'), t0 + 200);
+    assert.deepStrictEqual(r.raw(t0 + 300).roadSigns, ['wild_animal'], 'give way: not the cluster\'s');
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_SPLIPPERY_ROAD'), t0 + 400);
+    assert.deepStrictEqual(r.raw(t0 + 500).roadSigns, ['slippery'], 'a new one in its place');
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_TRAFFIC_JAM', 'DS_ANIMAL_CROSSING'), t0 + 600);
+    assert.deepStrictEqual(r.raw(t0 + 700).roadSigns, ['traffic_jam', 'wild_animal'], 'one event\'s two');
+    assert.deepStrictEqual(r.raw(t0 + 10600).roadSigns, [], '10 s on: gone');
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('NO_PASSING_SIGN'), t0 + 20000);
+    assert.deepStrictEqual(r.raw(t0 + 80000).roadSigns, ['no_passing'], 'a minute on: still on');
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_ANIMAL_CROSSING'), t0 + 81000);
+    assert.deepStrictEqual(r.raw(t0 + 81100).roadSigns, ['no_passing', 'wild_animal']);
+    assert.ok(/^warning signs \(front camera\): DS_ANIMAL_CROSSING, [\d.]+ s ago; seen .*; no passing on, 0\.00 km since its sign$/.test(r.sliLog(t0 + 81200).split('\n')[2]), r.sliLog(t0 + 81200).split('\n')[2]);
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('NO_PASSING_END'), t0 + 82000);
+    assert.deepStrictEqual(r.raw(t0 + 82100).roadSigns, ['wild_animal'], 'its end sign');
+    /* the sign's event's fields, as they change, in the Logs */
+    r.receive('de.bmw.dass.TrafficSignRecognition', 'TrafficSignRecognition', { presentClassLimitSpeed: 16, presentWithdrawalLimitSpeed: 1, timeStamp: 5 }, t0 + 83000);
+    r.receive('de.bmw.dass.TrafficSignRecognition', 'TrafficSignRecognition', { presentClassLimitSpeed: 16, presentWithdrawalLimitSpeed: 1, timeStamp: 6 }, t0 + 83500);
+    const log = r.sliLog(t0 + 84000).split('\n');
+    assert.strictEqual(log[3], 'TrafficSignRecognition changes: 1', 'a time\'s change is no change');
+    assert.ok(/ km\/h: presentClassLimitSpeed=16 presentWithdrawalLimitSpeed=1$/.test(log[4]), log[4]);
     const profile = Panel.profile('carprofile');
     const Sim = require('../preview/sim.js');
     const st = State.present(Object.assign({}, Sim.create(profile).raw(), { roadSigns: ['slippery'] }), profile, {});
@@ -129,4 +141,16 @@ test('the camera\'s signs reach the state: warnings and no passing, each 10 s, i
     assert.strictEqual(RS.artOf('DS_SPLIPPERY_ROAD'), 'slippery');
     assert.strictEqual(RS.artOf('DS_NEW_ONE'), 'danger');
     assert.deepStrictEqual(RS.parseSigns(JSON.stringify(ev('DS_TRAFFIC_JAM'))), ['DS_TRAFFIC_JAM']);
+});
+
+test('no passing\'s zone: from its sign till its end sign, or 3 km driven since the sign', () => {
+    const RS = require('../src/car/road_signs.js');
+    ['NO_PASSING_SIGN', 'NO_OVERTAKING'].forEach((t) => assert.ok(RS.npStart(t) && !RS.npEnd(t), t));
+    ['NO_PASSING_END', 'END_OF_NO_PASSING', 'END_OF_ALL_RESTRICTIONS', 'NO_OVERTAKING_CANCEL'].forEach((t) => assert.ok(RS.npEnd(t) && !RS.npStart(t), t));
+    const z = RS.makeZone(3);
+    z.add(['NO_PASSING_SIGN']);
+    for (let t = 0; t <= 170000; t += 1000) z.step(t, 60);
+    assert.ok(z.on());
+    for (let t = 171000; t <= 200000; t += 1000) z.step(t, 60);
+    assert.ok(!z.on(), '3 km driven: gone');
 });

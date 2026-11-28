@@ -13,6 +13,18 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.29.1
+
+- **A warning sign shows when the camera reads it, for 10 s, and a warning read after it takes its place** (one event's
+  two together) - before, each stayed 10 s after it was last read, the newest two (the owner's ask; as AK Cluster
+  Layouts 0.69.1 and AK Cluster Info 1.12.3's HUD).
+- **No passing stays until its zone ends**, in the first place beside the speed limit sign, a warning in the second
+  (the owner: no distance as BMW's own shows, but gone when the zone ends): an end sign read by the camera, or 3 km
+  driven since its sign was last read - the camera sent no end sign on the drives logged so far
+  (`src/car/road_signs.js` makeZone, npEnd).
+- Logs `--- sli ---`: no passing's state on the camera's line, and every field of the TrafficSignRecognition event as it
+  changes (the last 12; a time's or a counter's left out), to find what tells the zone's end.
+
 ## AK 0.29.0
 
 - **The warning signs the front camera reads, beside the speed limit sign** (Display > Speed limit sign on), as AK

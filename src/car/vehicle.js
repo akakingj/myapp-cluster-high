@@ -427,9 +427,10 @@ function createReader(opts) {
      * the car's speed, the last 20; and how often its data comes (the last 60 s) and when it last came.
      */
     var sliChanges = [], sliTimes = [], sliLast = '', sliShown, sliMem = {}, tsrShown;
-    /* the warning signs the camera read lately (0.29.0): each 10 s after it last read it, the newest two (the cluster
-       shows two); the last event for the Logs */
-    var roadTracker = RoadSigns.makeTracker(RoadSigns.SHOW_MS, 2), camLast = null, camSeen = {};
+    /* the signs the camera read (0.29.1): a warning 10 s, a new one in its place; no passing till its zone ends
+       (src/car/road_signs.js); the last event for the Logs, and each change of TrafficSignRecognition's fields */
+    var roadTracker = RoadSigns.makeTracker(RoadSigns.SHOW_MS, 2), npZone = RoadSigns.makeZone(RoadSigns.NP_KM);
+    var camLast = null, camSeen = {}, tsrLast = '', tsrChanges = [];
     function sliSeen(r, now) {
         sliTimes.push(now);
         while (sliTimes.length && now - sliTimes[0] > 60000) sliTimes.shift();
@@ -448,10 +449,22 @@ function createReader(opts) {
         var sign = 'sign (TrafficSignRecognition): ' + (tAge === null ? 'none yet'
             : 'presentClassLimitSpeed ' + findKey(t.value, 'presentClassLimitSpeed', 3) + ', ' + tAge + ' s ago, shown ' + (tsrShown || '--'));
         var cam = 'warning signs (front camera): ' + (camLast ? camLast.types.join(', ') + ', ' + Math.round((now - camLast.at) / 100) / 10 + ' s ago; seen ' +
-            Object.keys(camSeen).map(function (k) { return k + ' ' + camSeen[k]; }).join(', ') : 'none yet');
-        return [sign, head, cam].concat(sliChanges.slice(-(last || 20)).map(function (c) {
+            Object.keys(camSeen).map(function (k) { return k + ' ' + camSeen[k]; }).join(', ') : 'none yet') +
+            '; no passing ' + (npZone.on() ? 'on, ' + npZone.km().toFixed(2) + ' km since its sign' : 'off');
+        var tsrLines = ['TrafficSignRecognition changes: ' + (tsrChanges.length || 'none yet')];
+        tsrChanges.forEach(function (c) {
+            RoadSigns.chunk(c.f.split(' '), 150).forEach(function (l, i) {
+                tsrLines.push((i ? '  ' : new Date(c.at).toISOString().slice(11, 19) + ' at ' + (c.speed === null ? '?' : c.speed) + ' km/h: ') + l);
+            });
+        });
+        return [sign, head, cam].concat(tsrLines, sliChanges.slice(-(last || 20)).map(function (c) {
             return new Date(c.at).toISOString() + ' at ' + (c.speed === null ? '?' : c.speed) + ' km/h  shown ' + (c.shown || '--') + '  ' + JSON.stringify(c.raw);
         })).join('\n');
+    }
+    /* the signs to show now (0.29.1): no passing first while its zone lasts, then the warnings, two at most */
+    function roadSignsNow(now) {
+        npZone.step(now, get('speedKmh', now));
+        return (npZone.on() ? ['no_passing'] : []).concat(roadTracker.current(now).map(RoadSigns.artOf)).slice(0, 2);
     }
     /* the last limit recognised (sliStep), while the head-up display's data comes (10 s) */
     function sliNow(now) {
@@ -574,12 +587,21 @@ function createReader(opts) {
             /* a sign the front camera passed (src/car/road_signs.js): the warnings and no passing kept 10 s */
             var types = RoadSigns.parseSigns(value);
             roadTracker.add(types, now);
+            npZone.add(types);
             camLast = { at: now, types: types };
             types.forEach(function (ty) { camSeen[ty] = (camSeen[ty] || 0) + 1; });
         } else if (service === 'de.bmw.dass.TrafficSignRecognition' && field === 'TrafficSignRecognition') {
             /* the sign itself (tsrStep): presentClassLimitSpeed x 5 */
             put('tsr', value, now);
             tsrShown = tsrStep(tsrShown, value);
+            /* (each change of its fields, the last 12, for the Logs: where the no passing zone's end may be) */
+            var tf = RoadSigns.fields(value).join(' ');
+            if (tf !== tsrLast) {
+                tsrLast = tf;
+                var tsp = get('speedKmh', now);
+                tsrChanges.push({ at: now, speed: typeof tsp === 'number' ? Math.round(tsp) : null, f: tf });
+                if (tsrChanges.length > 12) tsrChanges.shift();
+            }
         } else if (service === 'de.bmw.infotainment.displaydataserver.DisplayDataServer' && field === 'functionalLibraryData') {
             /* what the head-up display has of Speed Limit Assist (sliRawOf), and the limit shown after it (sliStep) */
             var raw = sliRawOf(value);
@@ -717,7 +739,7 @@ function createReader(opts) {
             sliSource: tsrOn(now) ? 'sign' : v.sli ? 'head-up display' : 'none',
             sliSign: v.tsr ? findKey(v.tsr.value, 'presentClassLimitSpeed', 3) : undefined,
             /* the warning signs to show now, oldest first, as their pictures' names (src/theme/signs.js) */
-            roadSigns: roadTracker.current(now).map(RoadSigns.artOf),
+            roadSigns: roadSignsNow(now),
             gLat: gOk ? lat : undefined, gLon: gOk ? lon : undefined,
             gPeakLat: gOk ? peakLat : undefined, gPeakLon: gOk ? peakLon : undefined
         };

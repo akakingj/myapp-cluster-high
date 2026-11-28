@@ -249,9 +249,10 @@ test('the speed limit sign as the car\'s own: the last limit recognised, kept ti
     const lines = r.sliLog(14000).split('\n');
     assert.strictEqual(lines[0], 'sign (TrafficSignRecognition): none yet');
     assert.ok(/^head-up display data: \d+ in the last 60 s, the last 0.1 s ago; shown: 50$/.test(lines[1]), lines[1]);
-    assert.strictEqual(lines[2], 'warning signs (front camera): none yet');
-    assert.strictEqual(lines.length, 23, 'the last 20 changes');
-    assert.ok(/ at \? km\/h  shown 50  \{"value":10/.test(lines[22]), lines[22]);
+    assert.strictEqual(lines[2], 'warning signs (front camera): none yet; no passing off');
+    assert.strictEqual(lines[3], 'TrafficSignRecognition changes: none yet');
+    assert.strictEqual(lines.length, 24, 'the last 20 changes');
+    assert.ok(/ at \? km\/h  shown 50  \{"value":10/.test(lines[23]), lines[23]);
     assert.ok(Vehicle.SIGNALS['de.bmw.infotainment.displaydataserver.DisplayDataServer'].functionalLibraryData);
 });
 
