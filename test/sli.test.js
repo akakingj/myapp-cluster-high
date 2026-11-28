@@ -50,6 +50,24 @@ test('on: one sign a style, clear of its readouts, the KOMBI\'s lights and the s
            ends by about x 680 at its longest - ODO 999,999 km - against the sign's left edge at 693) */
         t.layers.filter((L) => !/^(sli|intro|snow|tree|flash|rails$|strip[LR]?$|footM(Unit)?$)/.test(L.id) && L.w * L.h < PANEL / 6)
             .forEach((L) => assert.ok(!meet(d, L, 6), what + ': clear of ' + L.id + ' ' + [L.x, L.y, L.w, L.h].map(Math.round).join(',')));
+        /* the warning signs (0.29.0): two places, in one line with the sign - across, the sign leftmost, or down, the
+           sign at the foot - each as clear as the sign is (half its gap between them), hidden while there is none */
+        const warn = t.layers.filter((L) => /^warn\d$/.test(L.id));
+        assert.strictEqual(warn.length, 2, what + ': two warning signs\' places');
+        const sx = d.x + d.w / 2, sy = d.y + d.h / 2;
+        const across = warn.every((w) => Math.abs(w.y + w.h / 2 - sy) <= 1 && w.x > sx), down = warn.every((w) => Math.abs(w.x + w.w / 2 - sx) <= 1 && w.y < sy);
+        assert.ok(across || down, what + ': in line with the sign');
+        warn.forEach((w, i) => {
+            assert.ok(w.shader === 'warnsign' && w.z >= d.z && w.h === Overlays.WARN.h && w.w === Overlays.WARN_W, what + ': warn' + i);
+            assert.ok(w.x >= 8 && w.y >= 8 && w.x + w.w <= Panel.PANEL_WIDTH - 8 && w.y + w.h <= Panel.BOTTOM_CUT + (t.settings.lower || 0) - 4, what + ': warn' + i + ' on the glass');
+            Panel.TURN_ARROWS.concat(Panel.TELLTALES, [Object.assign({ name: 'the driver camera\'s cowl' }, Panel.CAMERA)])
+                .forEach((z) => assert.ok(!meet(w, z, 6), what + ': warn' + i + ' clear of ' + z.name));
+            assert.ok(w.y > 200 || (w.x > 340 && w.x + w.w < 1640), what + ': warn' + i + ' clear of the glass\'s corners');
+            t.layers.filter((L) => !/^(sli|warn|intro|snow|tree|flash|rails$|strip[LR]?$)/.test(L.id) && L.w * L.h < PANEL / 6)
+                .forEach((L) => assert.ok(!meet(w, L, 6), what + ': warn' + i + ' clear of ' + L.id + ' ' + [L.x, L.y, L.w, L.h].map(Math.round).join(',')));
+            assert.ok(!meet(w, d, 4) && (!i || !meet(w, warn[0], 4)), what + ': warn' + i + ' apart');
+            assert.strictEqual(w.uniforms({}), null, what + ': hidden while none');
+        });
         /* the shader drawn, its figures '--' until the car's value */
         assert.ok(d.uniforms({}) && d.shader === 'sign', what);
         const u = num[0].uniforms({});
@@ -71,4 +89,41 @@ test('the car\'s limit reaches the sign: the reader\'s speedLimit through the st
     const raw = Sim.create(profile).raw();
     assert.strictEqual(Overlays.sliText(State.present(Object.assign({}, raw, { speedLimit: undefined }), profile, {})), '--');
     assert.strictEqual(Overlays.sliText(State.present(Object.assign({}, raw, { speedLimit: 70 }), profile, {})), '70');
+});
+
+test('the warning signs\' pictures: the i-th the state\'s i-th, an unknown one the danger sign\'s', () => {
+    const Signs = require('../src/theme/signs.js');
+    assert.strictEqual(Signs.h, Overlays.WARN.h, 'tools/make-signs.py made for WARN.h');
+    assert.deepStrictEqual(Overlays.warnUniforms({ roadSigns: ['wild_animal', 'no_passing'] }, 1).u_cell, Signs.cells.no_passing);
+    assert.deepStrictEqual(Overlays.warnUniforms({ roadSigns: ['nothing_such'] }, 0).u_cell, Signs.cells.danger);
+    assert.strictEqual(Overlays.warnUniforms({ roadSigns: ['wild_animal'] }, 1), null);
+    for (const n of Object.keys(Signs.cells)) {
+        const c = Signs.cells[n];
+        assert.ok(c[3] === Signs.h && c[2] <= Overlays.WARN_W && c[0] + c[2] <= Signs.w && c[1] + c[3] <= Signs.ah, n);
+    }
+    const px = require('zlib').inflateSync(Buffer.from(Signs.z, 'base64'));
+    assert.strictEqual(px.length, Signs.w * Signs.ah * 4);
+});
+
+test('the camera\'s signs reach the state: warnings and no passing, each 10 s, its pictures\' names', () => {
+    const RS = require('../src/car/road_signs.js');
+    const V = require('../src/car/vehicle.js');
+    const State = require('../src/engine/state.js');
+    const r = V.createReader();
+    const ev = (...t) => ({ trafficSignRecognition: { numberSigns: t.length }, trafficSign: t.map((type) => ({ type, value: 0 })) });
+    const t0 = 1000000;
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_ANIMAL_CROSSING', 'SPEED_LIMIT'), t0);
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('GIVE_WAY'), t0 + 100);
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('NO_PASSING_SIGN'), t0 + 200);
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('NO_PASSING_END'), t0 + 300);
+    assert.deepStrictEqual(r.raw(t0 + 500).roadSigns, ['wild_animal', 'no_passing']);
+    assert.deepStrictEqual(r.raw(t0 + 10300).roadSigns, []);
+    assert.ok(/^warning signs \(front camera\): NO_PASSING_END, /.test(r.sliLog(t0 + 500).split('\n')[2]));
+    const profile = Panel.profile('carprofile');
+    const Sim = require('../preview/sim.js');
+    const st = State.present(Object.assign({}, Sim.create(profile).raw(), { roadSigns: ['slippery'] }), profile, {});
+    assert.deepStrictEqual(st.roadSigns, ['slippery']);
+    assert.strictEqual(RS.artOf('DS_SPLIPPERY_ROAD'), 'slippery');
+    assert.strictEqual(RS.artOf('DS_NEW_ONE'), 'danger');
+    assert.deepStrictEqual(RS.parseSigns(JSON.stringify(ev('DS_TRAFFIC_JAM'))), ['DS_TRAFFIC_JAM']);
 });

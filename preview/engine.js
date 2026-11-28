@@ -85,6 +85,19 @@
             atlasSize = [image.width, image.height];
         }
 
+        /* the warning signs' atlas (src/theme/signs.js, assets/signs/signs.png), on the second unit */
+        var signsTex = null, signsSize = [1, 1];
+        function setSigns(image) {
+            signsTex = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, signsTex);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            signsSize = [image.width, image.height];
+        }
+
         function setUniform(id, name, value) {
             var l = loc(id, name);
             if (!l) return;
@@ -158,6 +171,14 @@
                     if (la) gl.uniform1i(la, 0);
                     setUniform(L.shader, 'u_atlasSize', atlasSize);
                 }
+                var ls = signsTex && loc(L.shader, 'u_signs');
+                if (ls) {
+                    gl.activeTexture(gl.TEXTURE1);
+                    gl.bindTexture(gl.TEXTURE_2D, signsTex);
+                    gl.uniform1i(ls, 1);
+                    setUniform(L.shader, 'u_signsSize', signsSize);
+                    gl.activeTexture(gl.TEXTURE0);
+                }
                 for (var k in u) {
                     if (Object.prototype.hasOwnProperty.call(u, k)) setUniform(L.shader, k, u[k]);
                 }
@@ -165,7 +186,7 @@
             }
         }
 
-        return { gl: gl, build: build, setAtlas: setAtlas, render: render };
+        return { gl: gl, build: build, setAtlas: setAtlas, setSigns: setSigns, render: render };
     }
 
     return { create: create };

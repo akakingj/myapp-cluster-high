@@ -49,6 +49,7 @@
 <script src="../src/theme/lambo.js"></script>
 <script src="../src/theme/track.js"></script>
 <script src="../src/theme/mtrack.js"></script>
+<script src="../src/theme/signs.js"></script>
 <script src="../src/theme/overlays.js"></script>
 <script src="../src/theme/index.js"></script>
 <script src="./engine.js"></script>
@@ -75,6 +76,15 @@
       img.onload = function () { res({ atlas: atlas, img: img }); };
       img.onerror = function () { rej(new Error('atlas.png did not load')); };
       img.src = '../assets/fonts/atlas.png';
+    });
+  })
+  .then(function (a) {
+    /* the warning signs' atlas (src/theme/signs.js; assets/signs/signs.png) before the first frame */
+    return new Promise(function (res) {
+      var s = new Image();
+      s.onload = function () { a.signs = s; res(a); };
+      s.onerror = function () { res(a); };
+      s.src = '../assets/signs/signs.png';
     });
   })
   .then(function (a) {
@@ -124,6 +134,8 @@
       { onWarn: function (m) { out.textContent += m + '\n'; }, clock: MGUClock });
     engine.build(shaders, MGUPrelude);
     engine.setAtlas(a.img);
+    /* the warning signs' atlas; warn=a,b (below): those signs shown (src/theme/signs.js names) */
+    if (a.signs) engine.setSigns(a.signs);
 
     /* the kind of car, as the app works it out (GENERAL > Engine, Electric range), with GENERAL's tank and boost gauge */
     profileId = profileId || MGUPanel.kindOf(cfg);
@@ -188,6 +200,7 @@
           lastShift: { from: 2, to: 3, rpm: 6200 } });
         if (!params.get('phev')) { rawNow.pedalPct = 35; rawNow.kw = -12.4; }
       }
+      if (params.get('warn')) rawNow = Object.assign({}, rawNow, { roadSigns: params.get('warn').split(',') });
       var st = MGUState.present(rawNow, profile, theme.settings);
       if (centre) st.centre = centre;
       /* now=S: the clock's own seconds, apart from where the drive is (t):

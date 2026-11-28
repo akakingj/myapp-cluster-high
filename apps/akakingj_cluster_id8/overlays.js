@@ -2,11 +2,13 @@
 (function (root, factory) {
     if (typeof module === 'object' && module.exports) {
         module.exports = factory(require('./text.js'), require('./textlayers.js'),
-                                 require('./panel.js'), require('./shaders_parts.js'), require('./strip.js'));
+                                 require('./panel.js'), require('./shaders_parts.js'), require('./strip.js'),
+                                 require('./signs.js'));
     } else {
-        root.MGUOverlays = factory(root.MGUText, root.MGUTextLayers, root.MGUPanel, root.MGUShadersParts, root.MGUStrip);
+        root.MGUOverlays = factory(root.MGUText, root.MGUTextLayers, root.MGUPanel, root.MGUShadersParts, root.MGUStrip,
+                                   root.MGUSigns);
     }
-}(typeof self !== 'undefined' ? self : this, function (Text, TextLayers, Panel, Parts, Strip) {
+}(typeof self !== 'undefined' ? self : this, function (Text, TextLayers, Panel, Parts, Strip, Signs) {
     'use strict';
 
     /*
@@ -49,12 +51,78 @@
      * head-up display's xSpeedLimitAssist, 0.27.0), '--' before the first.
      */
     var SLI = {
-        /* (Gear position right puts the gear where the sign is: the sign then goes to the mirror place, 0.23.4) */
-        toro: { at: [1235, 490, 42], gearRight: [685, 490], face: 'display', fig: 0.85 },
-        track: { at: [722, 598, 42], face: 'mb', fig: 0.95 },
-        mplus: { at: [722, 598, 42], face: 'mb', fig: 0.95 },
-        mtrack: { at: [735, 598, 42], face: 'mb', fig: 0.95 }
+        /* (at: the home of the sign and its warning signs, signGroup; dirs: 'h' a row, the sign leftmost, 'v' a
+           column, the sign at the foot - the line nearest home where all three fit) */
+        toro: { at: [1480, 352, 42], face: 'display', fig: 0.85, dirs: ['h'] },
+        track: { at: [1184, 598, 42], face: 'mb', fig: 0.95, dirs: ['h'] },
+        mplus: { at: [1184, 598, 42], face: 'mb', fig: 0.95, dirs: ['h'] },
+        mtrack: { at: [735, 598, 42], face: 'mb', fig: 0.95, dirs: ['h', 'v'] }
     };
+    /*
+     * The warning signs the front camera reads (0.29.0, with the speed limit sign: src/car/road_signs.js, the state's
+     * roadSigns), as AK Cluster Layouts 0.69.0 shows them: South Korea's own signs (src/theme/signs.js), WARN.h high
+     * as the speed limit sign, at most two, in one line with it (the owner: across, the speed limit sign leftmost; or
+     * down, the speed limit sign at the foot), WARN.gap apart, each GAP clear of the style's readouts and small pieces,
+     * the KOMBI's lights, the turn arrows, the camera's cowl, the glass's corners and the strip. Each shown 10 s after
+     * the camera last read it; nothing while there is none.
+     */
+    var WARN = { h: 84, gap: 8 };
+    var WARN_W = Math.round(WARN.h * 1.2);
+    var GAP = 6;
+    /* what the signs keep clear of (the backgrounds, plates and dials, a sixth of the screen or more, aside; the
+       footer's middle text box, footM, only for the sign itself: its text ends well short of the box) */
+    function signObstacles(layers, forSign) {
+        var big = Panel.PANEL_WIDTH * Panel.PANEL_HEIGHT / 6;
+        var skip = forSign ? /^(sli|warn|intro|snow|tree|flash|rails$|strip[LR]?$|footM(Unit)?$)/ : /^(sli|warn|intro|snow|tree|flash|rails$|strip[LR]?$)/;
+        return layers.filter(function (L) { return !skip.test(L.id) && L.w * L.h < big; })
+            .concat(Panel.TURN_ARROWS, Panel.TELLTALES, [Panel.CAMERA]);
+    }
+    function boxFree(b, obs, gap, foot) {
+        if (b.x < 8 || b.y < 8 || b.x + b.w > Panel.PANEL_WIDTH - 8 || b.y + b.h > foot) return false;
+        if (!(b.y > 200 || (b.x > 340 && b.x + b.w < 1640))) return false;      /* the glass's slanted top corners */
+        for (var i = 0; i < obs.length; i++) {
+            var o = obs[i];
+            if (b.x - gap < o.x + o.w && b.x + b.w + gap > o.x && b.y - gap < o.y + o.h && b.y + b.h + gap > o.y) return false;
+        }
+        return true;
+    }
+    /* The speed limit sign (radius r) and two warning signs in one line, nearest home [x, y]: { sli: [x, y], warns:
+       [[x, y], [x, y]] } (centres; the first warning sign next to the sign), or null where none fits within 900 px. */
+    function signGroup(layers, home, r, dirs, cut) {
+        var oS = signObstacles(layers, true), oW = signObstacles(layers, false), G = WARN.gap, H = WARN.h;
+        var dx1 = r + G + WARN_W / 2, dx2 = dx1 + WARN_W + G, dy1 = r + G + H / 2, dy2 = dy1 + H + G;
+        var ways = [];
+        if (dirs.indexOf('h') >= 0) ways.push([[dx1, 0], [dx2, 0]]);
+        if (dirs.indexOf('v') >= 0) ways.push([[0, -dy1], [0, -dy2]]);
+        var pts = [];
+        /* (on a 4 px grid through home: the sign at home itself where all three fit there) */
+        var hx = Math.round(home[0]), hy = Math.round(home[1]);
+        for (var y = hy - 4 * Math.floor((hy - r - 8) / 4); y <= cut - 6 - r; y += 4) {
+            for (var x = hx - 4 * Math.floor((hx - r - 8) / 4); x <= Panel.PANEL_WIDTH - 8 - r; x += 4) {
+                var d = (x - home[0]) * (x - home[0]) + (y - home[1]) * (y - home[1]);
+                if (d <= 900 * 900) pts.push([d, x, y]);
+            }
+        }
+        pts.sort(function (a, b) { return a[0] - b[0] || a[2] - b[2] || a[1] - b[1]; });
+        for (var i = 0; i < pts.length; i++) {
+            var cx = pts[i][1], cy = pts[i][2];
+            var sb = { x: cx - r, y: cy - r, w: 2 * r, h: 2 * r };
+            if (!boxFree(sb, oS, GAP, cut - 6)) continue;
+            for (var k = 0; k < ways.length; k++) {
+                var w = ways[k].map(function (o) { return [cx + o[0], cy + o[1]]; });
+                var b0 = { x: w[0][0] - WARN_W / 2, y: w[0][1] - H / 2, w: WARN_W, h: H };
+                var b1 = { x: w[1][0] - WARN_W / 2, y: w[1][1] - H / 2, w: WARN_W, h: H };
+                if (boxFree(b0, oW, GAP, cut - 4) && boxFree(b1, oW, GAP, cut - 4)) return { sli: [cx, cy], warns: w };
+            }
+        }
+        return null;
+    }
+    /* the i-th warning sign's picture in the atlas, or null (hidden) while there is none */
+    function warnUniforms(st, i) {
+        var n = st && st.roadSigns && st.roadSigns[i];
+        if (!n) return null;
+        return { u_cell: Signs.cells[n] || Signs.cells.danger };
+    }
     function sliText(st) {
         var v = st && st.speedLimit;
         return typeof v === 'number' && isFinite(v) && v > 0 ? String(Math.round(v)) : '--';
@@ -203,11 +271,12 @@
 
         var sign = S.sliSign && SLI[theme.id];
         if (sign) {
-            /* (a lowered style, Display > Lower and enlarge the cluster: the sign goes where its place goes, at its own
-               size, kept on the glass - the M styles' lower left would leave it) */
-            var place = (S.gearPlace === 'right' && sign.gearRight) || sign.at;
-            var at = Strip.lowerRect([place[0], place[1], 0, 0], S.lower || 0), r = sign.at[2];
-            var cx = Math.round(Math.max(r + 8, Math.min(Panel.PANEL_WIDTH - 8 - r, at[0]))), cy = Math.round(at[1]);
+            /* the sign and the warning signs in one line (signGroup), nearest the style's home for them; a lowered
+               style (Display > Lower and enlarge the cluster): its home goes where it goes, the line searched among
+               the lowered style's pieces. None fits (never, as tested): the sign alone at its home. */
+            var home = Strip.lowerRect([sign.at[0], sign.at[1], 0, 0], S.lower || 0), r = sign.at[2];
+            var g = signGroup(layers, [home[0], home[1]], r, sign.dirs || ['h'], Panel.BOTTOM_CUT + (S.lower || 0));
+            var cx = g ? g.sli[0] : Math.round(Math.max(r + 8, Math.min(Panel.PANEL_WIDTH - 8 - r, home[0]))), cy = g ? g.sli[1] : Math.round(home[1]);
             layers.push({
                 id: 'sliDisc', z: 190, shader: 'sign', still: true,
                 x: cx - r, y: cy - r, w: 2 * r, h: 2 * r,
@@ -216,6 +285,13 @@
             var fs = r * (sign.fig || 0.62);
             TL.txt('sliNum', 191, { x: cx - r * 0.84, y: cy - r * 0.8, w: r * 1.68, h: r * 1.6 },
                 { face: sign.face, size: fs, align: 'centre', x: cx, y: cy + fs * 0.36, color: [0.08, 0.08, 0.08] }, sliText);
+            (g ? g.warns : []).forEach(function (p, i) {
+                layers.push({
+                    id: 'warn' + i, z: 190, shader: 'warnsign', still: true,
+                    x: Math.round(p[0] - WARN_W / 2), y: Math.round(p[1] - WARN.h / 2), w: WARN_W, h: WARN.h,
+                    uniforms: function (st) { return warnUniforms(st, i); }
+                });
+            });
         }
 
         if (S.intro) {
@@ -276,7 +352,7 @@
         return theme;
     }
 
-    return { add: add, clean: clean, fit: fit, introAlpha: introAlpha, PLACES: PLACES, SLI: SLI, sliText: sliText,
+    return { add: add, clean: clean, fit: fit, introAlpha: introAlpha, PLACES: PLACES, SLI: SLI, WARN: WARN, WARN_W: WARN_W, warnUniforms: warnUniforms, signGroup: signGroup, sliText: sliText,
              FADE_IN: FADE_IN, FADE_OUT: FADE_OUT,
              snowFall: snowFall, SNOW_SPEED: SNOW_SPEED, SNOW_STEP_MS: SNOW_STEP_MS };
 }));

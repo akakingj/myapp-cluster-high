@@ -14,6 +14,14 @@
 var Prelude = require('../shaders/prelude.js');
 var Panel = require('../geometry/panel.js');
 var Clock = require('../engine/clock.js');
+var Signs = require('../theme/signs.js');
+var zlib = require('zlib');
+/* the warning signs' atlas (src/theme/signs.js), unpacked once: rgba8, Signs.w x Signs.ah */
+var signsPx = null;
+function signsPixels() {
+    if (!signsPx) signsPx = zlib.inflateSync(Buffer.from(Signs.z, 'base64'));
+    return signsPx;
+}
 
 var TARGET = 'panel';
 var EPS = 0.0005;
@@ -51,6 +59,7 @@ function create(opts) {
     var log = opts.log || { info: function () {}, warn: function () {} };
 
     var atlasRef = 0;
+    var signsRef = 0;      /* the warning signs' atlas, made only for a theme that draws them (warnsign) */
     var refs = {};        /* layer id -> ref */
     var sent = {};        /* layer id -> { uniform: lastValue } */
     var visible = {};     /* layer id -> bool */
@@ -99,7 +108,7 @@ function create(opts) {
     function takeOver(prev) {
         var got = prev && prev.handOver ? prev.handOver(shape) : null;
         if (!got) return false;
-        atlasRef = got.atlasRef; refs = got.refs; visible = got.visible;
+        atlasRef = got.atlasRef; signsRef = got.signsRef || 0; refs = got.refs; visible = got.visible;
         for (var i = 0; i < ordered.length; i++) {
             var L = pixelRect(ordered[i]);
             if (!refs[L.id]) continue;
@@ -138,6 +147,11 @@ function create(opts) {
             sampling: 'bilinear', wrap: 'clamp'
         });
         if (!atlasRef) { log.warn('cluster: the glyph atlas was refused'); letGo(); return false; }
+        /* (the warning signs' pictures: a second asset, only while a layer draws them - Display > Speed limit sign) */
+        if (ordered.some(function (T) { var b = opts.shaders[T.shader]; return !!b && b.indexOf('u_signs') >= 0; })) {
+            signsRef = cr.asset({ target: TARGET, format: 'rgba8', w: Signs.w, h: Signs.ah, sampling: 'bilinear', wrap: 'clamp' });
+            if (!signsRef) log.warn('cluster: the signs\' atlas was refused');
+        }
 
         for (var i = 0; i < ordered.length; i++) {
             /* whole pixels on the wire: the renderer's rectangles are integers */
@@ -182,6 +196,10 @@ function create(opts) {
                 cr.bind(ref, 'u_atlas', atlasRef);
                 cr.uniform(ref, 'u_atlasSize', [opts.atlas.size, opts.atlas.h || opts.atlas.size]);
             }
+            if (signsRef && body.indexOf('u_signs') >= 0) {
+                cr.bind(ref, 'u_signs', signsRef);
+                cr.uniform(ref, 'u_signsSize', [Signs.w, Signs.ah]);
+            }
         }
         built = true;
         revealed = false;
@@ -194,6 +212,7 @@ function create(opts) {
     function ready() {
         var took = build();
         if (atlasRef && !took) cr.pixels(atlasRef, null, opts.atlasPixels);
+        if (signsRef && !took) cr.pixels(signsRef, null, signsPixels());
     }
 
     /*
@@ -310,9 +329,9 @@ function create(opts) {
     function handOver(next) {
         if (!built || stopped || next !== shape) return null;
         if (shaking) moveAll({ x: 0, y: 0 });       /* every layer back where it belongs */
-        var got = { atlasRef: atlasRef, refs: refs, visible: visible, sent: sent };
+        var got = { atlasRef: atlasRef, signsRef: signsRef, refs: refs, visible: visible, sent: sent };
         stopped = true;
-        refs = {}; sent = {}; visible = {}; base = {}; stale = {}; atlasRef = 0; built = false; revealed = true;
+        refs = {}; sent = {}; visible = {}; base = {}; stale = {}; atlasRef = 0; signsRef = 0; built = false; revealed = true;
         shaking = false; shakeAt = null; calmFrames = 0;
         return got;
     }
@@ -351,7 +370,8 @@ function create(opts) {
             if (Object.prototype.hasOwnProperty.call(refs, id)) cr.drop(refs[id]);
         }
         if (atlasRef) cr.drop(atlasRef);
-        refs = {}; sent = {}; visible = {}; base = {}; atlasRef = 0; built = false; revealed = true;
+        if (signsRef) cr.drop(signsRef);
+        refs = {}; sent = {}; visible = {}; base = {}; atlasRef = 0; signsRef = 0; built = false; revealed = true;
         shaking = false; shakeAt = null; calmFrames = 0;
     }
 

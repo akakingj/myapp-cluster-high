@@ -18,6 +18,7 @@
  * Competition's own SOME/IP catalog, the platform family the X3 M40i is on.
  */
 var Drive = require('./drive.js');
+var RoadSigns = require('./road_signs.js');
 var PSI_BAR = 14.503774;
 
 var SIGNALS = {
@@ -49,6 +50,11 @@ var SIGNALS = {
     'de.bmw.dass.TrafficSignRecognition': {
         _broadcasts: ['TrafficSignRecognition'],
         _optional: 'The speed limit sign the front camera reads (Display > Speed limit sign): the head-up display\'s figures instead'
+    },
+    /* the warning signs the front camera reads (0.29.0, src/car/road_signs.js): one event as the car passes a sign */
+    'de.bmw.environmentalmodel.SignRecognitionFrontCamera': {
+        _broadcasts: ['TrafficSignRecognitionFrontCamera'],
+        _optional: 'The warning signs the front camera reads, beside the speed limit sign (Display > Speed limit sign)'
     },
     'de.bmw.infotainment.KombiIF': {
         statusRangeTankStatus: 'rs',
@@ -422,6 +428,8 @@ function createReader(opts) {
      * the car's speed, the last 20; and how often its data comes (the last 60 s) and when it last came.
      */
     var sliChanges = [], sliTimes = [], sliLast = '', sliShown, sliMem = {}, tsrShown;
+    /* the warning signs the camera read lately (0.29.0): each 10 s after it last read it; the last event for the Logs */
+    var roadTracker = RoadSigns.makeTracker(RoadSigns.SHOW_MS, 4), camLast = null, camSeen = {};
     function sliSeen(r, now) {
         sliTimes.push(now);
         while (sliTimes.length && now - sliTimes[0] > 60000) sliTimes.shift();
@@ -439,7 +447,9 @@ function createReader(opts) {
         var t = v.tsr, tAge = t ? Math.round((now - t.at) / 100) / 10 : null;
         var sign = 'sign (TrafficSignRecognition): ' + (tAge === null ? 'none yet'
             : 'presentClassLimitSpeed ' + findKey(t.value, 'presentClassLimitSpeed', 3) + ', ' + tAge + ' s ago, shown ' + (tsrShown || '--'));
-        return [sign, head].concat(sliChanges.slice(-(last || 20)).map(function (c) {
+        var cam = 'warning signs (front camera): ' + (camLast ? camLast.types.join(', ') + ', ' + Math.round((now - camLast.at) / 100) / 10 + ' s ago; seen ' +
+            Object.keys(camSeen).map(function (k) { return k + ' ' + camSeen[k]; }).join(', ') : 'none yet');
+        return [sign, head, cam].concat(sliChanges.slice(-(last || 20)).map(function (c) {
             return new Date(c.at).toISOString() + ' at ' + (c.speed === null ? '?' : c.speed) + ' km/h  shown ' + (c.shown || '--') + '  ' + JSON.stringify(c.raw);
         })).join('\n');
     }
@@ -560,6 +570,12 @@ function createReader(opts) {
         } else if (service === 'de.bmw.infotainment.misc.MDrive' && field === 'controlDisplayMSystems') {
             var mm = mEngineModeOf(value);
             if (mm) { put('driveMode', mm, now); put('mDrive', true, now); }
+        } else if (service === RoadSigns.CAM_IFACE && field === RoadSigns.CAM_EVENT) {
+            /* a sign the front camera passed (src/car/road_signs.js): the warnings and no passing kept 10 s */
+            var types = RoadSigns.parseSigns(value);
+            roadTracker.add(types, now);
+            camLast = { at: now, types: types };
+            types.forEach(function (ty) { camSeen[ty] = (camSeen[ty] || 0) + 1; });
         } else if (service === 'de.bmw.dass.TrafficSignRecognition' && field === 'TrafficSignRecognition') {
             /* the sign itself (tsrStep): presentClassLimitSpeed x 5 */
             put('tsr', value, now);
@@ -700,6 +716,8 @@ function createReader(opts) {
             sliAgeS: v.sli ? Math.round((now - v.sli.at) / 100) / 10 : undefined,
             sliSource: tsrOn(now) ? 'sign' : v.sli ? 'head-up display' : 'none',
             sliSign: v.tsr ? findKey(v.tsr.value, 'presentClassLimitSpeed', 3) : undefined,
+            /* the warning signs to show now, oldest first, as their pictures' names (src/theme/signs.js) */
+            roadSigns: roadTracker.current(now).map(RoadSigns.artOf),
             gLat: gOk ? lat : undefined, gLon: gOk ? lon : undefined,
             gPeakLat: gOk ? peakLat : undefined, gPeakLon: gOk ? peakLon : undefined
         };

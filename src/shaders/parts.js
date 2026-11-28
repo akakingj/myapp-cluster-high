@@ -639,6 +639,19 @@
         '}'
     ].join('\n');
 
+    /* The warning signs the front camera reads (0.29.0, src/theme/overlays.js WARN): the picture u_cell ([x, y, w, h]
+       in the signs' atlas, src/theme/signs.js) in the middle of its layer; nothing while u_cell is empty. */
+    var warnsign = [
+        'uniform sampler2D u_signs;',
+        'uniform vec2 u_signsSize;',
+        'uniform vec4 u_cell;',
+        'void main() {',
+        '  vec2 q = px() - (u_size - u_cell.zw) * 0.5;',
+        '  if (u_cell.z < 0.5 || q.x < 0.0 || q.y < 0.0 || q.x > u_cell.z || q.y > u_cell.w) { gl_FragColor = vec4(0.0); return; }',
+        '  gl_FragColor = texture2D(u_signs, (u_cell.xy + q) / u_signsSize);',
+        '}'
+    ].join('\n');
+
     /* ------------------------------------------------------------- cover */
     /* One flat colour, opaque: what is laid over BMW's bottom strip when it
        is hidden (src/theme/strip.js). */
@@ -696,7 +709,7 @@
 
     var out = { snow: snow, xtree: xtree, veil: veil, hgauge: hgauge, text: text, plate: plate, marker: marker, gearband: gearband,
                 gauge: gauge, gforce: gforce, icon: icon, vbar: vbar, boost: boost,
-                gmeter: gmeter, hairline: hairline, cover: cover, sign: sign };
+                gmeter: gmeter, hairline: hairline, cover: cover, sign: sign, warnsign: warnsign };
     /* the snow's grid, for whoever sends u_fall: not a shader, so not listed with them */
     Object.defineProperty(out, 'SNOW', { value: SNOW, enumerable: false });
     return out;

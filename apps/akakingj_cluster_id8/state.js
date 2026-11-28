@@ -332,7 +332,9 @@
                    fuelPct: has(fuel) ? fuel : null } : null,
             info: info,
             /* the limit Speed Limit Assist has taken (null: none), for the sign (Display > Speed limit sign) */
-            speedLimit: has(raw.speedLimit) && raw.speedLimit > 0 ? raw.speedLimit : null
+            speedLimit: has(raw.speedLimit) && raw.speedLimit > 0 ? raw.speedLimit : null,
+            /* the warning signs the front camera read lately, their pictures' names, oldest first (src/car/road_signs.js) */
+            roadSigns: Array.isArray(raw.roadSigns) ? raw.roadSigns.slice() : []
         };
     }
 

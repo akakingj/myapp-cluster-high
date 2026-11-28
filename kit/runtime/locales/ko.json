@@ -2764,7 +2764,7 @@
   "The speed limit the limiter or the cruise control has taken (Speed Limit Assist); -- while neither has one": "리미터나 크루즈가 받아들인 제한속도 (Speed Limit Assist). 둘 다 쓰지 않을 때는 --",
   "The USB stick is read-only: the full logs are in the app's data folder": "USB가 읽기 전용이라 저장할 수 없습니다. 전체 로그는 앱 데이터 폴더에 저장됨:",
   "Empty panes (as BMW's)": "빈 칸 (BMW 순정처럼)",
-  "The last speed limit the car recognised, kept until the next, as its own sign; -- before the first": "마지막으로 인식한 제한속도를 다음 것을 인식할 때까지 순정 표지판처럼 표시; 처음 인식 전에는 --",
+  "The last speed limit the car recognised, kept until the next, as its own sign (-- before the first), and beside it the warning signs the front camera reads, each 10 s": "마지막으로 인식한 제한속도를 다음 것을 인식할 때까지 순정 표지판처럼 표시(처음 인식 전에는 --), 그 옆에 전방 카메라가 읽은 경고 표지판을 각각 10초 동안 표시",
   "Strip by the speedometer (left)": "속도계 쪽 막대 게이지 (왼쪽)",
   "Strip by the rev counter (right)": "회전계 쪽 막대 게이지 (오른쪽)"
 }

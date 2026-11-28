@@ -13,6 +13,25 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.29.0
+
+- **The warning signs the front camera reads, beside the speed limit sign** (Display > Speed limit sign on), as AK
+  Cluster Layouts 0.69.0 shows them: `de.bmw.environmentalmodel.SignRecognitionFrontCamera`'s
+  `TrafficSignRecognitionFrontCamera` event (found by AK Cluster Info's signal survey, 26 November 2026; once as the car
+  passes a sign), declared `_optional` with its one broadcast. The warnings (DS_ types: wild animals, slippery road, a
+  jam, a steep descent and the rest) and no passing (not its end) - the speed limit has its own sign - each 10 s after
+  the camera last read it, at most two, oldest first (`src/car/road_signs.js`). Drawn as South Korea's own signs (the
+  government's designs, free to use as public works), 84 px high as the speed limit sign, from one atlas
+  (`src/theme/signs.js` and `assets/signs/signs.png`, made by `tools/make-signs.py`; a second asset, rgba8, made only
+  while a layer draws them, `src/car/cluster.js`; shader `warnsign`). A warning with no sign of its own gets 140 ("!").
+- **The speed limit sign and the warning signs stand in one line** (the owner's ask): a row with the speed limit sign
+  leftmost, or a column with it at the foot, the line nearest each style's home where all three fit 6 px clear of the
+  style's readouts and small pieces, the KOMBI's lights, the turn arrows, the camera's cowl, the glass's corners and
+  the strip (`overlays.js` signGroup, with every centre, size and lowering): Toro a row at the upper right over its
+  right gauges (the gear's corners free), M Sport and M Sport Plus a row in the footer right of the 4WD panel, M Track
+  Mode a row under the wing, over the range. The speed limit sign moved with them from its old places.
+- Logs `--- sli ---`: a third line, the camera's last signs and how many of each it has read.
+
 ## AK 0.28.1
 
 The Engine setting's M car choice reads just "M" in Korean (was 가솔린, M 차량), as in the AK clusters and the Car
