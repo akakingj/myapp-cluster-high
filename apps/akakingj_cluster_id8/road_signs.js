@@ -42,8 +42,97 @@ function parseSigns(v) {
         .filter(function (t) { return !/^(SIGNAL_UNFILLED|UNKNOWN|INITIALIZATION_STATUS_UNKNOWN)$/.test(t); });
 }
 
-/** A warning (DS_ types): shown when the camera reads it. */
-function warning(t) { return /^DS_/.test(t); }
+/*
+ * (0.29.6) The 79 types of the car's catalog by the owner's table (akakingj/myapp-cluster tools/known_sign_types.json;
+ * its shared/road_signs.js KNOWN, the same): name -> [picture or null, shown]. Shown on the cluster as on the head-up
+ * display (the owner, 2026-11-28: "the signs the HUD shows, on ID8 too") - the warnings and give way, stop, no entry,
+ * no cars, no stopping; no passing by its zone (makeZone), the speed limit by its own sign. A name not in the table
+ * (another firmware): a warning (DS_) only.
+ */
+var KNOWN = {
+    NO_PASSING_SIGN: ["no_passing", false],
+    WITHDRAWAL_NO_PASSING_SIGN: [null, false],
+    WITHDRAWAL_SPEED_LIMIT: [null, false],
+    GENERAL_WITHDRAWAL: [null, false],
+    SPEED_LIMIT: [null, false],
+    WITHDRAWAL_SPEED_LIMIT_2_DIGITS: [null, false],
+    WITHDRAWAL_SPEED_LIMIT_3_DIGITS: [null, false],
+    MANDATORY_PASSING_LEFT: [null, false],
+    MANDATORY_PASSING_RIGHT: [null, false],
+    MANDATORY_PASSING_STRAIGHT: [null, false],
+    ROUNDABOUT_SIGN: ["roundabout", true],
+    NO_ENTRY: ["no_entry", true],
+    VEHICLES_PROHIBITED: ["no_cars", true],
+    MOTORWAY_START_OF: [null, false],
+    MOTORWAY_END_OF: [null, false],
+    EXPRESSWAY_START_OF: [null, false],
+    EXPRESSWAY_END_OF: [null, false],
+    TRAFFIC_CALMING_ZONE_START_OF: [null, false],
+    TRAFFIC_CALMING_ZONE_END_OF: [null, false],
+    STOP_SIGN: ["stop", true],
+    GIVE_WAY: ["give_way", true],
+    PRIORITY_ROAD_START_OF: [null, false],
+    PRIORITY_ROAD_END_OF: [null, false],
+    DS_BEND_LEFT: ["curve_left", true],
+    DS_BEND_RIGHT: ["curve_right", true],
+    DS_DOUBLE_BEND_LEFT_FIRST: ["double_bend_left", true],
+    DS_DOUBLE_BEND_RIGHT_FIRST: ["double_bend_right", true],
+    DS_ROAD_NARROW_BOTH_SIDES: ["danger", true],   // narrow_both (new picture to come)
+    DS_ROAD_NARROW_LEFT_SIDE: ["danger", true],   // narrow_left (new picture to come)
+    DS_ROAD_NARROW_RIGHT_SIDE: ["danger", true],   // narrow_right (new picture to come)
+    DS_CROSS_ROAD: ["danger", true],   // crossroad (new picture to come)
+    DS_CROSS_ROAD_SMALL_ROAD: ["danger", true],   // priority_road (new picture to come)
+    DS_ROAD_FROM_LEFT__DEGREE: ["danger", true],   // junction_left (new picture to come)
+    DS_ROAD_FROM_RIGHT__DEGREE: ["danger", true],   // junction_right (new picture to come)
+    DS_ONE_BUMP: ["speed_hump", true],
+    DS_TWO_BUMP: ["bumpy_road", true],
+    DS_CONCAVE: ["bumpy_road", true],
+    DS_TRAFFIC_JAM: ["traffic_jam", true],
+    DS_ROAD_WORKS: ["road_works", true],
+    DS_RIGHT_DOWNWARDS: ["downhill", true],
+    DS_RIGHT_UPWARDS: ["uphill", true],
+    DS_TRAFFIC_LIGHT: ["traffic_lights", true],
+    DS_ANIMAL_CROSSING: ["wild_animal", true],
+    DS_CHILDREN: ["children", true],
+    DS_SNOW: ["danger", true],
+    DS_SPLIPPERY_ROAD: ["slippery", true],
+    DS_GIVE_WAY_ROUNDABOUT: ["roundabout", true],
+    DS_WIND_FROM_SIDE: ["crosswind", true],
+    DS_PEDESTRIAN_CROSSING: ["crosswalk", true],
+    DS_BYCICLE_CROSSING: ["bicycle", true],
+    DS_TRAIN_CROSS_WITHOUT_BARRIER: ["railway", true],
+    DS_TRAIN_CROSS_WITH_BARRIER: ["railway", true],
+    DS_GRAVEL: ["danger", true],
+    DS_TWO_WAY_TRAFFIC: ["danger", true],   // two_way (new picture to come)
+    CITY_LIMIT_START_OF: [null, false],
+    CITY_LIMIT_END_OF: [null, false],
+    CITY_LIMIT_START_END_OF: [null, false],
+    ENVIRONMENTAL_ZONE_START_OF: [null, false],
+    ENVIRONMENTAL_ZONE_END_OF: [null, false],
+    UNKNOWN: [null, false],
+    ALL_VEHICLES_PROHIBITED: ["danger", false],   // no_through (new picture to come)
+    MANDATORY_PASSING_HERE_LEFT: [null, false],
+    MANDATORY_PASSING_HERE_RIGHT: [null, false],
+    MANDATORY_PASSING_LEFT_ALONG: [null, false],
+    MANDATORY_PASSING_RIGHT_ALONG: [null, false],
+    MANDATORY_PASSING_STRAIGHT_LEFT: [null, false],
+    MANDATORY_PASSING_STRAIGHT_RIGHT: [null, false],
+    DS_PEDESTRIAN: ["crosswalk", true],
+    DS_DOMESTIC_ANIMAL_CROSSING: ["wild_animal", true],
+    DS_GENERAL: ["danger", true],
+    DS_DRAW_BRIDGE: ["bridge", true],
+    DS_LOW_FLYING_AIRCRAFT: ["danger", true],   // aircraft (new picture to come)
+    DS_RIVER_BANK: ["riverside", true],
+    DS_TRAIN_CROSS: ["railway", true],
+    STOPPING_RESTRICTION: ["no_stopping", true],
+    NO_STANDING_ANYTIME: ["no_stopping", true],
+    DRIVING_EMERGANCY_LANE_ALLOWED: [null, false],
+    DRIVING_EMERGANCY_LANE_CANCELLATION: [null, false],
+    SIGNAL_UNFILLED: [null, false],
+};
+function known(t) { return Object.prototype.hasOwnProperty.call(KNOWN, t) ? KNOWN[t] : null; }
+/** Shown when the camera reads it: as the table says; another name, a warning (DS_ types). */
+function warning(t) { var k = known(t); return k ? k[1] : /^DS_/.test(t); }
 
 /** The warnings to show (the owner, 2026-11-28: on when the camera reads one, off a while after; a new one read takes
  * its place): add(types, t) - one event's warnings become the ones shown, in place of those before (one event may carry
@@ -110,6 +199,8 @@ var ART_OF = [
 ];
 /** Which picture a type gets: 'danger' (140, "!") for a warning with none of its own. */
 function artOf(t) {
+    var k = known(t);
+    if (k && k[0]) return k[0];
     for (var i = 0; i < ART_OF.length; i++) {
         var n = ART_OF[i][1];
         if (ART_OF[i][0].test(t)) return typeof n === 'function' ? n(t) : n;
@@ -117,5 +208,5 @@ function artOf(t) {
     return 'danger';
 }
 
-module.exports = { CAM_IFACE: CAM_IFACE, CAM_EVENT: CAM_EVENT, SHOW_MS: SHOW_MS, parseSigns: parseSigns, warning: warning,
+module.exports = { KNOWN: KNOWN, CAM_IFACE: CAM_IFACE, CAM_EVENT: CAM_EVENT, SHOW_MS: SHOW_MS, parseSigns: parseSigns, warning: warning,
     makeTracker: makeTracker, NP_KM: NP_KM, npStart: npStart, npEnd: npEnd, makeZone: makeZone, artOf: artOf };

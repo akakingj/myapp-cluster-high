@@ -13,6 +13,14 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.29.6
+
+- **The signs the head-up display shows, on the cluster too** (the owner): give way, stop, no entry, no cars and no
+  stopping as well as the warnings, by the owner's table of the car's 79 sign types (akakingj/myapp-cluster
+  `tools/known_sign_types.json`: `DS_ONE_BUMP` the speed hump, `DS_CONCAVE` bumpy road, the instruction signs and the
+  limits hidden; the speed limit has its own sign, no passing its zone). Their pictures are in the atlas now
+  (`assets/signs/src`: the same South Korean signs as AK Cluster Layouts').
+
 ## AK 0.29.5
 
 - **No passing ends on the camera's own end sign**: the car's catalog names it `WITHDRAWAL_NO_PASSING_SIGN` (and

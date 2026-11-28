@@ -115,7 +115,9 @@ test('the camera\'s signs reach the state: a warning 10 s, a new one in its plac
     r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_ANIMAL_CROSSING', 'SPEED_LIMIT'), t0);
     assert.deepStrictEqual(r.raw(t0 + 100).roadSigns, ['wild_animal']);
     r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('GIVE_WAY'), t0 + 200);
-    assert.deepStrictEqual(r.raw(t0 + 300).roadSigns, ['wild_animal'], 'give way: not the cluster\'s');
+    assert.deepStrictEqual(r.raw(t0 + 300).roadSigns, ['give_way'], 'give way: shown as on the head-up display (0.29.6), in its place');
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('MANDATORY_PASSING_RIGHT', 'SPEED_LIMIT'), t0 + 350);
+    assert.deepStrictEqual(r.raw(t0 + 360).roadSigns, ['give_way'], 'an instruction sign or the speed limit: not shown, nothing replaced');
     r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_SPLIPPERY_ROAD'), t0 + 400);
     assert.deepStrictEqual(r.raw(t0 + 500).roadSigns, ['slippery'], 'a new one in its place');
     r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_TRAFFIC_JAM', 'DS_ANIMAL_CROSSING'), t0 + 600);
@@ -153,4 +155,13 @@ test('no passing\'s zone: from its sign till its end sign, or 3 km driven since 
     assert.ok(z.on());
     for (let t = 171000; t <= 200000; t += 1000) z.step(t, 60);
     assert.ok(!z.on(), '3 km driven: gone');
+});
+
+test('the car\'s 79 sign types (0.29.6): each one shown has its picture in the atlas; the instruction signs and the limits hidden', () => {
+    const RS = require('../src/car/road_signs.js'), S = require('../src/theme/signs.js');
+    assert.strictEqual(Object.keys(RS.KNOWN).length, 79);
+    Object.keys(RS.KNOWN).filter(RS.warning).forEach((n) => assert.ok(S.cells[RS.artOf(n)], n + ': ' + RS.artOf(n)));
+    assert.deepStrictEqual(['GIVE_WAY', 'STOP_SIGN', 'NO_ENTRY', 'VEHICLES_PROHIBITED', 'NO_STANDING_ANYTIME', 'DS_ONE_BUMP'].map(RS.artOf),
+        ['give_way', 'stop', 'no_entry', 'no_cars', 'no_stopping', 'speed_hump']);
+    ['SPEED_LIMIT', 'NO_PASSING_SIGN', 'MANDATORY_PASSING_RIGHT', 'SIGNAL_UNFILLED', 'ALL_VEHICLES_PROHIBITED'].forEach((n) => assert.ok(!RS.warning(n), n));
 });
