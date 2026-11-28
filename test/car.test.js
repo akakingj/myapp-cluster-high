@@ -104,6 +104,11 @@ test('the gear with its programme: D1, S1, M1 from MDrive.dataDisplayGearbox; P,
     assert.strictEqual(r.raw(1000, 59).gear, 'P');
     assert.ok(Vehicle.SIGNALS['de.bmw.infotainment.misc.MDrive'].dataDisplayGearbox);
     assert.strictEqual(item('gearShows').default, 'staged');
+    /* (0.30.3) an electric car's B (B_PROGRAMM, 5): B alone, in the plain gear too; R and P as they are */
+    prog('B_PROGRAMM'); sel(5); assert.strictEqual(r.raw(1000, 59).gearStaged, 'B');
+    assert.strictEqual(r.raw(1000, 59).gear, 'B');
+    prog(5); sel(2); assert.strictEqual(r.raw(1000, 59).gear, 'R');
+    sel(3); assert.strictEqual(r.raw(1000, 59).gearStaged, 'P');
 });
 
 test('the fuel gauge as AK Cluster Layouts\': the engine unit\'s tank level only, its last answer held', () => {

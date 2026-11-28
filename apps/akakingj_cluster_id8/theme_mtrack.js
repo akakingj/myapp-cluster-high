@@ -580,7 +580,7 @@
             var b = box(630, 200, 866, 294);
             return { id: 'gear', z: 30, shader: 'text', x: b.x, y: b.y, w: b.w, h: b.h,
                 uniforms: function (s) {
-                    var str = String(s.gear || 'P').slice(0, 2), items = [], pen = 0, i;
+                    var str = String(s.gearStaged || s.gear || 'P').slice(0, 2)   /* (0.30.3) D1 / S1 / M1, as Toro's */, items = [], pen = 0, i;
                     var size = fig(GEAR.h * (str.length > 1 ? GEAR.pair : 1));
                     for (i = 0; i < str.length; i++) {
                         var ch = str.charAt(i), face = atlas.faces.mg.glyphs[ch] ? 'mg' : 'mw';

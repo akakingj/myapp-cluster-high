@@ -109,6 +109,100 @@ MARKED = ("display", "label", "mb", "mn", "ms", "mw")
 SPOTS = [("mt", "g", (878, 235))]            # M Track Mode: the gearbox oil (tools/mglyphs.py icon_gearbox)
 
 
+# An electric car's B (0.30.3), packed after everything above, so nothing
+# moves for it: in the M styles' faces drawn by tools/mglyphs.py, and in
+# Toro's gear face made from that face's own D (its fonts are not needed: the
+# D with a middle bar across its counter and a small notch at the waist).
+# `--extra` adds them to the atlas as it stands.
+EXTRA_DRAWN = [("mw", "B"), ("mg", "B")]
+EXTRA_MADE = [("gear", "B", "D")]
+
+
+def b_from_d(cell, slant):
+    """A B from a D's distance field (atlas texels): its middle bar across the
+    counter, the slant's lean kept, and a notch at the waist on the right."""
+    import math
+    d = cell.astype(np.float32)
+    h, w = d.shape
+    k = 127.5 / SPREAD
+    t = math.tan(math.radians(slant))
+    inked = d > 127.5
+    rows = np.nonzero(inked.any(axis=1))[0]
+    top, foot = rows.min(), rows.max()
+    # the bars' thickness: the D's top bar, down its middle column
+    mid = inked[:, (np.nonzero(inked.any(axis=0))[0].min() + np.nonzero(inked.any(axis=0))[0].max()) // 2]
+    bar = np.nonzero(mid)[0]
+    thick = (bar[bar < (top + foot) / 2].max() - top + 1) if (bar < (top + foot) / 2).any() else (foot - top) * 0.17
+    ym = (top + foot) / 2.0
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    xs = xx + (yy - ym) * t                         # each row moved back by the lean, as the middle row stands
+    row = inked[int(round(ym))]
+    cols = np.nonzero(row)[0]
+    gaps = [c for c in range(cols.min(), cols.max()) if not row[c]]
+    x0, x1 = (min(gaps), max(gaps)) if gaps else (cols.min(), cols.max())
+    across = np.minimum(k * (thick / 2.0 - np.abs(yy - ym)) + 127.5, k * np.minimum(xs - x0 + 1, x1 + 1 - xs) + 127.5)
+    out = np.maximum(d, across)
+    right = cols.max()
+    notch = np.where(xs > right - 2.5, k * (np.abs(yy - ym) * 0.9 - 3.0) + 127.5, 255.0)
+    out = np.minimum(out, np.maximum(notch, 0.0))
+    return np.clip(out, 0, 255).astype(np.uint8)
+
+
+def add_extra(atlas, meta, free):
+    """EXTRA_DRAWN and EXTRA_MADE packed from row `free`, each only if its face
+    has not got it yet. Returns the next free row."""
+    size = atlas.shape[0]
+    cells, new = [], {}
+    for face, ch in EXTRA_DRAWN:
+        if face in meta and ch not in meta[face]["glyphs"]:
+            cell, m = drawn_glyph(face, ch)
+            cells.append((face, ch, cell))
+            new[(face, ch)] = m
+    for face, ch, src in EXTRA_MADE:
+        if face in meta and ch not in meta[face]["glyphs"]:
+            g = meta[face]["glyphs"][src]
+            cell = b_from_d(atlas[g["v"]:g["v"] + g["th"], g["u"]:g["u"] + g["tw"]], meta[face]["slant"])
+            cells.append((face, ch, cell))
+            new[(face, ch)] = {k: g[k] for k in ("adv", "w", "h", "bx", "by")}
+    if not cells:
+        return free
+    packed = pack(cells, size, free)
+    if packed is None:
+        # (the rows under the others are nearly full: a row of them where no glyph's cell is and no pixel is)
+        packed = in_a_gap(atlas, meta, cells)
+    if packed is None:
+        sys.exit("the extra glyphs do not fit (from row %d of %d, nor in a gap)" % (free, size))
+    for face, ch, cell in cells:
+        meta[face]["glyphs"][ch] = new[(face, ch)]
+    put(atlas, meta, cells, packed[0])
+    return max(free, packed[1])
+
+
+def in_a_gap(atlas, meta, cells):
+    """cells side by side in the first place, top to bottom and left to right, where no glyph's cell (and a texel
+    round it) and no pixel is -> ({(face, ch): (x, y)}, the row under them) or None"""
+    size = atlas.shape[0]
+    used = atlas > 0
+    for f in meta.values():
+        for g in f["glyphs"].values():
+            if g.get("th"):
+                used[max(0, g["v"] - 1):g["v"] + g["th"] + 1, max(0, g["u"] - 1):g["u"] + g["tw"] + 1] = True
+    h = max(c[2].shape[0] for c in cells) + 2
+    w = sum(c[2].shape[1] + 1 for c in cells) + 1
+    for y in range(1, size - h):
+        band = used[y:y + h].any(axis=0)
+        run = 0
+        for x in range(size):
+            run = 0 if band[x] else run + 1
+            if run >= w:
+                x0, placed = x - w + 2, {}
+                for face, ch, cell in cells:
+                    placed[(face, ch)] = (x0, y + 1)
+                    x0 += cell.shape[1] + 1
+                return placed, y + h
+    return None
+
+
 def mark_glyph(ch):
     """A mark of this file's own hand: "~", a stroke one period of a sine wave
     long, about the figures' middle height."""
@@ -312,9 +406,21 @@ def marks_only():
     write(atlas, meta, max(g["v"] + g["th"] + 1 for f in meta.values() for g in f["glyphs"].values() if g.get("th") and g["v"] >= free))
 
 
+def extra_only():
+    """--extra: the B glyphs (EXTRA_DRAWN, EXTRA_MADE) added to the atlas as it
+    stands (no fonts needed), under the last row anything uses."""
+    meta = json.loads((OUT / "atlas.json").read_text())["faces"]
+    atlas = np.array(Image.open(OUT / "atlas.png").convert("L"))
+    free = max(g["v"] + g["th"] for f in meta.values() for g in f["glyphs"].values() if g.get("th")) + 1
+    rows = add_extra(atlas, meta, free)
+    write(atlas, meta, rows)
+
+
 def main():
     if "--marks" in sys.argv[1:]:
         return marks_only()
+    if "--extra" in sys.argv[1:]:
+        return extra_only()
     if not FONTS.is_dir():
         sys.exit("run tools/fetch-fonts.sh first")
     OUT.mkdir(parents=True, exist_ok=True)
@@ -348,6 +454,7 @@ def main():
     put(atlas, meta, cells, placed)
     rows = add_marks(atlas, meta, packed[1])
     add_spots(atlas, meta)
+    rows = add_extra(atlas, meta, max(g["v"] + g["th"] for f in meta.values() for g in f["glyphs"].values() if g.get("th")) + 1)
     write(atlas, meta, rows)
 
 

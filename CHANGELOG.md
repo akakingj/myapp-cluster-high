@@ -13,6 +13,15 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.30.3
+
+- **The gear with its programme in every style** (the owner): M Sport, M Sport Plus and M Track Mode show D1, S1, M1 as
+  Toro does (P, R and N as they are).
+- **An electric car's B**: MDrive.dataDisplayGearbox's `B_PROGRAMM` (5 in the car's catalog), the programme an
+  electric car's selector shows as B, is shown as B alone, in every style and in the gear readout. Its letter was in
+  none of the gear faces: drawn for M Sport's and M Track Mode's (`tools/mglyphs.py`), made from Toro's own D for its
+  gear (`tools/bake-atlas.py --extra`, in a gap of the atlas, so no glyph moved). Not seen on a car yet.
+
 ## AK 0.30.2
 
 - **A plug-in hybrid's gear no longer covered by the cluster's grey box** (a tester's, 2026-11-28: a dark box over the

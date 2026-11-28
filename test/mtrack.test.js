@@ -776,8 +776,9 @@ test('no reading stands where the picture shows', () => {
 
 test('the gear: a letter in the frame\'s own hand, a number in the dials\', its right side where the frame\'s D ends', () => {
     const t = build(), L = layer(t, 'gear');
-    for (const [gear, faces] of [['D', ['mg']], ['P', ['mg']], ['R', ['mg']], ['N', ['mg']], ['4', ['mw']], ['M3', ['mg', 'mw']], ['S8', ['mg', 'mw']]]) {
-        const u = L.uniforms(state(t, { gear }), 0);
+    /* (0.30.3) the gear with its programme, as Toro's: a bare 4 is D4; an electric car's B alone */
+    for (const [gear, faces] of [['D', ['mg']], ['P', ['mg']], ['R', ['mg']], ['N', ['mg']], ['B', ['mg']], ['D4', ['mg', 'mw']], ['M3', ['mg', 'mw']], ['S8', ['mg', 'mw']]]) {
+        const u = L.uniforms(state(t, { gear, gearStaged: gear }), 0);
         assert.strictEqual(read(L, u), gear);
         assert.deepStrictEqual(glyphs(L, u).map((g) => g.face), faces, gear);
         const ink = inkOf(L, u), last = ink[ink.length - 1];
@@ -793,8 +794,9 @@ test('the gear: a letter in the frame\'s own hand, a number in the dials\', its 
         });
     }
     assert.strictEqual(read(L, L.uniforms(state(t, {}), 0)), 'P', 'no gear known: P');
+    assert.strictEqual(read(L, L.uniforms(state(t, { gear: '4' }), 0)), 'D4', 'a bare figure: D\'s');
     /* the frame's D is its own shape: an upright lighter than its bowl */
-    assert.deepStrictEqual(Object.keys(atlas.faces.mg.glyphs).sort(), ['D', 'M', 'N', 'P', 'R', 'S']);
+    assert.deepStrictEqual(Object.keys(atlas.faces.mg.glyphs).sort(), ['B', 'D', 'M', 'N', 'P', 'R', 'S']);
     const src = fs.readFileSync(path.join(__dirname, '..', 'tools', 'mglyphs.py'), 'utf8');
     const g = /GEAR = dict\(W=([\d.]+), sl=([\d.]+), sr=([\d.]+)/.exec(src);
     assert.ok(g && Number(g[2]) < Number(g[3]) * 0.8 && Math.abs(Number(g[1]) - 1.196) < 1e-9);
@@ -939,7 +941,8 @@ test('the atlas: the track style\'s symbols, gear letters and signs are in it, a
     let lowestOld = 0, highestNew = Infinity;
     for (const [face, f] of Object.entries(atlas.faces)) {
         for (const [ch, g] of Object.entries(f.glyphs)) {
-            if (!g.tw || ch === '~' || (face === 'mt' && ch === 'g')) continue;     // (the marks: under these, below; the spot: above)
+            // (the marks: under these, below; the spot: above; an electric car's B, 0.30.3: in a gap of its own, below)
+            if (!g.tw || ch === '~' || (face === 'mt' && ch === 'g') || (ch === 'B' && ['mw', 'mg', 'gear'].indexOf(face) >= 0)) continue;
             if (added.indexOf(face) >= 0) highestNew = Math.min(highestNew, g.v);
             else lowestOld = Math.max(lowestOld, g.v + g.th);
             assert.ok(g.u + g.tw <= atlas.size && g.v + g.th <= atlas.size, face + ': a glyph off the atlas');
@@ -947,7 +950,16 @@ test('the atlas: the track style\'s symbols, gear letters and signs are in it, a
     }
     assert.ok(highestNew >= lowestOld, `the new faces start at row ${highestNew}, the old end at ${lowestOld}`);
     /* "~" (an estimate's mark): one cell under those, named in the upright faces that set figures, not the start-up words' */
-    const lowestTrack = Math.max(...added.map((f) => Math.max(...Object.entries(atlas.faces[f].glyphs).filter(([ch, g]) => g.tw && !(f === 'mt' && ch === 'g')).map(([, g]) => g.v + g.th))));
+    /* the B's (tools/bake-atlas.py EXTRA_DRAWN, EXTRA_MADE): in each of the three faces, clear of every other glyph */
+    const bs = ['mw', 'mg', 'gear'].map((f) => [f, atlas.faces[f].glyphs.B]);
+    for (const [bf, b] of bs) {
+        assert.ok(b && b.tw > 0, bf + ' has a B');
+        for (const [face, f] of Object.entries(atlas.faces)) for (const [ch, o] of Object.entries(f.glyphs)) {
+            if (!o.tw || (face === bf && ch === 'B')) continue;
+            assert.ok(o.u + o.tw <= b.u || b.u + b.tw <= o.u || o.v + o.th <= b.v || b.v + b.th <= o.v, face + ' ' + ch + ' under ' + bf + ' B');
+        }
+    }
+    const lowestTrack = Math.max(...added.map((f) => Math.max(...Object.entries(atlas.faces[f].glyphs).filter(([ch, g]) => g.tw && !(f === 'mt' && ch === 'g') && ch !== 'B').map(([, g]) => g.v + g.th))));
     const marks = ['display', 'label', 'mb', 'mn', 'ms', 'mw'].map((f) => atlas.faces[f].glyphs['~']);
     marks.forEach((g) => assert.deepStrictEqual(g, marks[0]));
     assert.ok(marks[0].tw > 0 && marks[0].v >= lowestTrack && marks[0].v + marks[0].th <= atlas.size);

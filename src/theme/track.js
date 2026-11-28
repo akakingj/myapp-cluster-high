@@ -622,7 +622,8 @@
         if (S.mGear === 'gear') {
             txt('gear', 30, box(1228, 234, 1390, 304),
                 { face: 'mw', size: fig(50.8), align: 'centre', x: X(1308.8), y: Y(294.4), color: shiftCol },
-                function (s) { return s.gear || 'P'; });
+                /* (0.30.3) with its programme, D1 / S1 / M1, as Toro's; an electric car's B alone */
+                function (s) { return s.gearStaged || s.gear || 'P'; });
         } else if (S.mGear === 'rpm') {
             /* the revs, to the nearest ten, on the same black bar: four of
                the narrow figures at this size stand clear of the plates

@@ -204,6 +204,11 @@ def figure(F, ch):
         g |= P([(W * 0.42, yb - sh), (W * 0.42 + sv * 1.05, yb - sh), (W, 1), (W - sv * 1.05, 1)])
     elif ch == "D":
         g = RR(0, 0, W, 1, r * 1.5, (0, 1, 1, 0)) & ~RR(sv, sh, W - sv, 1 - sh, ri * 2, (0, 1, 1, 0))
+    elif ch == "B":
+        # an electric car's B (0.30.3): the upright, a bowl a little narrower above the middle bar and one below
+        wt = W * 0.94
+        g = R(0, 0, sv, 1) | (RR(0, 0, wt, m1, r, (0, 1, 1, 0)) & ~RR(sv, sh, wt - sv, m0, ri, (0, 1, 1, 0)))
+        g |= RR(0, m0, W, 1, r * 1.2, (0, 1, 1, 0)) & ~RR(sv, m1, W - sv, 1 - sh, ri * 1.4, (0, 1, 1, 0))
     elif ch == "N":
         dw = sv * 0.98
         g = R(0, 0, sv, 1) | R(W - sv, 0, W, 1) | P([(0, 0), (dw, 0), (W, 1), (W - dw, 1)])
@@ -637,6 +642,14 @@ def gear_figure(ch):
         g = R(0, 0, sl, 1) | (RR(0, 0, W, yb, ro * 0.82, (0, 1, 1, 0)) & ~RR(sl, st, W - sr, yb - st, rc, (0, 1, 1, 0)))
         g |= P([(W * 0.40, yb - st), (W * 0.40 + sr * 1.02, yb - st), (W, 1), (W - sr * 1.04, 1)])
         g &= ~k.corner_cut(0, 0, 0.03, "tl")
+    elif ch == "B":
+        # an electric car's B (0.30.3), in the same strokes: the upright, two bowls on a middle bar, the upper narrower
+        m0, m1, wt = 0.5 - st / 2, 0.5 + st / 2, W * 0.94
+        g = R(0, 0, sl, 1)
+        rc = min(ri * 0.8, (m0 - st) * 0.42)              # the counters' corners: never more than their height allows
+        g |= RR(0, 0, wt, m1, ro * 0.7, (0, 1, 1, 0)) & ~RR(sl, st, wt - sr, m0, rc, (0, 1, 1, 0))
+        g |= RR(0, m0, W, 1, ro * 0.8, (0, 1, 1, 0)) & ~RR(sl, m1, W - sr, 1 - sb, rc, (0, 1, 1, 0))
+        g &= ~k.corner_cut(0, 0, 0.03, "tl") & ~k.corner_cut(0, 1, 0.03, "bl")
     elif ch == "N":
         dw = sr * 0.98
         g = R(0, 0, sl, 1) | R(W - sl, 0, W, 1) | P([(0, 0), (dw, 0), (W, 1), (W - dw, 1)])
@@ -666,10 +679,10 @@ def gear_glyph(ch):
 
 
 FIGURES = {
-    "mw": (WIDE, "0123456789PRNDSM"),
+    "mw": (WIDE, "0123456789PRNDSMB"),
     "mn": (NORM, "0123456789:.+-/"),
 }
-GEAR_LETTERS = "PRNDSM"
+GEAR_LETTERS = "PRNDSMB"
 
 
 def proof(out):

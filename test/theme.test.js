@@ -295,7 +295,7 @@ function gapOf(a, b) {
     return Math.max(Math.max(b.x - (a.x + a.w), a.x - (b.x + b.w)), Math.max(b.y - (a.y + a.h), a.y - (b.y + b.h)));
 }
 /* (and with the programme, TORO > Gear as it comes: the widest pairs and the narrowest) */
-const GEARS = 'PRNDSM12345678'.split('').concat(['D1', 'D4', 'S8', 'M8', 'M1']);
+const GEARS = 'PRNDSMB12345678'.split('').concat(['D1', 'D4', 'S8', 'M8', 'M1']);
 const gearLayer = (t) => t.layers.find((L) => L.id === 'gearBig');
 const gearState = (t, gear, raw) => Object.assign(
     State.present(Object.assign({ rpm: 3000, gear }, raw || {}), Panel.profile('carprofile'), t.settings), { gear, gearStaged: gear });

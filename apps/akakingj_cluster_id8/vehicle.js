@@ -312,9 +312,10 @@ function stageOf(value) {
 }
 
 /*
- * The gearbox's programme (MDrive.dataDisplayGearbox, as Cluster Layouts reads it): S or M, else D's own.
+ * The gearbox's programme (MDrive.dataDisplayGearbox, as Cluster Layouts reads it): S or M, else D's own; B
+ * (B_PROGRAMM, 5 in the car's catalog: an electric car's B, its strongest recuperation) shown as B alone.
  */
-var PROGRAMS = { S_MINUS_PROGRAMM: 'S', M_MINUS_PROGRAMM: 'M', 1: 'S', 2: 'M' };
+var PROGRAMS = { S_MINUS_PROGRAMM: 'S', M_MINUS_PROGRAMM: 'M', B_PROGRAMM: 'B', 1: 'S', 2: 'M', 5: 'B' };
 function programOf(value) {
     var raw = value && typeof value === 'object'
         ? (value.dataDisplayGearbox !== undefined ? value.dataDisplayGearbox : value[Object.keys(value)[0]]) : value;
@@ -322,11 +323,13 @@ function programOf(value) {
 }
 
 /*
- * The gear with its programme: D1, S1, M1 (P, R and N as they are), for Toro's
- * numeral when it shows them (TORO > Gear).
+ * The gear with its programme: D1, S1, M1 (P, R and N as they are), for the
+ * styles' gear (Toro's when TORO > Gear shows them). An electric car's B is B
+ * alone, as its own cluster shows it.
  */
 function gearStaged(stage, gear, program) {
-    var t = gearText(stage, gear);
+    var t = gearText(stage, gear, program);
+    if (t === 'B') return t;
     return typeof gear === 'number' && gear > 0 && /^[0-9]$/.test(t || '') ? (program || 'D') + t : t;
 }
 
@@ -334,8 +337,9 @@ function gearStaged(stage, gear, program) {
  * What the big numeral shows. P, R and N come from the selector; in D the
  * engaged gear is shown, as a Lamborghini does.
  */
-function gearText(stage, gear) {
+function gearText(stage, gear, program) {
     if (stage === 'P' || stage === 'R' || stage === 'N') return stage;
+    if (program === 'B' && gear !== -1) return 'B';
     if (typeof gear === 'number') {
         if (gear === -1) return 'R';
         if (gear === 0) return stage || 'N';
@@ -695,7 +699,7 @@ function createReader(opts) {
         return {
             rpm: get('rpm', now),
             speedKmh: get('speedKmh', now),
-            gear: gearText(held('stage') || held('stageBox'), held('gearNum')),
+            gear: gearText(held('stage') || held('stageBox'), held('gearNum'), held('program')),
             gearStaged: gearStaged(held('stage') || held('stageBox'), held('gearNum'), held('program')),
             condition: held('condition'),
             driveMode: held('driveMode'),

@@ -1012,7 +1012,9 @@ test('a Power %\'s 50 on the rev numerals is not cut at the dial\'s widest (its 
 
 test('the gear is shown as the car names it', () => {
     const t = build();
-    for (const g of ['P', 'R', 'N', 'D', 'D8', 'S5', 'M3', '1']) assert.strictEqual(says(t, 'gear', state(t, {}, { gear: g })), g);
+    /* (0.30.3) with its programme, D1 / S1 / M1, as Toro's; an electric car's B alone */
+    for (const g of ['P', 'R', 'N', 'D', 'B', 'D8', 'S5', 'M3', 'D1']) assert.strictEqual(says(t, 'gear', state(t, {}, { gear: g, gearStaged: g })), g);
+    assert.strictEqual(says(t, 'gear', state(t, { gear: '4' })), 'D4', 'a bare figure: D\'s');
     assert.strictEqual(says(t, 'gear', state(t, {})), 'P', 'P until the car says otherwise');
 });
 
