@@ -39,7 +39,10 @@ def warn_h():
 
 
 def cut(im):
-    """The sign along the outside of its thick red edge: RGBA, cropped to it."""
+    """The sign along the outside of its thick red edge: RGBA, cropped to it. One already cut out (the speed cameras',
+    drawn by akakingj/myapp-cluster tools/make_sign_art.py, the ground clear) as it is."""
+    if im.mode == 'RGBA' and np.asarray(im)[..., 3].min() == 0:
+        return im.crop(im.getbbox())
     a = np.asarray(im.convert('RGB')).astype(int)
     r, g, b = a[..., 0], a[..., 1], a[..., 2]
     red = (r > 150) & (g < 100) & (b < 100)

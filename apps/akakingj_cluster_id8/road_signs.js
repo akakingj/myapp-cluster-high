@@ -197,8 +197,17 @@ var ART_OF = [
     [/RAIL|TRAIN|LEVEL_CROSS/, 'railway'], [/LIGHT|SIGNALS?$/, 'traffic_lights'], [/ROUNDABOUT|CIRCLE/, 'roundabout'],
     [/MERGE|JOIN/, side('merge_left', 'merge_right')], [/RIVER|QUAY|BANK/, 'riverside']
 ];
+/*
+ * Speed cameras (0.30.0, the owner: fixed or mobile, as on AK Cluster Info's HUD): BMW's navigation lists them among a
+ * route's events; AK Cluster Info decodes them and shares the one to show in /dev/shm/cluster-info/camera.json
+ * ({ t, camera: { type } }, its road_signs.js CAMERAS; src/car/providers.js camera()). Fixed or mobile goes by the icon
+ * BMW's map draws for it (not yet seen on a drive); a section camera (구간단속) is its own.
+ */
+var CAMERAS = { SPEED_CAMERA_FIXED: 'camera_fixed', SPEED_CAMERA_MOBILE: 'camera_mobile', SPEED_CAMERA_SECTION: 'camera_section' };
+function cameraArt(t) { return typeof t === 'string' && Object.prototype.hasOwnProperty.call(CAMERAS, t) ? CAMERAS[t] : null; }
 /** Which picture a type gets: 'danger' (140, "!") for a warning with none of its own. */
 function artOf(t) {
+    if (cameraArt(t)) return cameraArt(t);
     var k = known(t);
     if (k && k[0]) return k[0];
     for (var i = 0; i < ART_OF.length; i++) {
@@ -209,4 +218,4 @@ function artOf(t) {
 }
 
 module.exports = { KNOWN: KNOWN, CAM_IFACE: CAM_IFACE, CAM_EVENT: CAM_EVENT, SHOW_MS: SHOW_MS, parseSigns: parseSigns, warning: warning,
-    makeTracker: makeTracker, NP_KM: NP_KM, npStart: npStart, npEnd: npEnd, makeZone: makeZone, artOf: artOf };
+    makeTracker: makeTracker, NP_KM: NP_KM, npStart: npStart, npEnd: npEnd, makeZone: makeZone, artOf: artOf, CAMERAS: CAMERAS, cameraArt: cameraArt };

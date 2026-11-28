@@ -71,6 +71,19 @@ function create(opts) {
             holding = true;
         } catch (e) { if (!warned) { warned = true; log.warn('providers: ' + (e && e.message || e)); } }
     }
+    /* the speed camera ahead AK Cluster Info shares (camera.json: its type, src/car/road_signs.js CAMERAS), read on its
+       own (not asked for: Cluster Info writes it while a camera is near), at most every SCAN_MS */
+    var camAt = -Infinity, camType;
+    function camera() {
+        var now = nowFn();
+        if (now - camAt < SCAN_MS) return camType;
+        camAt = now; camType = undefined;
+        try {
+            var j = JSON.parse(fs.readFileSync(path.join(dir, 'camera.json'), 'utf8'));
+            if (j && known(j.t) && Date.now() - j.t < STALE_MS && j.camera && typeof j.camera.type === 'string') camType = j.camera.type;
+        } catch (e) { /* none, or half written */ }
+        return camType;
+    }
     /* a leftover of ours from before (an app stopped mid-way) */
     holding = true; release();
 
@@ -93,6 +106,7 @@ function create(opts) {
             };
         },
         release: release,
+        camera: camera,
         /* whether an app shares the battery's power here now, without asking for it (a plug-in hybrid found) */
         sharing: function () { scan(nowFn()); return Object.keys(entries).length > 0; }
     };

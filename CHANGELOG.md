@@ -13,6 +13,16 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.30.0
+
+- **Speed cameras on the cluster, fixed or mobile** (the owner): first of the two signs, as 단속중 (fixed), 이동식 단속중
+  (mobile) or 구간 단속 (a section camera), drawn after South Korea's enforcement signs (`assets/signs/src/camera_*.png`,
+  made by akakingj/myapp-cluster `tools/make_sign_art.py`). They are not the front camera's: BMW's navigation lists them
+  among a route's events, AK Cluster Info (1.14.0) reads them and shares the one to show in
+  `/dev/shm/cluster-info/camera.json` (`src/car/providers.js` camera(), read on its own each frame). So they show only
+  with AK Cluster Info running and a route on BMW's navigation. Fixed or mobile goes by the name of BMW's icon for it,
+  not yet seen on a drive.
+
 ## AK 0.29.6
 
 - **The signs the head-up display shows, on the cluster too** (the owner): give way, stop, no entry, no cars and no

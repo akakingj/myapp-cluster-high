@@ -494,6 +494,8 @@ function start(host, deps) {
                 /* (and its charge: the bus's statusChargeOfBatteryHybrid alone did not show on a plug-in hybrid, 0.29.4) */
                 if (typeof pw.soc === 'number' && isFinite(pw.soc)) socSharedAt = now();
                 reader.setFeed('socPct', pw.soc, now());
+                /* a speed camera ahead, AK Cluster Info's (0.30.0) */
+                reader.setCamera(providers.camera(), now());
             } catch (e) { log.warn('providers: ' + e); }
 
             var raw = reader.raw(now());

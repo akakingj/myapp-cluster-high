@@ -165,3 +165,32 @@ test('the car\'s 79 sign types (0.29.6): each one shown has its picture in the a
         ['give_way', 'stop', 'no_entry', 'no_cars', 'no_stopping', 'speed_hump']);
     ['SPEED_LIMIT', 'NO_PASSING_SIGN', 'MANDATORY_PASSING_RIGHT', 'SIGNAL_UNFILLED', 'ALL_VEHICLES_PROHIBITED'].forEach((n) => assert.ok(!RS.warning(n), n));
 });
+
+test('a speed camera AK Cluster Info shares (0.30.0): first on the cluster while its file is fresh, its own picture', () => {
+    const fs = require('fs'), os = require('os'), path = require('path');
+    const RS = require('../src/car/road_signs.js');
+    const V = require('../src/car/vehicle.js');
+    const P = require('../src/car/providers.js');
+    const Signs = require('../src/theme/signs.js');
+    ['camera_fixed', 'camera_mobile', 'camera_section'].forEach((n) => assert.ok(Signs.cells[n], n));
+    assert.strictEqual(RS.artOf('SPEED_CAMERA_MOBILE'), 'camera_mobile');
+    assert.strictEqual(RS.cameraArt('NOPE'), null);
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cam-'));
+    let now = 5000;
+    const p = P.create({ dir, now: () => now });
+    assert.strictEqual(p.camera(), undefined);
+    fs.writeFileSync(path.join(dir, 'camera.json'), JSON.stringify({ v: 1, t: Date.now(), camera: { type: 'SPEED_CAMERA_MOBILE', m: 300 } }));
+    now += 1000;
+    assert.strictEqual(p.camera(), 'SPEED_CAMERA_MOBILE');
+    const r = V.createReader();
+    const ev = (...t) => ({ trafficSignRecognition: { numberSigns: t.length }, trafficSign: t.map((type) => ({ type, value: 0 })) });
+    const t0 = 2000000;
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_ANIMAL_CROSSING', 'DS_TRAFFIC_JAM'), t0);
+    r.setCamera(p.camera(), t0 + 10);
+    assert.deepStrictEqual(r.raw(t0 + 100).roadSigns, ['camera_mobile', 'wild_animal'], 'the camera first, two at most');
+    r.setCamera(undefined, t0 + 600);
+    assert.deepStrictEqual(r.raw(t0 + 2000).roadSigns, ['wild_animal', 'traffic_jam'], 'gone when no longer shared');
+    fs.writeFileSync(path.join(dir, 'camera.json'), JSON.stringify({ v: 1, t: Date.now() - 10000, camera: { type: 'SPEED_CAMERA_FIXED' } }));
+    now += 1000;
+    assert.strictEqual(p.camera(), undefined, 'a stale file');
+});

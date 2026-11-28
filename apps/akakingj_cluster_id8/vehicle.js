@@ -460,7 +460,14 @@ function createReader(opts) {
     /* the signs to show now (0.29.1): no passing first while its zone lasts, then the warnings, two at most */
     function roadSignsNow(now) {
         npZone.step(now, get('speedKmh', now));
-        return (npZone.on() ? ['no_passing'] : []).concat(roadTracker.current(now).map(RoadSigns.artOf)).slice(0, 2);
+        /* a speed camera ahead first (0.30.0: AK Cluster Info's, setCamera), while it keeps saying so */
+        var cam = now - camera.at <= CAMERA_MS ? RoadSigns.cameraArt(camera.type) : null;
+        return (cam ? [cam] : []).concat(npZone.on() ? ['no_passing'] : [], roadTracker.current(now).map(RoadSigns.artOf)).slice(0, 2);
+    }
+    var CAMERA_MS = 1500, camera = { type: null, at: -Infinity };
+    /* the speed camera AK Cluster Info shares (src/car/providers.js camera()), each frame; undefined: none */
+    function setCamera(type, now) {
+        if (typeof type === 'string' && RoadSigns.cameraArt(type)) { camera.type = type; camera.at = now || Date.now(); }
     }
     /* the last limit recognised (sliStep), while the head-up display's data comes (10 s) */
     function sliNow(now) {
@@ -738,7 +745,7 @@ function createReader(opts) {
 
     return {
         receive: receive, raw: raw, sliLog: sliLog,
-        setBoostBar: setBoostBar, hasBusBoost: hasBusBoost,
+        setBoostBar: setBoostBar, hasBusBoost: hasBusBoost, setCamera: setCamera,
         setOilPressureBar: setOilPressureBar, setAccel: setAccel,
         setFeed: setFeed,
         /* whether the car's BasicDataSet has given the gearbox oil within ms (else the gearbox unit is asked: src/car/engine.js) */
