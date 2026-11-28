@@ -91,6 +91,9 @@ function makeZone(maxKm) {
         km: function () { return km; }
     };
 }
+/** A field's name that may be about no passing (the head-up display's data: BMW's own no passing sign there, with its
+ * distance from the car's map - the owner, 2026-11-28). */
+var NP_FIELD = /pass|overtak|npi|ueberhol|tunnel|lanechange|lane_change|restrict/i;
 /** Every field of a value as ['a.b=v', ...] (a counter's or a time's left out), for the Logs. */
 function fields(v) {
     var out = [];
@@ -135,4 +138,4 @@ function artOf(t) {
 }
 
 module.exports = { CAM_IFACE: CAM_IFACE, CAM_EVENT: CAM_EVENT, SHOW_MS: SHOW_MS, parseSigns: parseSigns, warning: warning,
-    makeTracker: makeTracker, NP_KM: NP_KM, npStart: npStart, npEnd: npEnd, makeZone: makeZone, fields: fields, chunk: chunk, artOf: artOf };
+    makeTracker: makeTracker, NP_KM: NP_KM, npStart: npStart, npEnd: npEnd, makeZone: makeZone, fields: fields, NP_FIELD: NP_FIELD, chunk: chunk, artOf: artOf };

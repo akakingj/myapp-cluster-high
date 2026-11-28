@@ -251,8 +251,13 @@ test('the speed limit sign as the car\'s own: the last limit recognised, kept ti
     assert.ok(/^head-up display data: \d+ in the last 60 s, the last 0.1 s ago; shown: 50$/.test(lines[1]), lines[1]);
     assert.strictEqual(lines[2], 'warning signs (front camera): none yet; no passing off');
     assert.strictEqual(lines[3], 'TrafficSignRecognition changes: none yet');
-    assert.strictEqual(lines.length, 24, 'the last 20 changes');
-    assert.ok(/ at \? km\/h  shown 50  \{"value":10/.test(lines[23]), lines[23]);
+    const changes = lines.filter((l) => /^\d{4}-\d\d-\d\dT.* km\/h  shown /.test(l));
+    assert.strictEqual(changes.length, 20, 'the last 20 changes');
+    assert.strictEqual(lines[lines.length - 1], changes[19]);
+    assert.ok(/ at \? km\/h  shown 50  \{"value":10/.test(changes[19]), changes[19]);
+    /* the head-up display's data: its fields' names, its no passing ones' changes (none here: '(none)' once) */
+    assert.ok(lines.indexOf('head-up display no passing changes: 1') >= 0, lines.join('\n').slice(0, 600));
+    assert.ok(/^head-up display fields: \d+$/.test(lines.find((l) => /^head-up display fields/.test(l))));
     assert.ok(Vehicle.SIGNALS['de.bmw.infotainment.displaydataserver.DisplayDataServer'].functionalLibraryData);
 });
 

@@ -134,6 +134,16 @@ test('the camera\'s signs reach the state: a warning 10 s, a new one in its plac
     const log = r.sliLog(t0 + 84000).split('\n');
     assert.strictEqual(log[3], 'TrafficSignRecognition changes: 1', 'a time\'s change is no change');
     assert.ok(/ km\/h: presentClassLimitSpeed=16 presentWithdrawalLimitSpeed=1$/.test(log[4]), log[4]);
+    /* the head-up display's data: each change of its fields about passing, tunnels, lane changes (BMW's own no passing) */
+    const HUD = 'de.bmw.infotainment.displaydataserver.DisplayDataServer';
+    const hud = (d) => ({ xSpeedLimitAssist: { vSLISpeedValue: 16 }, xNoPassing: { vNPIDistance: d, statusNPI: d ? 'ACTIVE' : 'OFF' } });
+    r.receive(HUD, 'functionalLibraryData', hud(500), t0 + 85000);
+    r.receive(HUD, 'functionalLibraryData', hud(500), t0 + 87000);
+    r.receive(HUD, 'functionalLibraryData', hud(0), t0 + 89000);
+    const l2 = r.sliLog(t0 + 90000).split('\n');
+    assert.ok(l2.indexOf('head-up display no passing changes: 2') >= 0, l2.join('\n'));
+    assert.ok(l2.some((l) => / km\/h: xNoPassing\.vNPIDistance=500 xNoPassing\.statusNPI=ACTIVE$/.test(l)), l2.join('\n'));
+    assert.ok(l2.indexOf('  xSpeedLimitAssist.vSLISpeedValue xNoPassing.vNPIDistance xNoPassing.statusNPI') >= 0, 'its fields\' names');
     const profile = Panel.profile('carprofile');
     const Sim = require('../preview/sim.js');
     const st = State.present(Object.assign({}, Sim.create(profile).raw(), { roadSigns: ['slippery'] }), profile, {});

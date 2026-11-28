@@ -13,6 +13,12 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.29.2
+
+- Logs `--- sli ---`: the head-up display's data's fields (their names), and each change of those that may be about no
+  passing (passing, overtaking, NPI, tunnel, lane change, restriction; the last 12) - BMW's own no passing sign shows
+  there with its distance from the car's map (the owner), so its zone's end may be there.
+
 ## AK 0.29.1
 
 - **A warning sign shows when the camera reads it, for 10 s, and a warning read after it takes its place** (one event's
