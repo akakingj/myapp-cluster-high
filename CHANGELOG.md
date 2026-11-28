@@ -13,6 +13,16 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.30.2
+
+- **A plug-in hybrid's gear no longer covered by the cluster's grey box** (a tester's, 2026-11-28: a dark box over the
+  gear and the top of the charge strip, as the KOMBI draws when it thinks its own gear readout in the bottom strip is
+  covered). A plug-in hybrid's strip is laid out otherwise (its electric range on the right, the gear further left), so
+  for one - Car > Engine Plug-in hybrid, or Auto once found - the background now ends at y 646 with the strip On, the
+  rule car-verified on every car; Off leaves the wider gap beside the gear (x 1340 - 1500) open from y 646 down; and the
+  lowered style (beta) is not used. A box already there stays until the cluster restarts (the car switched off and
+  locked till it sleeps). Petrol cars as before.
+
 ## AK 0.30.1
 
 - **No stopping signs** (Settings > Display; the Car profile's of the same name, off at first): the camera reads them

@@ -54,6 +54,13 @@
         return { trim: Math.min(max, Math.round(n)), hide: false, wide: false };
     }
 
+    /* a plug-in hybrid's strip (resolve()'s, the car's electric side): nothing of ours below the cut over its
+       gear - no trim at all, and when it is hidden the wider gap beside the gear, open from the cut down */
+    function forElectric(strip, electric) {
+        if (electric !== 'hybrid') return strip;
+        return { trim: 0, hide: strip.hide, wide: strip.hide };
+    }
+
     /*
      * The covers for "hide": S is a style's resolved settings (bottomExtra
      * the trim in px, stripHide, stripWide), col what they are painted -
@@ -173,7 +180,7 @@
         return r.x < g.x + g.w && r.x + r.w > g.x && r.y < g.y + g.h && r.y + r.h > g.y;
     }
 
-    return { resolve: resolve, layers: layers, keep: keep, overGear: overGear, HIDE: HIDE, HIDE_WIDE: HIDE_WIDE,
+    return { resolve: resolve, forElectric: forElectric, layers: layers, keep: keep, overGear: overGear, HIDE: HIDE, HIDE_WIDE: HIDE_WIDE,
              LOWER_MOST: LOWER_MOST, lowerPx: lowerPx, lowerScale: lowerScale, lowerFit: lowerFit, lowerRect: lowerRect,
              foot: foot, footU: footU, gearGuard: gearGuard, clearOfGear: clearOfGear, spread: spread };
 }));

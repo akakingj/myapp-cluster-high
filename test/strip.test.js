@@ -200,3 +200,26 @@ test('the fallback box this car draws is on record, and is what the old setting 
     assert.ok(Strip.overGear({ x: 0, y: 0, w: Panel.PANEL_WIDTH, h: Panel.BOTTOM_CUT + 24 }));
     assert.ok(!Strip.overGear({ x: 0, y: 0, w: Panel.PANEL_WIDTH, h: Panel.BOTTOM_CUT + Panel.STRIP_TRIM_MAX }));
 });
+
+/* 0.30.2: a plug-in hybrid's strip is laid out otherwise, and the trim brought the KOMBI's fallback gear box on a
+   tester's (2026-11-28): nothing of ours below the cut there, Off with the wider gap open from the cut down, no lowering */
+test('a plug-in hybrid: no trim, the wider gap, never lowered', () => {
+    for (const style of STYLES) {
+        for (const v of ['18', 'hide', 'hideWide', 18, 24]) {
+            const S = Palette.resolve({ style, bottomExtra: v, electric: 'hybrid', lower: 40 }, Panel.profile('hybrid'));
+            assert.strictEqual(S.bottomExtra, 0, style + ' ' + v);
+            assert.strictEqual(S.lower, 0, style + ' ' + v);
+            for (const L of Strip.layers(S, [0, 0, 0])) {
+                assert.ok(L.y >= Panel.BOTTOM_CUT, L.id);
+                assert.ok(L.x + L.w <= Panel.GEAR_KEEP_WIDE.x || L.x >= Panel.GEAR_KEEP_WIDE.x + Panel.GEAR_KEEP_WIDE.w, L.id);
+            }
+            const theme = Themes.build(atlas, 'hybrid', { style, bottomExtra: v, electric: 'hybrid' });
+            for (const L of theme.layers) {
+                if (!L.belowCut || L.shader === 'cover') continue;
+                assert.ok(L.y + L.h <= Panel.BOTTOM_CUT, style + ' ' + v + ' ' + L.id + ' ends at ' + (L.y + L.h));
+            }
+        }
+    }
+    /* a petrol car's as before */
+    assert.strictEqual(Palette.resolve({ bottomExtra: '18' }, Panel.profile('carprofile')).bottomExtra, Panel.STRIP_TRIM_MAX);
+});

@@ -50,14 +50,15 @@ const RAW = { rpm: 3000, speedKmh: 120, gear: '4', driveMode: 'SPORT', fuelPct: 
               boostBar: 0.8, iatC: 30, oilPressBar: 4.2, batteryV: 14.1, rangeKm: 402, ambientC: 21.0, clock: { h: 19, m: 2 } };
 const state = (t, raw, over) => Object.assign(State.present(raw || RAW, t.profile, t.settings), over);
 /* settings that put something in every corner a style has */
+/* (0.30.2: a plug-in hybrid is never lowered - test/strip.test.js - so the electric variants here are a fully electric car's) */
 const VARIANTS = {
     toro: [{}, { units: 'metric', shake: 'hard' }, { background: 'modern', centre: 'waze', centreSize: 'most', gearPlace: 'right', gearFill: 'filled' },
-           { background: 'revuelto', gearPlace: 'left', holiday: true, intro: true, shiftStyle: 'gt3', electric: 'hybrid' },
+           { background: 'revuelto', gearPlace: 'left', holiday: true, intro: true, shiftStyle: 'gt3', electric: 'bev' },
            { bottomExtra: 'hideWide', shake: 'hard', units: 'metric', showAuxLeft: false, engine: 'diesel' }],
     track: [{}, { centre: 'waze', centreSize: 'more', units: 'metric' }, { centre: 'turn', mPanel: 'mode', holiday: true, intro: true },
             { bottomExtra: 'hideWide', footL: 'rpm', footM: 'economy', footR: 'volts', mGear: 'rpm', speed2: 'off', engine: 'diesel' }],
     mplus: [{}, { centre: 'waze', centreSize: 'most' }, { centre: 'camera', centreSize: 'more', units: 'metric', holiday: true, intro: true },
-            { bottomExtra: 'hideWide', footL: 'boost', footM: 'iat', footR: 'erange', electric: 'hybrid' }],
+            { bottomExtra: 'hideWide', footL: 'boost', footM: 'iat', footR: 'erange', electric: 'bev' }],
     mtrack: [{}, { centre: 'waze', units: 'metric' }, { rowMark: 'fill', row1: 'oilp', row2: 'volts', holiday: true, intro: true },
              { bottomExtra: 'hideWide', footL: 'economy', footM: 'coolant', footR: 'volts', electric: 'bev', engine: 'diesel' }]
 };
@@ -429,7 +430,7 @@ test('the holiday dressing and M Track Mode\'s right footer place keep to the sc
     }
     for (const d of [0, 20, 40, 58, 74]) {
         for (const kind of ['outside', 'volts', 'economy', 'erange', 'rpm']) {
-            const t = build('mtrack', { lower: d, footR: kind, units: 'metric', electric: 'hybrid' });
+            const t = build('mtrack', { lower: d, footR: kind, units: 'metric', electric: 'bev' });
             const st = state(t, Object.assign({}, RAW, { evRangeKm: 38, avgL100: 9.4 }));
             t.layers.filter((L) => /^footR/.test(L.id)).forEach((L) => {
                 const u = L.uniforms(st, 0);

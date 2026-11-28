@@ -390,7 +390,14 @@
            beside the gear the owner chose, if one was chosen) */
         /* (Settings > Display > BMW's bottom strip: set it yourself - off, the value under it is kept and not used) */
         s.lower = s.lowerSet === false ? 0 : Strip.lowerPx(s.lower);
+        if (s.electric === 'hybrid') s.lower = 0;        /* (0.30.2: below) */
         if (s.lower > 0 && !strip.hide) strip = Strip.resolve(Strip.HIDE);
+        /* (0.30.2) a plug-in hybrid: its strip is laid out otherwise (EV range at the right, the gear further left
+           than the window measured on petrol cars), and the trim that is safe on those brought the KOMBI's
+           fallback gear box over the gear on a tester's plug-in hybrid (2026-11-28). So for one the background
+           ends at the cut - the rule car-verified on every car - Off leaves the wider gap open from the cut down,
+           and the lowered style (beta), which draws into the rows over the gear, is not used */
+        strip = Strip.forElectric(strip, s.electric);
         s.bottomExtra = strip.trim;        /* px below the cut, right across: never as far as the gear */
         s.stripHide = strip.hide;          /* and the rest of the strip covered, the gear left open */
         s.signCover = s.signCover === true;        /* the speed limit sign's top edge covered (src/theme/strip.js) */
