@@ -105,8 +105,9 @@ function member(v, key) { return v && typeof v === 'object' ? v[key] : v; }
  * limit recognised, kept until another one is - 60 shown until an 80 is recognised, then 80 - whatever the cruise
  * control does. AK Cluster Info's log of Nov 27 2026 (a drive with the cruise control off): vSLISpeedValue x 5 is the
  * limit the car knows of (16: 80, 20: 100); a new one is first announced - vSLISymbol LDM_VZA_VSLI_SPEED_LIMIT,
- * vSLIDistance counting down 1.3 km ... 250 m, vSLISpeedValue already the new figure - and counts once it is reached
- * (vSLIDistance OFF, or the symbol gone). 0 or nothing: the one shown kept. Up to 140 km/h (28): a 30 (150) seen once on
+ * vSLIDistanceValues counting down (LDM_VSLI_DIST_650_M ... _250_M), vSLISpeedValue already the new figure - and counts
+ * once it is reached (LDM_VSLI_DIST_OFF, or the symbol gone; 0.30.1: the car's name is vSLIDistanceValues - read as
+ * under a shorter name till then, never there). 0 or nothing: the one shown kept. Up to 140 km/h (28): a 30 (150) seen once on
  * a motorway (Nov 24) is no road's. '--' till the first one, and 10 s after the head-up display's data stops. (0.25.1 -
  * 0.26.6 showed it only with the limiter or the cruise control on and ldmAdditionalSign TAKEOVER_SET: '--' otherwise.)
  * A curve's or junction's speed (vSLISymbol LDM_VZA_VSLI_COURSE, the log of 16:35, Nov 27: a 10 = 50 at 500 m ... OFF on a
@@ -115,13 +116,13 @@ function member(v, key) { return v && typeof v === 'object' ? v[key] : v; }
  * vSLISpeedValue 20 all along).
  * AK Cluster Layouts' shared/data.js sliStep is the same rule.
  */
-var SLI_STALE_MS = 10000, SLI_MAX = 28;
+var SLI_STALE_MS = 10000, SLI_MAX = 28, TSR_KEEP_MS = 60000;
 /* the members the rule needs, from DisplayDataServer.functionalLibraryData (null: none of them) */
 function sliRawOf(value) {
     var x = findKey(value, 'xSpeedLimitAssist', 3), acc = findKey(value, 'activeCruiseControl', 3);
     if (!x && !acc) return null;
     return {
-        value: x ? x.vSLISpeedValue : undefined, symbol: x ? x.vSLISymbol : undefined, dist: x ? x.vSLIDistance : undefined,
+        value: x ? x.vSLISpeedValue : undefined, symbol: x ? x.vSLISymbol : undefined, dist: x ? x.vSLIDistanceValues : undefined, vza: x ? x.statusVZA : undefined,
         takeover: x ? x.ldmAdditionalSign : undefined, extra: x ? x.vSLIAdditionalSign : undefined,
         limiter: findKey(value, 'statusLimiter', 3), acc: acc ? acc.symbolACC : undefined,
         cruise: findKey(value, 'cruiseCtrlSpeedHUD', 3),
@@ -430,7 +431,9 @@ function createReader(opts) {
     /* the signs the camera read (0.29.1): a warning 10 s, a new one in its place; no passing till its zone ends
        (src/car/road_signs.js); the last event for the Logs (the sign services' every field: AK Cluster Info's Test log's,
        0.29.3) */
-    var roadTracker = RoadSigns.makeTracker(RoadSigns.SHOW_MS, 2), npZone = RoadSigns.makeZone(RoadSigns.NP_KM);
+    var signOpts = { noStopping: false };     /* (0.30.1: Settings > No stopping signs, setSignOpts; off at first) */
+    var roadTracker = RoadSigns.makeTracker(RoadSigns.SHOW_MS, 2, function () { return signOpts; }), npZone = RoadSigns.makeZone(RoadSigns.NP_KM);
+    var sideLast = null;
     var camLast = null, camSeen = {};
     function sliSeen(r, now) {
         sliTimes.push(now);
@@ -468,14 +471,19 @@ function createReader(opts) {
     function setCamera(type, now) {
         if (typeof type === 'string' && RoadSigns.cameraArt(type)) { camera.type = type; camera.at = now || Date.now(); }
     }
-    /* the last limit recognised (sliStep), while the head-up display's data comes (10 s) */
+    /* the last limit recognised: as AK Cluster Layouts' shared/data.js limitSource (0.30.1, the owner's drive of Nov 28
+       2026: the sign 50 all along, the head-up display's 60 with Speed Limit Assist STATUS_INACTIVE) - the sign's event
+       within 10 s; its last figure TSR_KEEP_MS after the last one, then '--'; the head-up display's only on a car whose
+       sign never came, its Speed Limit Assist not STATUS_INACTIVE */
     function sliNow(now) {
-        if (tsrOn(now)) return tsrShown;
-        var e = v.sli;
-        return e && now - e.at <= SLI_STALE_MS ? sliShown : undefined;
+        var s = limitSource(now);
+        return s === 'sign' || s === 'sign (kept)' ? tsrShown : s === 'head-up display' ? sliShown : undefined;
     }
-    /* the sign's own event has come in the last 10 s (tsrStep) */
-    function tsrOn(now) { return !!v.tsr && now - v.tsr.at <= SLI_STALE_MS; }
+    function limitSource(now) {
+        if (v.tsr) { var age = now - v.tsr.at; return age <= SLI_STALE_MS ? 'sign' : age <= TSR_KEEP_MS && tsrShown !== undefined ? 'sign (kept)' : 'none'; }
+        var e = v.sli;
+        return e && now - e.at <= SLI_STALE_MS && e.value.vza !== 'STATUS_INACTIVE' ? 'head-up display' : 'none';
+    }
     /* Readings that only change slowly are not aged out. */
     function held(key) { return v[key] ? v[key].value : undefined; }
 
@@ -589,9 +597,11 @@ function createReader(opts) {
             if (mm) { put('driveMode', mm, now); put('mDrive', true, now); }
         } else if (service === RoadSigns.CAM_IFACE && field === RoadSigns.CAM_EVENT) {
             /* a sign the front camera passed (src/car/road_signs.js): the warnings and no passing kept 10 s */
-            var types = RoadSigns.parseSigns(value);
+            /* (0.30.1) a side road's signs (more than SIDE_M aside) left out; a no passing end wherever it stands */
+            var all = RoadSigns.parseSignsAt(value), own = RoadSigns.ownRoad(all), types = own.types;
+            if (own.side.length) sideLast = { at: now, text: own.side.map(RoadSigns.sideLine).join(', ') };
             roadTracker.add(types, now);
-            npZone.add(types);
+            npZone.add(types.concat(all.map(function (s) { return s.type; }).filter(function (ty) { return RoadSigns.npEnd(ty) && types.indexOf(ty) < 0; })));
             camLast = { at: now, types: types };
             types.forEach(function (ty) { camSeen[ty] = (camSeen[ty] || 0) + 1; });
         } else if (service === 'de.bmw.dass.TrafficSignRecognition' && field === 'TrafficSignRecognition') {
@@ -733,7 +743,7 @@ function createReader(opts) {
             sliRaw: v.sli ? v.sli.value.value : undefined, sliSymbol: v.sli ? v.sli.value.symbol : undefined,
             sliDist: v.sli ? v.sli.value.dist : undefined, sliTakeover: v.sli ? v.sli.value.takeover : undefined,
             sliAgeS: v.sli ? Math.round((now - v.sli.at) / 100) / 10 : undefined,
-            sliSource: tsrOn(now) ? 'sign' : v.sli ? 'head-up display' : 'none',
+            sliSource: limitSource(now),
             sliSign: v.tsr ? findKey(v.tsr.value, 'presentClassLimitSpeed', 3) : undefined,
             /* the warning signs to show now, oldest first, as their pictures' names (src/theme/signs.js) */
             roadSigns: roadSignsNow(now),
@@ -745,6 +755,8 @@ function createReader(opts) {
     return {
         receive: receive, raw: raw, sliLog: sliLog,
         setBoostBar: setBoostBar, hasBusBoost: hasBusBoost, setCamera: setCamera,
+        /* (0.30.1) Settings > No stopping signs: { noStopping: true / false } */
+        setSignOpts: function (o) { signOpts = { noStopping: !!(o && o.noStopping) }; },
         setOilPressureBar: setOilPressureBar, setAccel: setAccel,
         setFeed: setFeed,
         /* whether the car's BasicDataSet has given the gearbox oil within ms (else the gearbox unit is asked: src/car/engine.js) */

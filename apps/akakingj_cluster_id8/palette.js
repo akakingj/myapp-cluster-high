@@ -363,6 +363,7 @@
         if (['oilP', 'oilT', 'coolant', 'fuel'].indexOf(s.electricGauge) < 0) s.electricGauge = 'auto';
         s.holiday = s.holiday === true;
         s.sliSign = s.sliSign === true || s.sliSign === 'on';
+        s.noStoppingSigns = s.noStoppingSigns === true || s.noStoppingSigns === 'on';
         s.powerMax = Number(s.powerMax) || 0;
         s.torqueMax = Number(s.torqueMax) || 0;
         s.intro = s.intro === true;

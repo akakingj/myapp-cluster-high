@@ -30,17 +30,41 @@ function find(o, key, d) {
 }
 /** The sign types in one of the camera's values: ['GIVE_WAY', ...] (as many as numberSigns says, if it says). */
 function parseSigns(v) {
+    return parseSignsAt(v).map(function (s) { return s.type; });
+}
+/*
+ * (0.30.1) The same with where each stands, as AK Cluster Layouts' shared/road_signs.js parseSignsAt: [{ type, value, x,
+ * y, valid, pos, sup }] - location.x metres ahead, y aside (+ left), valid when location.locationInvalidFlags is 0. A sign
+ * more than SIDE_M aside is a side road's (across a junction, a side street's mouth: the owner's drive of Nov 28 2026,
+ * a no entry at x 58, y -28.1; the car's own road's stood within -7.6 ... +9.3): left off (sideRoad, ownRoad).
+ */
+var SIDE_M = 12;
+function num(n) { return typeof n === 'number' && isFinite(n) ? n : null; }
+function parseSignsAt(v) {
     if (typeof v === 'string') { try { v = JSON.parse(v); } catch (e) { return []; } }
     if (!v || typeof v !== 'object') return [];
     var list = find(v, 'trafficSign', 0);
     if (!Array.isArray(list)) list = list && typeof list === 'object' ? Object.keys(list).map(function (k) { return list[k]; }) : [];
     var n = find(v, 'numberSigns', 0);
     if (typeof n === 'number' && n >= 0) list = list.slice(0, n);
-    return list.map(function (s) { return s && typeof s === 'object' ? s.type : undefined; })
-        .filter(function (t) { return typeof t === 'string' && !!t; }).map(function (t) { return t.toUpperCase(); })
+    return list.filter(function (s) { return s && typeof s === 'object' && typeof s.type === 'string' && !!s.type; })
+        .map(function (s) {
+            var l = s.location && typeof s.location === 'object' ? s.location : {}, p = s.position && typeof s.position === 'object' ? s.position : {};
+            return { type: s.type.toUpperCase(), value: s.value, x: num(l.x), y: num(l.y), valid: l.locationInvalidFlags === 0 && num(l.y) !== null,
+                pos: p.overhead === true ? 'overhead' : p.left === true ? 'left' : p.right === true ? 'right' : null,
+                sup: typeof s.firstSupplementalType === 'string' ? s.firstSupplementalType : null };
+        })
         /* (the event's 20 places: an empty one is SIGNAL_UNFILLED, the car's catalog; never a sign) */
-        .filter(function (t) { return !/^(SIGNAL_UNFILLED|UNKNOWN|INITIALIZATION_STATUS_UNKNOWN)$/.test(t); });
+        .filter(function (s) { return !/^(SIGNAL_UNFILLED|UNKNOWN|INITIALIZATION_STATUS_UNKNOWN)$/.test(s.type); });
 }
+function sideRoad(s) { return !!s && s.valid === true && Math.abs(s.y) > SIDE_M; }
+/** { types: the car's own road's, side: [the side roads' signs] } */
+function ownRoad(signs) {
+    var near = [], side = [];
+    signs.forEach(function (s) { (sideRoad(s) ? side : near).push(s); });
+    return { types: near.map(function (s) { return s.type; }), side: side };
+}
+function sideLine(s) { return s.type + ' x=' + Math.round(s.x) + ' y=' + Math.round(s.y); }
 
 /*
  * (0.29.6) The 79 types of the car's catalog by the owner's table (akakingj/myapp-cluster tools/known_sign_types.json;
@@ -132,22 +156,29 @@ var KNOWN = {
 };
 function known(t) { return Object.prototype.hasOwnProperty.call(KNOWN, t) ? KNOWN[t] : null; }
 /** Shown when the camera reads it: as the table says; another name, a warning (DS_ types). */
-function warning(t) { var k = known(t); return k ? k[1] : /^DS_/.test(t); }
+function warning(t, opts) {
+    /* (0.30.1) Settings > No stopping signs off (the Car profile's signNoStopping; off at first): no stopping left out */
+    if (opts && opts.noStopping === false && artOf(t) === 'no_stopping') return false;
+    var k = known(t); return k ? k[1] : /^DS_/.test(t);
+}
 
 /** The warnings to show (the owner, 2026-11-28: on when the camera reads one, off a while after; a new one read takes
  * its place): add(types, t) - one event's warnings become the ones shown, in place of those before (one event may carry
  * two); current(t) -> them, at most max, while showMs has not passed since. */
-function makeTracker(showMs, max) {
+function makeTracker(showMs, max, opts) {
     showMs = showMs || SHOW_MS; max = max || 2;
+    /* opts: warning's options ({ noStopping }), or a function giving them now */
+    function o() { return typeof opts === 'function' ? opts() : opts; }
     var cur = [], at = -Infinity;
     return {
         add: function (types, t) {
-            var f = types.filter(function (ty, i) { return warning(ty) && types.indexOf(ty) === i; });
+            var op = o(), f = types.filter(function (ty, i) { return warning(ty, op) && types.indexOf(ty) === i; });
             if (f.length) { cur = f; at = t; }
         },
         current: function (t) {
             if (t - at >= showMs) { cur = []; return []; }
-            return cur.slice(0, max);
+            var op = o();
+            return (op ? cur.filter(function (ty) { return warning(ty, op); }) : cur).slice(0, max);
         }
     };
 }
@@ -217,5 +248,5 @@ function artOf(t) {
     return 'danger';
 }
 
-module.exports = { KNOWN: KNOWN, CAM_IFACE: CAM_IFACE, CAM_EVENT: CAM_EVENT, SHOW_MS: SHOW_MS, parseSigns: parseSigns, warning: warning,
+module.exports = { SIDE_M: SIDE_M, parseSignsAt: parseSignsAt, sideRoad: sideRoad, ownRoad: ownRoad, sideLine: sideLine, KNOWN: KNOWN, CAM_IFACE: CAM_IFACE, CAM_EVENT: CAM_EVENT, SHOW_MS: SHOW_MS, parseSigns: parseSigns, warning: warning,
     makeTracker: makeTracker, NP_KM: NP_KM, npStart: npStart, npEnd: npEnd, makeZone: makeZone, artOf: artOf, CAMERAS: CAMERAS, cameraArt: cameraArt };

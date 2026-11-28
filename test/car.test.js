@@ -205,8 +205,9 @@ test('the Sport Display\'s boost and its gauge\'s end in the car\'s pressure uni
 test('the speed limit sign as the car\'s own: the last limit recognised, kept till another (AK Cluster Info\'s log of Nov 27 2026)', () => {
     const r = Vehicle.createReader({});
     const hud = (x, at) => r.receive('de.bmw.infotainment.displaydataserver.DisplayDataServer', 'functionalLibraryData', x, at);
-    const row = (value, symbol, dist, takeover) => ({ xSpeedLimitAssist: { vSLISymbol: symbol, vSLIDistance: dist, ldmAdditionalSign: takeover || 'NO_TAKEOVER_OFFER',
-        vSLISpeedValue: value, statusVZA: 'STATUS_INACTIVE', countryCode: 'LDM_CCODE_ECE', vSLIAdditionalSign: 'LDM_VSLI_NO_SYMBOL' },
+    /* (a car without the sign event, its Speed Limit Assist on: the head-up display's figures the only ones, 0.30.1) */
+    const row = (value, symbol, dist, takeover) => ({ xSpeedLimitAssist: { vSLISymbol: symbol, vSLIDistanceValues: dist, ldmAdditionalSign: takeover || 'NO_TAKEOVER_OFFER',
+        vSLISpeedValue: value, statusVZA: 'STATUS_ACTIVE', countryCode: 'LDM_CCODE_ECE', vSLIAdditionalSign: 'LDM_VSLI_NO_SYMBOL' },
         activeCruiseControl: { symbolACC: 'LDM_CAR_OFF', barsColorACC: 'LDM_ACTIVE' }, statusLimiter: 'STATUS_INACTIVE', cruiseCtrlSpeedHUD: 65535 });
     const SL = 'LDM_VZA_VSLI_SPEED_LIMIT', NO = 'LDM_VZA_VSLI_NO_SYMBOL';
     const shown = (at) => r.raw(at).speedLimit;
@@ -267,7 +268,7 @@ test('the speed limit sign itself (0.28.0): TrafficSignRecognition\'s presentCla
         { presentWithdrawalLimitSpeed: 1, nextWithdrawalLimitSpeed: 0, presentClassLimitSpeed: cls, nextClassLimitSpeed: 254, countryCodingTrafficSign: 7 }, at);
     /* the head-up display stuck at 100 (the limiter's taken figure) the whole drive; the signs 40, 90, 110 */
     hud(20, 1000);
-    assert.strictEqual(r.raw(1000).speedLimit, 100, 'no sign event yet: the head-up display\'s');
+    assert.strictEqual(r.raw(1000).speedLimit, 100, 'no sign event yet, Speed Limit Assist not said off: the head-up display\'s');
     sign(8, 2000);
     assert.deepStrictEqual([r.raw(2000).speedLimit, r.raw(2000).sliSource, r.raw(2000).sliSign], [40, 'sign', 8]);
     hud(20, 2500);
@@ -279,8 +280,15 @@ test('the speed limit sign itself (0.28.0): TrafficSignRecognition\'s presentCla
     sign(22, 4000);
     assert.strictEqual(r.raw(4000).speedLimit, 110);
     assert.ok(/^sign \(TrafficSignRecognition\): presentClassLimitSpeed 22, 0 s ago, shown 110$/.test(r.sliLog(4000).split('\n')[0]));
-    hud(20, 12000);
-    assert.deepStrictEqual([r.raw(14001).speedLimit, r.raw(14001).sliSource], [100, 'head-up display'], 'the sign silent 10 s: the head-up display\'s again');
+    /* (0.30.1, the owner's drive of Nov 28 2026: the head-up display 60, Speed Limit Assist STATUS_INACTIVE, on 50 roads) the
+       sign silent: its last figure kept 60 s, then --; the head-up display's never on a car with the sign */
+    r.receive('de.bmw.infotainment.displaydataserver.DisplayDataServer', 'functionalLibraryData',
+        { xSpeedLimitAssist: { vSLISpeedValue: 12, vSLISymbol: 'LDM_VZA_VSLI_NO_SYMBOL', vSLIDistanceValues: 'LDM_VSLI_DIST_OFF', statusVZA: 'STATUS_INACTIVE' } }, 12000);
+    assert.deepStrictEqual([r.raw(14001).speedLimit, r.raw(14001).sliSource], [110, 'sign (kept)'], 'the sign silent 10 s: its 110 kept, not the head-up display\'s');
+    assert.strictEqual(r.raw(63000).speedLimit, 110, 'still at 59 s');
+    r.receive('de.bmw.infotainment.displaydataserver.DisplayDataServer', 'functionalLibraryData',
+        { xSpeedLimitAssist: { vSLISpeedValue: 12, vSLISymbol: 'LDM_VZA_VSLI_NO_SYMBOL', vSLIDistanceValues: 'LDM_VSLI_DIST_OFF', statusVZA: 'STATUS_ACTIVE' } }, 64000);
+    assert.deepStrictEqual([r.raw(64001).speedLimit, r.raw(64001).sliSource], [undefined, 'none'], 'over 60 s: --');
     assert.deepStrictEqual([Vehicle.tsrStep(undefined, { presentClassLimitSpeed: 0 }), Vehicle.tsrStep(60, {}), Vehicle.tsrStep(undefined, { presentClassLimitSpeed: 29 })],
         [undefined, 60, undefined]);
     /* declared optional, its one broadcast: a unit without it builds the app without it (kit build.py fit_to_unit) */

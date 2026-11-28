@@ -340,6 +340,8 @@ function start(host, deps) {
             boostFromCar = settings.boostMax === 'auto';
             if (boostFromCar && boostCarTop) settings = Object.assign({}, settings, { boostMax: boostCarTop });
             applyFeedMode();
+            /* (0.30.1) Settings > No stopping signs (the Car profile's signNoStopping): among the camera's signs or not */
+            reader.setSignOpts({ noStopping: settings.noStoppingSigns === true || settings.noStoppingSigns === 'on' });
             /* your own start-up words: typed on the page (Settings > Start-up words), else from a file (src/car/message.js);
                letters the message's face has not (Korean) from the head unit's own font (words.js) */
             var A = null;

@@ -194,3 +194,30 @@ test('a speed camera AK Cluster Info shares (0.30.0): first on the cluster while
     now += 1000;
     assert.strictEqual(p.camera(), undefined, 'a stale file');
 });
+
+test('a side road\'s signs left off; no stopping only with Settings > No stopping signs (0.30.1, the owner\'s drive of Nov 28 2026)', () => {
+    const RS = require('../src/car/road_signs.js');
+    const V = require('../src/car/vehicle.js');
+    const at = (type, x, y, flags) => ({ type, value: type === 'SPEED_LIMIT' ? 50 : 0, location: { x, y, z: 2, locationInvalidFlags: flags === undefined ? 0 : flags }, position: { left: false, right: true, overhead: false } });
+    const ev = (...s) => ({ trafficSignRecognition: { numberSigns: s.length }, trafficSign: s });
+    const p = RS.parseSignsAt(ev(at('NO_ENTRY', 58, -28.1), at('SPEED_LIMIT', 40, -7.6), at('GIVE_WAY', 20, -2.9), at('NO_ENTRY', 30, -30, 4)));
+    assert.deepStrictEqual(p.map(RS.sideRoad), [true, false, false, false], 'only the valid one 28 m aside');
+    assert.deepStrictEqual(RS.ownRoad(p).types, ['SPEED_LIMIT', 'GIVE_WAY', 'NO_ENTRY']);
+    assert.strictEqual(RS.sideLine(p[0]), 'NO_ENTRY x=58 y=-28');
+    assert.deepStrictEqual(RS.parseSigns(ev(at('GIVE_WAY', 1, 1))), ['GIVE_WAY'], 'parseSigns as before');
+    const r = V.createReader();
+    const t0 = 3000000;
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev(at('NO_ENTRY', 58, -28.1)), t0);
+    assert.deepStrictEqual(r.raw(t0 + 100).roadSigns, [], 'the side road\'s no entry: not shown');
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev(at('NO_STANDING_ANYTIME', 15, -5)), t0 + 200);
+    assert.deepStrictEqual(r.raw(t0 + 300).roadSigns, [], 'no stopping: off at first');
+    r.setSignOpts({ noStopping: true });
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev(at('NO_STANDING_ANYTIME', 15, -5)), t0 + 400);
+    assert.deepStrictEqual(r.raw(t0 + 500).roadSigns, ['no_stopping'], 'on: shown');
+    r.setSignOpts({ noStopping: false });
+    assert.deepStrictEqual(r.raw(t0 + 600).roadSigns, [], 'turned off: gone at once');
+    const spec = require('../app/app.base.json').settings;
+    const item = (k) => spec.find((s) => s.key === k);
+    assert.deepStrictEqual([item('sliSign').profile, item('sliSign').profileMap], ['signSpeedLimit', { on: true, off: false }]);
+    assert.deepStrictEqual([item('noStoppingSigns').profile, item('noStoppingSigns').default], ['signNoStopping', false]);
+});

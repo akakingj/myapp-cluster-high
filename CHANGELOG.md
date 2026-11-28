@@ -13,6 +13,17 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.30.1
+
+- **No stopping signs** (Settings > Display; the Car profile's of the same name, off at first): the camera reads them
+  every half minute in town, so they show only when this is on. **Speed limit sign** follows the Car profile's too.
+- **A side road's signs left off**: the camera gives each sign's place; one more than 12 m to the side (across a
+  junction, at a side street's mouth: a no entry at 58 m ahead, 28 m right, on the owner's drive) is not shown.
+- **The limit never the head-up display's wrong 60**: the sign's event as before; when it falls silent its last figure
+  stays 60 s, then --; the head-up display's figures only on a car without the sign whose Speed Limit Assist is on.
+- The announced limit's distance is read by the car's own name, `vSLIDistanceValues`: an announced limit waits till it
+  is reached again.
+
 ## AK 0.30.0
 
 - **Speed cameras on the cluster, fixed or mobile** (the owner): first of the two signs, as 단속중 (fixed), 이동식 단속중
