@@ -427,8 +427,9 @@ function createReader(opts) {
      * the car's speed, the last 20; and how often its data comes (the last 60 s) and when it last came.
      */
     var sliChanges = [], sliTimes = [], sliLast = '', sliShown, sliMem = {}, tsrShown;
-    /* the warning signs the camera read lately (0.29.0): each 10 s after it last read it; the last event for the Logs */
-    var roadTracker = RoadSigns.makeTracker(RoadSigns.SHOW_MS, 4), camLast = null, camSeen = {};
+    /* the warning signs the camera read lately (0.29.0): each 10 s after it last read it, the newest two (the cluster
+       shows two); the last event for the Logs */
+    var roadTracker = RoadSigns.makeTracker(RoadSigns.SHOW_MS, 2), camLast = null, camSeen = {};
     function sliSeen(r, now) {
         sliTimes.push(now);
         while (sliTimes.length && now - sliTimes[0] > 60000) sliTimes.shift();

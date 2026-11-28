@@ -117,8 +117,11 @@ test('the camera\'s signs reach the state: warnings and no passing, each 10 s, i
     r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('NO_PASSING_SIGN'), t0 + 200);
     r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('NO_PASSING_END'), t0 + 300);
     assert.deepStrictEqual(r.raw(t0 + 500).roadSigns, ['wild_animal', 'no_passing']);
-    assert.deepStrictEqual(r.raw(t0 + 10300).roadSigns, []);
-    assert.ok(/^warning signs \(front camera\): NO_PASSING_END, /.test(r.sliLog(t0 + 500).split('\n')[2]));
+    /* a third: the newest two shown */
+    r.receive(RS.CAM_IFACE, RS.CAM_EVENT, ev('DS_SPLIPPERY_ROAD'), t0 + 600);
+    assert.deepStrictEqual(r.raw(t0 + 700).roadSigns, ['no_passing', 'slippery']);
+    assert.deepStrictEqual(r.raw(t0 + 10700).roadSigns, []);
+    assert.ok(/^warning signs \(front camera\): DS_SPLIPPERY_ROAD, [\d.]+ s ago; seen DS_ANIMAL_CROSSING 1, SPEED_LIMIT 1, GIVE_WAY 1, NO_PASSING_SIGN 1, NO_PASSING_END 1, DS_SPLIPPERY_ROAD 1$/.test(r.sliLog(t0 + 700).split('\n')[2]));
     const profile = Panel.profile('carprofile');
     const Sim = require('../preview/sim.js');
     const st = State.present(Object.assign({}, Sim.create(profile).raw(), { roadSigns: ['slippery'] }), profile, {});

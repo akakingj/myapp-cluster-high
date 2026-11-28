@@ -20,7 +20,7 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
   `TrafficSignRecognitionFrontCamera` event (found by AK Cluster Info's signal survey, 26 November 2026; once as the car
   passes a sign), declared `_optional` with its one broadcast. The warnings (DS_ types: wild animals, slippery road, a
   jam, a steep descent and the rest) and no passing (not its end) - the speed limit has its own sign - each 10 s after
-  the camera last read it, at most two, oldest first (`src/car/road_signs.js`). Drawn as South Korea's own signs (the
+  the camera last read it, the newest two, the older first (`src/car/road_signs.js`). Drawn as South Korea's own signs (the
   government's designs, free to use as public works), 84 px high as the speed limit sign, from one atlas
   (`src/theme/signs.js` and `assets/signs/signs.png`, made by `tools/make-signs.py`; a second asset, rgba8, made only
   while a layer draws them, `src/car/cluster.js`; shader `warnsign`). A warning with no sign of its own gets 140 ("!").
