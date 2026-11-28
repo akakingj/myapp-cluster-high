@@ -18,6 +18,9 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
 - **No passing ends on the camera's own end sign**: the car's catalog names it `WITHDRAWAL_NO_PASSING_SIGN` (and
   `GENERAL_WITHDRAWAL`, the end of every restriction). Before, the first was taken for a no passing sign and started
   the zone (and its 3 km) again.
+- The camera's event has 20 places for signs; an empty one is `SIGNAL_UNFILLED` (the catalog): never taken for a sign
+  (it would have drawn traffic lights where `numberSigns` was missing). BMW's `DS_BYCICLE_CROSSING` gets the bicycle
+  sign, not "!".
 
 ## AK 0.29.4
 

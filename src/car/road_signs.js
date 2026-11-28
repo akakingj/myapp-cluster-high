@@ -36,7 +36,9 @@ function parseSigns(v) {
     var n = find(v, 'numberSigns', 0);
     if (typeof n === 'number' && n >= 0) list = list.slice(0, n);
     return list.map(function (s) { return s && typeof s === 'object' ? s.type : undefined; })
-        .filter(function (t) { return typeof t === 'string' && !!t; }).map(function (t) { return t.toUpperCase(); });
+        .filter(function (t) { return typeof t === 'string' && !!t; }).map(function (t) { return t.toUpperCase(); })
+        /* (the event's 20 places: an empty one is SIGNAL_UNFILLED, the car's catalog; never a sign) */
+        .filter(function (t) { return !/^(SIGNAL_UNFILLED|UNKNOWN|INITIALIZATION_STATUS_UNKNOWN)$/.test(t); });
 }
 
 /** A warning (DS_ types): shown when the camera reads it. */
@@ -100,9 +102,9 @@ var ART_OF = [
     [/DOUBLE|SERIES|WINDING|(^|[^A-Z])S_(CURVE|BEND)/, function (t) { return /LEFT.*RIGHT|LEFT_FIRST|^DS_LEFT/.test(t) ? 'double_bend_left' : 'double_bend_right'; }],
     [/CURVE|BEND/, side('curve_left', 'curve_right')],
     [/WORK|CONSTRUCTION/, 'road_works'], [/PEDESTRIAN|CROSSWALK|ZEBRA/, 'crosswalk'], [/CHILD|SCHOOL/, 'children'],
-    [/BICYC|CYCLE/, 'bicycle'], [/HUMP|SPEED_BUMP/, 'speed_hump'], [/UNEVEN|BUMP/, 'bumpy_road'],
+    [/BICYC|BYCIC|CYCLE/, 'bicycle'], [/HUMP|SPEED_BUMP/, 'speed_hump'], [/UNEVEN|BUMP/, 'bumpy_road'],
     [/ROCK|FALLING/, 'falling_rocks'], [/WIND/, 'crosswind'], [/TUNNEL/, 'tunnel'], [/BRIDGE/, 'bridge'],
-    [/RAIL|TRAIN|LEVEL_CROSS/, 'railway'], [/LIGHT|SIGNAL/, 'traffic_lights'], [/ROUNDABOUT|CIRCLE/, 'roundabout'],
+    [/RAIL|TRAIN|LEVEL_CROSS/, 'railway'], [/LIGHT|SIGNALS?$/, 'traffic_lights'], [/ROUNDABOUT|CIRCLE/, 'roundabout'],
     [/MERGE|JOIN/, side('merge_left', 'merge_right')], [/RIVER|QUAY|BANK/, 'riverside']
 ];
 /** Which picture a type gets: 'danger' (140, "!") for a warning with none of its own. */

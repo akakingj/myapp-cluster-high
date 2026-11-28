@@ -142,6 +142,10 @@ test('the camera\'s signs reach the state: a warning 10 s, a new one in its plac
 test('no passing\'s zone: from its sign till its end sign, or 3 km driven since the sign', () => {
     const RS = require('../src/car/road_signs.js');
     ['NO_PASSING_SIGN', 'NO_OVERTAKING'].forEach((t) => assert.ok(RS.npStart(t) && !RS.npEnd(t), t));
+    /* the car's catalog (G20, 2026-11-28): an empty place of the event's 20 is SIGNAL_UNFILLED, never a sign; BMW's
+       DS_BYCICLE_CROSSING is a bicycle */
+    assert.deepStrictEqual(RS.parseSigns({ trafficSignRecognition: { numberSigns: 20 }, trafficSign: [{ type: 'DS_CHILDREN' }, { type: 'SIGNAL_UNFILLED' }] }), ['DS_CHILDREN']);
+    assert.deepStrictEqual(['DS_BYCICLE_CROSSING', 'DS_TRAFFIC_LIGHT', 'DS_GIVE_WAY_ROUNDABOUT'].map(RS.artOf), ['bicycle', 'traffic_lights', 'roundabout']);
     ['WITHDRAWAL_NO_PASSING_SIGN', 'GENERAL_WITHDRAWAL', 'NO_PASSING_END', 'END_OF_NO_PASSING', 'END_OF_ALL_RESTRICTIONS', 'NO_OVERTAKING_CANCEL'].forEach((t) => assert.ok(RS.npEnd(t) && !RS.npStart(t), t));
     const z = RS.makeZone(3);
     z.add(['NO_PASSING_SIGN']);
