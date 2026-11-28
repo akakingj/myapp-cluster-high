@@ -67,9 +67,11 @@ function makeTracker(showMs, max) {
  * (npEnd) read by the camera; or, while what tells the end is not known (the camera sent no end sign on the drives
  * logged so far; TrafficSignRecognition's event may carry it: the Logs keep its every field as it changes),
  * NP_KM driven since the sign was last read.
+ * (2026-11-28, the car's catalog: the camera's own end sign is WITHDRAWAL_NO_PASSING_SIGN, and GENERAL_WITHDRAWAL the
+ * end of every restriction; before, the first was taken for a no passing sign and started the zone again.)
  */
 var NP_KM = 3;
-var NP_END = /(NO_PASSING|OVERTAK|PASSING).*(END|CANCEL|LIFT|RELEASE)|(END|CANCEL|LIFT)_.*(NO_PASSING|OVERTAK|PASSING)|END_OF_ALL|ALL_RESTRICTIONS?_END|DERESTRICT/;
+var NP_END = /(NO_PASSING|OVERTAK|PASSING).*(END|CANCEL|LIFT|RELEASE)|(END|CANCEL|LIFT)_.*(NO_PASSING|OVERTAK|PASSING)|END_OF_ALL|ALL_RESTRICTIONS?_END|DERESTRICT|WITHDRAWAL_NO_PASSING|^GENERAL_WITHDRAWAL$/;
 function npEnd(t) { return NP_END.test(t); }
 function npStart(t) { return /NO_PASSING|OVERTAK/.test(t) && !npEnd(t) && !/(^|_)END(_|$)/.test(t); }
 /** add(types): a no passing sign starts (or keeps on) the zone, an end sign ends it; step(t, kmh): the distance driven

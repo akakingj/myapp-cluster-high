@@ -142,7 +142,7 @@ test('the camera\'s signs reach the state: a warning 10 s, a new one in its plac
 test('no passing\'s zone: from its sign till its end sign, or 3 km driven since the sign', () => {
     const RS = require('../src/car/road_signs.js');
     ['NO_PASSING_SIGN', 'NO_OVERTAKING'].forEach((t) => assert.ok(RS.npStart(t) && !RS.npEnd(t), t));
-    ['NO_PASSING_END', 'END_OF_NO_PASSING', 'END_OF_ALL_RESTRICTIONS', 'NO_OVERTAKING_CANCEL'].forEach((t) => assert.ok(RS.npEnd(t) && !RS.npStart(t), t));
+    ['WITHDRAWAL_NO_PASSING_SIGN', 'GENERAL_WITHDRAWAL', 'NO_PASSING_END', 'END_OF_NO_PASSING', 'END_OF_ALL_RESTRICTIONS', 'NO_OVERTAKING_CANCEL'].forEach((t) => assert.ok(RS.npEnd(t) && !RS.npStart(t), t));
     const z = RS.makeZone(3);
     z.add(['NO_PASSING_SIGN']);
     for (let t = 0; t <= 170000; t += 1000) z.step(t, 60);

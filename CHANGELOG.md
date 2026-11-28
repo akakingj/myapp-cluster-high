@@ -13,6 +13,12 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.29.5
+
+- **No passing ends on the camera's own end sign**: the car's catalog names it `WITHDRAWAL_NO_PASSING_SIGN` (and
+  `GENERAL_WITHDRAWAL`, the end of every restriction). Before, the first was taken for a no passing sign and started
+  the zone (and its 3 km) again.
+
 ## AK 0.29.4
 
 - **A plug-in hybrid's battery charge as AK Cluster Layouts takes it**: eDrive Live's while it shares one (`values:
