@@ -316,10 +316,12 @@ test('a diesel\'s engine unit is asked only the standard identifiers, and never 
                                   boostTarget: ['DID F470', 'OBD 70'], hpfp: ['DID F423', 'DID F459', 'OBD 23'],
                                   lpfp: ['DID F40A', 'DID F422', 'OBD 0A', 'OBD 22'],
                                   pedal: ['OBD 49'], throttle: ['OBD 11'], timing: ['OBD 0E'], tank: ['DID F42F', 'OBD 2F'],
-                                  gearboxT: ['DID 6000'] });
-    /* (the gearbox oil is the gearbox unit's, not the engine unit's: the same whatever the engine) */
+                                  gearboxT: ['DID 6000'], hvSoc: ['DID DDBC', 'DID E5CE'] });
+    /* (the gearbox oil is the gearbox unit's, the battery's charge the battery unit's, not the engine unit's: the same
+       whatever the engine) */
     assert.ok(Engine.STANDARD.gearboxT.every((c) => c.ecu === 0x18));
-    Object.keys(std).filter((name) => name !== 'gearboxT').forEach((name) => std[name].forEach((id) => {
+    assert.ok(Engine.STANDARD.hvSoc.every((c) => c.ecu === 0x07));
+    Object.keys(std).filter((name) => name !== 'gearboxT' && name !== 'hvSoc').forEach((name) => std[name].forEach((id) => {
         assert.ok(all[name].includes(id), id + ' is one of the published identifiers');
         assert.match(id, /^(OBD [0-9A-F]{2}|DID F4[0-9A-F]{2})$/);
     }));
@@ -405,7 +407,7 @@ test('a petrol engine unit is asked as before; changing the engine starts the re
     const before = c.sent.length;
     e.tick(clock.t, { allowed: true, needs: ALL, diesel: true });
     assert.deepStrictEqual(e.values(clock.t), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
-        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined, tankPct: undefined, gearboxC: undefined });
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined, tankPct: undefined, gearboxC: undefined, socPct: undefined });
     assert.ok(await run(e, clock, { allowed: true, needs: ALL, diesel: true }, () => e.values(clock.t).iatC !== undefined && e.values(clock.t).boostBar !== undefined),
         logs.join(' | '));
     await run(e, clock, { allowed: true, needs: ALL, diesel: true }, null, 200);

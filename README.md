@@ -127,7 +127,9 @@ style's appear once it is chosen).
   counter again in SPORT, XTRABOOST and with the lever in S or M. The fuel gauge, as Cluster Layouts': the engine
   unit's own tank level only, its last answer held (0.26.0: no tank size to set). **Electric range when full** (km, in miles with mph): a plug-in hybrid's electric range from its
   charge while the car gives none (shown with "~" before it, as Layouts shows an estimate), and its battery gauge
-  against it.
+  against it. The charge is eDrive Live's while it shares one, else the battery unit's own (22 `DDBC`, read only, every
+  15 s), as Cluster Layouts takes it (0.29.4: the car's bus signal for it read ~90 % on a car at 39 %, so it is only
+  logged).
 
   What the Car profile app sets (units, clock, engine, the rev figures, the too-hot figures, the G meter, the tank, the
   electric range) is set there for both apps.

@@ -43,10 +43,12 @@
 
 var DME = 0x12;
 var EGS = 0x18;               /* the gearbox's own unit (ZF 8HP) */
+var SME = 0x07;               /* a plug-in hybrid's or an electric car's battery unit */
 var WAIT_MS = 600;            /* how long one request waits for its answer */
 
 function c(o) { o.ecu = DME; o.timeoutMs = WAIT_MS; if (o.at === undefined) o.at = 0; return o; }
 function g(o) { c(o); o.ecu = EGS; return o; }
+function b(o) { c(o); o.ecu = SME; return o; }
 
 var CANDIDATES = {
     /* oil pressure, absolute, hPa */
@@ -124,6 +126,13 @@ var CANDIDATES = {
     gearboxT: [
         g({ did: '6000', bytes: 1, factor: 1, offset: -40, min: -40, max: 160 })
     ],
+    /* (0.29.4) the high-voltage battery's charge, %, from the battery unit itself (as eDrive, Redline and AK Cluster
+       Layouts read it): a plug-in hybrid's DDBC, 0.1 % (from 0.5: a fully electric car's battery unit answers it
+       with no data bytes); a fully electric car's E5CE, 0.01 % */
+    hvSoc: [
+        b({ did: 'DDBC', bytes: 2, factor: 0.1, min: 0.5, max: 100 }),
+        b({ did: 'E5CE', bytes: 2, factor: 0.01, min: 0, max: 100 })
+    ],
     /* the fuel tank's level, the engine unit's own fill in % (as AK Cluster Layouts and Live Data read it) */
     tank: [
         c({ did: 'F42F', bytes: 1, factor: 100 / 255, min: 0, max: 101 }),
@@ -141,11 +150,11 @@ var CANDIDATES = {
  */
 function isStandard(x) { return !!x.obd || /^F4/i.test(String(x.did)); }
 var STANDARD = {};
-/* (the gearbox's unit is the same whatever the engine: its own identifier stands for a diesel too) */
-Object.keys(CANDIDATES).forEach(function (name) { STANDARD[name] = name === 'gearboxT' ? CANDIDATES[name] : CANDIDATES[name].filter(isStandard); });
+/* (the gearbox's unit and the battery unit are the same whatever the engine: their own identifiers stand for a diesel too) */
+Object.keys(CANDIDATES).forEach(function (name) { STANDARD[name] = name === 'gearboxT' || name === 'hvSoc' ? CANDIDATES[name] : CANDIDATES[name].filter(isStandard); });
 /* the candidates each reading is read through, first to last (boost and oil are taken over a second one) */
 var LISTS = { boost: 'boostAbs', boostTarget: 'boostTarget', oil: 'oilAbs', iat: 'iat', volts: 'volts', pedal: 'pedal', throttle: 'throttle',
-              timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp', tank: 'tank', gearbox: 'gearboxT' };
+              timing: 'timing', hpfp: 'hpfp', lpfp: 'lpfp', tank: 'tank', gearbox: 'gearboxT', hvsoc: 'hvSoc' };
 
 /*
  * The readings: how often each is asked while it is shown, and how long a
@@ -166,9 +175,12 @@ var READINGS = {
     /* (AK Cluster Layouts' own: every 10 s, kept a minute) */
     tank: { everyMs: 10000, keepMs: 60000, words: 'fuel tank level' },
     /* (AK Cluster Layouts' own: every 10 s for the slow ones) */
-    gearbox: { everyMs: 5000, keepMs: 21000, words: 'gearbox oil', unit: 'gearbox unit' }
+    gearbox: { everyMs: 5000, keepMs: 21000, words: 'gearbox oil', unit: 'gearbox unit' },
+    /* (AK Cluster Layouts' and Info's own: every 15 s, kept a minute; only while eDrive Live shares no charge, src/car/main.js:
+       two apps asking the battery unit in turn left both without answers) */
+    hvsoc: { everyMs: 15000, keepMs: 60000, words: 'battery charge', unit: 'battery unit' }
 };
-var ORDER = ['boost', 'oil', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp', 'tank', 'gearbox'];
+var ORDER = ['boost', 'oil', 'iat', 'volts', 'pedal', 'throttle', 'timing', 'boostTarget', 'hpfp', 'lpfp', 'tank', 'gearbox', 'hvsoc'];
 var SLOW_MS = 60000;          /* ambient pressure and the barometer: once a minute */
 var MISS_LIMIT = 3;           /* answers missed in a row before a reading goes quiet */
 var RETRY_MS = 60000;         /* ... and is then asked this often */
@@ -252,9 +264,10 @@ function create(opts) {
         return d;
     }
 
-    function wake() {
-        try { if (d && d.link && d.link.wake) d.link.wake(DME); } catch (e) { /* the next ask says */ }
+    function wake(ecu) {
+        try { if (d && d.link && d.link.wake) d.link.wake(ecu || DME); } catch (e) { /* the next ask says */ }
     }
+    function unitOf(key) { var l = list(LISTS[key]); return l && l[0] ? l[0].ecu : DME; }
     function cancel() {
         try { if (d && d.link && d.link.cancel) d.link.cancel(); } catch (e) { /* nothing queued */ }
     }
@@ -283,6 +296,7 @@ function create(opts) {
         lpfp: function (rd) { return rd.value(nameOf('lpfp'), list('lpfp')); },
         tank: function (rd) { return rd.value(nameOf('tank'), list('tank')).then(pct); },
         gearbox: function (rd) { return rd.value(nameOf('gearboxT'), list('gearboxT')); },
+        hvsoc: function (rd) { return rd.value(nameOf('hvSoc'), list('hvSoc')); },
         boostTarget: function (rd, now) {
             var first = now - baro.at > SLOW_MS ? rd.value(nameOf('baro'), list('baro')) : Promise.resolve(null);
             return Promise.resolve(first).then(function (b) {
@@ -317,7 +331,7 @@ function create(opts) {
         busy = true;
         job.asked++;
         /* asked again after going quiet: the link stops asking a unit that did not answer, until woken */
-        if (job.misses >= MISS_LIMIT) wake();
+        if (job.misses >= MISS_LIMIT) wake(unitOf(job.key));
         Promise.resolve(d.ready).then(function () {
             if (mine !== gen) return undefined;
             if (d.link && d.link.available === false) return null;      /* the car's diagnostic service is not up */
@@ -352,7 +366,7 @@ function create(opts) {
 
     return {
         /*
-         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost, pedal, throttle, timing, boostTarget, hpfp, lpfp, tank, gearbox },
+         * Once a frame. st: { allowed, needs: { oil, iat, volts, boost, pedal, throttle, timing, boostTarget, hpfp, lpfp, tank, gearbox, hvsoc },
          * diesel }.
          * allowed is the service's whole say-so (see the top of this file);
          * needs is what the style on the cluster is showing; diesel is the
@@ -391,7 +405,7 @@ function create(opts) {
             return { oilBar: fresh('oil'), iatC: fresh('iat'), batteryV: fresh('volts'), boostBar: fresh('boost'),
                      pedalPct: fresh('pedal'), throttlePct: fresh('throttle'), timingDeg: fresh('timing'),
                      boostTargetBar: fresh('boostTarget'), hpfpBar: fresh('hpfp'), lpfpBar: fresh('lpfp'), tankPct: fresh('tank'),
-                     gearboxC: fresh('gearbox') };
+                     gearboxC: fresh('gearbox'), socPct: fresh('hvsoc') };
         },
         /* for the app's page: { state, have: [words], missing: [words] } */
         info: function (needs, now) {
@@ -435,7 +449,7 @@ var INTERFACE = {
         _instances: 'SystemFunctionsInternalTasuInst1',
         _methods: ['sendTasuRequest'],
         _broadcasts: ['sendTasuResponse'],
-        _optional: 'Oil pressure, intake air temperature, battery voltage, fuel pressures, the boost target and the fuel tank level read from the engine unit (read only), for cars without BeeM-Flash'
+        _optional: 'Oil pressure, intake air temperature, battery voltage, fuel pressures, the boost target and the fuel tank level read from the engine unit, and a plug-in hybrid\'s battery charge from the battery unit (read only)'
     }
 };
 

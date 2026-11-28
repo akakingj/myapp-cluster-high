@@ -383,12 +383,14 @@ test('electric range: read off the bus, none and nonsense refused', () => {
     r.receive(KI, 'displayRangeElectricVehicle', { displayRangeElectricVehicle: 65535 }, 1000);
     r.receive(E2, 'statusChargeOfBatteryHybrid', { displayChargingConditionHighVoltageStorage: 255 }, 1000);
     assert.strictEqual(r.raw(1000).evRangeKm, undefined, '65535 is none');
-    assert.strictEqual(r.raw(1000).socPct, undefined, 'over 100 is none');
+    assert.strictEqual(r.raw(1000).socBus, undefined, 'over 100 is none');
     r.receive(KI, 'displayRangeElectricVehicle', { displayRangeElectricVehicle: 43 }, 2000);
     r.receive(E2, 'statusChargeOfBatteryHybrid', { displayChargingConditionHighVoltageStorage: 78 }, 2000);
     r.receive(KI, 'displayRangeElectricVehicle', null, 2500);
     r.receive(E2, 'statusChargeOfBatteryHybrid', 'x', 2500);
-    assert.deepStrictEqual([r.raw(9000).evRangeKm, r.raw(9000).socPct], [43, 78], 'held between the slow polls');
+    assert.deepStrictEqual([r.raw(9000).evRangeKm, r.raw(9000).socBus], [43, 78], 'held between the slow polls');
+    /* (0.29.4) the bus's charge is not the one shown (~90 at 39 % on a tester's plug-in hybrid): kept apart, logged only */
+    assert.strictEqual(r.raw(9000).socPct, undefined, 'the bus\'s charge never reaches the gauges');
 });
 
 test('electric range: a plug-in hybrid has it beside the fuel\'s, an electric car in place of it', () => {

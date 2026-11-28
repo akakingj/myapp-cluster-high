@@ -509,7 +509,7 @@ test('BeeM-Flash off: its feed is never looked for, and the engine unit is asked
     h.rpm(1500);
     await wait(300);
     assert.strictEqual(lastTick(engine).allowed, true, 'running: asked');
-    assert.deepStrictEqual(lastTick(engine).needs, { oil: true, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, boost: true },
+    assert.deepStrictEqual(lastTick(engine).needs, { oil: true, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, hvsoc: false, boost: true },
         'Toro shows oil pressure and boost, and the Sport Display has sent no boost');
     /* what it reads reaches the gauges; BeeM-Flash's figures do not */
     const raw = h.svc.reader.raw(1000000);
@@ -633,14 +633,14 @@ test('the car\'s own boost comes first; an M style asks for what its footer hold
     /* M Sport, its footer holding intake air and the battery */
     h.change({ style: 'track', mFootL: 'iat', mFootR: 'volts' });
     await wait(800);
-    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: true, volts: true, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, boost: false });
+    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: true, volts: true, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, hvsoc: false, boost: false });
     h.change({ mFootM: 'boost' });
     await wait(800);
     assert.strictEqual(lastTick(engine).needs.boost, false, 'boost in the footer, and the car still sends its own');
     /* M Sport as it comes: of the engine unit's, only the tank's level for the fuel strip is asked for */
     h.change({ mFootL: 'time', mFootM: 'range', mFootR: 'outside' });
     await wait(800);
-    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, boost: false });
+    assert.deepStrictEqual(lastTick(engine).needs, { oil: false, iat: false, volts: false, pedal: false, throttle: false, timing: false, boostTarget: false, hpfp: false, lpfp: false, tank: true, gearbox: false, hvsoc: false, boost: false });
     /* turned on while driving: the feed starts, the engine unit is left alone */
     assert.strictEqual(feed.starts, 0);
     h.change({ beemFlash: 'on' });
@@ -684,4 +684,35 @@ test('a drive mode with a style of its own (Style in Sport / in ECO PRO) shows i
     h.change({ styleSport: 'same' });
     await mode('SPORT_DYNAMIC');
     assert.strictEqual(h.svc.theme().id, 'toro');
+});
+
+test('a plug-in hybrid\'s charge (0.29.4): eDrive Live\'s while it shares one, else the battery unit\'s; the bus\'s never shown, logged', { timeout: 15000 }, async (t) => {
+    const E2 = 'de.bmw.infotainment.drivingexcitement.Efficiencytainment2';
+    const engine = fakeEngine(Object.assign({}, ENGINE, { socPct: 39 }));
+    let shared = 41;
+    const providers = { tick: (on) => (on ? { kw: 5, soc: shared } : {}), sharing: () => false, release() {} };
+    const h = harness(t, { style: 'toro', beemFlash: 'off', engine: 'phev' }, null, { engine, providers });
+    h.on.ready();
+    h.condition('FAHREN'); h.rpm(1500);
+    h.send(E2, 'statusChargeOfBatteryHybrid', { displayChargingConditionHighVoltageStorage: 90 });
+    await wait(300);
+    assert.ok(h.svc.isRunning());
+    let raw = h.svc.reader.raw(1000000);
+    assert.strictEqual(raw.socPct, 41, 'eDrive Live\'s charge, not the battery unit\'s nor the bus\'s 90');
+    assert.strictEqual(raw.socBus, 90);
+    assert.strictEqual(lastTick(engine).needs.hvsoc, false, 'eDrive Live shares it: the battery unit is not asked');
+    assert.ok(h.logs.some((l) => /charge: 41 % from eDrive Live; the bus's statusChargeOfBatteryHybrid 90 \(not shown\)/.test(l)), h.logs.join(' | '));
+    /* eDrive Live stops: after 10 s the battery unit is asked, and its charge shown */
+    shared = undefined;
+    for (let i = 0; i < 12; i++) { h.tick(1000); await wait(40); }
+    await wait(150);
+    assert.strictEqual(lastTick(engine).needs.hvsoc, true, 'no charge shared for 10 s: the battery unit is asked');
+    raw = h.svc.reader.raw(1000000 + 12000);
+    assert.strictEqual(raw.socPct, 39, 'the battery unit\'s');
+    /* a petrol car: never asked */
+    const e2 = fakeEngine(ENGINE);
+    const h2 = harness(t, { style: 'toro', beemFlash: 'off', engine: 'petrol' }, null, { engine: e2, providers: { tick: () => ({}), sharing: () => false, release() {} } });
+    h2.on.ready(); h2.condition('FAHREN'); h2.rpm(1500);
+    await wait(300);
+    assert.strictEqual(lastTick(e2).needs.hvsoc, false);
 });

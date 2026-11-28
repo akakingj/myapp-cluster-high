@@ -543,9 +543,11 @@ function createReader(opts) {
             put('evRangeKm', typeof ev === 'number' && ev >= 0 && ev <= 1500 ? ev : undefined, now);
         } else if (service === 'de.bmw.infotainment.drivingexcitement.Efficiencytainment2' &&
                    field === 'statusChargeOfBatteryHybrid') {
-            /* the drive battery's charge as the car displays it, in per cent; over 100 is none (same source) */
+            /* the drive battery's charge "as the car displays it", in per cent; over 100 is none (same source). NOT the
+               charge shown (0.29.4): a plug-in hybrid at 39 % read about 90 here (a tester's car, 2026-11-28). Kept
+               as socBus for the Logs only; the gauges' charge is eDrive Live's or the battery unit's (src/car/engine.js) */
             var soc = value && value.displayChargingConditionHighVoltageStorage;
-            put('socPct', typeof soc === 'number' && soc >= 0 && soc <= 100 ? soc : undefined, now);
+            put('socBus', typeof soc === 'number' && soc >= 0 && soc <= 100 ? soc : undefined, now);
         } else if (service === 'de.bmw.infotainment.drivingexcitement.Efficiencytainment2' &&
                    field === 'statusBatteryTemperature') {
             /* the drive battery's temperature: raw - 50 C, 255 none
@@ -703,6 +705,7 @@ function createReader(opts) {
             /* held: both move slowly and are polled every 5 s */
             evRangeKm: held('evRangeKm'),
             socPct: held('socPct'),
+            socBus: held('socBus'),
             hvTempC: held('hvTempC'),
             ambientC: held('ambientC'),
             avgL100: held('avgL100'),

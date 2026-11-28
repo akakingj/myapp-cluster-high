@@ -15,12 +15,14 @@ Branches: `main` is what the Store installs; `test` is worked on, checked on the
 
 ## AK 0.29.4
 
-- **A plug-in hybrid's battery charge from eDrive Live too**, as AK Cluster Layouts takes it: the charge gauge showed
-  nothing on a plug-in hybrid (a tester's report), this app reading only the bus's
-  `Efficiencytainment2.statusChargeOfBatteryHybrid` (`displayChargingConditionHighVoltageStorage`, its scale never
-  confirmed on a car: Redline only logs it). Now eDrive Live is asked for the charge with the battery's power
-  (`values: ['soc']` in its wanted file) and its `values.soc.pct` feeds the gauges; the bus's still counts where it
-  comes. (Layouts also reads the battery unit itself, 22 DDBC, when eDrive Live isn't running; not here yet.)
+- **A plug-in hybrid's battery charge as AK Cluster Layouts takes it**: eDrive Live's while it shares one (`values:
+  ['soc']` in its wanted file), else the battery unit's own, 22 `DDBC` (0.1 %; a fully electric car's `E5CE`), from
+  the battery unit (SME `0x07`, read only, every 15 s, asked only after eDrive Live has shared none for 10 s: two apps
+  asking it in turn left both without answers). Until now the gauge took the bus's
+  `Efficiencytainment2.statusChargeOfBatteryHybrid` (`displayChargingConditionHighVoltageStorage`): on a tester's
+  plug-in hybrid at 39 % it read about 90 (the owner, 2026-11-28). It is not shown any more, only logged beside the
+  charge shown: `charge: 39 % from the battery unit; the bus's statusChargeOfBatteryHybrid 90 (not shown)` (on a
+  change, at most once a minute). Sources in `docs/ENGINE-READINGS.md` (eDrive's and Redline's own reads).
 
 ## AK 0.29.3
 

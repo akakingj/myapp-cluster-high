@@ -118,7 +118,7 @@
       "_broadcasts": [
         "sendTasuResponse"
       ],
-      "_optional": "Oil pressure, intake air temperature, battery voltage, fuel pressures, the boost target and the fuel tank level read from the engine unit (read only), for cars without BeeM-Flash"
+      "_optional": "Oil pressure, intake air temperature, battery voltage, fuel pressures, the boost target and the fuel tank level read from the engine unit, and a plug-in hybrid's battery charge from the battery unit (read only)"
     }
   },
   "settings": [

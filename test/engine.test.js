@@ -100,11 +100,11 @@ test('every identifier asked is in the table of where it is published, and the t
     const ids = Engine.identifiers();
     Object.keys(ids).forEach((name) => ids[name].forEach((id) => { asked[id] = true; }));
     assert.deepStrictEqual(Object.keys(asked).sort(), Object.keys(listed).sort());
-    assert.strictEqual(Object.keys(asked).length, 34);
+    assert.strictEqual(Object.keys(asked).length, 36);
     /* and the kit's own guard takes every one of them for a read, of the engine unit and nothing else - but the
-       gearbox oil's, of the gearbox unit (EGS 0x18) */
+       gearbox oil's, of the gearbox unit (EGS 0x18), and the battery's charge, of the battery unit (SME 0x07) */
     Object.keys(Engine.CANDIDATES).forEach((name) => Engine.CANDIDATES[name].forEach((cand) => {
-        const ecu = name === 'gearboxT' ? 0x18 : 0x12;
+        const ecu = name === 'gearboxT' ? 0x18 : name === 'hvSoc' ? 0x07 : 0x12;
         assert.strictEqual(cand.ecu, ecu, name);
         assert.ok(cand.timeoutMs <= 1000, 'a short wait: ' + name);
         if (cand.obd) assert.doesNotThrow(() => check(ecu, 0x01, [parseInt(cand.obd, 16)], false));
@@ -127,11 +127,27 @@ test('the gearbox oil, from the gearbox unit (EGS 0x18, DID 6000: + 40), only wh
     e.stop(); d.stop();
 });
 
+test('a plug-in hybrid\'s charge, from the battery unit (SME 0x07, DID DDBC: 0.1 %), only while wanted, as Cluster Layouts reads it (0.29.4)', async () => {
+    const c = car((key) => (key === '22 DDBC' ? be(390, 2) : null)), logs = [], o = opener(c, logs), clock = { t: 1000000 };
+    const e = Engine.create({ open: o.open, log: o.log, now: () => clock.t });
+    await run(e, clock, { allowed: true, needs: { hvsoc: false } }, null);
+    assert.strictEqual(c.sent.length, 0, 'not wanted (eDrive Live shares it, or no electric range): never asked');
+    assert.ok(await run(e, clock, { allowed: true, needs: { hvsoc: true } }, () => e.values(clock.t).socPct !== undefined), logs.join(' | '));
+    assert.ok(Math.abs(e.values(clock.t).socPct - 39) < 1e-9, String(e.values(clock.t).socPct));
+    c.sent.forEach((r) => assert.deepStrictEqual([r.target, r.sid, r.key], [0x07, 0x22, '22 DDBC']));
+    assert.ok(logs.some((l) => /battery charge from the battery unit \(DDBC\)/.test(l)), logs.join(' | '));
+    /* a diesel plug-in hybrid's battery unit is the same: asked too */
+    const d = Engine.create({ open: opener(car((key) => (key === '22 DDBC' ? be(805, 2) : null)), []).open, now: () => clock.t });
+    assert.ok(await run(d, clock, { allowed: true, diesel: true, needs: { hvsoc: true } }, () => d.values(clock.t).socPct !== undefined));
+    assert.ok(Math.abs(d.values(clock.t).socPct - 80.5) < 1e-9);
+    e.stop(); d.stop();
+});
+
 test('the readings, decoded: oil pressure over ambient, intake air, battery, boost over the barometer', async () => {
     const c = car(B58), logs = [], o = opener(c, logs), clock = { t: 1000000 };
     const e = Engine.create({ open: o.open, log: o.log, now: () => clock.t });
     assert.deepStrictEqual(e.values(clock.t), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
-        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined, tankPct: undefined, gearboxC: undefined });
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined, tankPct: undefined, gearboxC: undefined, socPct: undefined });
     assert.ok(await run(e, clock, { allowed: true, needs: ALL }, () => {
         const v = e.values(clock.t);
         return v.oilBar !== undefined && v.iatC !== undefined && v.batteryV !== undefined && v.boostBar !== undefined;
@@ -321,7 +337,7 @@ test('no diagnostic link on the head unit: said once, tried again a minute later
     const none = Engine.create({ now: () => 0 });
     none.tick(0, { allowed: true, needs: ALL });
     assert.deepStrictEqual(none.values(0), { oilBar: undefined, iatC: undefined, batteryV: undefined, boostBar: undefined,
-        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined, tankPct: undefined, gearboxC: undefined });
+        pedalPct: undefined, throttlePct: undefined, timingDeg: undefined, boostTargetBar: undefined, hpfpBar: undefined, lpfpBar: undefined, tankPct: undefined, gearboxC: undefined, socPct: undefined });
     e.stop(); none.stop();
 });
 

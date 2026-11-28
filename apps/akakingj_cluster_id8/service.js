@@ -245,6 +245,10 @@ function start(host, deps) {
     var needs = {};              /* what the style on the cluster shows of those readings */
     var feedSaid = null;
     var engineRanAt = -Infinity; /* when the engine was last seen running */
+    /* (0.29.4) a plug-in hybrid's charge: eDrive Live's while it shares one, else the battery unit's (src/car/engine.js,
+       asked only then: two apps asking the battery unit in turn left both without answers); the bus's is logged only */
+    var SOC_ALONE_MS = 10000;
+    var socSharedAt = -Infinity, socLogAt = -Infinity, socSaid = '';
     /* when BeeM-Flash last fed on this head unit, kept across starts (readings.json) */
     var memoFile = host.dataDir ? path.join(host.dataDir, 'readings.json') : null;
     var beemFedAt = -Infinity, beemSavedAt = -Infinity;
@@ -475,6 +479,7 @@ function start(host, deps) {
                     reader.setFeed('lpfpBar', ev.lpfpBar, now());
                     reader.setFeed('tankPct', ev.tankPct, now());
                 }
+                if (now() - socSharedAt > SOC_ALONE_MS) reader.setFeed('socPct', ev.socPct, now());
                 /* (the reader uses it only while the Sport Display sends no boost of its own) */
                 reader.setBoostBar(ev.boostBar, now());
             } catch (e) { log.warn('engine: ' + e); }
@@ -487,10 +492,18 @@ function start(host, deps) {
                 reader.setFeed('kwOut', pw.kwOut, now());
                 reader.setFeed('kwIn', pw.kwIn, now());
                 /* (and its charge: the bus's statusChargeOfBatteryHybrid alone did not show on a plug-in hybrid, 0.29.4) */
+                if (typeof pw.soc === 'number' && isFinite(pw.soc)) socSharedAt = now();
                 reader.setFeed('socPct', pw.soc, now());
             } catch (e) { log.warn('providers: ' + e); }
 
             var raw = reader.raw(now());
+            /* the charge shown and where from, and the bus's beside it (not shown: it read ~90 at 39 %), on a change, at most once a minute */
+            if (powerable && now() - socLogAt > 60000) {
+                var socFrom = now() - socSharedAt <= SOC_ALONE_MS ? 'eDrive Live' : typeof raw.socPct === 'number' ? 'the battery unit' : 'none';
+                var socLine = 'charge: ' + (typeof raw.socPct === 'number' ? Math.round(raw.socPct) + ' %' : '-') + ' from ' + socFrom +
+                    '; the bus\'s statusChargeOfBatteryHybrid ' + (typeof raw.socBus === 'number' ? raw.socBus : '-') + ' (not shown)';
+                if (socLine !== socSaid) { socSaid = socLine; socLogAt = now(); log.info(socLine); }
+            }
             try { lookForPhev(raw); lookForBoostTop(raw); lookForMode(raw); } catch (e) { log.warn('vehicle: ' + e); }
             if (theme) raw = smoother.apply(raw, now(), Smooth.TAU[theme.settings.smoothing] || 0, theme.glide);
             var car = carState(raw);
@@ -544,7 +557,9 @@ function start(host, deps) {
                       tank: !!shows.tank,
                       boost: !!shows.boost && !reader.hasBusBoost(now(), BUS_BOOST_MS),
                       /* the gearbox oil, from the gearbox unit while the car's BasicDataSet gives none (a minute) */
-                      gearbox: !!shows.gearbox && !reader.hasBusGearbox(now(), 60000) };
+                      gearbox: !!shows.gearbox && !reader.hasBusGearbox(now(), 60000),
+                      /* a plug-in hybrid's charge, from the battery unit while eDrive Live shares none */
+                      hvsoc: powerable && now() - socSharedAt > SOC_ALONE_MS };
             var runs = typeof raw.rpm === 'number' && raw.rpm >= ENGINE_RUNS_RPM;
             if (runs) engineRanAt = now();
             /* running, or stopped at a light with drive readiness still on (a plug-in hybrid or an electric
