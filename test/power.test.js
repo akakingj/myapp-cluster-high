@@ -96,19 +96,31 @@ test('the car\'s own plug-in hybrid modes, by name or number', () => {
     assert.strictEqual(r.raw(9000, 60).kw, undefined, 'eDrive Live stopping leaves no power');
 });
 
+test('the charge eDrive Live shares reaches the battery gauge (0.29.4): the reader\'s socPct fed', () => {
+    const V = require('../src/car/vehicle.js');
+    const r = V.createReader();
+    r.setFeed('socPct', 63.5, 1000);
+    assert.strictEqual(r.raw(1100).socPct, 63.5);
+});
+
 test('eDrive Live\'s power, from the shared folder: asked for while wanted, its own wanted file gone when not', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-'));
     let t = 100000;
     const p = Providers.create({ dir, now: () => t, log: { info() {}, warn() {} } });
     assert.deepStrictEqual(p.tick(false), {});
     assert.ok(!fs.existsSync(path.join(dir, 'wanted-akakingj_cluster_id8.json')), 'not wanted: not asked');
-    assert.deepStrictEqual(p.tick(true), { kw: undefined, kwOut: undefined, kwIn: undefined });
+    assert.deepStrictEqual(p.tick(true), { kw: undefined, kwOut: undefined, kwIn: undefined, soc: undefined });
     const want = JSON.parse(fs.readFileSync(path.join(dir, 'wanted-akakingj_cluster_id8.json'), 'utf8'));
     assert.strictEqual(want.power, true);
+    assert.deepStrictEqual(want.values, ['soc'], 'the charge asked too (0.29.4)');
     /* eDrive Live answers */
-    fs.writeFileSync(path.join(dir, 'edrive.json'), JSON.stringify({ t: Date.now(), power: { kw: -14.2, outMax: 110, inMax: 45 } }));
+    fs.writeFileSync(path.join(dir, 'edrive.json'), JSON.stringify({ t: Date.now(), power: { kw: -14.2, outMax: 110, inMax: 45 }, values: { soc: { pct: 63.5 } } }));
     t += 300;
-    assert.deepStrictEqual(p.tick(true), { kw: -14.2, kwOut: 110, kwIn: 45 });
+    assert.deepStrictEqual(p.tick(true), { kw: -14.2, kwOut: 110, kwIn: 45, soc: 63.5 });
+    /* (a file with the charge alone counts too) */
+    fs.writeFileSync(path.join(dir, 'edrive.json'), JSON.stringify({ t: Date.now(), values: { soc: { pct: 40 } } }));
+    t += 300;
+    assert.deepStrictEqual(p.tick(true), { kw: undefined, kwOut: undefined, kwIn: undefined, soc: 40 });
     /* a stale file is none; another app's wanted file is not a provider */
     fs.writeFileSync(path.join(dir, 'edrive.json'), JSON.stringify({ t: Date.now() - 5000, power: { kw: -3 } }));
     fs.writeFileSync(path.join(dir, 'wanted-other.json'), JSON.stringify({ t: Date.now(), power: { kw: 9 } }));

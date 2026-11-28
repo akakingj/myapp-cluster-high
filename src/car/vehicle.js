@@ -624,7 +624,7 @@ function createReader(opts) {
        feed, src/car/feed.js, where a host turns one on); a plug-in hybrid's
        battery power and its limits (kW), from eDrive Live (src/car/providers.js).
        They age out like any other, so a source that stops leaves dashes, not a number. */
-    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg', 'boostTargetBar', 'hpfpBar', 'lpfpBar', 'tankPct', 'kw', 'kwOut', 'kwIn',
+    var FED = ['iatC', 'batteryV', 'pedalPct', 'throttlePct', 'timingDeg', 'boostTargetBar', 'hpfpBar', 'lpfpBar', 'tankPct', 'kw', 'kwOut', 'kwIn', 'socPct',
                'gearboxC'];
     function setFeed(key, value, now) {
         if (FED.indexOf(key) >= 0 && typeof value === 'number' && isFinite(value)) {

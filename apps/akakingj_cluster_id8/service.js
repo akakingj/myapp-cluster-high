@@ -486,6 +486,8 @@ function start(host, deps) {
                 reader.setFeed('kw', pw.kw, now());
                 reader.setFeed('kwOut', pw.kwOut, now());
                 reader.setFeed('kwIn', pw.kwIn, now());
+                /* (and its charge: the bus's statusChargeOfBatteryHybrid alone did not show on a plug-in hybrid, 0.29.4) */
+                reader.setFeed('socPct', pw.soc, now());
             } catch (e) { log.warn('providers: ' + e); }
 
             var raw = reader.raw(now());

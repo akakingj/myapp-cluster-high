@@ -10,6 +10,9 @@
  *
  *   power.kw              the high-voltage battery's power (kW, - charging)
  *   power.outMax, .inMax  the battery's discharge and charge limits (kW)
+ *   values.soc.pct        the battery's charge (%; 0.29.4: asked too, as Cluster Layouts asks it - the bus's own
+ *                         statusChargeOfBatteryHybrid, which this app read alone till then, did not show on a
+ *                         plug-in hybrid)
  *
  * A file older than STALE_MS counts as gone. Read only otherwise; nothing
  * of the car's is asked. Never throws. Node 8.
@@ -41,7 +44,7 @@ function create(opts) {
             if (!/\.json$/.test(n) || /^wanted(-[\w.-]+)?\.json$/.test(n)) return;   /* (what apps want: not a provider) */
             try {
                 var j = JSON.parse(fs.readFileSync(path.join(dir, n), 'utf8'));
-                if (j && known(j.t) && Date.now() - j.t < STALE_MS && j.power) next[n] = j;
+                if (j && known(j.t) && Date.now() - j.t < STALE_MS && (j.power || j.values)) next[n] = j;
             } catch (e) { /* half written: the next scan */ }
         });
         entries = next;
@@ -64,7 +67,7 @@ function create(opts) {
         try {
             try { fs.mkdirSync(dir); fs.chmodSync(dir, parseInt('1777', 8)); } catch (e) { if (e.code !== 'EEXIST') throw e; }
             var tmp = own + '.' + process.pid + '.tmp';
-            fs.writeFileSync(tmp, JSON.stringify({ t: Date.now(), power: true }), { mode: parseInt('644', 8) });
+            fs.writeFileSync(tmp, JSON.stringify({ t: Date.now(), power: true, values: ['soc'] }), { mode: parseInt('644', 8) });
             fs.renameSync(tmp, own);
             holding = true;
         } catch (e) { if (!warned) { warned = true; log.warn('providers: ' + (e && e.message || e)); } }
@@ -76,7 +79,7 @@ function create(opts) {
         /*
          * Once a frame. wanted: a Power % gauge could show now (a plug-in
          * hybrid or an electric car, our layers up). Returns { kw, kwOut,
-         * kwIn } (undefined where nobody shares them).
+         * kwIn, soc } (undefined where nobody shares them).
          */
         tick: function (wanted) {
             var now = nowFn();
@@ -84,9 +87,10 @@ function create(opts) {
             ask(now);
             scan(now);
             return {
-                kw: first(function (e) { return e.power.kw; }),
-                kwOut: first(function (e) { return e.power.outMax; }),
-                kwIn: first(function (e) { return e.power.inMax; })
+                kw: first(function (e) { return e.power && e.power.kw; }),
+                kwOut: first(function (e) { return e.power && e.power.outMax; }),
+                kwIn: first(function (e) { return e.power && e.power.inMax; }),
+                soc: first(function (e) { return e.values && e.values.soc && e.values.soc.pct; })
             };
         },
         release: release,

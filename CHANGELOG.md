@@ -13,6 +13,15 @@ what to follow, in place of **main**.
 
 Branches: `main` is what the Store installs; `test` is worked on, checked on the car, then moved to `main`.
 
+## AK 0.29.4
+
+- **A plug-in hybrid's battery charge from eDrive Live too**, as AK Cluster Layouts takes it: the charge gauge showed
+  nothing on a plug-in hybrid (a tester's report), this app reading only the bus's
+  `Efficiencytainment2.statusChargeOfBatteryHybrid` (`displayChargingConditionHighVoltageStorage`, its scale never
+  confirmed on a car: Redline only logs it). Now eDrive Live is asked for the charge with the battery's power
+  (`values: ['soc']` in its wanted file) and its `values.soc.pct` feeds the gauges; the bus's still counts where it
+  comes. (Layouts also reads the battery unit itself, 22 DDBC, when eDrive Live isn't running; not here yet.)
+
 ## AK 0.29.3
 
 - The Logs are this app's again: how it works (the owner: research into the car's signals is AK Cluster Info's, its Test
